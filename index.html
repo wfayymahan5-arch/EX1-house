@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090910">
+<title>EX1 HOUSE | Gaming Arena</title>
+<style>
+:root{--bg:#090910;--panel:#141420;--panel2:#1b1b2a;--purple:#9b5cff;--cyan:#57e6ff;--text:#f4f1ff;--muted:#aaa6bc;--line:#2c2940}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% -10%,#38205d 0,transparent 38%),var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
+a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}.wrap{max-width:1120px;margin:auto;padding:0 20px}
+header{position:sticky;top:0;z-index:5;background:#090910eF;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+.nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{font-size:23px;font-weight:900;letter-spacing:1px;direction:ltr}.brand b{color:var(--purple)}.links{display:flex;gap:22px;color:var(--muted);font-size:14px}.links a:hover{color:white}
+.btn{border:0;border-radius:12px;padding:12px 18px;background:linear-gradient(110deg,#8d4bff,#bb63ff);color:white;font-weight:800;box-shadow:0 8px 28px #8d4bff35}.btn.secondary{background:#242236;border:1px solid #40395a;box-shadow:none}.hero{padding:72px 0 46px;display:grid;grid-template-columns:1.25fr .75fr;gap:30px;align-items:center}.eyebrow{color:var(--cyan);font-size:12px;letter-spacing:3px;font-weight:bold;direction:ltr;text-align:right}.hero h1{font-size:clamp(38px,6vw,66px);line-height:1.12;margin:16px 0;direction:ltr;text-align:right}.hero h1 span{color:var(--purple);text-shadow:0 0 32px #9b5cff65}.hero p{color:var(--muted);line-height:2;max-width:600px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:25px}.hero-card{background:linear-gradient(145deg,#201934,#11111c 70%);border:1px solid #49336c;border-radius:24px;padding:26px;min-height:260px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 20px 70px #0008}.hero-mark{font-size:62px;font-weight:1000;letter-spacing:-5px;direction:ltr;color:white;text-shadow:4px 4px 0 var(--purple),0 0 35px #9b5cff}.hero-card small{color:var(--cyan);letter-spacing:2px;direction:ltr}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:10px 0 54px}.stat,.card,.wallet{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px}.stat strong{display:block;font-size:24px;margin-bottom:5px}.stat span,.muted{color:var(--muted);font-size:13px}.section{padding:22px 0 48px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:18px}.section h2{font-size:24px;margin:0 0 7px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{position:relative;overflow:hidden}.tag{display:inline-block;border:1px solid #59417e;color:#cba9ff;border-radius:30px;padding:5px 10px;font-size:11px}.card h3{margin:14px 0 8px}.details{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin:17px 0}.card .btn{width:100%}.wallet{display:flex;align-items:center;justify-content:space-between;gap:15px;background:linear-gradient(110deg,#211638,#151522)}.wallet strong{font-size:23px;color:var(--cyan)}.notice{border:1px solid #66502a;background:#241d12;color:#f4d69b;padding:14px 16px;border-radius:14px;line-height:1.9;font-size:13px;margin:24px 0}.footer{border-top:1px solid var(--line);padding:25px 0;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.modal{display:none;position:fixed;inset:0;background:#000b;z-index:10;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.dialog{width:min(440px,100%);background:#171624;border:1px solid #51406f;border-radius:20px;padding:24px}.dialog h3{margin-top:0}.dialog input{width:100%;padding:13px;margin:8px 0 14px;border-radius:10px;border:1px solid var(--line);background:#0d0d16;color:white}.dialog .btn{width:100%;margin-top:8px}.toast{position:fixed;bottom:20px;left:20px;background:#222035;border:1px solid #5c477e;padding:13px 18px;border-radius:12px;display:none;z-index:20}.toast.show{display:block}
+@media(max-width:760px){.links{display:none}.hero{grid-template-columns:1fr;padding-top:48px}.hero-card{min-height:190px}.grid{grid-template-columns:1fr}.stats{gap:8px}.stat{padding:13px}.stat strong{font-size:19px}.wallet{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header><div class="wrap nav">
+  <a class="brand" href="#"><b>EX1</b> HOUSE</a>
+  <nav class="links"><a href="#tournaments">مسابقات</a><a href="#wallet">کیف امتیاز</a><a href="#about">درباره ما</a></nav>
+  <button class="btn secondary" onclick="openLogin()">ورود / ثبت‌نام</button>
+</div></header>
+<main class="wrap">
+<section class="hero">
+ <div><div class="eyebrow">CALL OF DUTY MOBILE COMMUNITY</div>
+  <h1>ENTER THE <span>ARENA.</span></h1>
+  <p>به EX1 HOUSE خوش اومدی؛ جایی برای رقابت دوستانه، کاستوم‌های بتل‌رویال و ثبت رکوردهای بهتر. تیم خودت رو جمع کن و وارد میدان شو.</p>
+  <div class="actions"><a class="btn" href="#tournaments">دیدن مسابقات</a><a class="btn secondary" href="#about">قوانین و راهنما</a></div>
+ </div>
+ <div class="hero-card"><small>EX1 HOUSE • EST. 2026</small><div class="hero-mark">EX1</div><div style="font-weight:bold;letter-spacing:3px;direction:ltr">PLAY • COMPETE • REPEAT</div></div>
+</section>
+<section class="stats">
+ <div class="stat"><strong id="count">03</strong><span>مسابقه نمایشی</span></div>
+ <div class="stat"><strong>BR</strong><span>حالت اصلی</span></div>
+ <div class="stat"><strong>FREE</strong><span>ورود آزمایشی رایگان</span></div>
+</section>
+<section class="section" id="tournaments">
+ <div class="section-head"><div><h2>مسابقات فعال</h2><div class="muted">یک مسابقه رو انتخاب کن و ثبت‌نام آزمایشی انجام بده.</div></div><span class="tag">SEASON 01</span></div>
+ <div class="grid" id="cards"></div>
+</section>
+<section class="section" id="wallet">
+ <div class="section-head"><div><h2>کیف امتیاز من</h2><div class="muted">امتیازهای نمایشی برای تست تجربه کاربری.</div></div></div>
+ <div class="wallet"><div><div class="muted">موجودی امتیاز آزمایشی</div><strong id="points">1,000 XP</strong></div><button class="btn secondary" onclick="toast('در نسخه آزمایشی، امتیاز قابل خرید یا برداشت نیست.')">جزئیات امتیاز</button></div>
+</section>
+<div class="notice">نسخه آزمایشی EX1 HOUSE است: ثبت‌نام‌ها و امتیازها فقط روی همین مرورگر ذخیره می‌شوند. این نسخه پرداخت، دریافت وجه، برداشت پول یا جایزه نقدی ندارد.</div>
+<section class="section" id="about"><h2>چطور شرکت کنم؟</h2><p class="muted" style="line-height:2">۱) وارد حساب آزمایشی شو. ۲) مسابقه موردنظرت رو انتخاب کن. ۳) ثبت‌نام کن و جزئیات لابی رو از برگزارکننده دریافت کن. قوانین هر مسابقه باید قبل از شروع مشخص و برای همه یکسان باشه.</p></section>
+</main>
+<footer><div class="wrap footer"><span>© 2026 EX1 HOUSE</span><span>ساخته‌شده برای جامعه بازیکنان CODM</span></div></footer>
+<div class="modal" id="login"><div class="dialog"><h3>ورود به EX1 HOUSE</h3><p class="muted">برای نسخه آزمایشی، فقط یک نام نمایشی وارد کن.</p><input id="username" maxlength="20" placeholder="نام بازیکن"><button class="btn" onclick="login()">ادامه</button><button class="btn secondary" onclick="closeLogin()">بستن</button></div></div>
+<div class="toast" id="toast"></div>
+<script>
+const tournaments=[
+ {id:1,name:"BR • ISOLATED NIGHT",map:"Isolated",mode:"Squad",slots:"32 بازیکن",time:"جمعه • ۲۰:۰۰"},
+ {id:2,name:"BR • ALCAZTRAZ RUN",map:"Alcatraz",mode:"Squad",slots:"20 بازیکن",time:"شنبه • ۱۸:۳۰"},
+ {id:3,name:"BR • SOLO SHOWDOWN",map:"Isolated",mode:"Solo",slots:"40 بازیکن",time:"یکشنبه • ۱۹:۰۰"}
+];
+const joined=JSON.parse(localStorage.getItem("ex1_joined")||"[]");
+function render(){document.getElementById("cards").innerHTML=tournaments.map(t=>`<article class="card"><span class="tag">${t.mode}</span><h3>${t.name}</h3><div class="muted">نقشه: ${t.map}</div><div class="details"><span>${t.slots}</span><span>${t.time}</span></div><button class="btn ${joined.includes(t.id)?"secondary":""}" onclick="join(${t.id})">${joined.includes(t.id)?"ثبت‌نام شد ✓":"ثبت‌نام رایگان"}</button></article>`).join("");}
+function openLogin(){document.getElementById("login").classList.add("show")}
+function closeLogin(){document.getElementById("login").classList.remove("show")}
+function login(){const n=document.getElementById("username").value.trim();if(!n)return toast("اول یه نام بازیکن وارد کن.");localStorage.setItem("ex1_user",n);closeLogin();toast("خوش اومدی، "+n+"!")}
+function join(id){if(!localStorage.getItem("ex1_user")){openLogin();return}if(!joined.includes(id)){joined.push(id);localStorage.setItem("ex1_joined",JSON.stringify(joined));render();toast("ثبت‌نام آزمایشی انجام شد! موفق باشی 🎮")}else toast("قبلاً توی این مسابقه ثبت‌نام کردی.")}
+let toastTimer;function toast(s){const el=document.getElementById("toast");el.textContent=s;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2600)}
+render();
+</script>
+</body></html>
