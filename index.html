@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
-<head>
+<head><link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#090909">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#090910">
@@ -65,4 +66,10 @@ function join(id){if(!localStorage.getItem("ex1_user")){openLogin();return}if(!j
 let toastTimer;function toast(s){const el=document.getElementById("toast");el.textContent=s;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2600)}
 render();
 </script>
-</body></html>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js");
+  });
+}
+</script></body></html>
