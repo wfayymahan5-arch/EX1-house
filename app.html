@@ -74,7 +74,7 @@
 <footer>EX1 LEGEND · جامعه‌ی رقابت سالم</footer>
 <div class="modal" id="authModal"><div class="dialog"><h3 id="authTitle">ورود به EX1 LEGEND</h3><p id="authHint" class="muted">با ایمیل و رمز عبور وارد شو یا حساب جدید بساز.</p><form id="authForm"><input id="authName" class="field" maxlength="30" placeholder="نام نمایشی" hidden><input id="authEmail" class="field" type="email" maxlength="254" autocomplete="email" placeholder="ایمیل" required><input id="authPassword" class="field" type="password" minlength="8" maxlength="72" autocomplete="current-password" placeholder="رمز عبور (حداقل ۸ نویسه)" required><button class="btn" id="authSubmit" type="submit">ورود</button></form><button class="btn secondary" id="authSwitch" type="button">ساخت حساب جدید</button><button class="btn ghost" type="button" onclick="closeAuth()">بستن</button><p class="muted">رمز عبورت را در اختیار هیچ‌کس قرار نده و آن را در چت ارسال نکن.</p></div></div>
 <div class="modal" id="profileEditorModal"><div class="dialog"><h3>ویرایش پروفایل</h3><form id="profileForm"><label>نام نمایشی<input class="field" id="profileName" maxlength="30" required></label><label>نام کاربری<input class="field" id="profileHandle" maxlength="24" placeholder="اختیاری"></label><label>UID کالاف دیوتی موبایل<input class="field" id="profileGameUid" maxlength="32" placeholder="شناسهٔ بازیکن در بازی"></label><button class="btn" type="submit">ذخیره تغییرات</button></form><button class="btn ghost" type="button" data-close-modal="profileEditorModal">بستن</button></div></div><div class="modal" id="settingsModal"><div class="dialog"><h3>تنظیمات EX1</h3><button class="btn secondary" id="showAppearanceSettings" type="button">تنظیمات ظاهری</button><div id="appearanceSettings" hidden><label>تم رنگی<select class="field" id="userTheme"><option value="soft">نرم و متعادل</option><option value="blue">آبی</option><option value="green">سبز</option><option value="amber">کهربایی</option></select></label><label>فونت برنامه<select class="field" id="userFont"><option value="tahoma">Tahoma</option><option value="system">فونت سیستم</option><option value="arial">Arial</option><option value="mono">Monospace</option></select></label><button class="btn small" id="saveUserSettings" type="button">ذخیره تنظیمات</button><p class="muted" id="userSettingsMessage">تنظیمات روی همین دستگاه ذخیره می‌شوند.</p></div><button class="btn secondary" id="showBlockedSettings" type="button">حساب‌های مسدودشده</button><div id="blockedSettings" hidden><div id="blockedUsers" class="user-list"><div class="empty">در حال دریافت فهرست...</div></div></div><button class="btn secondary" id="logoutButton" type="button">خروج از حساب</button><button class="btn ghost" type="button" data-close-modal="settingsModal">بستن</button></div></div>
-<div class="modal" id="walletModal"><div class="dialog"><h3>استار هدیه EX1</h3><div class="wallet-modal-balance"><span>موجودی فعلی</span><strong id="walletModalBalance">۰ <small>استار هدیه</small></strong></div><p class="muted">استار هدیه غیرنقدی است؛ قابل خرید، انتقال، فروش، برداشت یا تبدیل به پول نیست و برای ورودی پولی مسابقات یا دریافت جایزه نقدی استفاده نمی‌شود.</p><div class="wallet-history"><h4>تاریخچه دفترکل استار</h4><div id="walletHistory" class="empty">در حال دریافت تاریخچه...</div></div><button class="btn ghost" type="button" data-close-modal="walletModal">بستن</button></div></div><div class="modal" id="joinRoomModal"><div class="dialog"><h3>ثبت‌نام در روم</h3><p id="joinRoomSummary" class="muted"></p><div class="panel"><strong>نوع حضور</strong><p>ثبت‌نام فقط با تیم واقعی انجام می‌شود. کاپیتان تیم باید ثبت‌نام کند و تعداد اعضا باید با نوع روم برابر باشد.</p><small class="muted">برای دعوت اعضا از بخش «تیم من» استفاده کن.</small></div><p class="muted">ثبت‌نام تیم در دیتابیس ذخیره می‌شود؛ هیچ پرداخت یا جایزهٔ نقدی در این برنامه فعال نیست.</p><button class="btn" id="confirmRoomJoin" type="button">تأیید و ثبت‌نام</button><button class="btn ghost" type="button" data-close-modal="joinRoomModal">بازگشت</button></div></div><div class="toast" id="toast"></div>
+<div class="modal" id="walletModal"><div class="dialog"><h3>استار هدیه EX1</h3><div class="wallet-modal-balance"><span>موجودی فعلی</span><strong id="walletModalBalance">۰ <small>استار هدیه</small></strong></div><p class="muted">استار هدیه غیرنقدی است؛ قابل خرید، انتقال، فروش، برداشت یا تبدیل به پول نیست و برای ورودی پولی مسابقات یا دریافت جایزه نقدی استفاده نمی‌شود.</p><div class="wallet-history"><h4>تاریخچه دفترکل استار</h4><div id="walletHistory" class="empty">در حال دریافت تاریخچه...</div></div><button class="btn ghost" type="button" data-close-modal="walletModal">بستن</button></div></div><div class="modal" id="joinRoomModal"><div class="dialog"><h3>ثبت‌نام در روم</h3><p id="joinRoomSummary" class="muted"></p><div class="panel"><strong>چطور شرکت می‌کنی؟</strong><p>لازم نیست از قبل تیم داشته باشی. ثبت‌نام انفرادی کن تا سیستم به‌ترتیب بازیکنان را در تیم‌های کامل دو یا چهار نفره قرار دهد.</p><small class="muted">اگر تیم کامل خودت را داری، کاپیتان می‌تواند گزینهٔ ثبت‌نام با تیم را انتخاب کند.</small></div><p id="soloJoinProgress" class="muted"></p><button class="btn" id="confirmRoomSoloJoin" type="button">ثبت‌نام انفرادی و تشکیل خودکار تیم</button><button class="btn secondary" id="confirmRoomJoin" type="button">ثبت‌نام با تیم کامل</button><p class="muted">ثبت‌نام رایگان است و هیچ پرداختی انجام نمی‌شود.</p><button class="btn ghost" type="button" data-close-modal="joinRoomModal">بازگشت</button></div></div><div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2.119.0/dist/umd/supabase.js'"></script>
 <script src="/supabase-config.js"></script>
 <script>
@@ -199,9 +199,30 @@ let activeRoomDetail=null;
 function openRoomJoin(room,slot){
  if(!currentUser){toast("برای ثبت‌نام ابتدا وارد حساب EX1 شو.");openAuth();return;}
  activeRoomForJoin={room,slot};
- $("joinRoomSummary").textContent="ثبت‌نام تیمی · "+(room.team_size===2?"تیم دونفره":"تیم چهارنفره")+" · رایگان؛ جایگاه توسط سرور رزرو می‌شود.";
+ $("joinRoomSummary").textContent="روم "+room.title+" · "+(room.team_size===2?"تیم دونفره":"تیم چهارنفره")+" · رایگان";
+ $("soloJoinProgress").textContent="با ثبت‌نام انفرادی، منتظر تکمیل گروه می‌مانی؛ به محض رسیدن تعداد لازم، تیم خودکار ساخته می‌شود.";
  $("joinRoomModal").classList.add("show");
 }
+$("confirmRoomSoloJoin").onclick=async()=>{
+ if(!activeRoomForJoin)return;
+ if(!currentUser){$("joinRoomModal").classList.remove("show");openAuth();return;}
+ const room=activeRoomForJoin.room;
+ const btn=$("confirmRoomSoloJoin");
+ btn.disabled=true;btn.textContent="در حال ثبت‌نام انفرادی...";
+ try{
+  const {data,error}=await sb.rpc("register_for_tournament_room_solo",{p_room_id:room.id});
+  if(error)throw error;
+  $("joinRoomModal").classList.remove("show");
+  if(data.status==="matched"){
+   toast("تیمت به‌صورت خودکار تشکیل شد! جایگاه "+Number(data.slot_number).toLocaleString("fa-IR"));
+  }else{
+   toast("ثبت‌نامت در صف تشکیل تیم ثبت شد؛ "+Number(data.players_waiting).toLocaleString("fa-IR")+" نفر از "+Number(data.team_size).toLocaleString("fa-IR")+" نفر.");
+  }
+  activeRoomForJoin=null;
+  await showRoomDetail(room);
+ }catch(err){toast(err.message||"ثبت‌نام انفرادی انجام نشد.");}
+ finally{btn.disabled=false;btn.textContent="ثبت‌نام انفرادی و تشکیل خودکار تیم";}
+};
 $("confirmRoomJoin").onclick=async()=>{
  if(!activeRoomForJoin)return;
  if(!currentUser){$("joinRoomModal").classList.remove("show");openAuth();return;}
@@ -216,11 +237,27 @@ $("confirmRoomJoin").onclick=async()=>{
  }catch(err){toast(err.message||"ثبت‌نام انجام نشد.");}
  finally{btn.disabled=false;btn.textContent="تأیید و ثبت‌نام";}
 };
+async function refreshSoloQueueStatus(roomId){
+ const box=$("soloQueueStatus");
+ if(!box)return;
+ if(!currentUser){box.hidden=true;return;}
+ box.hidden=false;box.textContent="در حال بررسی وضعیت ثبت‌نام انفرادی...";
+ const {data,error}=await sb.rpc("get_my_room_solo_status",{p_room_id:roomId});
+ if(error){box.textContent="وضعیت صف ثبت‌نام دریافت نشد.";return;}
+ if(!data?.registered){box.hidden=true;return;}
+ if(data.status==="matched"){
+  box.textContent="تیم تو تشکیل شد: "+(data.team_name||"تیم EX1")+" · جایگاه "+Number(data.slot_number).toLocaleString("fa-IR");
+ }else if(data.status==="waiting"){
+  box.textContent="در صف تشکیل تیم هستی: "+Number(data.players_waiting).toLocaleString("fa-IR")+" نفر از "+Number(data.team_size).toLocaleString("fa-IR")+" نفر جمع شده‌اند؛ "+Number(data.players_needed).toLocaleString("fa-IR")+" نفر دیگر لازم است.";
+ }else{
+  box.textContent="درخواست قبلی صف لغو شده است؛ در صورت باز بودن ظرفیت می‌توانی دوباره ثبت‌نام کنی.";
+ }
+}
 async function showRoomDetail(room){
  activeRoomDetail=room;
  const media=room.room_media_type==="video"&&room.room_video_url?'<video class="room-cover" controls playsinline preload="metadata" src="'+esc(room.room_video_url)+'"></video>':(room.room_image_url?'<img class="room-cover" src="'+esc(room.room_image_url)+'" alt="تصویر روم">':'<div class="room-cover room-cover-fallback"><img src="/room-arena-art.svg" alt="تصویر میدان رقابت EX1"><span>LEGEND ARENA</span></div>');
  const n=Math.max(1,Math.min(25,Number(room.max_teams)||25));
- $("roomDetail").innerHTML='<div class="room-detail-hero">'+media+'<div class="room-hero-shade"></div><div class="room-hero-title"><span class="room-live-tag">'+(room.status==="open"?"● ثبت‌نام فعال":"● ظرفیت تکمیل")+'</span><h2>'+esc(room.title)+'</h2><small>EX1 LEGEND · BATTLE ARENA</small></div><button class="room-back-btn" type="button" id="roomBackToList">بازگشت به روم‌ها</button></div><div class="room-summary-grid"><div><small>فرمت</small><strong>'+(room.team_size===2?"دو نفره":"چهار نفره")+'</strong></div><div><small>ثبت‌نام</small><strong>رایگان</strong></div><div><small>ظرفیت</small><strong>'+n+' تیم</strong></div></div><div class="room-tabs"><button class="active" type="button" data-room-tab="teams">تیم‌ها</button><button type="button" data-room-tab="rules">قوانین</button></div><div id="roomTeamsPanel"><div class="room-section-title"><span></span><div><h3>لیست تیم‌ها</h3><small>وضعیت جایگاه‌ها از دیتابیس به‌روز می‌شود</small></div></div><div class="muted" id="roomSlotsMessage">در حال دریافت جایگاه‌ها...</div><div class="team-slots" id="roomSlotsList"></div></div><div id="roomRulesPanel" class="room-rules" hidden><div class="room-section-title"><span></span><div><h3>قوانین و توضیحات</h3><small>قبل از ثبت‌نام قوانین روم را بخوان</small></div></div><div class="room-rules-copy">'+esc(room.rules||"قوانین اختصاصی برای این روم ثبت نشده است.")+'</div></div><div class="room-register-bar"><div><small>هزینه ثبت‌نام</small><strong>رایگان</strong></div><button type="button" id="roomMainJoin" '+(room.status!=="open"?"disabled":"")+'>ثبت‌نام در روم <b>⚡</b></button></div>';
+ $("roomDetail").innerHTML='<div class="room-detail-hero">'+media+'<div class="room-hero-shade"></div><div class="room-hero-title"><span class="room-live-tag">'+(room.status==="open"?"● ثبت‌نام فعال":"● ظرفیت تکمیل")+'</span><h2>'+esc(room.title)+'</h2><small>EX1 LEGEND · BATTLE ARENA</small></div><button class="room-back-btn" type="button" id="roomBackToList">بازگشت به روم‌ها</button></div><div class="room-summary-grid"><div><small>فرمت</small><strong>'+(room.team_size===2?"دو نفره":"چهار نفره")+'</strong></div><div><small>ثبت‌نام</small><strong>رایگان</strong></div><div><small>ظرفیت</small><strong>'+n+' تیم</strong></div></div><div class="room-tabs"><button class="active" type="button" data-room-tab="teams">تیم‌ها</button><button type="button" data-room-tab="rules">قوانین</button></div><div id="roomTeamsPanel"><div class="room-section-title"><span></span><div><h3>لیست تیم‌ها</h3><small>وضعیت جایگاه‌ها از دیتابیس به‌روز می‌شود</small></div></div><div class="muted" id="roomSlotsMessage">در حال دریافت جایگاه‌ها...</div><div class="team-slots" id="roomSlotsList"></div><div id="soloQueueStatus" class="muted" style="margin:12px 14px;padding:12px;border:1px solid #ffffff20;border-radius:12px;background:#ffffff08" hidden></div></div><div id="roomRulesPanel" class="room-rules" hidden><div class="room-section-title"><span></span><div><h3>قوانین و توضیحات</h3><small>قبل از ثبت‌نام قوانین روم را بخوان</small></div></div><div class="room-rules-copy">'+esc(room.rules||"قوانین اختصاصی برای این روم ثبت نشده است.")+'</div></div><div class="room-register-bar"><div><small>هزینه ثبت‌نام</small><strong>رایگان</strong></div><button type="button" id="roomMainJoin" '+(room.status!=="open"?"disabled":"")+'>ثبت‌نام در روم <b>⚡</b></button></div>';
  $("roomDetail").hidden=false;
  $("roomBackToList").onclick=()=>{$("roomDetail").hidden=true;document.getElementById("roomCards").scrollIntoView({behavior:"smooth",block:"start"});};
  $("roomDetail").querySelectorAll("[data-room-tab]").forEach(b=>b.onclick=()=>{const rules=b.dataset.roomTab==="rules";$("roomTeamsPanel").hidden=rules;$("roomRulesPanel").hidden=!rules;$("roomDetail").querySelectorAll("[data-room-tab]").forEach(x=>x.classList.toggle("active",x===b));});
@@ -232,6 +269,7 @@ async function showRoomDetail(room){
  $("roomMainJoin").disabled=free<=0||room.status!=="open";$("roomMainJoin").innerHTML=free>0?"ثبت‌نام در روم <b>⚡</b>":"ظرفیت تکمیل";
  $("roomSlotsMessage").textContent=free.toLocaleString("fa-IR")+" جایگاه خالی از "+n.toLocaleString("fa-IR")+" تیم"; $("roomSlotsList").innerHTML=Array.from({length:n},(_,i)=>{const slot=i+1,row=used.get(slot);return '<div class="team-slot '+(row?"is-full":"is-open")+'"><span class="team-slot-watermark">'+slot+'</span><div class="team-slot-avatars"><span class="team-avatar">●</span><span class="team-avatar">●</span><span class="team-avatar">●</span><span class="team-avatar">●</span></div><div class="team-slot-info"><strong>'+(row?esc(row.team_name||"تیم ثبت‌شده"):"تیم آزاد")+'</strong><small>'+(row?"جایگاه رزرو شده":"آماده ثبت‌نام")+'</small></div>'+(row?'<span class="team-slot-status">رزرو</span>':'<button type="button" data-room-slot="'+slot+'" '+(room.status!=="open"?"disabled":"")+'>انتخاب</button>')+'</div>';}).join("");
  $("roomDetail").querySelectorAll("[data-room-slot]").forEach(b=>b.onclick=()=>openRoomJoin(room,Number(b.dataset.roomSlot)));
+ await refreshSoloQueueStatus(room.id);
  $("roomDetail").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
