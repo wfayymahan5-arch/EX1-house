@@ -181,31 +181,9 @@ async function authState(){
   $("feed").innerHTML='<div class="empty">برای دیدن فید وارد حساب شو.</div>';
  }
 }
-$("authSwitch").onclick=()=>{
- authMode=authMode==="login"?"signup":"login";
- $("authTitle").textContent=authMode==="login"?"ورود به EX1 LEGEND":"ساخت حساب EX1";
- $("authHint").textContent=authMode==="login"?"با ایمیل و رمز عبور وارد شو.":"نام نمایشی، ایمیل و رمز عبور را وارد کن.";
- $("authName").hidden=authMode!=="signup";$("authName").required=authMode==="signup";
- $("authPassword").autocomplete=authMode==="signup"?"new-password":"current-password";
- $("authSubmit").textContent=authMode==="login"?"ورود":"ثبت‌نام";
- $("authSwitch").textContent=authMode==="login"?"ساخت حساب جدید":"قبلاً حساب دارم";
-};
-$("authForm").addEventListener("submit",async e=>{
- e.preventDefault();$("authSubmit").disabled=true;
- try{
-  if(authMode==="signup"){
-   const name=$("authName").value.trim();if(name.length<2)throw new Error("نام نمایشی باید حداقل ۲ نویسه باشد.");
-   const {data,error}=await sb.auth.signUp({email:$("authEmail").value.trim(),password:$("authPassword").value,options:{data:{display_name:name}}});
-   if(error)throw error;
-   toast(data.session?"حساب ساخته شد. خوش آمدی!":"ثبت‌نام انجام شد؛ اگر تأیید ایمیل فعال است ایمیلت را بررسی کن.");closeAuth();
-  }else{
-   const {error}=await sb.auth.signInWithPassword({email:$("authEmail").value.trim(),password:$("authPassword").value});if(error)throw error;
-   toast("ورود موفق بود.");closeAuth();
-  }
-  await authState();
- }catch(err){toast(err.message||"ورود انجام نشد.");}
- finally{$("authSubmit").disabled=false;}
-});
+let pendingEmailOtp=false;
+$("authSwitch").onclick=()=>{authMode=authMode==="login"?"signup":"login";pendingEmailOtp=false;$("authOtp").hidden=true;$("authOtp").required=false;$("authTitle").textContent=authMode==="login"?"ورود با کد ایمیل":"ساخت حساب با کد ایمیل";$("authHint").textContent=authMode==="login"?"کد ورود برای ایمیلت ارسال می‌شود.":"کد یک‌بارمصرف برای تأیید ایمیل ارسال می‌شود.";$("authName").hidden=authMode!=="signup";$("authName").required=authMode==="signup";$("authPassword").hidden=true;$("authPassword").required=false;$("authSubmit").textContent="ارسال کد";$("authSwitch").textContent=authMode==="login"?"ساخت حساب جدید":"بازگشت به ورود";};
+$("authForm").addEventListener("submit",async e=>{e.preventDefault();$("authSubmit").disabled=true;try{const email=$("authEmail").value.trim();if(!pendingEmailOtp){if(authMode==="signup"&&$("authName").value.trim().length<2)throw new Error("نام نمایشی باید حداقل ۲ نویسه باشد.");const options={shouldCreateUser:authMode==="signup"};if(authMode==="signup")options.data={display_name:$("authName").value.trim()};const {error}=await sb.auth.signInWithOtp({email,options});if(error)throw error;pendingEmailOtp=true;$("authOtp").hidden=false;$("authOtp").required=true;$("authSubmit").textContent="تأیید کد";toast("کد یک‌بارمصرف به ایمیلت ارسال شد.");return;}const {error}=await sb.auth.verifyOtp({email,token:$("authOtp").value.trim(),type:"email"});if(error)throw error;pendingEmailOtp=false;toast("ایمیل تأیید شد؛ وارد EX1 شدی.");closeAuth();await authState();}catch(err){toast(err.message||"احراز هویت انجام نشد.");}finally{$("authSubmit").disabled=false;}});
 $("openProfileEditor").onclick=()=>{if(!currentUser){openAuth();return;}$("profileEditorModal").classList.add("show");};
 $("profileAvatarFile").addEventListener("change",async()=>{const file=$("profileAvatarFile").files[0];if(!file)return;if(!currentUser){openAuth();return;}try{if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>5*1024*1024)throw new Error("تصویر باید JPG، PNG یا WebP و حداکثر ۵ مگابایت باشد.");const ext=file.type.split("/")[1].replace("jpeg","jpg");const path=currentUser.id+"/avatar."+ext;const {error}=await sb.storage.from("ex1-avatars").upload(path,file,{upsert:true,contentType:file.type});if(error)throw error;const {data}=sb.storage.from("ex1-avatars").getPublicUrl(path);const {error:pe}=await sb.from("profiles").update({avatar_url:data.publicUrl}).eq("id",currentUser.id);if(pe)throw pe;toast("عکس پروفایل به‌روزرسانی شد.");loadProfile();}catch(err){toast(err.message||"بارگذاری عکس انجام نشد.");}});
 document.querySelectorAll("[data-profile-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-profile-tab]").forEach(x=>x.classList.toggle("active",x===b));["matches","team","posts"].forEach(k=>$("profile"+k[0].toUpperCase()+k.slice(1)).hidden=k!==b.dataset.profileTab);if(b.dataset.profileTab==="team")loadMyTeam();});
