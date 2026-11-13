@@ -1,4 +1,4 @@
-# EX1 HOUSE — Supabase integration
+# EX1 LEGEND — Supabase integration
 
 The live Supabase project is configured in `supabase-config.js` using its **public publishable key**. This key is intended for browser use; database access is still restricted by grants and Row Level Security (RLS).
 
