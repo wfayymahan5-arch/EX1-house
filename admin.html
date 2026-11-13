@@ -95,7 +95,7 @@ async function loadAuditLogs(){
  const {data,error}=await sb.from("admin_audit_logs_view").select("id,actor_id,action,entity_type,entity_id,created_at").order("created_at",{ascending:false}).limit(100);
  if(error)throw error;
  const rows=(data||[]).map(x=>row([esc(x.action),esc(x.entity_type),esc(x.entity_id||"—"),esc(x.actor_id||"سیستم"),esc(x.created_at?new Date(x.created_at).toLocaleString("fa-IR"):"—")]));
- $("auditTable").innerHTML=rows.length?table(["عملیات","بخش","شناسه","مدیر","زمان"],rows):"<div class=\\"empty\\">هنوز گزارشی ثبت نشده است.</div>";
+ $("auditTable").innerHTML=rows.length?table(["عملیات","بخش","شناسه","مدیر","زمان"],rows):'<div class="empty">هنوز گزارشی ثبت نشده است.</div>';
 }
 async function loadTableData(){
  const tasks=[];
@@ -223,10 +223,10 @@ $("tournamentForm").addEventListener("submit",async e=>{
  if(!id&&!permissions["tournaments.create"])return toast("مجوز ساخت مسابقه را نداری.");
  $("saveTournamentButton").disabled=true;
  try{
-  const result=id?await sb.from("tournaments").update(payload).eq("id",id):await sb.from("tournaments").insert(payload);
+  const result=id?await sb.from("tournaments").update(payload).eq("id",id).select("id").single():await sb.from("tournaments").insert(payload).select("id").single();
   if(result.error)throw result.error;
   const imageFile=$("tf_cover_image_file").files[0];
-  if(imageFile){const imageUrl=await uploadTournamentAsset(imageFile,"tournaments");const imageUpdate=await sb.from("tournaments").update({cover_image_url:imageUrl}).eq("id",id||result.data?.id);if(imageUpdate.error)throw imageUpdate.error;}
+  if(imageFile){const imageUrl=await uploadTournamentAsset(imageFile,"tournaments");const imageUpdate=await sb.from("tournaments").update({cover_image_url:imageUrl}).eq("id",result.data.id);if(imageUpdate.error)throw imageUpdate.error;}
   resetTournamentForm();await loadTournaments();toast("مسابقه ذخیره شد.");
  }catch(err){toast("ذخیره مسابقه انجام نشد؛ مجوز و اطلاعات را بررسی کن.");}
  finally{$("saveTournamentButton").disabled=false;}
@@ -268,11 +268,11 @@ $("roomForm").addEventListener("submit",async e=>{
  $("saveRoomButton").disabled=true;
  try{
   let result;
-  if(id)result=await sb.from("tournament_rooms").update({...payload,updated_at:new Date().toISOString()}).eq("id",id);
-  else {const {data}=await sb.auth.getUser();result=await sb.from("tournament_rooms").insert({...payload,created_by:data.user?.id||null});}
+  if(id)result=await sb.from("tournament_rooms").update({...payload,updated_at:new Date().toISOString()}).eq("id",id).select("id").single();
+  else {const {data}=await sb.auth.getUser();result=await sb.from("tournament_rooms").insert({...payload,created_by:data.user?.id||null}).select("id").single();}
   if(result.error)throw result.error;
   const imageFile=$("rf_room_image_file").files[0];
-  if(imageFile){const imageUrl=await uploadTournamentAsset(imageFile,"rooms");const roomId=id||result.data?.[0]?.id;if(roomId){const imageUpdate=await sb.from("tournament_rooms").update({room_image_url:imageUrl}).eq("id",roomId);if(imageUpdate.error)throw imageUpdate.error;}else{throw new Error("شناسه روم برای ثبت تصویر دریافت نشد.");}}
+  if(imageFile){const imageUrl=await uploadTournamentAsset(imageFile,"rooms");const roomId=result.data.id;if(roomId){const imageUpdate=await sb.from("tournament_rooms").update({room_image_url:imageUrl}).eq("id",roomId);if(imageUpdate.error)throw imageUpdate.error;}else{throw new Error("شناسه روم برای ثبت تصویر دریافت نشد.");}}
   resetRoomForm();await loadRooms();toast("روم ذخیره شد.");
  }catch(err){toast("ذخیره روم انجام نشد؛ مجوز و اطلاعات را بررسی کن.");}
  finally{$("saveRoomButton").disabled=false;}
