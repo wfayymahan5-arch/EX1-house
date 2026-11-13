@@ -194,6 +194,15 @@ async function loadWallet(){
 $("walletOpen").onclick=()=>{$("walletModal").classList.add("show");loadWallet();};
 $("walletOpen").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("walletOpen").click();}};
 document.querySelectorAll("[data-close-modal]").forEach(b=>b.addEventListener("click",()=>$(b.dataset.closeModal).classList.remove("show")));
+async function ensureCodmProfile(){
+ const {data,error}=await sb.from("profiles").select("game_uid,game_name").eq("id",currentUser.id).maybeSingle();
+ if(error)throw error;
+ if(!data?.game_uid?.trim()||!data?.game_name?.trim()){
+  toast("برای ثبت‌نام، UID و نام داخل بازی کالاف را در پروفایل تکمیل کن.");
+  switchPage("profile");$("profileEditorModal").classList.add("show");return false;
+ }
+ return true;
+}
 let activeRoomForJoin=null;
 let activeRoomDetail=null;
 function openRoomJoin(room,slot){
@@ -207,6 +216,7 @@ $("confirmRoomSoloJoin").onclick=async()=>{
  if(!activeRoomForJoin)return;
  if(!currentUser){$("joinRoomModal").classList.remove("show");openAuth();return;}
  const room=activeRoomForJoin.room;
+ try{if(!(await ensureCodmProfile()))return;}catch(err){toast(err.message||"بررسی پروفایل انجام نشد.");return;}
  const btn=$("confirmRoomSoloJoin");
  btn.disabled=true;btn.textContent="در حال ثبت‌نام انفرادی...";
  try{
@@ -226,6 +236,7 @@ $("confirmRoomSoloJoin").onclick=async()=>{
 $("confirmRoomJoin").onclick=async()=>{
  if(!activeRoomForJoin)return;
  if(!currentUser){$("joinRoomModal").classList.remove("show");openAuth();return;}
+ try{if(!(await ensureCodmProfile()))return;}catch(err){toast(err.message||"بررسی پروفایل انجام نشد.");return;}
  const btn=$("confirmRoomJoin");btn.disabled=true;btn.textContent="در حال ثبت‌نام...";
  try{
   const {data,error}=await sb.rpc("register_for_tournament_room",{p_room_id:activeRoomForJoin.room.id});
@@ -342,7 +353,7 @@ $("openSettings").onclick=()=>{$("settingsModal").classList.add("show");$("appea
 $("showAppearanceSettings").onclick=()=>{$("appearanceSettings").hidden=!$("appearanceSettings").hidden;};
 $("showBlockedSettings").onclick=()=>{$("blockedSettings").hidden=!$("blockedSettings").hidden;if(!$("blockedSettings").hidden)loadBlockedUsers();};
 document.querySelectorAll("[data-close-modal]").forEach(b=>b.onclick=()=>$(b.dataset.closeModal).classList.remove("show"));
-["settingsModal","profileEditorModal","walletModal","joinRoomModal","roomAccessModal","authModal"].forEach(id=>$(id).addEventListener("click",e=>{if(e.target===$(id))$(id).classList.remove("show");}));
+["settingsModal","profileEditorModal","walletModal","joinRoomModal","authModal"].forEach(id=>$(id).addEventListener("click",e=>{if(e.target===$(id))$(id).classList.remove("show");}));
 document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".modal.show").forEach(m=>m.classList.remove("show"));});
 async function loadProfile(){
  if(!currentUser)return;
