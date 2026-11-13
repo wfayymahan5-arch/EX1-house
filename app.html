@@ -234,7 +234,7 @@ $("profileAvatarFile").addEventListener("change",async()=>{
  finally{button.disabled=false;button.textContent="＋ انتخاب عکس پروفایل";input.value="";}
 });
 document.querySelectorAll("[data-profile-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-profile-tab]").forEach(x=>x.classList.toggle("active",x===b));["matches","team"].forEach(k=>{$("profile"+k[0].toUpperCase()+k.slice(1)).hidden=k!==b.dataset.profileTab;});if(b.dataset.profileTab==="team")loadMyTeam();});
-$("openSettings").onclick=()=>{$("settingsModal").classList.add("show");$("appearanceSettings").hidden=false;$("blockedSettings").hidden=true;$("userSettingsMessage").textContent="تغییرات پس از ذخیره روی همین دستگاه اعمال می‌شوند.";};
+$("openSettings").onclick=()=>{$("settingsModal").classList.add("show");$("appearanceSettings").hidden=false;$("blockedSettings").hidden=true;$("userSettingsMessage").textContent=currentUser?"در حال دریافت تنظیمات ذخیره‌شده...":"برای ذخیره بین دستگاه‌ها وارد حساب شو." ;loadUserSettings();};
 $("showAppearanceSettings").onclick=()=>{$("appearanceSettings").hidden=!$("appearanceSettings").hidden;};
 $("showBlockedSettings").onclick=()=>{$("blockedSettings").hidden=!$("blockedSettings").hidden;if(!$("blockedSettings").hidden)loadBlockedUsers();};
 document.querySelectorAll("[data-close-modal]").forEach(b=>b.onclick=()=>$(b.dataset.closeModal).classList.remove("show"));
