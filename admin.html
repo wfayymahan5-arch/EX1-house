@@ -150,10 +150,20 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
 </div><button class="btn primary" id="saveTheme" type="submit" style="margin-top:14px">ذخیره تنظیمات</button></form><div id="themeMessage" class="muted" style="margin-top:10px"></div></section>
 </main></div></div><footer>EX1 LEGEND · پنل مدیریت متصل به Supabase</footer></div><div class="toast" id="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script><script src="/supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2.119.0/dist/umd/supabase.js'"></script><script src="/supabase-config.js"></script>
 <script>
-const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
 const $=id=>document.getElementById(id);
+function showStartupError(message){
+ const box=document.createElement("section");box.dir="rtl";
+ box.style.cssText="position:fixed;inset:14px;z-index:99999;display:grid;place-content:center;gap:14px;padding:24px;border:1px solid #8c5bc7;border-radius:20px;background:#100d20;color:#fff;text-align:center;font:15px/2 Tahoma,Arial,sans-serif";
+ const title=document.createElement("strong");title.textContent="پنل EX1 راه‌اندازی نشد";
+ const detail=document.createElement("p");detail.textContent=message;
+ const retry=document.createElement("button");retry.type="button";retry.textContent="تلاش دوباره";retry.style.cssText="padding:12px 18px;border:0;border-radius:12px;background:#8951c5;color:#fff;font-weight:bold";retry.onclick=()=>location.reload();
+ box.append(title,detail,retry);document.body.append(box);
+}
+if(!window.supabase||typeof window.supabase.createClient!=="function"){showStartupError("کتابخانهٔ اتصال بارگذاری نشد. اینترنت یا دسترسی به سرویس را بررسی کن.");throw new Error("Supabase browser SDK failed to load");}
+if(!window.EX1_CONFIG||!EX1_CONFIG.url||!EX1_CONFIG.publishableKey){showStartupError("تنظیمات اتصال EX1 پیدا نشد.");throw new Error("EX1 Supabase configuration is missing");}
+const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",audit:"گزارش فعالیت",socialReports:"گزارش‌های کاربران",wallet:"کیف پول",settings:"تنظیمات"};
 let permissions={};
