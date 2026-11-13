@@ -123,7 +123,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <div class="formgrid">
 <label>مسابقه مرتبط<select id="rf_tournament_id" required></select></label>
 <label>نام روم<input id="rf_title" required maxlength="120"></label>
-<label>حالت بازی<input id="rf_game_mode" maxlength="80" placeholder="Battle Royale"></label>
+<label>دستهٔ روم<select id="rf_game_mode" required><option value="battle_royale">بتل‌رویال</option><option value="fight_1v1">فایت تک‌به‌تک</option><option value="multiplayer">مولتی‌پلیر</option><option value="other">سایر</option></select></label>
 <label>نقشه<input id="rf_map" maxlength="80" placeholder="Isolated"></label>
 <label>ظرفیت بازیکن<input id="rf_capacity" type="number" min="1" max="1000" value="100" required></label>
  <label>تعداد نفرات هر تیم<select id="rf_team_size"><option value="2">دو نفره</option><option value="4" selected>چهار نفره</option></select></label>
@@ -299,7 +299,7 @@ function resetTournamentForm(){
  $("tournamentForm").classList.add("hidden");
 }
 function resetRoomForm(){
- $("roomForm").reset();$("rf_id").value="";$("rf_capacity").value=100;$("rf_team_size").value="4";$("rf_max_teams").value=25;$("rf_entry_demo_points").value=0;$("rf_room_media_type").value="image";$("rf_status").value="draft";
+ $("roomForm").reset();$("rf_id").value="";$("rf_capacity").value=100;$("rf_team_size").value="4";$("rf_max_teams").value=25;$("rf_entry_demo_points").value=0;$("rf_room_media_type").value="image";$("rf_status").value="open";$("rf_game_mode").value="battle_royale";
  $("roomForm").classList.add("hidden");
 }
 function tournamentOptions(selected){
@@ -380,9 +380,10 @@ $("tournamentsTable").addEventListener("click",async e=>{
   if(error)toast("حذف مسابقه انجام نشد.");else{await loadTournaments();await loadRooms().catch(()=>{});toast("مسابقه حذف شد.");}
  }
 });
-$("addRoomButton").onclick=()=>{
- if(!permissions["rooms.manage"])return;
- if(!tournamentCache.length)return toast("اول یک مسابقه بساز.");
+$("addRoomButton").onclick=async()=>{
+ if(!permissions["rooms.manage"])return toast("مجوز ساخت روم برای این حساب فعال نیست.");
+ if(!tournamentCache.length){try{await loadTournaments();}catch(err){return toast("دریافت فهرست مسابقات ناموفق بود: "+(err.message||"خطای اتصال"));}}
+ if(!tournamentCache.length)return toast("ابتدا یک مسابقه بساز یا وضعیت مسابقهٔ موجود را بررسی کن.");
  resetRoomForm();tournamentOptions();$("roomForm").classList.remove("hidden");$("rf_title").focus();
 };
 $("cancelRoomButton").onclick=resetRoomForm;
@@ -405,7 +406,7 @@ $("roomForm").addEventListener("submit",async e=>{
   const imageFile=$("rf_room_image_file").files[0];
   if(imageFile){const imageUrl=await uploadTournamentAsset(imageFile,"rooms");const roomId=result.data.id;if(roomId){const imageUpdate=await sb.from("tournament_rooms").update({room_image_url:imageUrl}).eq("id",roomId);if(imageUpdate.error)throw imageUpdate.error;}else{throw new Error("شناسه روم برای ثبت تصویر دریافت نشد.");}}
   resetRoomForm();await loadRooms();toast("روم ذخیره شد.");
- }catch(err){toast("ذخیره روم انجام نشد؛ مجوز و اطلاعات را بررسی کن.");}
+ }catch(err){toast("ذخیره روم انجام نشد: "+(err.message||"مجوز یا اطلاعات را بررسی کن."));}
  finally{$("saveRoomButton").disabled=false;}
 });
 $("roomsTable").addEventListener("click",async e=>{
