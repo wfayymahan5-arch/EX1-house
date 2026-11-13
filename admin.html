@@ -13,7 +13,7 @@
 .authbox{max-width:430px;margin:9vh auto}.authbox h2{margin-top:0}.field{display:block;width:100%;margin:9px 0 13px;padding:13px;border-radius:10px;border:1px solid var(--line);background:#0d0d16;color:white}.authbox .btn{width:100%;margin-top:8px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.stat small{color:var(--muted)}.stat strong{display:block;font-size:27px;margin-top:7px}
 .layout{display:grid;grid-template-columns:205px 1fr;gap:14px}.nav{display:flex;flex-direction:column;gap:7px;height:max-content}.nav button{background:transparent;border:1px solid transparent;color:var(--muted);text-align:right;padding:12px;border-radius:11px;cursor:pointer}.nav button.active,.nav button:hover{background:#211a35;border-color:#49366e;color:white}
-.section h2{font-size:18px;margin:0 0 15px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:550px}th,td{text-align:right;padding:11px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-weight:600}
+.section h2{font-size:18px;margin:0 0 15px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.tablewrap{overflow:auto}.manager-form{margin:14px 0;padding:15px;border:1px solid #39304f;border-radius:14px;background:#0e0e18}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.manager-form label{display:block;color:var(--muted);font-size:12px}.manager-form input,.manager-form select,.manager-form textarea{display:block;width:100%;margin-top:6px;padding:11px;border:1px solid var(--line);border-radius:9px;background:#090910;color:var(--text);font:inherit}.manager-form textarea{min-height:82px;resize:vertical}.manager-form .wide{grid-column:1/-1}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.action-btn{padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:#1a1928;color:white;cursor:pointer;font-size:12px}.action-btn.danger{border-color:#713b4a;color:#ffb4c2}@media(max-width:620px){.formgrid{grid-template-columns:1fr}.manager-form .wide{grid-column:auto}}table{width:100%;border-collapse:collapse;min-width:550px}th,td{text-align:right;padding:11px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-weight:600}
 .tag{display:inline-block;padding:4px 9px;border-radius:20px;background:#1d3b34;color:#8ff0c9;font-size:11px}.empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed #38384c;border-radius:12px}.hidden{display:none}.colorgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.colorfield{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px}.colorfield input{width:48px;height:38px;border:0;background:transparent}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{position:fixed;bottom:18px;left:18px;background:#222035;border:1px solid #5c477e;padding:12px 16px;border-radius:12px;display:none;z-index:10}.toast.show{display:block}
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.nav{display:grid;grid-template-columns:repeat(3,1fr)}.nav button{text-align:center;padding:9px;font-size:12px}.wrap{padding:14px}.colorgrid{grid-template-columns:1fr}}
@@ -28,6 +28,25 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{p
 <div class="layout"><nav class="card nav" id="nav"></nav><main>
 <section class="section tab" id="overview"><h2>نمای کلی زنده</h2><div class="muted" id="overviewText">آمار از دیتابیس خوانده می‌شود.</div><div class="empty" id="overviewEmpty">در حال دریافت اطلاعات...</div><div class="notice">بخش مالی تا زمان پیاده‌سازی قفل امنیتی مخصوص ورود بزرگسال مسئول، در پنل نمایش داده نمی‌شود.</div></section>
 <section class="section tab hidden" id="tournaments"><div class="row"><h2>مسابقات</h2><span class="tag">داده زنده</span></div><div id="tournamentsTable" class="empty">در حال بارگذاری...</div></section>
+<section class="section tab hidden" id="rooms">
+<div class="row"><h2>مدیریت روم‌ها</h2><button class="btn primary" id="addRoomButton">افزودن روم جدید</button></div>
+<form id="roomForm" class="manager-form hidden">
+<input id="rf_id" type="hidden">
+<div class="formgrid">
+<label>مسابقه مرتبط<select id="rf_tournament_id" required></select></label>
+<label>نام روم<input id="rf_title" required maxlength="120"></label>
+<label>حالت بازی<input id="rf_game_mode" maxlength="80" placeholder="Battle Royale"></label>
+<label>نقشه<input id="rf_map" maxlength="80" placeholder="Isolated"></label>
+<label>ظرفیت<input id="rf_capacity" type="number" min="1" max="1000" value="100" required></label>
+<label>زمان شروع<input id="rf_starts_at" type="datetime-local"></label>
+<label>وضعیت<select id="rf_status"><option value="draft">پیش‌نویس</option><option value="open">باز</option><option value="full">تکمیل ظرفیت</option><option value="closed">بسته</option><option value="completed">پایان‌یافته</option><option value="cancelled">لغوشده</option></select></label>
+<label>تصویر روم<input id="rf_room_image_url" type="url" placeholder="https://..."></label>
+<label class="wide">قوانین اختصاصی این روم<textarea id="rf_rules" maxlength="5000"></textarea></label>
+</div>
+<div class="actions"><button class="btn primary" type="submit" id="saveRoomButton">ذخیره روم</button><button class="btn" type="button" id="cancelRoomButton">انصراف</button></div>
+</form>
+<div id="roomsTable" class="empty">در حال بارگذاری...</div>
+</section>
 <section class="section tab hidden" id="registrations"><h2>ثبت‌نام‌های تیمی</h2><div id="registrationsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="users"><h2>کاربران و پروفایل‌ها</h2><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
@@ -41,7 +60,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{p
 const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const labels={overview:"نمای کلی",tournaments:"مسابقات",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",wallet:"کیف امتیاز",settings:"تنظیمات"};
+const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",wallet:"کیف امتیاز",settings:"تنظیمات"};
 let permissions={};
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200);}
 function table(headers,rows){if(!rows.length)return '<div class="empty">هنوز داده‌ای ثبت نشده است.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';}
@@ -49,6 +68,41 @@ function row(cells){return '<tr>'+cells.map(x=>'<td>'+x+'</td>').join("")+'</tr>
 function showTab(id){document.querySelectorAll(".tab").forEach(s=>s.classList.toggle("hidden",s.id!==id));document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));}
 function addNav(id){const b=document.createElement("button");b.type="button";b.dataset.tab=id;b.textContent=labels[id];b.onclick=()=>showTab(id);$("nav").appendChild(b);}
 async function rpc(name,args){const {data,error}=await sb.rpc(name,args||{});if(error)throw error;return data||[];}
+let roomTournamentCache=[];
+function localDateTime(value){
+ if(!value)return "";
+ const d=new Date(value);if(Number.isNaN(d.getTime()))return "";
+ const pad=n=>String(n).padStart(2,"0");
+ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes());
+}
+function isoDate(value){return value?new Date(value).toISOString():null;}
+function resetRoomForm(){
+ $("roomForm").reset();$("rf_id").value="";$("rf_capacity").value=100;$("rf_status").value="draft";
+ $("roomForm").classList.add("hidden");
+}
+function fillRoomTournamentOptions(selected){
+ $("rf_tournament_id").innerHTML=roomTournamentCache.map(t=>'<option value="'+esc(t.id)+'" '+(t.id===selected?"selected":"")+'>'+esc(t.title)+'</option>').join("");
+}
+async function loadRooms(){
+ const [tournamentsResult,roomsResult]=await Promise.all([
+  sb.from("tournaments").select("id,title").order("created_at",{ascending:false}),
+  sb.from("tournament_rooms").select("*").order("starts_at",{ascending:true})
+ ]);
+ if(tournamentsResult.error)throw tournamentsResult.error;
+ if(roomsResult.error)throw roomsResult.error;
+ roomTournamentCache=tournamentsResult.data||[];
+ const rooms=roomsResult.data||[];
+ fillRoomTournamentOptions(rooms[0]?.tournament_id||roomTournamentCache[0]?.id);
+ const canManage=permissions["rooms.manage"]===true;
+ $("addRoomButton").hidden=!canManage;
+ $("roomForm").classList.add("hidden");
+ const rows=rooms.map(r=>{
+  const t=roomTournamentCache.find(x=>x.id===r.tournament_id);
+  const actions=canManage?'<button class="action-btn" data-edit-room="'+esc(r.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-room="'+esc(r.id)+'">حذف</button>':"—";
+  return row([esc(r.title),esc(t?.title||"—"),esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.capacity),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
+ });
+ $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","نقشه","ظرفیت","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
+}
 async function loadTableData(){
  const tasks=[];
  if(permissions["tournaments.view"])tasks.push(rpc("admin_dashboard_tournaments").then(d=>{ $("statTournaments").textContent=d.length;$("tournamentsTable").innerHTML=table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع"],d.map(t=>row([esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—")])));}));
@@ -59,6 +113,7 @@ async function loadTableData(){
  
  const settled=await Promise.allSettled(tasks);
  const failed=settled.filter(x=>x.status==="rejected");
+ if(permissions["rooms.view"]||permissions["rooms.manage"]){try{await loadRooms();}catch(e){failed.push({status:"rejected"});$("roomsTable").textContent="بارگذاری روم‌ها انجام نشد؛ دسترسی دیتابیس را بررسی کن.";}}
  if(failed.length)toast("بعضی بخش‌ها به‌دلیل محدودیت دسترسی یا خطای ارتباط بارگذاری نشدند.");
  const counts=["statTournaments","statRegistrations","statTeams","statUsers"].map(id=>$(id).textContent).filter(x=>x!=="—");
  $("overviewEmpty").textContent=counts.length?"داده‌های مجاز از دیتابیس بارگذاری شدند. برای جزئیات، بخش مربوطه را باز کن.":"برای این حساب، مجوز مشاهده داده‌های مدیریتی ثبت نشده است.";
@@ -92,6 +147,7 @@ async function applyAccess(user){
  list.forEach(p=>permissions[p.permission_code]=p.is_allowed===true);
  const allowedTabs=["overview"];
  if(permissions["tournaments.view"])allowedTabs.push("tournaments");
+ if(permissions["rooms.view"]||permissions["rooms.manage"])allowedTabs.push("rooms");
  if(permissions["registrations.view_all"])allowedTabs.push("registrations");
  if(permissions["teams.view"])allowedTabs.push("teams");
  if(permissions["users.view"]||permissions["profiles.view_all"])allowedTabs.push("users");
@@ -103,6 +159,51 @@ async function applyAccess(user){
  if(permissions["settings.manage"]||permissions["settings.view"]){await loadTheme();$("saveTheme").hidden=!permissions["settings.manage"];}
  await loadTableData();
 }
+$("addRoomButton").onclick=()=>{
+ if(!permissions["rooms.manage"])return;
+ if(!roomTournamentCache.length)return toast("برای ساخت روم، ابتدا باید مسابقه‌ای ثبت شده باشد.");
+ resetRoomForm();fillRoomTournamentOptions();$("roomForm").classList.remove("hidden");$("rf_title").focus();
+};
+$("cancelRoomButton").onclick=resetRoomForm;
+$("roomForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!permissions["rooms.manage"])return toast("مجوز مدیریت روم را نداری.");
+ const id=$("rf_id").value;
+ const payload={
+  tournament_id:$("rf_tournament_id").value,title:$("rf_title").value.trim(),
+  game_mode:$("rf_game_mode").value.trim()||null,map:$("rf_map").value.trim()||null,
+  capacity:Number($("rf_capacity").value),starts_at:isoDate($("rf_starts_at").value),
+  status:$("rf_status").value,room_image_url:$("rf_room_image_url").value.trim()||null,
+  rules:$("rf_rules").value.trim()||null
+ };
+ if(!payload.tournament_id)return toast("مسابقه مرتبط را انتخاب کن.");
+ $("saveRoomButton").disabled=true;
+ try{
+  let result;
+  if(id)result=await sb.from("tournament_rooms").update({...payload,updated_at:new Date().toISOString()}).eq("id",id).select("id").single();
+  else {const {data:userData,error:userError}=await sb.auth.getUser();if(userError)throw userError;result=await sb.from("tournament_rooms").insert({...payload,created_by:userData.user?.id||null}).select("id").single();}
+  if(result.error)throw result.error;
+  resetRoomForm();await loadRooms();toast("روم با موفقیت ذخیره شد.");
+ }catch(err){console.error("EX1 room save:",err);toast("ذخیره روم انجام نشد؛ مجوز و اطلاعات را بررسی کن.");}
+ finally{$("saveRoomButton").disabled=false;}
+});
+$("roomsTable").addEventListener("click",async e=>{
+ const edit=e.target.closest("[data-edit-room]"),del=e.target.closest("[data-delete-room]");
+ if(edit&&permissions["rooms.manage"]){
+  const {data,error}=await sb.from("tournament_rooms").select("*").eq("id",edit.dataset.editRoom).single();
+  if(error||!data)return toast("اطلاعات روم دریافت نشد.");
+  $("rf_id").value=data.id;fillRoomTournamentOptions(data.tournament_id);$("rf_title").value=data.title||"";
+  $("rf_game_mode").value=data.game_mode||"";$("rf_map").value=data.map||"";
+  $("rf_capacity").value=data.capacity||100;$("rf_starts_at").value=localDateTime(data.starts_at);
+  $("rf_status").value=data.status||"draft";$("rf_room_image_url").value=data.room_image_url||"";
+  $("rf_rules").value=data.rules||"";$("roomForm").classList.remove("hidden");$("rf_title").focus();
+ }
+ if(del&&permissions["rooms.manage"]){
+  if(!confirm("این روم حذف شود؟ این عملیات قابل بازگشت نیست."))return;
+  const {error}=await sb.from("tournament_rooms").delete().eq("id",del.dataset.deleteRoom);
+  if(error){console.error("EX1 room delete:",error);toast("حذف روم انجام نشد؛ ممکن است وابستگی یا محدودیت دسترسی وجود داشته باشد.");}
+  else{await loadRooms();toast("روم حذف شد.");}
+ }
+});
 async function refreshSession(){
  const {data,error}=await sb.auth.getUser();
  if(error||!data.user){$("appView").classList.add("hidden");$("authView").classList.remove("hidden");return;}
