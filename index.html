@@ -114,16 +114,23 @@ document.getElementById("authForm").addEventListener("submit",async event=>{
  }catch(error){toast(error.message||"خطا در ورود یا ثبت‌نام.");}
  finally{submit.disabled=false;}
 });
+function applyPublicThemeValues(theme){
+ if(!theme)return;
+ const root=document.documentElement;
+ root.style.setProperty("--bg",theme.background_color);
+ root.style.setProperty("--panel",theme.surface_color);
+ root.style.setProperty("--panel2",theme.surface_color);
+ root.style.setProperty("--text",theme.primary_text_color);
+ root.style.setProperty("--muted",theme.secondary_text_color);
+ root.style.setProperty("--purple",theme.accent_color);
+ root.style.setProperty("--purple2",theme.accent_color);
+}
 async function applyPublicTheme(){
  const {data,error}=await supabaseClient.from("site_theme_settings").select("background_color,surface_color,primary_text_color,secondary_text_color,accent_color").eq("singleton",true).maybeSingle();
- if(error||!data)return;
- const root=document.documentElement;
- root.style.setProperty("--bg",data.background_color);
- root.style.setProperty("--panel",data.surface_color);
- root.style.setProperty("--text",data.primary_text_color);
- root.style.setProperty("--muted",data.secondary_text_color);
- root.style.setProperty("--purple",data.accent_color);
+ if(error){console.warn("EX1 public theme load:",error.message);return;}
+ applyPublicThemeValues(data);
 }
+
 async function loadAuthState(){
  const {data}=await supabaseClient.auth.getUser();
  currentUser=data.user||null;
@@ -139,6 +146,13 @@ function toast(s){const el=document.getElementById("toast");el.textContent=s;el.
 supabaseClient.auth.onAuthStateChange(()=>{setTimeout(loadAuthState,0);});
 renderTournaments();
 applyPublicTheme();
+supabaseClient.channel("ex1-public-site-theme")
+ .on("postgres_changes",{event:"UPDATE",schema:"public",table:"site_theme_settings",filter:"singleton=eq.true"},payload=>{
+  applyPublicThemeValues(payload.new);
+ })
+ .subscribe(status=>{
+  if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")console.warn("EX1 public theme realtime:",status);
+ });
 loadAuthState();
 </script>
 <script>
