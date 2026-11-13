@@ -107,11 +107,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <label>حداکثر تعداد تیم‌ها<input id="tf_max_teams" type="number" min="1" max="1000" value="25" required></label>
 <label>زمان شروع<input id="tf_starts_at" type="datetime-local"></label>
 <label>تصویر مسابقه (نشانی یا انتخاب فایل)<input id="tf_cover_image_url" type="url" placeholder="https://..."><input id="tf_cover_image_file" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label>
-<label>ورودی آزمایشی (تومان)<input id="tf_entry_demo_points" type="number" min="0" max="1000000000" value="0"></label>
-<label>جایزه آزمایشی (تومان)<input id="tf_prize_demo_points" type="number" min="0" max="1000000000" value="0"></label>
+<label>امتیاز ورودی نمایشی<input id="tf_entry_demo_points" type="number" min="0" max="1000000000" value="0"></label>
+<label>امتیاز جایزه نمایشی<input id="tf_prize_demo_points" type="number" min="0" max="1000000000" value="0"></label>
 <label class="wide">توضیحات و قوانین مسابقه<textarea id="tf_rules" maxlength="5000"></textarea></label>
 </div>
-<p class="muted">مبالغ این فرم صرفاً نمایشی و آزمایشی‌اند؛ خرید، برداشت یا پرداخت واقعی فعال نیست و این مبالغ ارزش نقدی ندارند. برای تصویر فعلاً نشانی تصویر ثبت می‌شود.</p>
+<p class="muted">امتیازها صرفاً نمایشی و بدون ارزش پولی‌اند. هیچ خرید، برداشت یا پرداخت واقعی وجود ندارد. تصویر مسابقه را می‌توانی با فایل یا نشانی ثبت کنی.</p>
 <div class="actions"><button class="btn primary" type="submit" id="saveTournamentButton">ذخیره مسابقه</button><button class="btn" type="button" id="cancelTournamentButton">انصراف</button></div>
 </form>
 <div id="tournamentsTable" class="empty">در حال بارگذاری...</div>
@@ -128,7 +128,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <label>ظرفیت بازیکن<input id="rf_capacity" type="number" min="1" max="1000" value="100" required></label>
  <label>تعداد نفرات هر تیم<select id="rf_team_size"><option value="2">دو نفره</option><option value="4" selected>چهار نفره</option></select></label>
  <label>حداکثر جایگاه تیم‌ها<input id="rf_max_teams" type="number" min="1" max="25" value="25" required></label>
- <label>ورودی آزمایشی (تومان) (تومان)<input id="rf_entry_demo_points" type="number" min="0" max="1000000000" value="0" required></label>
+ <label>امتیاز ورودی نمایشی<input id="rf_entry_demo_points" type="number" min="0" max="1000000000" value="0" required></label>
 <label>زمان شروع<input id="rf_starts_at" type="datetime-local"></label>
 <label>وضعیت<select id="rf_status"><option value="draft">پیش‌نویس</option><option value="open" selected>باز</option><option value="full">تکمیل ظرفیت</option><option value="closed">بسته</option><option value="completed">پایان‌یافته</option><option value="cancelled">لغوشده</option></select></label>
 <label>نوع رسانه بالای روم<select id="rf_room_media_type"><option value="image">تصویر</option><option value="video">ویدیو (با لینک مستقیم)</option></select></label>
@@ -145,7 +145,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <section class="section tab hidden" id="users"><h2>کاربران و پروفایل‌ها</h2><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="audit"><h2>گزارش فعالیت مدیران</h2><p class="muted">تغییرات ایجاد، ویرایش و حذف مسابقه‌ها و روم‌ها به‌صورت خودکار ثبت می‌شوند.</p><div id="auditTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="socialReports"><h2>گزارش‌های کاربران</h2><p class="muted">گزارش پیام‌ها و پروفایل‌ها. رسیدگی فقط برای مدیر دارای مجوز social.moderate فعال است.</p><div id="socialReportsTable" class="empty">در حال بارگذاری...</div></section>
-<section class="section tab hidden" id="wallet"><h2>کیف پول آزمایشی (تومان)</h2><div class="notice">این بخش فعلاً فقط برای نمایش وضعیت آماده‌سازی است. هیچ شارژ، برداشت یا تراکنش واقعی از این پنل انجام نمی‌شود و دسترسی مالی جداگانه نیازمند تأیید بزرگسال مسئول است.</div><div id="walletTable" class="empty">در انتظار دسترسی مجاز...</div></section>
+<section class="section tab hidden" id="wallet"><h2>امتیازهای نمایشی</h2><div class="notice">این بخش فعلاً فقط برای نمایش وضعیت آماده‌سازی است. هیچ شارژ، برداشت یا تراکنش واقعی از این پنل انجام نمی‌شود و دسترسی مالی جداگانه نیازمند تأیید بزرگسال مسئول است.</div><div id="walletTable" class="empty">در انتظار دسترسی مجاز...</div></section>
 <section class="section tab hidden" id="settings"><h2>تنظیمات ظاهری سایت</h2><p class="muted">رنگ‌ها فقط با مجوز settings.manage ذخیره می‌شوند.</p><form id="themeForm"><div class="colorgrid">
 <label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
 </div><button class="btn primary" id="saveTheme" type="submit" style="margin-top:14px">ذخیره تنظیمات</button></form><div id="themeMessage" class="muted" style="margin-top:10px"></div></section>
@@ -343,7 +343,7 @@ async function loadRooms(){
   const actions=canManage?'<button class="action-btn" data-edit-room="'+esc(r.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-room="'+esc(r.id)+'">حذف</button>':"—";
   return row([esc(r.title),esc(t?.title||"—"),esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.team_size===2?"دو نفره":"چهارنفره"),esc(r.max_teams||25),esc(r.entry_demo_points||0),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
  });
- $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","نقشه","نوع تیم","جایگاه تیم","ورودی آزمایشی (تومان)","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
+ $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","نقشه","نوع تیم","جایگاه تیم","امتیاز ورودی نمایشی","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
 }
 $("addTournamentButton").onclick=()=>{
  if(!permissions["tournaments.create"])return;
