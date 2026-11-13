@@ -246,7 +246,7 @@ header{background:#ffffffed!important;border-bottom:1px solid #e2e5f1!important;
 <footer>EX1 LEGEND · جامعه‌ی رقابت سالم</footer>
 <div class="modal" id="authModal"><div class="dialog"><h3 id="authTitle">ورود به EX1 LEGEND</h3><p id="authHint" class="muted">با ایمیل و رمز عبور وارد شو یا حساب بساز.</p><form id="authForm"><input id="authName" class="field" maxlength="30" placeholder="نام نمایشی" hidden><input id="authEmail" class="field" type="email" maxlength="254" placeholder="ایمیل" required><input id="authPassword" class="field" type="password" minlength="8" maxlength="72" placeholder="رمز عبور (حداقل ۸ نویسه)" required><button class="btn" id="authSubmit" type="submit">ورود</button></form><button class="btn secondary" id="authSwitch" type="button">ساخت حساب جدید</button><button class="btn ghost" type="button" onclick="closeAuth()">بستن</button></div></div>
 <div class="modal" id="storyModal"><div class="dialog story-view"><img id="storyImage" alt="استوری"><p id="storyCaption" class="muted"></p><button class="btn ghost" onclick="closeStory()">بستن</button></div></div>
-<div class="modal" id="walletModal"><div class="dialog"><h3>کیف پول EX1</h3><div class="wallet-modal-balance"><span>موجودی فعلی</span><strong id="walletModalBalance">۰ <small>تومان آزمایشی</small></strong></div><p class="muted">مبالغ این کیف پول فقط برای آزمایش رابط کاربری هستند؛ هیچ پرداخت، واریز، برداشت یا جایزه نقدی واقعی انجام نمی‌شود.</p><div class="wallet-history"><h4>تراکنش‌ها</h4><div id="walletHistory" class="empty">در حال دریافت تاریخچه...</div></div><button class="btn ghost" type="button" data-close-modal="walletModal">بستن</button></div></div><div class="modal" id="joinRoomModal"><div class="dialog"><h3>درخواست شرکت در روم</h3><p id="joinRoomSummary" class="muted"></p><div class="panel"><label><input type="radio" name="teamChoice" value="random" checked> شرکت تکی و هم‌تیمی تصادفی</label><label style="display:block;margin-top:12px"><input type="radio" name="teamChoice" value="friend"> تشکیل تیم با دوست</label><input id="friendIdSearch" class="field" maxlength="60" placeholder="شناسه کاربری دوست (در نسخه بعدی فعال می‌شود)" disabled></div><p class="muted">تأیید نهایی، کسر مبلغ آزمایشی (تومان) و رزرو جایگاه هنوز به سامانه ثبت‌نام متصل نشده‌اند.</p><button class="btn" id="confirmRoomJoin" type="button">متوجه شدم</button><button class="btn ghost" type="button" data-close-modal="joinRoomModal">بازگشت</button></div></div><div class="toast" id="toast"></div>
+<div class="modal" id="walletModal"><div class="dialog"><h3>کیف پول EX1</h3><div class="wallet-modal-balance"><span>موجودی فعلی</span><strong id="walletModalBalance">۰ <small>تومان آزمایشی</small></strong></div><p class="muted">مبالغ این کیف پول فقط برای آزمایش رابط کاربری هستند؛ هیچ پرداخت، واریز، برداشت یا جایزه نقدی واقعی انجام نمی‌شود.</p><div class="wallet-history"><h4>تراکنش‌ها</h4><div id="walletHistory" class="empty">در حال دریافت تاریخچه...</div></div><button class="btn ghost" type="button" data-close-modal="walletModal">بستن</button></div></div><div class="modal" id="joinRoomModal"><div class="dialog"><h3>ثبت‌نام در روم</h3><p id="joinRoomSummary" class="muted"></p><div class="panel"><strong>نوع حضور</strong><p>فعلاً ثبت‌نام انفرادی انجام می‌شود و جایگاه تیم به نام حساب شما رزرو خواهد شد.</p><small class="muted">هماهنگی هم‌تیمی و دعوت دوست در مرحله بعد اضافه می‌شود.</small></div><p class="muted">این ثبت‌نام در دیتابیس ذخیره می‌شود؛ مبلغ فقط نمایشی و آزمایشی است و هیچ پرداختی انجام نمی‌شود.</p><button class="btn" id="confirmRoomJoin" type="button">تأیید و ثبت‌نام</button><button class="btn ghost" type="button" data-close-modal="joinRoomModal">بازگشت</button></div></div><div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
 <script src="/supabase-config.js"></script>
 <script>
@@ -277,15 +277,39 @@ $("walletOpen").onclick=()=>{$("walletModal").classList.add("show");loadWallet()
 $("walletOpen").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("walletOpen").click();}};
 document.querySelectorAll("[data-close-modal]").forEach(b=>b.addEventListener("click",()=>$(b.dataset.closeModal).classList.remove("show")));
 let activeRoomForJoin=null;
-function openRoomJoin(room,slot){activeRoomForJoin={room,slot};$("joinRoomSummary").textContent="جایگاه "+slot+" از "+room.max_teams+" · "+(room.team_size===2?"تیم دونفره":"تیم چهارنفره")+" · ورودی آزمایشی: "+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+" تومان آزمایشی";$("friendIdSearch").disabled=true;$("friendIdSearch").value="";$("joinRoomModal").classList.add("show");}
-document.querySelectorAll('input[name="teamChoice"]').forEach(r=>r.addEventListener("change",()=>{$("friendIdSearch").disabled=document.querySelector('input[name="teamChoice"]:checked')?.value!=="friend";}));
-$("confirmRoomJoin").onclick=()=>{if(!activeRoomForJoin)return;$("joinRoomModal").classList.remove("show");toast("این بخش فعلاً پیش‌نمایش است؛ هنوز ثبت‌نام یا کسر تومان آزمایشیی انجام نشد.");};
-function showRoomDetail(room){
+function openRoomJoin(room,slot){
+ if(!currentUser){toast("برای ثبت‌نام ابتدا وارد حساب EX1 شو.");openAuth();return;}
+ activeRoomForJoin={room,slot};
+ $("joinRoomSummary").textContent="جایگاه انتخابی "+slot+" · "+(room.team_size===2?"تیم دونفره":"تیم چهارنفره")+" · ورودی نمایشی "+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+" تومان";
+ $("joinRoomModal").classList.add("show");
+}
+$("confirmRoomJoin").onclick=async()=>{
+ if(!activeRoomForJoin)return;
+ if(!currentUser){$("joinRoomModal").classList.remove("show");openAuth();return;}
+ const btn=$("confirmRoomJoin");btn.disabled=true;btn.textContent="در حال ثبت‌نام...";
+ try{
+  const {data,error}=await sb.rpc("register_for_tournament_room",{p_room_id:activeRoomForJoin.room.id});
+  if(error)throw error;
+  $("joinRoomModal").classList.remove("show");
+  toast("ثبت‌نامت با موفقیت ثبت شد. جایگاه "+Number(data.slot_number).toLocaleString("fa-IR"));
+  activeRoomForJoin=null;
+  await loadTournaments();
+ }catch(err){toast(err.message||"ثبت‌نام انجام نشد.");}
+ finally{btn.disabled=false;btn.textContent="تأیید و ثبت‌نام";}
+};
+async function showRoomDetail(room){
  const media=room.room_media_type==="video"&&room.room_video_url?'<video class="room-cover" controls playsinline preload="metadata" src="'+esc(room.room_video_url)+'"></video>':(room.room_image_url?'<img class="room-cover" src="'+esc(room.room_image_url)+'" alt="تصویر روم">':'<div class="empty">تصویر این روم هنوز انتخاب نشده است.</div>');
- const n=Math.max(1,Math.min(25,Number(room.max_teams)||25)),slots=Array.from({length:n},(_,i)=>'<div class="team-slot"><span>جایگاه '+(i+1)+' · خالی</span><button type="button" data-room-slot="'+(i+1)+'">انتخاب جایگاه</button></div>').join("");
- $("roomDetail").innerHTML=media+'<div class="section-head"><div><h2>'+esc(room.title)+'</h2><p>'+(room.team_size===2?"تیم دونفره":"تیم چهارنفره")+' · حداکثر '+n+' تیم · ورودی آزمایشی '+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+'</p></div></div><div class="room-tabs"><button class="active" data-room-tab="teams">تیم‌ها</button><button data-room-tab="rules">قوانین</button></div><div id="roomTeamsPanel"><div class="muted">جایگاه‌ها به ترتیب رتبه نمایش داده می‌شوند.</div><div class="team-slots">'+slots+'</div><div class="panel" style="margin-top:12px"><strong>تشکیل تیم</strong><p class="muted">شرکت تکی با هم‌تیمی تصادفی یا تشکیل تیم با دوست در مرحله بعدی به دیتابیس متصل می‌شود.</p><input class="field" placeholder="شناسه دوست (به‌زودی)" disabled></div></div><div id="roomRulesPanel" class="room-rules" hidden>'+esc(room.rules||"قوانین اختصاصی برای این روم ثبت نشده است.")+'</div>';
- $("roomDetail").hidden=false;$("roomDetail").querySelectorAll("[data-room-tab]").forEach(b=>b.onclick=()=>{const r=b.dataset.roomTab==="rules";$("roomTeamsPanel").hidden=r;$("roomRulesPanel").hidden=!r;$("roomDetail").querySelectorAll("[data-room-tab]").forEach(x=>x.classList.toggle("active",x===b));});
- $("roomDetail").querySelectorAll("[data-room-slot]").forEach(b=>b.onclick=()=>openRoomJoin(room,Number(b.dataset.roomSlot)));$("roomDetail").scrollIntoView({behavior:"smooth",block:"start"});
+ const n=Math.max(1,Math.min(25,Number(room.max_teams)||25));
+ $("roomDetail").innerHTML=media+'<div class="section-head"><div><h2>'+esc(room.title)+'</h2><p>'+(room.team_size===2?"تیم دونفره":"تیم چهارنفره")+' · حداکثر '+n+' تیم · ورودی نمایشی '+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+' تومان</p></div></div><div class="room-tabs"><button class="active" type="button" data-room-tab="teams">تیم‌ها</button><button type="button" data-room-tab="rules">قوانین</button></div><div id="roomTeamsPanel"><div class="muted" id="roomSlotsMessage">در حال دریافت جایگاه‌ها...</div><div class="team-slots" id="roomSlotsList"></div></div><div id="roomRulesPanel" class="room-rules" hidden>'+esc(room.rules||"قوانین اختصاصی برای این روم ثبت نشده است.")+'</div>';
+ $("roomDetail").hidden=false;
+ $("roomDetail").querySelectorAll("[data-room-tab]").forEach(b=>b.onclick=()=>{const rules=b.dataset.roomTab==="rules";$("roomTeamsPanel").hidden=rules;$("roomRulesPanel").hidden=!rules;$("roomDetail").querySelectorAll("[data-room-tab]").forEach(x=>x.classList.toggle("active",x===b));});
+ const {data:occupied,error}=await sb.rpc("get_tournament_room_slots",{p_room_id:room.id});
+ if(error){$("roomSlotsMessage").textContent="جایگاه‌ها دریافت نشدند؛ دوباره تلاش کن.";return;}
+ const used=new Map((occupied||[]).map(x=>[Number(x.slot_number),x]));
+ $("roomSlotsMessage").textContent="جایگاه‌های رزروشده از دیتابیس نمایش داده می‌شوند.";
+ $("roomSlotsList").innerHTML=Array.from({length:n},(_,i)=>{const slot=i+1,row=used.get(slot);return '<div class="team-slot"><span>جایگاه '+slot+' · '+(row?"رزرو شده":"خالی")+(row?" — "+esc(row.team_name):"")+'</span>'+(row?'<button type="button" disabled>رزرو شده</button>':'<button type="button" data-room-slot="'+slot+'" '+(room.status!=="open"?"disabled":"")+'>ثبت‌نام</button>')+'</div>';}).join("");
+ $("roomDetail").querySelectorAll("[data-room-slot]").forEach(b=>b.onclick=()=>openRoomJoin(room,Number(b.dataset.roomSlot)));
+ $("roomDetail").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
 function switchPage(page){
