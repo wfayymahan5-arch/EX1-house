@@ -176,7 +176,8 @@ async function loadWallet(){
 $("walletOpen").onclick=()=>{$("walletModal").classList.add("show");loadWallet();};
 document.querySelectorAll("[data-close-modal]").forEach(b=>b.addEventListener("click",()=>$(b.dataset.closeModal).classList.remove("show")));
 let activeRoomForJoin=null;
-function openRoomJoin(room,slot){activeRoomForJoin={room,slot};$("joinRoomSummary").textContent="جایگاه "+slot+" از "+room.max_teams+" · "+(room.team_size===2?"تیم دونفره":"تیم چهارنفره")+" · ورودی نمایشی: "+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+" امتیاز";$("joinRoomModal").classList.add("show");}
+function openRoomJoin(room,slot){activeRoomForJoin={room,slot};$("joinRoomSummary").textContent="جایگاه "+slot+" از "+room.max_teams+" · "+(room.team_size===2?"تیم دونفره":"تیم چهارنفره")+" · ورودی نمایشی: "+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+" امتیاز";$("friendIdSearch").disabled=true;$("friendIdSearch").value="";$("joinRoomModal").classList.add("show");}
+document.querySelectorAll('input[name="teamChoice"]').forEach(r=>r.addEventListener("change",()=>{$("friendIdSearch").disabled=document.querySelector('input[name="teamChoice"]:checked')?.value!=="friend";}));
 $("confirmRoomJoin").onclick=()=>{if(!activeRoomForJoin)return;$("joinRoomModal").classList.remove("show");toast("این بخش فعلاً پیش‌نمایش است؛ هنوز ثبت‌نام یا کسر امتیازی انجام نشد.");};
 function showRoomDetail(room){
  const media=room.room_media_type==="video"&&room.room_video_url?'<video class="room-cover" controls playsinline preload="metadata" src="'+esc(room.room_video_url)+'"></video>':(room.room_image_url?'<img class="room-cover" src="'+esc(room.room_image_url)+'" alt="تصویر روم">':'<div class="empty">تصویر این روم هنوز انتخاب نشده است.</div>');
