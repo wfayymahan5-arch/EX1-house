@@ -13,7 +13,7 @@
 <link rel="icon" type="image/svg+xml" href="/ex1-legend-mark.svg">
 <style>
 :root{--bg:#090910;--panel:#141420;--panel2:#1b1b2a;--purple:#9b5cff;--cyan:#57e6ff;--text:#f4f1ff;--muted:#aaa6bc;--line:#2c2940}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% -10%,#38205d 0,transparent 38%),var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body,body *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}input,textarea,select,[contenteditable=true],.allow-select{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}body{margin:0;background:radial-gradient(ellipse at 80% -10%,#38205d 0,transparent 38%),var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
 a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}.wrap{max-width:1120px;margin:auto;padding:0 20px}
 header{position:sticky;top:0;z-index:5;background:#090910eF;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
 .nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{font-size:23px;font-weight:900;letter-spacing:1px;direction:ltr}.brand b{color:var(--purple)}.links{display:flex;gap:22px;color:var(--muted);font-size:14px}.links a:hover{color:white}
@@ -65,6 +65,7 @@ const supabaseClient = window.supabase.createClient(EX1_CONFIG.url, EX1_CONFIG.p
 let authMode = "login";
 let currentUser = null;
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+document.addEventListener("contextmenu",event=>{if(!event.target.closest("input,textarea,select,[contenteditable=true]"))event.preventDefault();});
 function formatStart(value){if(!value)return "زمان اعلام می‌شود";const d=new Date(value);return Number.isNaN(d.getTime())?"زمان اعلام می‌شود":d.toLocaleString("fa-IR",{dateStyle:"medium",timeStyle:"short"});}
 function statusLabel(status){return ({published:"منتشرشده",registration_open:"ثبت‌نام باز",ongoing:"در حال برگزاری",completed:"پایان‌یافته"})[status]||"اطلاعات";}
 function roomStatusLabel(status){return ({open:"ثبت‌نام/ورود باز",full:"تکمیل ظرفیت",completed:"پایان‌یافته"})[status]||"اطلاعات";}
