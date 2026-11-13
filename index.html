@@ -23,6 +23,48 @@ header{position:sticky;top:0;z-index:5;background:#090910eF;border-bottom:1px so
 .bottom-nav .nav-icon{width:23px;height:23px;display:block}.bottom-nav .nav-icon svg{width:100%;height:100%;display:block}.bottom-nav .rank-icon{width:23px;height:23px;border:1.7px solid currentColor;border-radius:50%;font-size:14px;font-weight:900;line-height:20px;text-align:center}.bottom-nav a.active,.bottom-nav button.active{color:#d7baff}
 body{padding-bottom:78px}
 .modal{display:none;position:fixed;inset:0;background:#000b;z-index:10;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.dialog{width:min(440px,100%);background:#171624;border:1px solid #51406f;border-radius:20px;padding:24px}.dialog h3{margin-top:0}.dialog input{width:100%;padding:13px;margin:8px 0 14px;border-radius:10px;border:1px solid var(--line);background:#0d0d16;color:white}.dialog .btn{width:100%;margin-top:8px}.toast{position:fixed;bottom:20px;left:20px;background:#222035;border:1px solid #5c477e;padding:13px 18px;border-radius:12px;display:none;z-index:20}.toast.show{display:block}.empty{padding:24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px;line-height:1.8}
+
+/* EX1 mobile esports refresh */
+body{background:radial-gradient(ellipse at 85% -10%,#38205b55,transparent 38%),var(--bg);min-height:100vh}
+.wrap{max-width:980px;padding-inline:16px}
+header{background:#090910e8;border-bottom-color:#302443}
+.nav{height:58px}
+.brand{font-size:19px;letter-spacing:.4px}
+.brand img{width:29px;height:29px}
+.nav>.btn{font-size:12px;padding:9px 13px;border-radius:10px}
+.hero{padding:22px 0 15px}
+.hero h1{font-size:24px;font-weight:900;letter-spacing:-.5px}
+.hero .muted{margin-top:5px;font-size:12px}
+.section{padding:12px 0 22px}
+.section-head{margin-bottom:12px;align-items:center}
+.section h2{font-size:17px}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.tournament-card{padding:0;border-radius:16px;background:linear-gradient(160deg,#191624,#11111a 75%);border:1px solid #30283e;box-shadow:0 10px 28px #0003}
+.cover{height:142px;overflow:hidden;background:linear-gradient(135deg,#39205b,#171522);position:relative}
+.cover:after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,#11111a)}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.cover-empty{display:grid;place-items:center;color:#ffffff55;font-size:38px;font-weight:1000;letter-spacing:3px}
+.card-content{padding:13px}
+.card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tag{border-color:#62438a;background:#9b5cff18;color:#d7bdff;padding:4px 9px;font-size:10px}
+.game-label{color:#aaa6bc;font-size:10px}
+.tournament-card h3{font-size:15px;margin:10px 0 5px}
+.card-description{font-size:11px;color:var(--muted);line-height:1.7;margin:6px 0}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:13px 0}
+.meta-grid>div{background:#ffffff06;border:1px solid #ffffff0a;border-radius:9px;padding:8px;min-width:0}
+.meta-grid small{display:block;color:#9691a7;font-size:9px;margin-bottom:4px}
+.meta-grid strong{display:block;color:#eeeaf7;font-size:10px;line-height:1.5;overflow-wrap:anywhere}
+.tournament-card .btn{width:100%;padding:9px;font-size:11px;border-radius:9px}
+.empty{background:#14121d;border-color:#383047;font-size:12px}
+.wallet{border-radius:14px;background:linear-gradient(120deg,#171522,#12121c);border-color:#30283e}
+.notice{font-size:11px}
+.bottom-nav{background:#10101bf5;border-top-color:#342943;padding-top:9px}
+.bottom-nav a,.bottom-nav button{font-size:10px;gap:5px}
+.bottom-nav .nav-icon{width:22px;height:22px}
+.bottom-nav a.active,.bottom-nav button.active{color:#d7baff}
+.bottom-nav a.active .nav-icon,.bottom-nav button.active .nav-icon{filter:drop-shadow(0 0 5px #a65cff88)}
+@media(max-width:620px){.grid{grid-template-columns:1fr;gap:12px}.cover{height:155px}.hero{padding-top:17px}.hero h1{font-size:21px}.tournament-card .card-content{padding:12px}.meta-grid{gap:7px}}
+
 @media(max-width:760px){.links{display:none}.hero{padding-top:14px}.grid{grid-template-columns:1fr}.stats{gap:8px}.stat{padding:13px}.stat strong{font-size:19px}.wallet{align-items:flex-start;flex-direction:column}}
 </style>
 </head>
@@ -73,9 +115,23 @@ async function renderTournaments(){
  cards.innerHTML='<div class="empty">در حال دریافت مسابقات...</div>';
  const {data,error}=await supabaseClient.from("tournaments").select("id,title,description,game,mode,map,status,max_teams,starts_at,cover_image_url").in("status",["published","registration_open","ongoing","completed"]).order("starts_at",{ascending:true,nullsFirst:false}).limit(30);
  if(error){cards.innerHTML='<div class="empty">فعلاً دریافت مسابقات ممکن نشد. کمی بعد دوباره امتحان کن.</div>';return;}
- document.getElementById("count").textContent=String(data.length).padStart(2,"0");
  if(!data.length){cards.innerHTML='<div class="empty">هنوز مسابقه‌ای برای نمایش منتشر نشده است.</div>';return;}
- cards.innerHTML=data.map(t=>'<article class="card">'+(t.cover_image_url?'<img src="'+esc(t.cover_image_url)+'" alt="" loading="lazy" style="width:100%;height:135px;object-fit:cover;border-radius:9px;margin-bottom:9px">':"")+<span class="tag">'+esc(statusLabel(t.status))+'</span><h3>'+esc(t.title)+'</h3><div class="muted">'+esc(t.game||"Call of Duty Mobile")+' · '+esc(t.mode||"حالت اعلام‌نشده")+'</div><div class="muted" style="margin-top:8px">نقشه: '+esc(t.map||"اعلام‌نشده")+'</div>'+(t.description?'<p class="muted">'+esc(t.description)+'</p>':"")+'<div class="details"><span>ظرفیت تیم: '+esc(t.max_teams??"اعلام‌نشده")+'</span><span>'+esc(formatStart(t.starts_at))+'</span></div><button class="btn secondary" disabled>ثبت‌نام تیمی به‌زودی فعال می‌شود</button></article>').join("");
+ cards.innerHTML=data.map(t=>`
+  <article class="card tournament-card">
+   ${t.cover_image_url?`<div class="cover"><img src="${esc(t.cover_image_url)}" alt="" loading="lazy"></div>`:'<div class="cover cover-empty"><span>EX1</span></div>'}
+   <div class="card-content">
+    <div class="card-top"><span class="tag">${esc(statusLabel(t.status))}</span><span class="game-label">${esc(t.game||"Call of Duty Mobile")}</span></div>
+    <h3>${esc(t.title)}</h3>
+    ${t.description?`<p class="card-description">${esc(t.description)}</p>`:""}
+    <div class="meta-grid">
+     <div><small>حالت بازی</small><strong>${esc(t.mode||"اعلام‌نشده")}</strong></div>
+     <div><small>نقشه</small><strong>${esc(t.map||"اعلام‌نشده")}</strong></div>
+     <div><small>ظرفیت تیم</small><strong>${esc(t.max_teams??"اعلام‌نشده")}</strong></div>
+     <div><small>زمان شروع</small><strong>${esc(formatStart(t.starts_at))}</strong></div>
+    </div>
+    <button class="btn secondary" disabled>جزئیات و ثبت‌نام به‌زودی</button>
+   </div>
+  </article>`).join("");
 }
 function openLogin(){document.getElementById("login").classList.add("show");}
 function goProfile(){
