@@ -206,22 +206,29 @@ $("authForm").addEventListener("submit",async e=>{
  }catch(err){toast(err.message||"ورود انجام نشد.");}
  finally{$("authSubmit").disabled=false;}
 });
+$("openProfileEditor").onclick=()=>{if(!currentUser){openAuth();return;}$("profileEditorModal").classList.add("show");};
+$("profileAvatarFile").addEventListener("change",async()=>{const file=$("profileAvatarFile").files[0];if(!file)return;if(!currentUser){openAuth();return;}try{if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>5*1024*1024)throw new Error("تصویر باید JPG، PNG یا WebP و حداکثر ۵ مگابایت باشد.");const ext=file.type.split("/")[1].replace("jpeg","jpg");const path=currentUser.id+"/avatar."+ext;const {error}=await sb.storage.from("ex1-avatars").upload(path,file,{upsert:true,contentType:file.type});if(error)throw error;const {data}=sb.storage.from("ex1-avatars").getPublicUrl(path);const {error:pe}=await sb.from("profiles").update({avatar_url:data.publicUrl}).eq("id",currentUser.id);if(pe)throw pe;toast("عکس پروفایل به‌روزرسانی شد.");loadProfile();}catch(err){toast(err.message||"بارگذاری عکس انجام نشد.");}});
+document.querySelectorAll("[data-profile-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-profile-tab]").forEach(x=>x.classList.toggle("active",x===b));["matches","team","posts"].forEach(k=>$("profile"+k[0].toUpperCase()+k.slice(1)).hidden=k!==b.dataset.profileTab);if(b.dataset.profileTab==="team")loadMyTeam();});
+$("openSettings").onclick=()=>{$("settingsModal").classList.add("show");};
+$("showAppearanceSettings").onclick=()=>{$("appearanceSettings").hidden=!$("appearanceSettings").hidden;};
+$("showBlockedSettings").onclick=()=>{$("blockedSettings").hidden=!$("blockedSettings").hidden;if(!$("blockedSettings").hidden)loadBlockedUsers();};
+document.querySelectorAll("[data-close-modal]").forEach(b=>b.onclick=()=>$(b.dataset.closeModal).classList.remove("show"));
 async function loadProfile(){
  if(!currentUser)return;
  loadWallet();
- const {data,error}=await sb.from("profiles").select("id,display_name,username,avatar_url").eq("id",currentUser.id).maybeSingle();
+ const {data,error}=await sb.from("profiles").select("id,display_name,username,avatar_url,game_uid").eq("id",currentUser.id).maybeSingle();
  if(error||!data)return;
  $("profileDisplayName").textContent=data.display_name||"بازیکن EX1";
  $("profileUsername").textContent=data.username?"@"+data.username:"نام کاربری ثبت نشده";
  $("profileAvatar").innerHTML=data.avatar_url?'<img class="profile-big" src="'+esc(data.avatar_url)+'" alt="">':esc((data.display_name||"EX").slice(0,1));
- $("profileName").value=data.display_name||"";$("profileHandle").value=data.username||"";$("profileAvatarUrl").value=data.avatar_url||"";loadFollowRequests();loadBlockedUsers();
+ $("profileName").value=data.display_name||"";$("profileHandle").value=data.username||"";$("profileGameUid").value=data.game_uid||"";loadFollowRequests();loadMyMatches();loadMyTeam();
 }
 $("profileForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!currentUser){openAuth();return;}
- const payload={display_name:$("profileName").value.trim(),username:$("profileHandle").value.trim()||null,avatar_url:$("profileAvatarUrl").value.trim()||null};
+ const payload={display_name:$("profileName").value.trim(),username:$("profileHandle").value.trim()||null,game_uid:$("profileGameUid").value.trim()||null};
  const {error}=await sb.from("profiles").update(payload).eq("id",currentUser.id);
  if(error){toast(error.message.includes("duplicate")?"این نام کاربری قبلاً گرفته شده.":"ذخیره پروفایل انجام نشد.");return;}
- toast("پروفایل ذخیره شد.");loadProfile();
+ toast("پروفایل ذخیره شد.");$("profileEditorModal").classList.remove("show");loadProfile();
 });
 $("blockHelp").onclick=()=>{switchPage("home");switchHome("explore");loadExplore();};
 async function uploadImage(file,folder){
