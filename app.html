@@ -28,7 +28,23 @@ footer{padding:20px 0;color:var(--muted);font-size:10px;text-align:center}
 
 /* EX1 Soft Dark refresh: clearer surfaces, calm contrast, readable controls */
 :root{color-scheme:dark;--bg:#191720;--panel:#24212d;--panel2:#302b3a;--line:#494253;--text:#f3eff8;--muted:#c0b8ca;--purple:#aa91df;--purple2:#826bb7;--lime:#c8dca0;--danger:#ed8999}
-body{background:radial-gradient(ellipse at 80% -10%,#8a70b51c,transparent 36%),var(--bg);color:var(--text)}
+/* Slow EX1 aurora: balanced blue, violet, green and graphite tones */
+body{
+ background:
+  radial-gradient(ellipse at 16% 22%,#354b6038,transparent 48%),
+  radial-gradient(ellipse at 82% 28%,#51436a38,transparent 48%),
+  radial-gradient(ellipse at 70% 88%,#36574735,transparent 46%),
+  linear-gradient(125deg,#202832,#2b2936,#29352f,#292b36);
+ background-size:180% 180%;
+ animation:ex1AuroraDrift 96s ease-in-out infinite alternate;
+ color:var(--text)
+}
+@keyframes ex1AuroraDrift{
+ 0%{background-position:0% 15%}
+ 50%{background-position:55% 75%}
+ 100%{background-position:100% 20%}
+}
+@media(prefers-reduced-motion:reduce){body{animation:none;background-position:50% 50%}}
 header{background:#1d1a25ed;border-bottom-color:var(--line)}
 .panel,.card,.dialog{background:var(--panel);border-color:var(--line)}
 .hero{background:linear-gradient(115deg,#383044,#24212d 72%);border-color:#665779}
