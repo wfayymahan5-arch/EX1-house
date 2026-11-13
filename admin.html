@@ -62,10 +62,26 @@ async function loadTableData(){
  const counts=["statTournaments","statRegistrations","statTeams","statUsers"].map(id=>$(id).textContent).filter(x=>x!=="—");
  $("overviewEmpty").textContent=counts.length?"داده‌های مجاز از دیتابیس بارگذاری شدند. برای جزئیات، بخش مربوطه را باز کن.":"برای این حساب، مجوز مشاهده داده‌های مدیریتی ثبت نشده است.";
 }
+function applyAdminTheme(theme, updateInputs=false){
+ if(!theme)return;
+ const root=document.documentElement;
+ root.style.setProperty("--bg",theme.background_color);
+ root.style.setProperty("--panel",theme.surface_color);
+ root.style.setProperty("--line",theme.surface_color);
+ root.style.setProperty("--text",theme.primary_text_color);
+ root.style.setProperty("--muted",theme.secondary_text_color);
+ root.style.setProperty("--purple",theme.accent_color);
+ root.style.setProperty("--cyan",theme.accent_color);
+ if(updateInputs){
+  for(const key of ["background_color","surface_color","primary_text_color","secondary_text_color","accent_color"]){
+   if($(key))$(key).value=theme[key];
+  }
+ }
+}
 async function loadTheme(){
  const {data,error}=await sb.from("site_theme_settings").select("background_color,surface_color,primary_text_color,secondary_text_color,accent_color").eq("singleton",true).maybeSingle();
  if(error||!data){$("themeMessage").textContent="خواندن تنظیمات ممکن نشد.";return;}
- Object.entries(data).forEach(([k,v])=>{if($(k))$(k).value=v;});
+ applyAdminTheme(data,true);
 }
 async function applyAccess(user){
  $("authView").classList.add("hidden");$("appView").classList.remove("hidden");$("identity").textContent=user.email||"حساب واردشده";
@@ -94,5 +110,12 @@ $("loginForm").addEventListener("submit",async e=>{e.preventDefault();$("loginBu
 $("logoutButton").onclick=async()=>{await sb.auth.signOut();permissions={};$("appView").classList.add("hidden");$("authView").classList.remove("hidden");$("password").value="";};
 $("themeForm").addEventListener("submit",async e=>{e.preventDefault();if(!permissions["settings.manage"]){$("themeMessage").textContent="مجوز ذخیره تنظیمات را نداری.";return;}$("saveTheme").disabled=true;try{const keys=["background_color","surface_color","primary_text_color","secondary_text_color","accent_color"];const params={};keys.forEach(k=>params["p_"+k]=$(k).value);await rpc("set_site_theme",params);$("themeMessage").textContent="تنظیمات با موفقیت ذخیره شد.";toast("رنگ‌بندی EX1 LEGEND به‌روزرسانی شد.");}catch(err){$("themeMessage").textContent="ذخیره‌سازی انجام نشد؛ مجوز و اتصال را بررسی کن.";}finally{$("saveTheme").disabled=false;}});
 sb.auth.onAuthStateChange((event,session)=>{if(event==="SIGNED_OUT"||!session){$("appView").classList.add("hidden");$("authView").classList.remove("hidden");}else if(event==="SIGNED_IN")setTimeout(refreshSession,0);});
+sb.channel("ex1-admin-site-theme")
+ .on("postgres_changes",{event:"UPDATE",schema:"public",table:"site_theme_settings",filter:"singleton=eq.true"},payload=>{
+  applyAdminTheme(payload.new,true);
+ })
+ .subscribe(status=>{
+  if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")console.warn("EX1 admin theme realtime:",status);
+ });
 refreshSession();
 </script></body></html>
