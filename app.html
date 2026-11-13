@@ -640,7 +640,7 @@ $("chatForm").addEventListener("submit",async e=>{
  const {error}=await sb.from("social_messages").insert({conversation_id:activeConversation,sender_id:currentUser.id,body});
  if(error){toast("ارسال پیام انجام نشد.");return;}$("chatText").value="";loadMessages();
 });
-async async function loadTournaments(){
+async function loadTournaments(){
  const {data,error}=await sb.from("tournaments").select("id,title,description,game,mode,map,status,max_teams,starts_at,cover_image_url,rules").in("status",["published","registration_open","ongoing","completed"]).order("starts_at",{ascending:true,nullsFirst:false}).limit(30);
  if(error){$("tournaments").innerHTML='<div class="empty">مسابقات دریافت نشدند.</div>';return;}
  $("tournaments").innerHTML=(data||[]).map(t=>'<article class="panel tournament">'+(t.cover_image_url?'<img src="'+esc(t.cover_image_url)+'" alt="">':'<div class="empty">EX1 · TOURNAMENT</div>')+'<div class="tournament-content"><span class="tag">'+esc(({published:"منتشرشده",registration_open:"ثبت‌نام باز",ongoing:"در حال برگزاری",completed:"پایان‌یافته"})[t.status]||"مسابقه")+'</span><h3>'+esc(t.title)+'</h3><p class="muted">'+esc(t.description||"مسابقه‌ی جامعه EX1")+'</p><div class="meta"><div><small>بازی</small><strong>'+esc(t.game)+'</strong></div><div><small>حالت</small><strong>'+esc(t.mode||"اعلام‌نشده")+'</strong></div><div><small>نقشه</small><strong>'+esc(t.map||"اعلام‌نشده")+'</strong></div><div><small>شروع</small><strong>'+esc(t.starts_at?formatDate(t.starts_at):"اعلام می‌شود")+'</strong></div></div></div></article>').join("")||'<div class="empty">هنوز مسابقه‌ای منتشر نشده است.</div>';
