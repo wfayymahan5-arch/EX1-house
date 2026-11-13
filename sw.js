@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "ex1-legend-v5";
+const CACHE_NAME = "ex1-legend-v6";
 
 const ASSETS = [
   "/",
@@ -40,22 +40,26 @@ self.addEventListener("fetch", (event) => {
 
   if (url.origin !== self.location.origin) return;
 
+  const isNavigation = request.mode === "navigate";
   event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
-
-      return fetch(request).then((response) => {
-        if (response && response.ok) {
-          const responseClone = response.clone();
-
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseClone);
+    (isNavigation
+      ? fetch(request).then((response) => {
+          if (response && response.ok) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+          }
+          return response;
+        }).catch(() => caches.match(request).then((cached) => cached || caches.match("/")))
+      : caches.match(request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          return fetch(request).then((response) => {
+            if (response && response.ok) {
+              const responseClone = response.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+            }
+            return response;
           });
-        }
-
-        return response;
-      });
-    }).catch(() => caches.match("/"))
+        }).catch(() => caches.match("/")))
   );
 });
 
