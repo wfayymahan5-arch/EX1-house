@@ -1,9 +1,12 @@
 
-const CACHE_NAME = "ex1-legend-v4";
+const CACHE_NAME = "ex1-legend-v5";
 
 const ASSETS = [
   "/",
-  "/manifest.json"
+  "/app.html",
+  "/admin.html",
+  "/manifest.json",
+  "/room-arena-art.svg"
 ];
 
 self.addEventListener("install", (event) => {
