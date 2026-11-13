@@ -96,7 +96,7 @@ document.getElementById("authForm").addEventListener("submit",async event=>{
  try{
   if(authMode==="signup"){
    if(displayName.length<2){toast("نام نمایشی باید حداقل ۲ نویسه باشد.");return;}
-   const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{display_name:displayName,username:displayName}}});
+   const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{display_name:displayName}}});
    if(error)throw error;
    if(data.session){toast("حساب ساخته شد؛ خوش اومدی!");closeLogin();}
    else{toast("حساب ثبت شد. اگر تأیید ایمیل فعال باشد، ایمیلت را بررسی کن.");closeLogin();}
