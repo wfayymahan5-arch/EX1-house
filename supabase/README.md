@@ -1,27 +1,18 @@
-# EX1 HOUSE — Supabase setup
+# EX1 HOUSE — Supabase integration
 
-This folder contains the first database migration for EX1.
+The live Supabase project is configured in `supabase-config.js` using its **public publishable key**. This key is intended for browser use; database access is still restricted by grants and Row Level Security (RLS).
 
-## 1. Create the Supabase project
-1. Create a project in the Supabase dashboard.
-2. Open **SQL Editor** → **New query**.
-3. Copy all of `schema.sql`, paste it into the editor, and run it.
-4. In **Project Settings → API**, copy the Project URL and the publishable/anon key.
+## Important
+- Do not run the old `schema.sql` against the live project. It describes an obsolete first-generation schema and does not match the current database.
+- Never put a Supabase secret key or `service_role` key in this repository or browser code.
+- The public site now uses Supabase Auth for email/password sign-up and sign-in, reads published tournament rows, and reads the public theme settings.
+- New account profile creation is handled by the database trigger in the live project.
+- Tournament registration is intentionally not enabled in this first connection step: the current database requires a team captain and a team, so the old one-click individual demo registration was removed.
+- Wallet display and financial actions remain demo-only / not connected to real payments.
+- The admin page is still a preview. Admin sign-in, role provisioning, finance controls, and owner setup must be completed and tested separately.
 
-## 2. Important security rules
-- The browser may use only the publishable/anon key.
-- Never put the `service_role` or secret key in `index.html`, `admin.html`, GitHub, or any public file.
-- Admin authorization is based on the trusted Auth JWT claim `app_metadata.role = admin`; a user-editable profile field is not an admin permission.
-- Do not make XP editable from browser-only code. XP awards must be authorized by the database policy or a trusted server function.
-- Keep tournaments non-cash and XP as non-monetary experience points.
+## Current live schema
+The authoritative schema is the existing Supabase project, not the legacy SQL snapshot in this folder. Tables include profiles, tournaments, teams, team_members, tournament_registrations, tournament_results, admin_users, and site_theme_settings, plus private RBAC and demo-wallet tables.
 
-## 3. What the schema creates
-- `profiles`: public profile details linked to Supabase Auth.
-- `tournaments`: tournament listings and status.
-- `registrations`: user registrations, with one registration per user per tournament.
-- `xp_transactions`: an auditable XP ledger.
-- `app_settings`: admin-only settings.
-- Row Level Security policies for public tournament reading, user-owned records, and admin-only operations.
-
-## 4. Before connecting the website
-The website still needs its Supabase URL and publishable key, sign-in/sign-up screens, and server-trusted admin-role provisioning. Do not treat the current `admin.html` preview as a secure admin panel until those steps are complete.
+## Browser security
+RLS is the authorization boundary. Hiding buttons in the frontend is not security. The publishable key may be public; privileged keys and secrets must remain server-side.
