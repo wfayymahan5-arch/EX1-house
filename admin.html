@@ -326,7 +326,7 @@ async function loadTournaments(){
   if(canDelete)actions.push('<button class="action-btn danger" data-delete-tournament="'+esc(t.id)+'">حذف</button>');
   return row([esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—"),esc(t.entry_demo_points||0),esc(t.prize_demo_points||0),actions.join(" ")||"—"]);
  });
- $("tournamentsTable").innerHTML=tournamentCache.length?table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع","ورودی (تومان)","جایزه (تومان)","عملیات"],rows):'<div class="empty">هنوز مسابقه‌ای ثبت نشده است.</div>';
+ $("tournamentsTable").innerHTML=tournamentCache.length?table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع","ورودی (امتیاز)","جایزه (امتیاز)","عملیات"],rows):'<div class="empty">هنوز مسابقه‌ای ثبت نشده است.</div>';
  $("addTournamentButton").hidden=!permissions["tournaments.create"];
  $("tournamentForm").classList.add("hidden");
 }
