@@ -177,6 +177,109 @@ header{background:#ffffffed!important;border-bottom:1px solid #e2e5f1!important;
 .connection-status.disconnected{background:#fff0f1;color:#b34c5b}.connection-status.disconnected i{background:#d65b69}
 @media(max-width:420px){.connection-status{font-size:9px;padding:5px 7px}.header-actions{gap:5px}}
 
+
+/* EX1 LEGEND — gaming social app redesign inspired by the supplied references */
+:root{
+ --bg:#100d1d;--panel:#1b1730;--panel2:#211b3b;--line:#40345d;
+ --text:#f8f5ff;--muted:#b9afcf;--purple:#a96cff;--purple2:#7439bd;
+ --blue:#49b8e9;--green:#59d49a;--gold:#f4c96b;
+}
+html,body{min-height:100%;overscroll-behavior-x:none}
+body{
+ background:
+  radial-gradient(ellipse at 8% 16%,#7133b866,transparent 37%),
+  radial-gradient(ellipse at 96% 34%,#087eaa44,transparent 38%),
+  radial-gradient(ellipse at 55% 95%,#1b8c6650,transparent 38%),
+  linear-gradient(155deg,#100d1d 0%,#151329 46%,#101c2a 100%);
+ background-attachment:fixed;
+ padding-bottom:calc(94px + env(safe-area-inset-bottom));
+}
+button,[role=button],a{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button{user-select:none}
+header{background:#110d20d9;border-bottom:1px solid #ffffff16;backdrop-filter:blur(22px)}
+.topbar{height:66px}
+.brand{font-size:18px;letter-spacing:.4px}
+.brand b{color:#c79aff}
+.connection-status{border:1px solid #ffffff20;border-radius:18px;padding:7px 10px;background:#ffffff0b;font-size:10px}
+.connection-status i{background:var(--green);box-shadow:0 0 10px #59d49a;display:inline-block;width:7px;height:7px;border-radius:50%;margin-left:5px}
+.hero{min-height:190px;border-radius:24px;border:1px solid #ffffff22;background:
+ linear-gradient(105deg,#211637dd 0%,#1b2441bb 55%,#123c3c99 100%),
+ radial-gradient(circle at 80% 0%,#a66cff55,transparent 50%);
+ box-shadow:0 18px 50px #05030d55;position:relative}
+.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 25%,#ffffff09 50%,transparent 70%);pointer-events:none}
+.hero h1 span{color:#c79aff;text-shadow:0 0 24px #a96cff55}
+.eyebrow{color:#75e4bb}
+.hero p{color:#d0c5e2}
+.btn{border-radius:14px;background:linear-gradient(115deg,#9b5ce8,#5a8fe9);box-shadow:0 7px 24px #733ac344}
+.btn.secondary{background:#ffffff0d;border-color:#ffffff22}
+.btn.ghost{background:#ffffff08;border-color:#ffffff20}
+.home-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 20px}
+.home-shortcuts button{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:right;border:1px solid #ffffff20;border-radius:17px;padding:14px;background:linear-gradient(145deg,#ffffff12,#ffffff05);color:var(--text);min-height:104px}
+.home-shortcuts button span{font-size:24px}
+.home-shortcuts button b{font-size:12px}
+.home-shortcuts button small{font-size:10px;color:var(--muted)}
+.subnav{display:grid;grid-template-columns:repeat(3,1fr);padding:5px;border:1px solid #ffffff16;background:#ffffff09;border-radius:18px;gap:5px}
+.subnav button{border:0;border-radius:13px;background:transparent;padding:12px;color:#bcb2d0;font-size:12px}
+.subnav button.active{background:linear-gradient(120deg,#ffffff24,#ffffff0d);color:#fff;box-shadow:inset 0 0 0 1px #ffffff12}
+.panel,.side-card,.post,.tournament,.room-card{background:linear-gradient(145deg,#ffffff12,#ffffff07);border:1px solid #ffffff1b;box-shadow:0 12px 32px #06040e35;backdrop-filter:blur(14px)}
+.stories{padding:8px 0 15px}
+.story-ring{background:linear-gradient(135deg,#b46cff,#45c7e8,#5bd89c);box-shadow:0 0 0 2px #ffffff16,0 5px 18px #7d4ac655}
+.story-placeholder{background:#201735;border-color:#171226}
+.post{border-radius:22px;padding:15px}
+.post-media{border-radius:17px;max-height:460px}
+.post-actions{border-color:#ffffff16}
+.post-actions button{color:#c7bdd8}
+.field,.compose textarea{background:#100d1d99;border-color:#ffffff22;border-radius:13px;color:white}
+.field:focus,.compose textarea:focus{border-color:#ad80ec;box-shadow:0 0 0 3px #a96cff20}
+.section-head h2{font-size:18px}
+.tournament-grid{grid-template-columns:1fr;gap:16px}
+.tournament{border-radius:22px;overflow:hidden}
+.tournament>img{height:220px;object-fit:cover}
+.tournament-content{padding:16px}
+.tournament h3{font-size:17px}
+.meta div{background:#100d1d88;border-color:#ffffff16;border-radius:12px;padding:11px}
+.tag{background:#6f42a333;border-color:#c09aff55;color:#e8d9ff}
+.room-grid{grid-template-columns:1fr;gap:15px}
+.room-card{border-radius:22px;overflow:hidden;cursor:pointer;transition:transform .18s,border-color .18s}
+.room-card:active{transform:scale(.99)}
+.room-card img,.room-card video{height:210px}
+.room-card-body{padding:16px}
+.room-card h3{font-size:17px}
+.room-meta{font-size:11px}
+.room-detail{border-radius:24px;padding:15px;margin:18px 0 28px;background:linear-gradient(145deg,#241a3b,#151e2c);border-color:#b58be844}
+.room-cover{height:230px;object-fit:cover;border-radius:18px}
+.room-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;background:#08071188;border:1px solid #ffffff15;border-radius:30px}
+.room-tabs button{border:0;background:transparent;border-radius:24px;padding:12px;color:#c8bddb}
+.room-tabs button.active{background:linear-gradient(120deg,#8d55ca,#4a668e);color:#fff;box-shadow:0 5px 20px #7d4ac444}
+.team-slots{grid-template-columns:1fr;gap:10px}
+.team-slot{min-height:72px;border-radius:16px;background:linear-gradient(110deg,#ffffff0d,#ffffff04);border-color:#ffffff20;padding:13px;font-size:12px}
+.team-slot button{border:0;border-radius:12px;padding:10px 14px;background:linear-gradient(110deg,#9c5ce5,#4c93bd);color:white;font-weight:800}
+.room-rules{background:#ffffff08;border:1px solid #ffffff14;border-radius:17px;padding:17px;color:#e0d8ec}
+.wallet-card{border-radius:22px;background:linear-gradient(115deg,#30205a,#1b3761 62%,#174a49);border-color:#a98ae955}
+.profile-card{border-radius:22px}
+.profile-big{border:3px solid #b58be8;box-shadow:0 0 0 6px #a96cff20,0 10px 28px #05030d66}
+.bottom-nav{bottom:calc(8px + env(safe-area-inset-bottom));left:12px;right:12px;border:1px solid #ffffff20;border-radius:24px;padding:9px 8px;background:#171329eF;box-shadow:0 12px 38px #05030d99;grid-template-columns:repeat(4,1fr)}
+.bottom-nav button{min-height:54px;border-radius:17px;gap:5px;font-size:10px}
+.bottom-nav button.active{background:linear-gradient(135deg,#9a5de7aa,#3d7eb288);color:#fff;box-shadow:inset 0 0 0 1px #ffffff18}
+.bottom-nav svg{width:23px;height:23px}
+.modal{backdrop-filter:blur(12px)}
+.dialog{border-radius:22px;background:linear-gradient(145deg,#251b3c,#171b2c);border-color:#a98ae955;box-shadow:0 24px 80px #000a}
+.toast{border-radius:14px;background:#211837;border-color:#a98ae966;box-shadow:0 12px 35px #0008}
+@media(min-width:760px){
+ .tournament-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .room-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .room-card img,.room-card video{height:190px}
+}
+@media(max-width:520px){
+ .wrap{width:calc(100% - 24px)}
+ .hero{min-height:175px;padding:18px}
+ .home-shortcuts button{padding:11px;min-height:96px}
+ .tournament>img{height:195px}
+ .room-card img,.room-card video{height:190px}
+ .room-cover{height:190px}
+ .bottom-nav button span:last-child{font-size:9px}
+}
+
 </style>
 </head>
 <body>
@@ -537,7 +640,7 @@ $("chatForm").addEventListener("submit",async e=>{
  const {error}=await sb.from("social_messages").insert({conversation_id:activeConversation,sender_id:currentUser.id,body});
  if(error){toast("ارسال پیام انجام نشد.");return;}$("chatText").value="";loadMessages();
 });
-async function loadTournaments(){
+async async function loadTournaments(){
  const {data,error}=await sb.from("tournaments").select("id,title,description,game,mode,map,status,max_teams,starts_at,cover_image_url,rules").in("status",["published","registration_open","ongoing","completed"]).order("starts_at",{ascending:true,nullsFirst:false}).limit(30);
  if(error){$("tournaments").innerHTML='<div class="empty">مسابقات دریافت نشدند.</div>';return;}
  $("tournaments").innerHTML=(data||[]).map(t=>'<article class="panel tournament">'+(t.cover_image_url?'<img src="'+esc(t.cover_image_url)+'" alt="">':'<div class="empty">EX1 · TOURNAMENT</div>')+'<div class="tournament-content"><span class="tag">'+esc(({published:"منتشرشده",registration_open:"ثبت‌نام باز",ongoing:"در حال برگزاری",completed:"پایان‌یافته"})[t.status]||"مسابقه")+'</span><h3>'+esc(t.title)+'</h3><p class="muted">'+esc(t.description||"مسابقه‌ی جامعه EX1")+'</p><div class="meta"><div><small>بازی</small><strong>'+esc(t.game)+'</strong></div><div><small>حالت</small><strong>'+esc(t.mode||"اعلام‌نشده")+'</strong></div><div><small>نقشه</small><strong>'+esc(t.map||"اعلام‌نشده")+'</strong></div><div><small>شروع</small><strong>'+esc(t.starts_at?formatDate(t.starts_at):"اعلام می‌شود")+'</strong></div></div></div></article>').join("")||'<div class="empty">هنوز مسابقه‌ای منتشر نشده است.</div>';
