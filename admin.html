@@ -401,7 +401,7 @@ function resetTournamentForm(){
 }
 function resetRoomForm(){
  $("roomForm").reset();$("rf_id").value="";$("rf_capacity").value=100;$("rf_team_size").value="4";$("rf_max_teams").value=25;$("rf_room_media_type").value="image";$("rf_status").value="open";$("rf_game_mode").value="battle_royale";
- $("roomForm").classList.add("hidden");
+ $("roomForm").classList.add("hidden");$("roomAccessAdminPanel").classList.add("hidden");$("rf_room_code").value="";$("rf_room_password").value="";$("roomAccessPublishMessage").textContent="";
 }
 function tournamentOptions(selected){
  $("rf_tournament_id").innerHTML=tournamentCache.map(t=>'<option value="'+esc(t.id)+'" '+(t.id===selected?"selected":"")+'>'+esc(t.title)+'</option>').join("");
@@ -430,7 +430,6 @@ async function loadRooms(){
  const now=Date.now();const imminent=rooms.filter(r=>r.status==="open"&&r.starts_at&&new Date(r.starts_at).getTime()>=now-10*60000&&new Date(r.starts_at).getTime()<=now+15*60000);
  const alertBox=$("roomStartAlerts");alertBox.hidden=!imminent.length;alertBox.innerHTML=imminent.length?"🔔 زمان ساخت روم کالاف رسیده یا نزدیک است: "+imminent.map(r=>esc(r.title)+" · "+new Date(r.starts_at).toLocaleString("fa-IR")).join(" | "):"";
  $("addRoomButton").hidden=!canManage;
- $("roomForm").classList.add("hidden");
  const rows=rooms.map(r=>{
   const t=tournamentCache.find(x=>x.id===r.tournament_id);
   const actions=canManage?'<button class="action-btn" data-edit-room="'+esc(r.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-room="'+esc(r.id)+'">حذف</button>':"—";
@@ -531,6 +530,7 @@ $("roomsTable").addEventListener("click",async e=>{
  }
 });
 
+setInterval(()=>{if(!document.hidden&&(permissions["rooms.view"]||permissions["rooms.manage"]))loadRooms().catch(()=>{});},30000);
 async function refreshSession(){
  const {data,error}=await sb.auth.getUser();
  if(error||!data.user){$("appView").classList.add("hidden");$("authView").classList.remove("hidden");return;}
