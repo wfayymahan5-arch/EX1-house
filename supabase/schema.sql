@@ -1,5 +1,9 @@
--- EX1 HOUSE database schema for Supabase (PostgreSQL)
--- Run this in Supabase SQL Editor after creating a project.
+-- ARCHIVED LEGACY SCHEMA — DO NOT RUN AGAINST THE LIVE EX1 PROJECT.
+-- This file describes an obsolete first-generation design and does not match
+-- the current Supabase database. The live project already has its own schema,
+-- RBAC, RLS policies, demo wallet, and site theme settings.
+-- See supabase/README.md before making any database changes.
+--
 -- Admin access is granted only through trusted Supabase Auth app_metadata.role = 'admin'.
 -- Never put the service_role key in browser code.
 
