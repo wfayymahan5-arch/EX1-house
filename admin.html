@@ -26,7 +26,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{p
 <section class="hero"><div class="row"><div><h1>پنل مدیریت EX1 LEGEND</h1><div class="muted" id="identity">در حال بررسی دسترسی...</div></div><button class="btn" id="logoutButton">خروج امن</button></div><div class="notice">پنل به دیتابیس زنده متصل است. هر بخش فقط با مجوز سمت سرور قابل مشاهده است؛ عملیات تغییردهنده تا تکمیل کنترل‌های بیشتر غیرفعال‌اند.</div></section>
 <div class="stats"><div class="card stat"><small>مسابقات</small><strong id="statTournaments">—</strong></div><div class="card stat"><small>ثبت‌نام‌ها</small><strong id="statRegistrations">—</strong></div><div class="card stat"><small>تیم‌ها</small><strong id="statTeams">—</strong></div><div class="card stat"><small>پروفایل‌ها</small><strong id="statUsers">—</strong></div></div>
 <div class="layout"><nav class="card nav" id="nav"></nav><main>
-<section class="section tab" id="overview"><h2>نمای کلی زنده</h2><div class="muted" id="overviewText">آمار از دیتابیس خوانده می‌شود.</div><div class="empty" id="overviewEmpty">در حال دریافت اطلاعات...</div></section>
+<section class="section tab" id="overview"><h2>نمای کلی زنده</h2><div class="muted" id="overviewText">آمار از دیتابیس خوانده می‌شود.</div><div class="empty" id="overviewEmpty">در حال دریافت اطلاعات...</div><div class="notice">بخش مالی تا زمان پیاده‌سازی قفل امنیتی مخصوص ورود بزرگسال مسئول، در پنل نمایش داده نمی‌شود.</div></section>
 <section class="section tab hidden" id="tournaments"><div class="row"><h2>مسابقات</h2><span class="tag">داده زنده</span></div><div id="tournamentsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="registrations"><h2>ثبت‌نام‌های تیمی</h2><div id="registrationsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
@@ -55,7 +55,7 @@ async function loadTableData(){
  if(permissions["registrations.view_all"])tasks.push(rpc("admin_dashboard_registrations").then(d=>{$("statRegistrations").textContent=d.length;$("registrationsTable").innerHTML=table(["مسابقه","تیم","برچسب","وضعیت","زمان"],d.map(x=>row([esc(x.tournament_title),esc(x.team_name),esc(x.team_tag||"—"),esc(x.status),esc(new Date(x.registered_at).toLocaleString("fa-IR"))])));}));
  if(permissions["teams.view"])tasks.push(rpc("admin_dashboard_teams").then(d=>{$("statTeams").textContent=d.length;$("teamsTable").innerHTML=table(["نام تیم","برچسب","تعداد اعضا","توضیحات"],d.map(x=>row([esc(x.name),esc(x.tag||"—"),esc(x.member_count),esc(x.description||"—")])));}));
  if(permissions["users.view"]||permissions["profiles.view_all"])tasks.push(rpc("admin_dashboard_users").then(d=>{$("statUsers").textContent=d.length;$("usersTable").innerHTML=table(["نام نمایشی","نام کاربری","شناسه","ایجاد"],d.map(x=>row([esc(x.display_name||"—"),esc(x.username||"—"),'<small>'+esc(x.user_id)+'</small>',esc(x.created_at?new Date(x.created_at).toLocaleDateString("fa-IR"):"—")])));}));
- if(permissions["wallet.view_all"])tasks.push(rpc("admin_wallet_demo_overview",{p_limit:100}).then(d=>{$("walletTable").innerHTML=table(["شناسه کاربر","نوع","واحد","موجودی آزمایشی"],d.map(x=>row(['<small>'+esc(x.user_id)+'</small>',esc(x.wallet_mode),esc(x.currency_code),esc(x.balance_units)])));}));
+ 
  const settled=await Promise.allSettled(tasks);
  const failed=settled.filter(x=>x.status==="rejected");
  if(failed.length)toast("بعضی بخش‌ها به‌دلیل محدودیت دسترسی یا خطای ارتباط بارگذاری نشدند.");
@@ -78,12 +78,11 @@ async function applyAccess(user){
  if(permissions["registrations.view_all"])allowedTabs.push("registrations");
  if(permissions["teams.view"])allowedTabs.push("teams");
  if(permissions["users.view"]||permissions["profiles.view_all"])allowedTabs.push("users");
- if(permissions["wallet.view_all"])allowedTabs.push("wallet");
  if(permissions["settings.view"]||permissions["settings.manage"])allowedTabs.push("settings");
  allowedTabs.forEach(addNav);showTab("overview");
  const count=Object.values(permissions).filter(Boolean).length;
  if(count===0){$("overviewEmpty").textContent="این حساب دسترسی مدیریتی ندارد. برای امنیت، هیچ داده مدیریتی نمایش داده نمی‌شود.";$("overviewText").textContent="ورود موفق بود، اما مجوز مدیریتی برای این حساب ثبت نشده است.";}
- if(permissions["settings.manage"]||permissions["settings.view"])await loadTheme();
+ if(permissions["settings.manage"]||permissions["settings.view"]){await loadTheme();$("saveTheme").hidden=!permissions["settings.manage"];}
  await loadTableData();
 }
 async function refreshSession(){
