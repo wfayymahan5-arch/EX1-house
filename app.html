@@ -87,9 +87,7 @@ let currentUser=null,authMode="login",activeConversation=null,activeConversation
 let toastTimer;
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.remove("show"),3200);}
 function closeAuth(){$("authModal").classList.remove("show");}
-function openAuth(){$("authEmailFallbackPanel").hidden=true;$("authModal").classList.add("show");}
-$("authEmailFallback").onclick=()=>{$("authEmailFallbackPanel").hidden=!$("authEmailFallbackPanel").hidden;};
-$("authGoogleButton").onclick=async()=>{const button=$("authGoogleButton");button.disabled=true;try{const redirectTo=window.location.origin+window.location.pathname;const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo}});if(error)throw error;}catch(err){console.error("EX1 Google sign-in:",err);toast(err?.message||"ورود با Google هنوز در تنظیمات Supabase فعال نشده است.");button.disabled=false;}};
+function openAuth(){$("authModal").classList.add("show");}
 const userThemes={soft:{accent:"#b9d9cf",button:"#9278c7"},blue:{accent:"#9bc9f5",button:"#3e78ae"},green:{accent:"#a9dfbd",button:"#4d9270"},amber:{accent:"#f1d19a",button:"#a77a37"}};
 function applyUserSettings(){
  const t=localStorage.getItem("ex1-theme")||"soft",f=localStorage.getItem("ex1-font")||"tahoma";
