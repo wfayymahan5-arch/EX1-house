@@ -73,7 +73,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{p
 <section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="users"><h2>کاربران و پروفایل‌ها</h2><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="audit"><h2>گزارش فعالیت مدیران</h2><p class="muted">تغییرات ایجاد، ویرایش و حذف مسابقه‌ها و روم‌ها به‌صورت خودکار ثبت می‌شوند.</p><div id="auditTable" class="empty">در حال بارگذاری...</div></section>
-<section class="section tab hidden" id="wallet"><h2>کیف امتیاز آزمایشی</h2><div class="notice">این بخش فعلاً فقط برای نمایش وضعیت آماده‌سازی است. هیچ شارژ، برداشت یا تراکنش واقعی از این پنل انجام نمی‌شود و دسترسی مالی جداگانه نیازمند تأیید بزرگسال مسئول است.</div><div id="walletTable" class="empty">در انتظار دسترسی مجاز...</div></section>
+<section class="section tab hidden" id="socialReports"><h2>گزارش‌های اجتماعی</h2><p class="muted">گزارش پست‌ها، دیدگاه‌ها، استوری‌ها و پروفایل‌ها. رسیدگی فقط برای مدیر دارای مجوز social.moderate فعال است.</p><div id="socialReportsTable" class="empty">در حال بارگذاری...</div></section>\n<section class="section tab hidden" id="wallet"><h2>کیف امتیاز آزمایشی</h2><div class="notice">این بخش فعلاً فقط برای نمایش وضعیت آماده‌سازی است. هیچ شارژ، برداشت یا تراکنش واقعی از این پنل انجام نمی‌شود و دسترسی مالی جداگانه نیازمند تأیید بزرگسال مسئول است.</div><div id="walletTable" class="empty">در انتظار دسترسی مجاز...</div></section>
 <section class="section tab hidden" id="settings"><h2>تنظیمات ظاهری سایت</h2><p class="muted">رنگ‌ها فقط با مجوز settings.manage ذخیره می‌شوند.</p><form id="themeForm"><div class="colorgrid">
 <label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
 </div><button class="btn primary" id="saveTheme" type="submit" style="margin-top:14px">ذخیره تنظیمات</button></form><div id="themeMessage" class="muted" style="margin-top:10px"></div></section>
@@ -83,7 +83,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{p
 const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",audit:"گزارش فعالیت",wallet:"کیف امتیاز",settings:"تنظیمات"};
+const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",audit:"گزارش فعالیت",socialReports:"گزارش‌های اجتماعی",wallet:"کیف امتیاز",settings:"تنظیمات"};
 let permissions={};
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200);}
 function table(headers,rows){if(!rows.length)return '<div class="empty">هنوز داده‌ای ثبت نشده است.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';}
@@ -128,6 +128,26 @@ $("usersTable").addEventListener("click",async e=>{
   await loadAdminUsers();toast(flag?"کاربر به صف بررسی اضافه شد.":"علامت بررسی برداشته شد.");
  }catch(err){toast("تغییر وضعیت بررسی انجام نشد؛ مجوز را بررسی کن.");}
 });
+
+async function loadSocialReports(){
+ const {data,error}=await sb.from("social_reports").select("id,reporter_id,target_user_id,post_id,comment_id,story_id,message_id,reason,details,status,created_at").order("created_at",{ascending:false}).limit(100);
+ if(error)throw error;
+ const statusLabel={open:"باز",reviewing:"در حال بررسی",resolved:"رسیدگی شد",dismissed:"رد شد"};
+ const rows=(data||[]).map(x=>{
+  const target=x.post_id?"پست":x.comment_id?"دیدگاه":x.story_id?"استوری":x.message_id?"پیام":"پروفایل";
+  const actions=x.status==="resolved"||x.status==="dismissed"?"—":'<button class="action-btn" data-report-status="reviewing" data-report-id="'+esc(x.id)+'">شروع بررسی</button> <button class="action-btn" data-report-status="resolved" data-report-id="'+esc(x.id)+'">حل شد</button> <button class="action-btn danger" data-report-status="dismissed" data-report-id="'+esc(x.id)+'">رد گزارش</button>';
+  return row([esc(target),esc(x.reason),esc(x.details||"—"),esc(x.reporter_id),esc(statusLabel[x.status]||x.status),esc(x.created_at?new Date(x.created_at).toLocaleString("fa-IR"):"—"),actions]);
+ });
+ $("socialReportsTable").innerHTML=rows.length?table(["نوع","دلیل","توضیحات","گزارش‌دهنده","وضعیت","زمان","عملیات"],rows):'<div class="empty">گزارش اجتماعی ثبت نشده است.</div>';
+}
+$("socialReportsTable").addEventListener("click",async e=>{
+ const b=e.target.closest("[data-report-status]");if(!b||!permissions["social.moderate"])return;
+ const {data,error}=await sb.auth.getUser();if(error||!data.user)return toast("نشست مدیر معتبر نیست.");
+ const status=b.dataset.reportStatus;
+ const result=await sb.from("social_reports").update({status,reviewed_by:data.user.id,reviewed_at:new Date().toISOString()}).eq("id",b.dataset.reportId);
+ if(result.error){toast("ثبت نتیجه بررسی انجام نشد.");return;}
+ toast("وضعیت گزارش به‌روزرسانی شد.");loadSocialReports();
+});
 async function loadAuditLogs(){
  const {data,error}=await sb.from("admin_audit_logs_view").select("id,actor_id,action,entity_type,entity_id,created_at").order("created_at",{ascending:false}).limit(100);
  if(error)throw error;
@@ -142,7 +162,7 @@ async function loadTableData(){
  if(permissions["teams.view"])tasks.push(rpc("admin_dashboard_teams").then(d=>{$("statTeams").textContent=d.length;$("teamsTable").innerHTML=table(["نام تیم","برچسب","تعداد اعضا","توضیحات"],d.map(x=>row([esc(x.name),esc(x.tag||"—"),esc(x.member_count),esc(x.description||"—")])));}));
  if(permissions["users.view"]||permissions["profiles.view_all"])tasks.push(loadAdminUsers());
  
- if(permissions["audit.view"])tasks.push(loadAuditLogs());
+ if(permissions["audit.view"])tasks.push(loadAuditLogs());\n if(permissions["social.moderate"])tasks.push(loadSocialReports());
  const settled=await Promise.allSettled(tasks);
  const failed=settled.filter(x=>x.status==="rejected");
  if(permissions["rooms.view"]||permissions["rooms.manage"]) {
@@ -169,7 +189,7 @@ async function applyAccess(user){
  if(permissions["registrations.view_all"])allowedTabs.push("registrations");
  if(permissions["teams.view"])allowedTabs.push("teams");
  if(permissions["users.view"]||permissions["profiles.view_all"])allowedTabs.push("users");
- if(permissions["audit.view"])allowedTabs.push("audit");
+ if(permissions["audit.view"])allowedTabs.push("audit");\n if(permissions["social.moderate"])allowedTabs.push("socialReports");
  if(permissions["settings.view"]||permissions["settings.manage"])allowedTabs.push("settings");
  allowedTabs.forEach(addNav);showTab("overview");
  const count=Object.values(permissions).filter(Boolean).length;
