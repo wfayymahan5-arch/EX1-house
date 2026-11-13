@@ -49,23 +49,93 @@ header{position:sticky;top:0;z-index:5;background:#090910eF;border-bottom:1px so
 <section class="section" id="about"><h2>چطور شرکت کنم؟</h2><p class="muted" style="line-height:2">۱) وارد حساب آزمایشی شو. ۲) مسابقه موردنظرت رو انتخاب کن. ۳) ثبت‌نام کن و جزئیات لابی رو از برگزارکننده دریافت کن. قوانین هر مسابقه باید قبل از شروع مشخص و برای همه یکسان باشه.</p></section>
 </main>
 <footer><div class="wrap footer"><span>© 2026 EX1 HOUSE</span><span>ساخته‌شده برای جامعه بازیکنان CODM</span></div></footer>
-<div class="modal" id="login"><div class="dialog"><h3>ورود به EX1 HOUSE</h3><p class="muted">برای نسخه آزمایشی، فقط یک نام نمایشی وارد کن.</p><input id="username" maxlength="20" placeholder="نام بازیکن"><button class="btn" onclick="login()">ادامه</button><button class="btn secondary" onclick="closeLogin()">بستن</button></div></div>
+<div class="modal" id="login"><div class="dialog"><h3 id="authTitle">ورود به EX1 HOUSE</h3><p class="muted" id="authHint">با ایمیل و رمز عبور وارد شو یا حساب بساز.</p><form id="authForm"><input id="displayName" maxlength="30" placeholder="نام نمایشی (برای ثبت‌نام)" autocomplete="nickname" style="display:none"><input id="email" type="email" maxlength="254" placeholder="ایمیل" autocomplete="email" required><input id="password" type="password" minlength="8" maxlength="72" placeholder="رمز عبور (حداقل ۸ نویسه)" autocomplete="current-password" required><button class="btn" id="authSubmit" type="submit">ورود</button></form><button class="btn secondary" id="authSwitch" type="button" onclick="toggleAuthMode()">ساخت حساب جدید</button><button class="btn secondary" type="button" onclick="closeLogin()">بستن</button></div></div>
 <div class="toast" id="toast"></div>
 <script>
-const tournaments=[
- {id:1,name:"BR • ISOLATED NIGHT",map:"Isolated",mode:"Squad",slots:"32 بازیکن",time:"جمعه • ۲۰:۰۰"},
- {id:2,name:"BR • ALCAZTRAZ RUN",map:"Alcatraz",mode:"Squad",slots:"20 بازیکن",time:"شنبه • ۱۸:۳۰"},
- {id:3,name:"BR • SOLO SHOWDOWN",map:"Isolated",mode:"Solo",slots:"40 بازیکن",time:"یکشنبه • ۱۹:۰۰"}
-];
-const joined=JSON.parse(localStorage.getItem("ex1_joined")||"[]");
-function render(){document.getElementById("cards").innerHTML=tournaments.map(t=>`<article class="card"><span class="tag">${t.mode}</span><h3>${t.name}</h3><div class="muted">نقشه: ${t.map}</div><div class="details"><span>${t.slots}</span><span>${t.time}</span></div><button class="btn ${joined.includes(t.id)?"secondary":""}" onclick="join(${t.id})">${joined.includes(t.id)?"ثبت‌نام شد ✓":"ثبت‌نام رایگان"}</button></article>`).join("");}
-function openLogin(){document.getElementById("login").classList.add("show")}
-function closeLogin(){document.getElementById("login").classList.remove("show")}
-function login(){const n=document.getElementById("username").value.trim();if(!n)return toast("اول یه نام بازیکن وارد کن.");localStorage.setItem("ex1_user",n);closeLogin();toast("خوش اومدی، "+n+"!")}
-function join(id){if(!localStorage.getItem("ex1_user")){openLogin();return}if(!joined.includes(id)){joined.push(id);localStorage.setItem("ex1_joined",JSON.stringify(joined));render();toast("ثبت‌نام آزمایشی انجام شد! موفق باشی 🎮")}else toast("قبلاً توی این مسابقه ثبت‌نام کردی.")}
-let toastTimer;function toast(s){const el=document.getElementById("toast");el.textContent=s;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2600)}
-render();
-</script>
+const supabaseClient = window.supabase.createClient(EX1_CONFIG.url, EX1_CONFIG.publishableKey);
+let authMode = "login";
+let currentUser = null;
+const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function formatStart(value){if(!value)return "زمان اعلام می‌شود";const d=new Date(value);return Number.isNaN(d.getTime())?"زمان اعلام می‌شود":d.toLocaleString("fa-IR",{dateStyle:"medium",timeStyle:"short"});}
+function statusLabel(status){return ({published:"منتشرشده",registration_open:"ثبت‌نام باز",ongoing:"در حال برگزاری",completed:"پایان‌یافته"})[status]||"اطلاعات";}
+async function renderTournaments(){
+ const cards=document.getElementById("cards");
+ cards.innerHTML='<div class="empty">در حال دریافت مسابقات...</div>';
+ const {data,error}=await supabaseClient.from("tournaments").select("id,title,description,game,mode,map,status,max_teams,starts_at").in("status",["published","registration_open","ongoing","completed"]).order("starts_at",{ascending:true,nullsFirst:false}).limit(30);
+ if(error){cards.innerHTML='<div class="empty">فعلاً دریافت مسابقات ممکن نشد. کمی بعد دوباره امتحان کن.</div>';return;}
+ document.getElementById("count").textContent=String(data.length).padStart(2,"0");
+ if(!data.length){cards.innerHTML='<div class="empty">هنوز مسابقه‌ای برای نمایش منتشر نشده است.</div>';return;}
+ cards.innerHTML=data.map(t=>'<article class="card"><span class="tag">'+esc(statusLabel(t.status))+'</span><h3>'+esc(t.title)+'</h3><div class="muted">'+esc(t.game||"Call of Duty Mobile")+' · '+esc(t.mode||"حالت اعلام‌نشده")+'</div><div class="muted" style="margin-top:8px">نقشه: '+esc(t.map||"اعلام‌نشده")+'</div>'+(t.description?'<p class="muted">'+esc(t.description)+'</p>':"")+'<div class="details"><span>ظرفیت تیم: '+esc(t.max_teams??"اعلام‌نشده")+'</span><span>'+esc(formatStart(t.starts_at))+'</span></div><button class="btn secondary" disabled>ثبت‌نام تیمی به‌زودی فعال می‌شود</button></article>').join("");
+}
+function openLogin(){document.getElementById("login").classList.add("show");}
+function closeLogin(){document.getElementById("login").classList.remove("show");}
+function toggleAuthMode(){
+ authMode=authMode==="login"?"signup":"login";
+ document.getElementById("authTitle").textContent=authMode==="login"?"ورود به EX1 HOUSE":"ساخت حساب EX1";
+ document.getElementById("authHint").textContent=authMode==="login"?"با ایمیل و رمز عبور وارد شو.":"نام نمایشی، ایمیل و رمز عبور را وارد کن.";
+ document.getElementById("displayName").style.display=authMode==="signup"?"block":"none";
+ document.getElementById("displayName").required=authMode==="signup";
+ document.getElementById("password").autocomplete=authMode==="signup"?"new-password":"current-password";
+ document.getElementById("authSubmit").textContent=authMode==="login"?"ورود":"ثبت‌نام";
+ document.getElementById("authSwitch").textContent=authMode==="login"?"ساخت حساب جدید":"قبلاً حساب دارم";
+}
+function showAuthButton(){
+ const b=document.querySelector(".nav > button");
+ if(currentUser){b.textContent="خروج از حساب";b.onclick=async()=>{const {error}=await supabaseClient.auth.signOut();if(error)toast("خروج انجام نشد؛ دوباره تلاش کن.");};}
+ else{b.textContent="ورود / ثبت‌نام";b.onclick=openLogin;}
+}
+document.getElementById("authForm").addEventListener("submit",async event=>{
+ event.preventDefault();
+ const email=document.getElementById("email").value.trim();
+ const password=document.getElementById("password").value;
+ const displayName=document.getElementById("displayName").value.trim();
+ const submit=document.getElementById("authSubmit");
+ submit.disabled=true;
+ try{
+  if(authMode==="signup"){
+   if(displayName.length<2){toast("نام نمایشی باید حداقل ۲ نویسه باشد.");return;}
+   const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{display_name:displayName,username:displayName}}});
+   if(error)throw error;
+   if(data.session){toast("حساب ساخته شد؛ خوش اومدی!");closeLogin();}
+   else{toast("حساب ثبت شد. اگر تأیید ایمیل فعال باشد، ایمیلت را بررسی کن.");closeLogin();}
+  }else{
+   const {error}=await supabaseClient.auth.signInWithPassword({email,password});
+   if(error)throw error;
+   toast("با موفقیت وارد شدی.");
+   closeLogin();
+  }
+ }catch(error){toast(error.message||"خطا در ورود یا ثبت‌نام.");}
+ finally{submit.disabled=false;}
+});
+async function applyPublicTheme(){
+ const {data,error}=await supabaseClient.from("site_theme_settings").select("background_color,surface_color,primary_text_color,secondary_text_color,accent_color").eq("singleton",true).maybeSingle();
+ if(error||!data)return;
+ const root=document.documentElement;
+ root.style.setProperty("--bg",data.background_color);
+ root.style.setProperty("--panel",data.surface_color);
+ root.style.setProperty("--text",data.primary_text_color);
+ root.style.setProperty("--muted",data.secondary_text_color);
+ root.style.setProperty("--purple",data.accent_color);
+}
+async function loadAuthState(){
+ const {data}=await supabaseClient.auth.getUser();
+ currentUser=data.user||null;
+ showAuthButton();
+ if(currentUser){
+  const {data:profile}=await supabaseClient.from("profiles").select("display_name,username").eq("id",currentUser.id).maybeSingle();
+  const label=profile?.display_name||profile?.username||currentUser.email;
+  document.querySelector(".hero p").textContent="خوش اومدی، "+label+"! مسابقات منتشرشده EX1 HOUSE رو ببین.";
+ }
+}
+let toastTimer;
+function toast(s){const el=document.getElementById("toast");el.textContent=s;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),3500);}
+supabaseClient.auth.onAuthStateChange(()=>{setTimeout(loadAuthState,0);});
+renderTournaments();
+applyPublicTheme();
+loadAuthState();
+</script>>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/supabase-config.js"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
