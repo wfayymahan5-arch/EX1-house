@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#090910"><link rel="icon" type="image/svg+xml" href="/ex1-legend-mark.svg">
+<meta name="theme-color" content="#f4f7fc"><link rel="icon" type="image/svg+xml" href="/ex1-legend-mark.svg">
 <title>پنل مدیریت | EX1 LEGEND</title>
 <style>
 :root{color-scheme:dark;--bg:#090910;--panel:#12121d;--line:#27273a;--text:#f4f3ff;--muted:#9998b2;--purple:#8b5cf6;--cyan:#22d3ee;--green:#34d399}
@@ -18,6 +18,72 @@
 .tag{display:inline-block;padding:4px 9px;border-radius:20px;background:#1d3b34;color:#8ff0c9;font-size:11px}.empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed #38384c;border-radius:12px}.hidden{display:none}.colorgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.colorfield{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px}.colorfield input{width:48px;height:38px;border:0;background:transparent}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{position:fixed;bottom:18px;left:18px;background:#222035;border:1px solid #5c477e;padding:12px 16px;border-radius:12px;display:none;z-index:10}.toast.show{display:block}
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.nav{display:grid;grid-template-columns:repeat(3,1fr)}.nav button{text-align:center;padding:9px;font-size:12px}.wrap{padding:14px}.colorgrid{grid-template-columns:1fr}}
+
+/* EX1 LEGEND admin — clean, bright, structured dashboard */
+:root{
+ color-scheme:light;
+ --bg:#f3f6fc;--panel:#fff;--line:#dfe6f0;--text:#202b3c;--muted:#68778d;
+ --purple:#7657c8;--cyan:#4b8fc2;--green:#39866b;
+}
+html{background:#f3f6fc}
+body{
+ background:
+  radial-gradient(ellipse at 85% 0%,#e4eaff 0,transparent 38%),
+  radial-gradient(ellipse at 0% 30%,#e4f3ed 0,transparent 34%),
+  #f3f6fc;
+ color:var(--text);
+}
+.wrap{max-width:1280px;padding:26px}
+.top{padding:8px 2px 18px;border-bottom:1px solid #e3e9f2}
+.brand{color:#26354a;letter-spacing:.4px}
+.brand span{color:#6d55bd}
+.btn{background:#fff;border-color:#dce4ef;color:#40516a;box-shadow:0 2px 7px #24364a0a}
+.btn.primary{background:linear-gradient(115deg,#8065d6,#568db8);color:#fff;border:0;box-shadow:0 5px 14px #7059bd25}
+.btn:hover{filter:brightness(.98);transform:translateY(-1px)}
+.hero,.card,.section,.authbox{background:#fff;border:1px solid #e0e7f0;border-radius:18px;box-shadow:0 7px 24px #273a5809}
+.hero{background:linear-gradient(115deg,#edf1ff,#f5fbff 65%,#eff8f3);border-color:#dce5f2}
+.hero h1{color:#24354c}
+.muted{color:#68778d}
+.notice{background:#eef7f2;border:1px solid #cfe8da;color:#326d55}
+.authbox{box-shadow:0 14px 40px #253a5a12}
+.field{background:#f8fafd;border:1px solid #dce4ef;color:#26364b}
+.field:focus,.manager-form input:focus,.manager-form select:focus,.manager-form textarea:focus{outline:2px solid #d8ccff;border-color:#8c75d1}
+.stats{gap:14px}
+.stat{position:relative;overflow:hidden}
+.stat:before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,#8a70d8,#65a6ce,#75bd9c)}
+.stat strong{color:#344b69;font-size:30px}
+.layout{grid-template-columns:220px minmax(0,1fr);gap:18px}
+.nav{background:#fff;border:1px solid #e0e7f0;border-radius:17px;padding:10px;box-shadow:0 7px 24px #273a5808}
+.nav button{color:#68778d;border-radius:11px;padding:13px 12px}
+.nav button.active,.nav button:hover{background:#eeeafd;border-color:#ddd4fa;color:#5944a5}
+.section{padding:22px}
+.section h2{color:#293a52}
+.manager-form{background:#f8fafd;border-color:#e0e7f0}
+.manager-form input,.manager-form select,.manager-form textarea{background:#fff;color:#25354a;border-color:#dce4ef}
+.action-btn{background:#f0f4fa;border-color:#dce4ef;color:#40516a}
+.action-btn.danger{background:#fff1f2;border-color:#f2cbd1;color:#a43f52}
+.tag{background:#e8f5ee;color:#34745a}
+table{border-collapse:separate;border-spacing:0;min-width:650px}
+th{background:#f4f7fb;color:#64748a}
+th:first-child{border-radius:0 10px 0 0}
+th:last-child{border-radius:10px 0 0 0}
+td{color:#34445a}
+tr:hover td{background:#fafbfe}
+.empty{background:#fafbfd;border-color:#d7e0ec;color:#748198}
+.colorfield{background:#f8fafd;border-color:#e0e7f0}
+.toast{background:#26364b;border-color:#526984;color:#fff;box-shadow:0 8px 25px #1d2b3d25}
+footer{color:#8390a3}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #b8a7ee;outline-offset:2px}
+@media(max-width:760px){
+ .wrap{padding:14px}
+ .layout{grid-template-columns:1fr}
+ .nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .nav button{text-align:center;padding:10px 6px}
+ .hero{padding:16px}
+ .section{padding:16px}
+}
+@media(max-width:420px){.nav{grid-template-columns:repeat(2,minmax(0,1fr))}.stats{gap:9px}.stat strong{font-size:24px}}
+
 </style>
 </head>
 <body><div class="wrap">
@@ -41,7 +107,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{p
 <label>حداکثر تعداد تیم‌ها<input id="tf_max_teams" type="number" min="1" max="1000" value="25" required></label>
 <label>زمان شروع<input id="tf_starts_at" type="datetime-local"></label>
 <label>تصویر مسابقه (نشانی یا انتخاب فایل)<input id="tf_cover_image_url" type="url" placeholder="https://..."><input id="tf_cover_image_file" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label>
-<label>ورودی آزمایشی (تومان) (تومان)<input id="tf_entry_demo_points" type="number" min="0" max="1000000000" value="0"></label>
+<label>ورودی آزمایشی (تومان)<input id="tf_entry_demo_points" type="number" min="0" max="1000000000" value="0"></label>
 <label>جایزه آزمایشی (تومان)<input id="tf_prize_demo_points" type="number" min="0" max="1000000000" value="0"></label>
 <label class="wide">توضیحات و قوانین مسابقه<textarea id="tf_rules" maxlength="5000"></textarea></label>
 </div>
