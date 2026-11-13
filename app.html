@@ -99,6 +99,34 @@ if(!window.EX1_CONFIG||!EX1_CONFIG.url||!EX1_CONFIG.publishableKey){
  throw new Error("EX1 Supabase configuration is missing");
 }
 const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
+
+// رنگ‌بندی عمومی سایت از تنظیمات ذخیره‌شده در Supabase
+function applySiteTheme(theme){
+ if(!theme)return;
+ const root=document.documentElement;
+ root.style.setProperty("--bg",theme.background_color);
+ root.style.setProperty("--surface",theme.surface_color);
+ root.style.setProperty("--surface2",theme.surface_color);
+ root.style.setProperty("--text",theme.primary_text_color);
+ root.style.setProperty("--muted",theme.secondary_text_color);
+ root.style.setProperty("--violet",theme.accent_color);
+ root.style.setProperty("--violet2",theme.accent_color);
+}
+async function loadSiteTheme(){
+ const {data,error}=await sb.from("site_theme_settings")
+  .select("background_color,surface_color,primary_text_color,secondary_text_color,accent_color")
+  .eq("singleton",true).maybeSingle();
+ if(error){console.warn("EX1 site theme load:",error.message);return;}
+ applySiteTheme(data);
+}
+sb.channel("ex1-site-theme-settings")
+ .on("postgres_changes",{event:"UPDATE",schema:"public",table:"site_theme_settings",filter:"singleton=eq.true"},payload=>{
+  applySiteTheme(payload.new);
+ })
+ .subscribe(status=>{
+  if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")console.warn("EX1 theme realtime:",status);
+ });
+loadSiteTheme();
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let currentUser=null,authMode="login",activeConversation=null,activeConversationUser=null;
 let toastTimer;
