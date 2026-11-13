@@ -69,7 +69,7 @@ footer{padding:20px 0;color:var(--muted);font-size:10px;text-align:center}
   <div class="panel profile-card"><div id="profileAvatar" class="profile-big">EX</div><h2 id="profileDisplayName">بازیکن EX1</h2><div id="profileUsername" class="muted">نام کاربری</div><p class="muted">پروفایل عمومی فقط اطلاعات پایه‌ی بازیکن را نمایش می‌دهد.</p><button class="btn secondary small" id="blockHelp" type="button">مدیریت حریم خصوصی</button></div>
   <form id="profileForm" class="panel profile-form"><label>نام نمایشی<input class="field" id="profileName" maxlength="30" required></label><label>نام کاربری<input class="field" id="profileHandle" maxlength="24" placeholder="اختیاری"></label><label>نشانی تصویر پروفایل<input class="field" id="profileAvatarUrl" type="url" maxlength="500" placeholder="https://..."></label><button class="btn" type="submit">ذخیره پروفایل</button><p class="muted">از انتشار شماره تلفن، نشانی خانه یا اطلاعات خصوصی در پروفایل خودداری کن.</p></form>
  </div>
- <div class="section-head"><div><h2>درخواست‌های دنبال‌کردن</h2><p>درخواست‌هایی که منتظر تأیید تو هستند</p></div></div><div id="followRequests" class="user-list"><div class="empty">درخواستی وجود ندارد.</div></div>
+ <div class="section-head"><div><h2>درخواست‌های دنبال‌کردن</h2><p>درخواست‌هایی که منتظر تأیید تو هستند</p></div></div><div id="followRequests" class="user-list"><div class="empty">درخواستی وجود ندارد.</div></div><div class="section-head"><div><h2>حساب‌های مسدودشده</h2><p>می‌توانی هر زمان مسدودسازی را لغو کنی.</p></div></div><div id="blockedUsers" class="user-list"><div class="empty">فهرست مسدودشده‌ها خالی است.</div></div>
 </section>
 <section class="page" id="page-tournaments">
  <div class="hero"><div><div class="eyebrow">FREE COMPETITIONS</div><h1>میدان <span>مسابقات</span></h1><p>مسابقات رایگان، قوانین روشن و نتایج تأییدشده.</p></div></div>
@@ -163,7 +163,7 @@ async function loadProfile(){
  $("profileDisplayName").textContent=data.display_name||"بازیکن EX1";
  $("profileUsername").textContent=data.username?"@"+data.username:"نام کاربری ثبت نشده";
  $("profileAvatar").innerHTML=data.avatar_url?'<img class="profile-big" src="'+esc(data.avatar_url)+'" alt="">':esc((data.display_name||"EX").slice(0,1));
- $("profileName").value=data.display_name||"";$("profileHandle").value=data.username||"";$("profileAvatarUrl").value=data.avatar_url||"";
+ $("profileName").value=data.display_name||"";$("profileHandle").value=data.username||"";$("profileAvatarUrl").value=data.avatar_url||"";loadFollowRequests();loadBlockedUsers();
 }
 $("profileForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!currentUser){openAuth();return;}
@@ -172,7 +172,7 @@ $("profileForm").addEventListener("submit",async e=>{
  if(error){toast(error.message.includes("duplicate")?"این نام کاربری قبلاً گرفته شده.":"ذخیره پروفایل انجام نشد.");return;}
  toast("پروفایل ذخیره شد.");loadProfile();
 });
-$("blockHelp").onclick=()=>toast("برای مسدودکردن بازیکن، از منوی گزارش یا حریم خصوصی در پروفایل او استفاده کن. این بخش در نسخه بعدی کامل‌تر می‌شود.");
+$("blockHelp").onclick=()=>{switchPage("home");switchHome("explore");loadExplore();};
 async function uploadImage(file,folder){
  if(!currentUser)throw new Error("ابتدا وارد حساب شو.");
  if(!file)return null;
@@ -244,9 +244,22 @@ async function loadExplore(){
  $("exploreUsers").innerHTML=(data||[]).map(p=>{
   const mine=edges.find(x=>x.follower_id===currentUser.id&&x.followed_id===p.id);
   const label=mine?.status==="accepted"?"دنبال می‌کنی":mine?.status==="pending"?"درخواست ارسال شد":"دنبال‌کردن";
-  return '<div class="user-row">'+avatarHTML(p)+'<div class="user-info"><strong>'+esc(p.display_name||"بازیکن")+'</strong><small>'+(p.username?"@"+esc(p.username):"بازیکن EX1")+'</small></div><button class="btn secondary small" data-follow="'+esc(p.id)+'" '+(mine?"disabled":"")+'>'+label+'</button></div>';
+  return '<div class="user-row">'+avatarHTML(p)+'<div class="user-info"><strong>'+esc(p.display_name||"بازیکن")+'</strong><small>'+(p.username?"@"+esc(p.username):"بازیکن EX1")+'</small></div><button class="btn secondary small" data-follow="'+esc(p.id)+'" '+(mine?"disabled":"")+'>'+label+'</button><button class="btn ghost small" data-block-user="'+esc(p.id)+'">مسدود</button><button class="btn ghost small" data-report-user="'+esc(p.id)+'">گزارش</button></div>';
  }).join("")||'<div class="empty">بازیکنی پیدا نشد.</div>';
  $("exploreUsers").querySelectorAll("[data-follow]").forEach(b=>b.onclick=async()=>{const {error}=await sb.from("user_follows").insert({follower_id:currentUser.id,followed_id:b.dataset.follow,status:"pending"});if(error){toast("درخواست دنبال‌کردن ارسال نشد.");return;}toast("درخواست دنبال‌کردن ارسال شد.");loadExplore();});
+ $("exploreUsers").querySelectorAll("[data-block-user]").forEach(b=>b.onclick=async()=>{
+  if(!confirm("این بازیکن مسدود شود؟ پیام‌رسانی و نمایش محتوای دوطرفه محدود می‌شود."))return;
+  const target=b.dataset.blockUser;
+  const {error}=await sb.from("user_blocks").insert({blocker_id:currentUser.id,blocked_id:target});
+  if(error){toast("مسدودسازی انجام نشد.");return;}
+  await sb.from("user_follows").delete().eq("follower_id",currentUser.id).eq("followed_id",target);
+  await sb.from("user_follows").delete().eq("follower_id",target).eq("followed_id",currentUser.id);
+  toast("بازیکن مسدود شد.");loadExplore();loadChatContacts();
+ });
+ $("exploreUsers").querySelectorAll("[data-report-user]").forEach(b=>b.onclick=async()=>{
+  const {error}=await sb.from("social_reports").insert({reporter_id:currentUser.id,target_user_id:b.dataset.reportUser,reason:"other",details:"گزارش پروفایل کاربر"});
+  toast(error?"گزارش ثبت نشد.":"گزارش پروفایل برای بررسی ثبت شد.");
+ });
 }
 async function loadFollowRequests(){
  if(!currentUser)return;
@@ -255,6 +268,18 @@ async function loadFollowRequests(){
  const people=await profilesFor((data||[]).map(x=>x.follower_id));
  $("followRequests").innerHTML=(data||[]).map(x=>'<div class="user-row">'+avatarHTML(people[x.follower_id])+'<div class="user-info"><strong>'+esc(people[x.follower_id]?.display_name||"بازیکن")+'</strong><small>درخواست دنبال‌کردن</small></div><button class="btn small" data-approve="'+esc(x.follower_id)+'">تأیید</button></div>').join("")||'<div class="empty">درخواستی وجود ندارد.</div>';
  $("followRequests").querySelectorAll("[data-approve]").forEach(b=>b.onclick=async()=>{const {error}=await sb.from("user_follows").update({status:"accepted"}).eq("follower_id",b.dataset.approve).eq("followed_id",currentUser.id);toast(error?"تأیید انجام نشد.":"درخواست تأیید شد.");loadFollowRequests();});
+}
+
+async function loadBlockedUsers(){
+ if(!currentUser)return;
+ const {data,error}=await sb.from("user_blocks").select("blocked_id,created_at").eq("blocker_id",currentUser.id);
+ if(error){$("blockedUsers").innerHTML='<div class="empty">فهرست دریافت نشد.</div>';return;}
+ const people=await profilesFor((data||[]).map(x=>x.blocked_id));
+ $("blockedUsers").innerHTML=(data||[]).map(x=>'<div class="user-row">'+avatarHTML(people[x.blocked_id])+'<div class="user-info"><strong>'+esc(people[x.blocked_id]?.display_name||"بازیکن")+'</strong><small>مسدودشده</small></div><button class="btn secondary small" data-unblock="'+esc(x.blocked_id)+'">رفع مسدودیت</button></div>').join("")||'<div class="empty">فهرست مسدودشده‌ها خالی است.</div>';
+ $("blockedUsers").querySelectorAll("[data-unblock]").forEach(b=>b.onclick=async()=>{
+  const {error}=await sb.from("user_blocks").delete().eq("blocker_id",currentUser.id).eq("blocked_id",b.dataset.unblock);
+  toast(error?"رفع مسدودیت انجام نشد.":"مسدودیت برداشته شد.");loadBlockedUsers();
+ });
 }
 async function loadChatContacts(){
  if(!currentUser){$("chatContacts").innerHTML='<div class="empty">برای چت وارد حساب شو.</div>';return;}
