@@ -77,6 +77,67 @@ header{background:#1d1a25ed;border-bottom-color:var(--line)}
 @media(prefers-reduced-transparency:reduce){header,.bottom-nav{backdrop-filter:none}}
 .btn:not(.secondary):not(.ghost){background:linear-gradient(120deg,var(--user-button,#9278c7),#715b9f)}
 
+
+/* EX1 LIGHT THEME: full light surfaces and accessible contrast */
+:root{
+ color-scheme:light;
+ --bg:#f3f6fb;--panel:#ffffff;--panel2:#edf2f8;--line:#d8e1ec;
+ --text:#1d2938;--muted:#637287;--purple:#527ba8;--purple2:#3e668f;
+ --lime:#477b69;--danger:#c34e62;
+}
+html,body{background:#f3f6fb!important;color:#1d2938!important}
+body{
+ background:
+  radial-gradient(ellipse at 15% 10%,#dceaf8 0,transparent 42%),
+  radial-gradient(ellipse at 88% 18%,#e3f1eb 0,transparent 42%),
+  linear-gradient(135deg,#f7f9fc,#edf3f8 55%,#f5f8fb)!important;
+ animation:none!important;
+}
+header{background:#ffffffed!important;border-bottom:1px solid #d8e1ec!important}
+.brand b,.hero h1 span{color:#527ba8!important}
+.panel,.dialog,.side-card,.post,.room-card,.tournament,.profile-card,.settings-panel{
+ background:#fff!important;border-color:#d8e1ec!important;color:#1d2938!important;
+ box-shadow:0 5px 18px #24364a0a;
+}
+.hero{background:linear-gradient(120deg,#e5eef8,#f7f9fc 75%)!important;border-color:#d4e0ed!important}
+.hero p,.muted,.section-head p,.room-meta,.room-rules{color:#637287!important}
+.eyebrow{color:#477b69!important}
+.field,.compose textarea,.meta div,.user-row,.chat-contact,.chat-window,.chat-messages{
+ background:#f7f9fc!important;color:#1d2938!important;border-color:#d8e1ec!important;
+}
+.field::placeholder,.compose textarea::placeholder{color:#8794a5!important}
+.btn{background:linear-gradient(120deg,#5d86b2,#426f9c)!important;color:#fff!important}
+.btn.secondary,.btn.ghost{background:#edf2f8!important;border-color:#d1dce8!important;color:#34465b!important}
+.subnav button{background:#f0f4f8!important;border-color:#d8e1ec!important;color:#53647a!important}
+.subnav button.active{background:#dce9f5!important;border-color:#9eb9d3!important;color:#284a6b!important}
+.story-placeholder,.avatar{background:#e5edf5!important;color:#3e5874!important}
+.story-ring{background:linear-gradient(135deg,#8eb4d8,#a9d5c2)!important}
+.story.add .story-ring{background:#edf2f8!important;border-color:#9eb9d3!important}
+.tag{background:#e7f0f8!important;border-color:#bfd2e4!important;color:#345b80!important}
+.empty{background:#f8fafc!important;border-color:#cbd7e4!important;color:#637287!important}
+.bubble{background:#e8eef5!important;color:#26384c!important}
+.bubble.mine{background:#dce9f5!important;color:#284a6b!important}
+.post-actions{border-top-color:#e2e8f0!important}
+.post-actions button{color:#637287!important}
+.bottom-nav{background:#fffffffa!important;border-top:1px solid #d8e1ec!important}
+.bottom-nav button{color:#718096!important}
+.bottom-nav button.active{color:#477b69!important}
+.modal{background:#1d293866!important}
+.toast{background:#fff!important;border-color:#cbd7e4!important;color:#1d2938!important;box-shadow:0 8px 24px #24364a22}
+.wallet-card{background:linear-gradient(120deg,#e2effb,#d5e8f7)!important;border-color:#b8d1e7!important}
+.wallet-kicker,.wallet-note{color:#345b80!important}
+.wallet-balance{color:#24784c!important}
+.wallet-balance small{color:#477b69!important}
+.wallet-icon{color:#527ba8!important}
+.wallet-modal-balance{background:#e2effb!important;color:#345b80!important}
+.wallet-modal-balance strong{color:#24784c!important}
+.wallet-modal-balance small{color:#477b69!important}
+.room-tabs button{background:#edf2f8!important;border-color:#d1dce8!important;color:#34465b!important}
+.room-tabs button.active{background:#dceee7!important;border-color:#a9cdbd!important;color:#315f4e!important}
+.team-slot{background:#f7f9fc!important;border-color:#d8e1ec!important;color:#26384c!important}
+.team-slot button{background:#e1f0e9!important;border-color:#a9cdbd!important;color:#315f4e!important}
+footer{color:#718096!important}
+
 </style>
 </head>
 <body>
