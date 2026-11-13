@@ -66,7 +66,7 @@ footer{padding:20px 0;color:var(--muted);font-size:10px;text-align:center}
 <section class="page" id="page-profile">
  <div class="section-head"><div><h2>پروفایل من</h2><p>اطلاعات عمومی حساب و تنظیمات بازیکن</p></div></div>
  <div class="profile-grid">
-  <div class="panel profile-card"><div id="profileAvatar" class="profile-big">EX</div><h2 id="profileDisplayName">بازیکن EX1</h2><div id="profileUsername" class="muted">نام کاربری</div><p class="muted">پروفایل عمومی فقط اطلاعات پایه‌ی بازیکن را نمایش می‌دهد.</p><button class="btn secondary small" id="blockHelp" type="button">مدیریت حریم خصوصی</button></div>
+  <div class="panel profile-card"><div id="profileAvatar" class="profile-big">EX</div><h2 id="profileDisplayName">بازیکن EX1</h2><div id="profileUsername" class="muted">نام کاربری</div><p class="muted">پروفایل عمومی فقط اطلاعات پایه‌ی بازیکن را نمایش می‌دهد.</p><button class="btn secondary small" id="blockHelp" type="button">مدیریت حریم خصوصی</button><button class="btn ghost small" id="logoutButton" type="button" style="margin-top:8px">خروج از حساب</button></div>
   <form id="profileForm" class="panel profile-form"><label>نام نمایشی<input class="field" id="profileName" maxlength="30" required></label><label>نام کاربری<input class="field" id="profileHandle" maxlength="24" placeholder="اختیاری"></label><label>نشانی تصویر پروفایل<input class="field" id="profileAvatarUrl" type="url" maxlength="500" placeholder="https://..."></label><button class="btn" type="submit">ذخیره پروفایل</button><p class="muted">از انتشار شماره تلفن، نشانی خانه یا اطلاعات خصوصی در پروفایل خودداری کن.</p></form>
  </div>
  <div class="section-head"><div><h2>درخواست‌های دنبال‌کردن</h2><p>درخواست‌هایی که منتظر تأیید تو هستند</p></div></div><div id="followRequests" class="user-list"><div class="empty">درخواستی وجود ندارد.</div></div><div class="section-head"><div><h2>حساب‌های مسدودشده</h2><p>می‌توانی هر زمان مسدودسازی را لغو کنی.</p></div></div><div id="blockedUsers" class="user-list"><div class="empty">فهرست مسدودشده‌ها خالی است.</div></div>
@@ -119,6 +119,7 @@ function switchHome(tab){
 }
 document.querySelectorAll("[data-home-tab]").forEach(b=>b.addEventListener("click",()=>switchHome(b.dataset.homeTab)));
 $("headerAuth").onclick=()=>currentUser?switchPage("profile"):openAuth();
+$("logoutButton").onclick=async()=>{const {error}=await sb.auth.signOut();if(error){toast("خروج انجام نشد.");return;}currentUser=null;activeConversation=null;switchPage("home");toast("از حساب خارج شدی.");};
 async function signedMedia(path){if(!path)return "";const {data,error}=await sb.storage.from("social-media").createSignedUrl(path,3600);return error?"":data.signedUrl;}
 function formatDate(v){try{return new Date(v).toLocaleString("fa-IR",{dateStyle:"short",timeStyle:"short"});}catch{return "";}}
 function avatarHTML(profile,sizeClass="avatar"){const name=profile?.display_name||profile?.username||"EX";return profile?.avatar_url?'<img class="'+sizeClass+'" src="'+esc(profile.avatar_url)+'" alt="">':'<div class="'+sizeClass+'">'+esc(name.slice(0,1).toUpperCase())+'</div>';}
