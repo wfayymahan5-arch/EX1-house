@@ -47,8 +47,10 @@ header{position:sticky;top:0;z-index:5;background:#090910eF;border-bottom:1px so
  <div class="grid" id="cards"></div>
 </section>
 <section class="section" id="wallet">
- <div class="section-head"><div><h2>کیف امتیاز من</h2><div class="muted">امتیازهای نمایشی برای تست تجربه کاربری.</div></div></div>
- <div class="wallet"><div><div class="muted">موجودی امتیاز آزمایشی</div><strong id="points">1,000 XP</strong></div><button class="btn secondary" onclick="toast('در نسخه آزمایشی، امتیاز قابل خرید یا برداشت نیست.')">جزئیات امتیاز</button></div>
+ <div class="section-head"><div><h2>استار هدیه من</h2><div class="muted">امتیاز غیرنقدی برای فعالیت‌های داخل EX1.</div></div></div>
+ <div class="wallet"><div><div class="muted">موجودی استار هدیه</div><strong id="points">برای مشاهده وارد شو</strong></div><button class="btn secondary" id="historyButton" onclick="loadWalletHistory()" disabled>تاریخچه استار</button></div>
+ <div id="walletHistory" class="empty" style="margin-top:12px">برای مشاهده موجودی و تاریخچه وارد حساب شو.</div>
+ <div class="notice">استار هدیه ارزش نقدی ندارد و قابل خرید، انتقال، برداشت یا تبدیل به پول نیست؛ همچنین برای ورودی پولی مسابقات یا دریافت جایزه نقدی استفاده نمی‌شود.</div>
 </section>
 <div class="notice">اتصال حساب و فهرست مسابقات به دیتابیس فعال شده است. ثبت‌نام تیمی و کیف امتیاز هنوز در مرحله راه‌اندازی‌اند؛ هیچ پرداخت، برداشت یا جایزه نقدی در این نسخه فعال نیست.</div>
 <section class="section" id="about"><h2>چطور شرکت کنم؟</h2><p class="muted" style="line-height:2">۱) حساب کاربری بساز یا وارد شو. ۲) مسابقه‌های منتشرشده رو ببین. ۳) قابلیت ساخت تیم و ثبت‌نام تیمی پس از تکمیل بخش تیم‌ها فعال می‌شه. قوانین هر مسابقه باید قبل از شروع مشخص و برای همه یکسان باشه.</p></section>
@@ -131,10 +133,36 @@ async function applyPublicTheme(){
  applyPublicThemeValues(data);
 }
 
+async function loadWallet(){
+ const points=document.getElementById("points");
+ const historyButton=document.getElementById("historyButton");
+ const history=document.getElementById("walletHistory");
+ if(!currentUser){points.textContent="برای مشاهده وارد شو";historyButton.disabled=true;history.textContent="برای مشاهده موجودی و تاریخچه وارد حساب شو.";return;}
+ try{
+  const {data,error}=await supabaseClient.rpc("wallet_my_summary");
+  if(error)throw error;
+  const row=Array.isArray(data)?data[0]:null;
+  points.textContent=Number(row?.balance_units||0).toLocaleString("fa-IR")+" ⭐";
+  historyButton.disabled=false;
+  history.textContent="موجودی از دفترکل حساب EX1 خوانده شد.";
+ }catch(err){points.textContent="فعلاً در دسترس نیست";history.textContent="خواندن موجودی ممکن نشد؛ بعداً دوباره تلاش کن.";historyButton.disabled=true;}
+}
+async function loadWalletHistory(){
+ if(!currentUser)return;
+ const box=document.getElementById("walletHistory");
+ box.textContent="در حال دریافت تاریخچه...";
+ try{
+  const {data,error}=await supabaseClient.rpc("wallet_my_history",{p_limit:30});
+  if(error)throw error;
+  if(!data?.length){box.textContent="هنوز تراکنشی برای نمایش وجود ندارد.";return;}
+  box.innerHTML='<div style="overflow:auto"><table style="width:100%;text-align:right;border-collapse:collapse"><thead><tr><th>نوع</th><th>مقدار</th><th>توضیح</th><th>تاریخ</th></tr></thead><tbody>'+data.map(x=>'<tr><td>'+esc(x.entry_type==="credit"?"دریافت":"مصرف")+'</td><td>'+esc(Number(x.amount_units||0).toLocaleString("fa-IR"))+' ⭐</td><td>'+esc(x.reason||"—")+'</td><td>'+esc(x.created_at?new Date(x.created_at).toLocaleString("fa-IR"):"—")+'</td></tr>').join("")+'</tbody></table></div>';
+ }catch(err){box.textContent="دریافت تاریخچه ممکن نشد."}
+}
 async function loadAuthState(){
  const {data}=await supabaseClient.auth.getUser();
  currentUser=data.user||null;
  showAuthButton();
+ await loadWallet();
  if(currentUser){
   const {data:profile}=await supabaseClient.from("profiles").select("display_name,username").eq("id",currentUser.id).maybeSingle();
   const label=profile?.display_name||profile?.username||currentUser.email;
