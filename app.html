@@ -223,7 +223,8 @@ async function authState(){
  currentUser=data?.user||null;
  $("headerUser").textContent=currentUser?"آنلاین":"";
  $("headerAuth").textContent=currentUser?"حساب من":"ورود / ثبت‌نام";
- if(currentUser)await loadProfile();
+ if(currentUser){await loadProfile();await loadExplore();}
+ else $("exploreUsers").innerHTML='<div class="empty">برای دیدن بازیکنان وارد حساب شو.</div>';
 }
 let pendingEmailOtp=false;
 $("authSwitch").onclick=()=>{authMode=authMode==="login"?"signup":"login";pendingEmailOtp=false;$("authOtp").hidden=true;$("authOtp").required=false;$("authResend").hidden=true;$("authTitle").textContent=authMode==="login"?"ورود با کد ایمیل":"ساخت حساب با کد ایمیل";$("authHint").textContent=authMode==="login"?"کد ورود برای ایمیلت ارسال می‌شود.":"کد یک‌بارمصرف برای تأیید ایمیل ارسال می‌شود.";$("authName").hidden=authMode!=="signup";$("authName").required=authMode==="signup";$("authPassword").hidden=true;$("authPassword").required=false;$("authSubmit").textContent="ارسال کد";$("authSwitch").textContent=authMode==="login"?"ساخت حساب جدید":"بازگشت به ورود";};
