@@ -8,7 +8,7 @@ The live Supabase project is configured in `supabase-config.js` using its **publ
 - The public site now uses Supabase Auth for email/password sign-up and sign-in, reads published tournament rows, and reads the public theme settings.
 - New account profile creation is handled by the database trigger in the live project.
 - Tournament registration is intentionally not enabled in this first connection step: the current database requires a team captain and a team, so the old one-click individual demo registration was removed.
-- Wallet display and financial actions remain demo-only / not connected to real payments. Demo points have no cash value and cannot be bought, withdrawn, or exchanged for prizes.
+- The user wallet reads its demo balance and transaction history through read-only wallet RPCs. All balances are non-cash demo points; top-ups, withdrawals, transfers, purchases, and real-money payments are not enabled.
 - The admin page is still a preview. The `feature/tournament-room-admin` branch adds permission-gated tournament and room create/edit/delete forms, direct image uploads, a profile review queue, and an admin activity viewer. It is not the production site until the pull request is reviewed, merged, and deployed.
 
 ## Current live schema
