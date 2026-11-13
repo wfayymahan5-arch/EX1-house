@@ -61,6 +61,15 @@ header{position:sticky;top:0;z-index:25;background:#0a0818eF;border:0;border-bot
 .profile-cover{background-image:linear-gradient(145deg,#120d20b8,#0b172cb8),url('/room-arena-art.svg')!important;background-size:cover!important;background-position:center 34%!important}
 .tournament-banner{background-image:linear-gradient(90deg,#120d20d9,#120d2088),url('/room-arena-art.svg')!important;background-size:cover!important;background-position:center 36%!important}
 .room-card{border:1px solid #bd8cff66;box-shadow:0 0 0 1px #a85eff1b,0 18px 38px #0009}
+</style><style>
+:root{--ex1-ui-accent:#b9d9cf;--ex1-ui-button:#9278c7}
+:root[data-ex1-theme="blue"]{--ex1-ui-accent:#9bc9f5;--ex1-ui-button:#3e78ae}
+:root[data-ex1-theme="green"]{--ex1-ui-accent:#a9dfbd;--ex1-ui-button:#4d9270}
+:root[data-ex1-theme="amber"]{--ex1-ui-accent:#f1d19a;--ex1-ui-button:#a77a37}
+.btn:not(.secondary):not(.ghost),.room-open-btn{background:var(--ex1-ui-button)!important}
+.bottom-nav button.active,.home-section-label span{color:var(--ex1-ui-accent)!important}
+.room-detail .room-tabs button.active,.profile-tabs button.active{background:var(--ex1-ui-button)!important;color:#fff!important}
+#settingsModal .dialog,#profileEditorModal .dialog{border:1px solid var(--ex1-ui-accent)}
 </style></head>
 </head>
 <body>
@@ -87,7 +96,7 @@ header{position:sticky;top:0;z-index:25;background:#0a0818eF;border:0;border-bot
  <div class="profile-bio panel"><p>پروفایل عمومی فقط اطلاعات پایه‌ی بازیکن را نمایش می‌دهد.</p><button class="btn small" type="button" id="openProfileEditor">ویرایش پروفایل　✎</button></div>
  <div class="wallet-card" role="button" tabindex="0" id="walletOpen"><div><span class="wallet-kicker">کیف پول EX1 · تومان آزمایشی</span><strong id="walletCardBalance" class="wallet-balance">۰ <small>تومان آزمایشی</small></strong><span class="wallet-note">مشاهده موجودی و تاریخچه</span></div><span class="wallet-icon">▣</span></div>
  <div class="profile-tabs"><button class="active" type="button" data-profile-tab="matches">مسابقات من</button><button type="button" data-profile-tab="team">تیم من</button><button type="button" data-profile-tab="posts">پست‌ها</button></div><section id="profileMatches"><div class="section-head"><div><h2>روم‌های من و جوایز</h2><p>سوابق ثبت‌نام و جوایز نمایشی</p></div></div><div id="myMatches" class="user-list"><div class="empty">برای مشاهده سوابق وارد حساب شو.</div></div></section><section id="profileTeam" hidden><div class="section-head"><div><h2>تیم من</h2><p>اعضای تیم و دعوت آزمایشی دوستان</p></div></div><div id="myTeam" class="user-list"></div><div id="createTeamWrap" class="panel team-create-wrap" hidden><h3>ساخت تیم جدید</h3><form id="createTeamForm"><input id="newTeamName" class="field" maxlength="40" placeholder="نام تیم" required><input id="newTeamTag" class="field" maxlength="8" placeholder="تگ کوتاه تیم (اختیاری)"><button class="btn" type="submit">ساخت تیم</button></form></div><div class="section-head"><div><h2>دعوت از دوستان</h2><p>دعوت‌ها در این نسخه آزمایشی هستند.</p></div></div><div id="teamInviteList" class="user-list"></div></section><section id="profilePosts" hidden><div class="empty">پست‌های پروفایل به‌زودی اینجا نمایش داده می‌شوند.</div></section>
- <div class="section-head"><div><h2>درخواست‌های دنبال‌کردن</h2><p>درخواست‌هایی که منتظر تأیید تو هستند</p></div></div><div id="followRequests" class="user-list"><div class="empty">درخواستی وجود ندارد.</div></div><div class="section-head"><div><h2>درباره EX1</h2><p>جامعه بازیکنان و رقابت سالم</p></div></div><div class="panel about-ex1">تیم EX1 برای ساختن فضایی امن و دوستانه برای بازیکنان تلاش می‌کند.</div>
+ <div class="section-head"><div><h2>درخواست‌های دنبال‌کردن</h2><p>درخواست‌هایی که منتظر تأیید تو هستند</p></div></div><div id="followRequests" class="user-list"><div class="empty">درخواستی وجود ندارد.</div></div>
 </section>
 <section class="page" id="page-tournaments">
  <div class="tournament-banner"><div class="tournament-banner-copy"><span>EX1 LEGEND · ARENA</span><h1>جوایز و<br>مسابقات</h1><p>رقابت‌های جامعه، روم‌های فعال و جدول قهرمانان</p></div><div class="tournament-banner-mark">EX1</div><div class="banner-bottom"><b>مسابقات فعال</b><small>برای دیدن جزئیات، کارت هر مسابقه را انتخاب کن</small></div></div>
@@ -107,7 +116,7 @@ header{position:sticky;top:0;z-index:25;background:#0a0818eF;border:0;border-bot
  </nav>
 <footer>EX1 LEGEND · جامعه‌ی رقابت سالم</footer>
 <div class="modal" id="authModal"><div class="dialog"><h3 id="authTitle">ورود به EX1 LEGEND</h3><p id="authHint" class="muted">برای ساخت حساب، کد یک‌بارمصرف به ایمیلت ارسال می‌شود.</p><form id="authForm"><input id="authName" class="field" maxlength="30" placeholder="نام نمایشی" hidden><input id="authEmail" class="field" type="email" maxlength="254" placeholder="ایمیل" required><input id="authPassword" type="hidden" disabled><input id="authOtp" class="field" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="کد تأیید ایمیل" hidden><button class="btn" id="authSubmit" type="submit">ارسال کد ورود</button></form><button class="btn secondary" id="authSwitch" type="button">ساخت حساب با کد ایمیل</button><button class="btn ghost" type="button" onclick="closeAuth()">بستن</button><p class="muted">ثبت‌نام با پیامک پس از اتصال سرویس پیامکی فعال می‌شود.</p></div></div>
-<div class="modal" id="profileEditorModal"><div class="dialog"><h3>ویرایش پروفایل</h3><form id="profileForm"><label>نام نمایشی<input class="field" id="profileName" maxlength="30" required></label><label>نام کاربری<input class="field" id="profileHandle" maxlength="24" placeholder="اختیاری"></label><label>UID کالاف دیوتی موبایل<input class="field" id="profileGameUid" maxlength="32" placeholder="شناسهٔ بازیکن در بازی"></label><button class="btn" type="submit">ذخیره تغییرات</button></form><button class="btn ghost" type="button" data-close-modal="profileEditorModal">بستن</button></div></div><div class="modal" id="settingsModal"><div class="dialog"><h3>تنظیمات EX1</h3><button class="btn secondary" id="showAppearanceSettings" type="button">تنظیمات ظاهری</button><div id="appearanceSettings" hidden><label>تم رنگی<select class="field" id="userTheme"><option value="soft">نرم و متعادل</option><option value="blue">آبی</option><option value="green">سبز</option><option value="amber">کهربایی</option></select></label><label>فونت برنامه<select class="field" id="userFont"><option value="tahoma">Tahoma</option><option value="system">فونت سیستم</option><option value="arial">Arial</option><option value="mono">Monospace</option></select></label><button class="btn small" id="saveUserSettings" type="button">ذخیره تنظیمات</button><p class="muted" id="userSettingsMessage">تنظیمات روی همین دستگاه ذخیره می‌شوند.</p></div><button class="btn secondary" id="showBlockedSettings" type="button">حساب‌های مسدودشده</button><div id="blockedSettings" hidden><div id="blockedUsers" class="user-list"><div class="empty">در حال دریافت فهرست...</div></div></div><button class="btn ghost" type="button" data-close-modal="settingsModal">بستن</button></div></div><div class="modal" id="storyModal"><div class="dialog story-view"><img id="storyImage" alt="استوری"><p id="storyCaption" class="muted"></p><button class="btn ghost" onclick="closeStory()">بستن</button></div></div>
+<div class="modal" id="profileEditorModal"><div class="dialog"><h3>ویرایش پروفایل</h3><form id="profileForm"><label>نام نمایشی<input class="field" id="profileName" maxlength="30" required></label><label>نام کاربری<input class="field" id="profileHandle" maxlength="24" placeholder="اختیاری"></label><label>UID کالاف دیوتی موبایل<input class="field" id="profileGameUid" maxlength="32" placeholder="شناسهٔ بازیکن در بازی"></label><button class="btn" type="submit">ذخیره تغییرات</button></form><button class="btn ghost" type="button" data-close-modal="profileEditorModal">بستن</button></div></div><div class="modal" id="settingsModal"><div class="dialog"><h3>تنظیمات EX1</h3><button class="btn secondary" id="showAppearanceSettings" type="button">تنظیمات ظاهری</button><div id="appearanceSettings" hidden><label>تم رنگی<select class="field" id="userTheme"><option value="soft">نرم و متعادل</option><option value="blue">آبی</option><option value="green">سبز</option><option value="amber">کهربایی</option></select></label><label>فونت برنامه<select class="field" id="userFont"><option value="tahoma">Tahoma</option><option value="system">فونت سیستم</option><option value="arial">Arial</option><option value="mono">Monospace</option></select></label><button class="btn small" id="saveUserSettings" type="button">ذخیره تنظیمات</button><p class="muted" id="userSettingsMessage">تنظیمات روی همین دستگاه ذخیره می‌شوند.</p></div><button class="btn secondary" id="showBlockedSettings" type="button">حساب‌های مسدودشده</button><div id="blockedSettings" hidden><div id="blockedUsers" class="user-list"><div class="empty">در حال دریافت فهرست...</div></div></div><button class="btn secondary" id="logoutButton" type="button">خروج از حساب</button><button class="btn ghost" type="button" data-close-modal="settingsModal">بستن</button></div></div><div class="modal" id="storyModal"><div class="dialog story-view"><img id="storyImage" alt="استوری"><p id="storyCaption" class="muted"></p><button class="btn ghost" onclick="closeStory()">بستن</button></div></div>
 <div class="modal" id="walletModal"><div class="dialog"><h3>کیف پول EX1</h3><div class="wallet-modal-balance"><span>موجودی فعلی</span><strong id="walletModalBalance">۰ <small>تومان آزمایشی</small></strong></div><p class="muted">مبالغ این کیف پول فقط برای آزمایش رابط کاربری هستند؛ هیچ پرداخت، واریز، برداشت یا جایزه نقدی واقعی انجام نمی‌شود.</p><div class="wallet-history"><h4>تراکنش‌ها</h4><div id="walletHistory" class="empty">در حال دریافت تاریخچه...</div></div><button class="btn ghost" type="button" data-close-modal="walletModal">بستن</button></div></div><div class="modal" id="joinRoomModal"><div class="dialog"><h3>ثبت‌نام در روم</h3><p id="joinRoomSummary" class="muted"></p><div class="panel"><strong>نوع حضور</strong><p>فعلاً ثبت‌نام انفرادی انجام می‌شود و جایگاه تیم به نام حساب شما رزرو خواهد شد.</p><small class="muted">هماهنگی هم‌تیمی و دعوت دوست در مرحله بعد اضافه می‌شود.</small></div><p class="muted">این ثبت‌نام در دیتابیس ذخیره می‌شود؛ مبلغ فقط نمایشی و آزمایشی است و هیچ پرداختی انجام نمی‌شود.</p><button class="btn" id="confirmRoomJoin" type="button">تأیید و ثبت‌نام</button><button class="btn ghost" type="button" data-close-modal="joinRoomModal">بازگشت</button></div></div><div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
 <script src="/supabase-config.js"></script>
@@ -121,9 +130,25 @@ function toast(s){$("toast").textContent=s;$("toast").classList.add("show");clea
 function closeAuth(){$("authModal").classList.remove("show");}
 function openAuth(){$("authModal").classList.add("show");}
 const userThemes={soft:{accent:"#b9d9cf",button:"#9278c7"},blue:{accent:"#9bc9f5",button:"#3e78ae"},green:{accent:"#a9dfbd",button:"#4d9270"},amber:{accent:"#f1d19a",button:"#a77a37"}};
-function applyUserSettings(){const t=localStorage.getItem("ex1-user-theme")||"soft",f=localStorage.getItem("ex1-user-font")||"tahoma";const selected=userThemes[t]||userThemes.soft;document.documentElement.style.setProperty("--user-accent",selected.accent);document.documentElement.style.setProperty("--user-button",selected.button);document.body.style.fontFamily=({tahoma:"Tahoma,Arial,sans-serif",system:"system-ui,sans-serif",arial:"Arial,sans-serif",mono:"monospace"})[f]||"Tahoma,Arial,sans-serif";if($("userTheme"))$("userTheme").value=t;if($("userFont"))$("userFont").value=f;}
+function applyUserSettings(){
+ const t=localStorage.getItem("ex1-theme")||"soft",f=localStorage.getItem("ex1-font")||"tahoma";
+ const selected=userThemes[t]||userThemes.soft;
+ document.documentElement.dataset.ex1Theme=t;
+ document.documentElement.dataset.ex1Font=f;
+ document.documentElement.style.setProperty("--ex1-ui-accent",selected.accent);
+ document.documentElement.style.setProperty("--ex1-ui-button",selected.button);
+ document.body.style.fontFamily=({tahoma:"Tahoma,Arial,sans-serif",system:"system-ui,sans-serif",arial:"Arial,sans-serif",mono:"monospace"})[f]||"Tahoma,Arial,sans-serif";
+ if($("userTheme"))$("userTheme").value=t;
+ if($("userFont"))$("userFont").value=f;
+}
 applyUserSettings();
-$("saveUserSettings").onclick=()=>{localStorage.setItem("ex1-user-theme",$("userTheme").value);localStorage.setItem("ex1-user-font",$("userFont").value);applyUserSettings();$("userSettingsMessage").textContent="تنظیمات این دستگاه ذخیره شد.";toast("ظاهر برنامه به‌روزرسانی شد.");};
+$("saveUserSettings").onclick=()=>{
+ localStorage.setItem("ex1-theme",$("userTheme").value);
+ localStorage.setItem("ex1-font",$("userFont").value);
+ applyUserSettings();
+ $("userSettingsMessage").textContent="تنظیمات این دستگاه ذخیره شد.";
+ toast("ظاهر برنامه به‌روزرسانی شد.");
+};
 async function loadWallet(){
  $("walletHistory").textContent="در حال دریافت تاریخچه...";
  const [{data:summary,error:se},{data:history,error:he}]=await Promise.all([sb.rpc("wallet_my_summary"),sb.rpc("wallet_my_history",{p_limit:30})]);
@@ -219,9 +244,6 @@ $("profileAvatarFile").addEventListener("change",async()=>{const file=$("profile
 document.querySelectorAll("[data-profile-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-profile-tab]").forEach(x=>x.classList.toggle("active",x===b));["matches","team","posts"].forEach(k=>$("profile"+k[0].toUpperCase()+k.slice(1)).hidden=k!==b.dataset.profileTab);if(b.dataset.profileTab==="team")loadMyTeam();});
 $("openSettings").onclick=()=>{$("settingsModal").classList.add("show");};
 $("showAppearanceSettings").onclick=()=>{$("appearanceSettings").hidden=!$("appearanceSettings").hidden;};
-function applyUserSettings(){const theme=localStorage.getItem("ex1-theme")||"soft",font=localStorage.getItem("ex1-font")||"tahoma";document.documentElement.dataset.ex1Theme=theme;document.documentElement.dataset.ex1Font=font;if($("userTheme"))$("userTheme").value=theme;if($("userFont"))$("userFont").value=font;}
-applyUserSettings();
-$("saveUserSettings").onclick=()=>{localStorage.setItem("ex1-theme",$("userTheme").value);localStorage.setItem("ex1-font",$("userFont").value);applyUserSettings();$("userSettingsMessage").textContent="تنظیمات با موفقیت ذخیره شد.";toast("تنظیمات ظاهری ذخیره شد.");};
 $("showBlockedSettings").onclick=()=>{$("blockedSettings").hidden=!$("blockedSettings").hidden;if(!$("blockedSettings").hidden)loadBlockedUsers();};
 document.querySelectorAll("[data-close-modal]").forEach(b=>b.onclick=()=>$(b.dataset.closeModal).classList.remove("show"));
 async function loadProfile(){
@@ -241,7 +263,7 @@ $("profileForm").addEventListener("submit",async e=>{
  if(error){toast(error.message.includes("duplicate")?"این نام کاربری قبلاً گرفته شده.":"ذخیره پروفایل انجام نشد.");return;}
  toast("پروفایل ذخیره شد.");$("profileEditorModal").classList.remove("show");loadProfile();
 });
-$("blockHelp").onclick=()=>{switchPage("home");switchHome("explore");loadExplore();};
+
 async function uploadImage(file,folder){
  if(!currentUser)throw new Error("ابتدا وارد حساب شو.");
  if(!file)return null;
