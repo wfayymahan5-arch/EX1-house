@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#191720">
+<meta name="theme-color" content="#f5f7fc">
 <meta name="description" content="اپلیکیشن EX1 LEGEND؛ جامعه بازیکنان و رقابت‌های رایگان">
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" type="image/svg+xml" href="/ex1-legend-mark.svg">
@@ -171,12 +171,18 @@ header{background:#ffffffed!important;border-bottom:1px solid #e2e5f1!important;
 .team-slot{background:#f7f9fd!important;border-color:#e1e6f0!important;color:#333a53!important}.team-slot button{background:#e2f4eb!important;border-color:#bce3d0!important;color:#2d7555!important}
 @media(max-width:420px){.home-shortcuts{gap:8px}.home-shortcuts button{padding:11px 9px}.app-hero{padding:18px!important}.app-hero .btn{width:100%}}
 
+
+.connection-status{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:20px;background:#eef7f1;color:#347a58;font-size:10px;white-space:nowrap}
+.connection-status i{width:7px;height:7px;border-radius:50%;background:#39a96b;display:inline-block}
+.connection-status.disconnected{background:#fff0f1;color:#b34c5b}.connection-status.disconnected i{background:#d65b69}
+@media(max-width:420px){.connection-status{font-size:9px;padding:5px 7px}.header-actions{gap:5px}}
+
 </style>
 </head>
 <body>
 <header><div class="wrap topbar">
  <a class="brand" href="#home" aria-label="EX1 LEGEND"><img src="/ex1-legend-mark.svg" alt=""><span><b>EX1</b> LEGEND</span></a>
- <div class="header-actions"><span id="headerUser" class="muted"></span><button class="btn secondary small" id="headerAuth" type="button">ورود / ثبت‌نام</button></div>
+ <div class="header-actions"><span id="connectionStatus" class="connection-status"><i></i> در حال اتصال</span><span id="headerUser" class="muted"></span><button class="btn secondary small" id="headerAuth" type="button">ورود / ثبت‌نام</button></div>
 </div></header>
 <main class="wrap">
 <section class="page active" id="page-home">
@@ -339,9 +345,9 @@ $("authForm").addEventListener("submit",async e=>{
 });
 async function loadProfile(){
  if(!currentUser)return;
+ loadWallet();
  const {data,error}=await sb.from("profiles").select("id,display_name,username,avatar_url").eq("id",currentUser.id).maybeSingle();
  if(error||!data)return;
- loadWallet();
  $("profileDisplayName").textContent=data.display_name||"بازیکن EX1";
  $("profileUsername").textContent=data.username?"@"+data.username:"نام کاربری ثبت نشده";
  $("profileAvatar").innerHTML=data.avatar_url?'<img class="profile-big" src="'+esc(data.avatar_url)+'" alt="">':esc((data.display_name||"EX").slice(0,1));
@@ -521,7 +527,18 @@ async function loadRanking(){
  if(error||!data?.length){$("ranking").innerHTML='<div class="empty">هنوز نتیجه‌ی تأییدشده‌ای برای رتبه‌بندی ثبت نشده است.</div>';return;}
  $("ranking").innerHTML='<div class="user-list">'+data.map((x,i)=>'<div class="user-row"><div class="rank-icon">'+(i+1)+'</div><div class="user-info"><strong>'+esc(x.teams?.name||"تیم")+'</strong><small>'+esc(x.tournaments?.title||"مسابقه")+'</small></div><strong>'+esc(x.points)+' امتیاز</strong></div>').join("")+'</div>';
 }
+async function checkConnection(){
+ const el=$("connectionStatus");if(!el)return;
+ try{
+  const {error}=await sb.from("tournaments").select("id").limit(1);
+  if(error)throw error;
+  el.innerHTML='<i></i> متصل به EX1';el.classList.add("connected");el.classList.remove("disconnected");
+ }catch{
+  el.innerHTML='<i></i> اتصال برقرار نیست';el.classList.add("disconnected");el.classList.remove("connected");
+ }
+}
 sb.auth.onAuthStateChange(()=>setTimeout(authState,0));
+checkConnection();
 authState();
 </script>
 <script>
