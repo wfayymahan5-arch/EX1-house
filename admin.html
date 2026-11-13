@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#090910">
-<title>پنل مدیریت | EX1 HOUSE</title>
+<title>پنل مدیریت | EX1 LEGEND</title>
 <style>
 :root{color-scheme:dark;--bg:#090910;--panel:#12121d;--line:#27273a;--text:#f4f3ff;--muted:#9998b2;--purple:#8b5cf6;--cyan:#22d3ee;--green:#34d399}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#24134a 0,transparent 38%),var(--bg);color:var(--text);font-family:system-ui,Tahoma,Arial,sans-serif}a{color:inherit;text-decoration:none}.wrap{max-width:1180px;margin:auto;padding:22px}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:22px}.brand{font-weight:900;font-size:21px;letter-spacing:1px}.brand span{color:var(--cyan)}.back,.btn{border:1px solid var(--line);background:#171725;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer}.hero{padding:22px;border:1px solid #39304f;border-radius:20px;background:linear-gradient(120deg,#21143c,#111522);margin-bottom:18px}.hero h1{margin:0 0 8px;font-size:25px}.muted{color:var(--muted);font-size:13px;line-height:1.8}.notice{margin-top:14px;padding:11px 13px;border-radius:12px;background:#382b16;border:1px solid #705326;color:#fbd38d;font-size:13px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}.card,.section{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:17px}.stat small{color:var(--muted)}.stat strong{display:block;font-size:27px;margin-top:7px}.layout{display:grid;grid-template-columns:210px 1fr;gap:14px}.nav{display:flex;flex-direction:column;gap:8px;height:max-content}.nav button{background:transparent;border:1px solid transparent;color:var(--muted);text-align:right;padding:12px;border-radius:11px;cursor:pointer;font:inherit}.nav button.active,.nav button:hover{background:#211a35;border-color:#49366e;color:white}.section h2{font-size:18px;margin:0 0 15px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:520px}th,td{text-align:right;padding:12px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-weight:600}.tag{display:inline-block;padding:4px 9px;border-radius:20px;background:#1d3b34;color:#8ff0c9;font-size:11px}.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed #38384c;border-radius:12px}.hidden{display:none}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn.primary{background:linear-gradient(110deg,#6d3bd1,#276d91);border:0}.btn:disabled{opacity:.45;cursor:not-allowed}footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.nav{display:grid;grid-template-columns:repeat(3,1fr)}.nav button{text-align:center;padding:9px;font-size:12px}.wrap{padding:14px}.hero h1{font-size:21px}}
@@ -13,7 +13,7 @@
 <body>
 <div class="wrap">
 <header class="top"><div class="brand">EX1 <span>HOUSE</span> <small style="color:#9998b2;font-size:12px">/ مدیریت</small></div><a class="back" href="/">بازگشت به سایت ↗</a></header>
-<section class="hero"><h1>پنل مدیریت EX1</h1><div class="muted">مرکز مدیریت مسابقات، کاربران و امتیازهای تجربه</div><div class="notice">نسخه نمایشی: هنوز به ورود امن مدیر و دیتابیس آنلاین متصل نیست. اطلاعات این صفحه نمونه است و هیچ تغییری در سایت اصلی ذخیره نمی‌کند.</div></section>
+<section class="hero"><h1>پنل مدیریت EX1 LEGEND</h1><div class="muted">مرکز مدیریت مسابقات، کاربران و امتیازهای تجربه</div><div class="notice">نسخه نمایشی: هنوز به ورود امن مدیر و دیتابیس آنلاین متصل نیست. اطلاعات این صفحه نمونه است و هیچ تغییری در سایت اصلی ذخیره نمی‌کند.</div></section>
 <div class="stats">
 <div class="card stat"><small>مسابقات ثبت‌شده</small><strong>۳</strong></div><div class="card stat"><small>کاربران نمونه</small><strong>۱۲</strong></div><div class="card stat"><small>شرکت‌کنندگان</small><strong>۲۸</strong></div><div class="card stat"><small>امتیاز XP توزیع‌شده</small><strong>۰</strong></div>
 </div>
@@ -29,7 +29,7 @@
 <section class="section tab hidden" id="xp"><h2>مدیریت امتیاز XP</h2><div class="empty">ثبت و تغییر XP تا زمان پیاده‌سازی ثبت امن سمت سرور غیرفعال است.</div></section>
 <section class="section tab hidden" id="settings"><h2>تنظیمات سامانه</h2><div class="row"><span>ثبت‌نام مسابقات</span><span class="tag">دمو</span></div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><div class="row"><span>جوایز</span><span class="muted">فقط امتیاز تجربه غیرنقدی (XP)</span></div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><div class="row"><span>ذخیره‌سازی</span><span class="muted">نیازمند دیتابیس آنلاین</span></div></section>
 </main></div>
-<footer>EX1 HOUSE · پنل مدیریت · نسخه اولیه</footer>
+<footer>EX1 LEGEND · پنل مدیریت · نسخه اولیه</footer>
 </div>
 <script>
 document.querySelectorAll('[data-tab]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b===button));document.querySelectorAll('.tab').forEach(section=>section.classList.toggle('hidden',section.id!==button.dataset.tab));}));
