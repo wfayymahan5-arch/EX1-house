@@ -107,11 +107,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <label>حداکثر تعداد تیم‌ها<input id="tf_max_teams" type="number" min="1" max="1000" value="25" required></label>
 <label>زمان شروع<input id="tf_starts_at" type="datetime-local"></label>
 <label>تصویر مسابقه (نشانی یا انتخاب فایل)<input id="tf_cover_image_url" type="url" placeholder="https://..."><input id="tf_cover_image_file" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label>
-<label>امتیاز ورودی نمایشی<input id="tf_entry_demo_points" type="number" min="0" max="1000000000" value="0"></label>
-<label>امتیاز جایزه نمایشی<input id="tf_prize_demo_points" type="number" min="0" max="1000000000" value="0"></label>
+
+<label>پاداش امتیازی غیرقابل‌برداشت<input id="tf_prize_demo_points" type="number" min="0" max="1000000000" value="0"></label>
 <label class="wide">توضیحات و قوانین مسابقه<textarea id="tf_rules" maxlength="5000"></textarea></label>
 </div>
-<p class="muted">امتیازها صرفاً نمایشی و بدون ارزش پولی‌اند. هیچ خرید، برداشت یا پرداخت واقعی وجود ندارد. تصویر مسابقه را می‌توانی با فایل یا نشانی ثبت کنی.</p>
+<p class="muted">ثبت‌نام مسابقه رایگان است. پاداش‌ها فقط امتیاز داخلی و غیرقابل‌برداشت‌اند؛ هیچ پرداخت نقدی وجود ندارد. تصویر مسابقه را می‌توانی با فایل یا نشانی ثبت کنی.</p>
 <div class="actions"><button class="btn primary" type="submit" id="saveTournamentButton">ذخیره مسابقه</button><button class="btn" type="button" id="cancelTournamentButton">انصراف</button></div>
 </form>
 <div id="tournamentsTable" class="empty">در حال بارگذاری...</div>
@@ -128,7 +128,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <label>ظرفیت بازیکن<input id="rf_capacity" type="number" min="1" max="1000" value="100" required></label>
  <label>تعداد نفرات هر تیم<select id="rf_team_size"><option value="2">دو نفره</option><option value="4" selected>چهار نفره</option></select></label>
  <label>حداکثر جایگاه تیم‌ها<input id="rf_max_teams" type="number" min="1" max="25" value="25" required></label>
- <label>امتیاز ورودی نمایشی<input id="rf_entry_demo_points" type="number" min="0" max="1000000000" value="0" required></label>
+ 
 <label>زمان شروع<input id="rf_starts_at" type="datetime-local"></label>
 <label>وضعیت<select id="rf_status"><option value="draft">پیش‌نویس</option><option value="open" selected>باز</option><option value="full">تکمیل ظرفیت</option><option value="closed">بسته</option><option value="completed">پایان‌یافته</option><option value="cancelled">لغوشده</option></select></label>
 <label>نوع رسانه بالای روم<select id="rf_room_media_type"><option value="image">تصویر</option><option value="video">ویدیو (با لینک مستقیم)</option></select></label>
@@ -395,11 +395,11 @@ async function uploadTournamentAsset(file,folder){
 }
 function resetTournamentForm(){
  $("tournamentForm").reset();$("tf_id").value="";$("tf_game").value="Call of Duty Mobile";$("tf_status").value="draft";
- $("tf_max_teams").value=25;$("tf_entry_demo_points").value=0;$("tf_prize_demo_points").value=0;
+ $("tf_max_teams").value=25;$("tf_prize_demo_points").value=0;
  $("tournamentForm").classList.add("hidden");
 }
 function resetRoomForm(){
- $("roomForm").reset();$("rf_id").value="";$("rf_capacity").value=100;$("rf_team_size").value="4";$("rf_max_teams").value=25;$("rf_entry_demo_points").value=0;$("rf_room_media_type").value="image";$("rf_status").value="open";$("rf_game_mode").value="battle_royale";
+ $("roomForm").reset();$("rf_id").value="";$("rf_capacity").value=100;$("rf_team_size").value="4";$("rf_max_teams").value=25;$("rf_room_media_type").value="image";$("rf_status").value="open";$("rf_game_mode").value="battle_royale";
  $("roomForm").classList.add("hidden");
 }
 function tournamentOptions(selected){
@@ -414,9 +414,9 @@ async function loadTournaments(){
   const actions=[];
   if(canEdit)actions.push('<button class="action-btn" data-edit-tournament="'+esc(t.id)+'">ویرایش</button>');
   if(canDelete)actions.push('<button class="action-btn danger" data-delete-tournament="'+esc(t.id)+'">حذف</button>');
-  return row([esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—"),esc(t.entry_demo_points||0),esc(t.prize_demo_points||0),actions.join(" ")||"—"]);
+  return row([esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—"),esc(t.prize_demo_points||0),actions.join(" ")||"—"]);
  });
- $("tournamentsTable").innerHTML=tournamentCache.length?table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع","ورودی (امتیاز)","جایزه (امتیاز)","عملیات"],rows):'<div class="empty">هنوز مسابقه‌ای ثبت نشده است.</div>';
+ $("tournamentsTable").innerHTML=tournamentCache.length?table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع","پاداش امتیازی","عملیات"],rows):'<div class="empty">هنوز مسابقه‌ای ثبت نشده است.</div>';
  $("addTournamentButton").hidden=!permissions["tournaments.create"];
  $("tournamentForm").classList.add("hidden");
 }
@@ -431,9 +431,9 @@ async function loadRooms(){
  const rows=rooms.map(r=>{
   const t=tournamentCache.find(x=>x.id===r.tournament_id);
   const actions=canManage?'<button class="action-btn" data-edit-room="'+esc(r.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-room="'+esc(r.id)+'">حذف</button>':"—";
-  return row([esc(r.title),esc(t?.title||"—"),esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.team_size===2?"دو نفره":"چهارنفره"),esc(r.max_teams||25),esc(r.entry_demo_points||0),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
+  return row([esc(r.title),esc(t?.title||"—"),esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.team_size===2?"دو نفره":"چهارنفره"),esc(r.max_teams||25),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
  });
- $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","نقشه","نوع تیم","جایگاه تیم","امتیاز ورودی نمایشی","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
+ $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","نقشه","نوع تیم","جایگاه تیم","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
 }
 $("addTournamentButton").onclick=()=>{
  if(!permissions["tournaments.create"])return;
@@ -448,7 +448,7 @@ $("tournamentForm").addEventListener("submit",async e=>{
   map:$("tf_map").value.trim()||null,status:$("tf_status").value,
   max_teams:Number($("tf_max_teams").value),starts_at:isoDate($("tf_starts_at").value),
   cover_image_url:$("tf_cover_image_url").value.trim()||null,rules:$("tf_rules").value.trim()||null,
-  entry_demo_points:Number($("tf_entry_demo_points").value||0),prize_demo_points:Number($("tf_prize_demo_points").value||0)
+  entry_demo_points:0,prize_demo_points:Number($("tf_prize_demo_points").value||0)
  };
  if(id&&!permissions["tournaments.update"])return toast("مجوز ویرایش مسابقه را نداری.");
  if(!id&&!permissions["tournaments.create"])return toast("مجوز ساخت مسابقه را نداری.");
@@ -470,7 +470,7 @@ $("tournamentsTable").addEventListener("click",async e=>{
   $("tf_mode").value=t.mode||"";$("tf_map").value=t.map||"";$("tf_status").value=t.status||"draft";
   $("tf_max_teams").value=t.max_teams||25;$("tf_starts_at").value=localDateTime(t.starts_at);
   $("tf_cover_image_url").value=t.cover_image_url||"";$("tf_rules").value=t.rules||"";
-  $("tf_entry_demo_points").value=t.entry_demo_points||0;$("tf_prize_demo_points").value=t.prize_demo_points||0;
+  $("tf_prize_demo_points").value=t.prize_demo_points||0;
   $("tournamentForm").classList.remove("hidden");$("tf_title").focus();
  }
  if(del&&permissions["tournaments.delete"]){
@@ -493,7 +493,7 @@ $("roomForm").addEventListener("submit",async e=>{
  const payload={
   tournament_id:$("rf_tournament_id").value,title:$("rf_title").value.trim(),
   game_mode:$("rf_game_mode").value.trim()||null,map:$("rf_map").value.trim()||null,
-  capacity:Number($("rf_capacity").value),team_size:Number($("rf_team_size").value),max_teams:Number($("rf_max_teams").value),entry_demo_points:Number($("rf_entry_demo_points").value||0),starts_at:isoDate($("rf_starts_at").value),
+  capacity:Number($("rf_capacity").value),team_size:Number($("rf_team_size").value),max_teams:Number($("rf_max_teams").value),entry_demo_points:0,starts_at:isoDate($("rf_starts_at").value),
    status:$("rf_status").value,room_image_url:$("rf_room_image_url").value.trim()||null,room_media_type:$("rf_room_media_type").value,room_video_url:$("rf_room_video_url").value.trim()||null,
    rules:$("rf_rules").value.trim()
  };
@@ -516,7 +516,7 @@ $("roomsTable").addEventListener("click",async e=>{
   if(error||!data)return toast("اطلاعات روم دریافت نشد.");
   $("rf_id").value=data.id;tournamentOptions(data.tournament_id);$("rf_title").value=data.title||"";
   $("rf_game_mode").value=data.game_mode||"";$("rf_map").value=data.map||"";
-  $("rf_capacity").value=data.capacity||100;$("rf_team_size").value=String(data.team_size||4);$("rf_max_teams").value=data.max_teams||25;$("rf_entry_demo_points").value=data.entry_demo_points||0;$("rf_starts_at").value=localDateTime(data.starts_at);
+  $("rf_capacity").value=data.capacity||100;$("rf_team_size").value=String(data.team_size||4);$("rf_max_teams").value=data.max_teams||25;$("rf_starts_at").value=localDateTime(data.starts_at);
   $("rf_status").value=data.status||"draft";$("rf_room_image_url").value=data.room_image_url||"";$("rf_room_media_type").value=data.room_media_type||"image";$("rf_room_video_url").value=data.room_video_url||"";
   $("rf_rules").value=data.rules||"";$("roomForm").classList.remove("hidden");$("rf_title").focus();
  }
