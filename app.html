@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f5f7fc">
+<meta name="description" content="اپلیکیشن EX1 LEGEND؛ جامعه بازیکنان و رقابت‌های رایگان">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/svg+xml" href="/ex1-legend-mark.svg">
+<title>EX1 LEGEND | اپلیکیشن</title>
+<style>
+:root{color-scheme:dark;--bg:#090817;--surface:#17152a;--surface2:#211d38;--stroke:#403957;--text:#f8f6ff;--muted:#aaa4c1;--violet:#9a4de8;--violet2:#642fc0;--cyan:#28c4d4;--gold:#d9b45b}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;padding:0 0 calc(86px + env(safe-area-inset-bottom));font-family:Tahoma,Arial,sans-serif;color:var(--text);background:radial-gradient(ellipse at 12% 12%,#6425a855,transparent 36%),radial-gradient(ellipse at 90% 35%,#00677b3d,transparent 35%),radial-gradient(ellipse at 50% 100%,#5b164d3b,transparent 38%),#090817}button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.wrap{width:100%;max-width:760px;margin:auto;padding:0 17px}
+header{position:sticky;top:0;z-index:25;background:#0a0818eF;border:0;border-bottom:1px solid #ffffff10;backdrop-filter:blur(18px)}.topbar{height:68px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 18px}.brand{font-size:23px;letter-spacing:-1px;direction:ltr;font-weight:1000}.brand b{color:#c17cff}.header-actions{display:flex;align-items:center;gap:9px}.connection-status{font-size:9px;color:#a9a1bd}.connection-status i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#45d8a1;margin-left:4px}.header-actions .muted{display:none}.btn{border:0;border-radius:13px;padding:12px 17px;color:#fff;background:linear-gradient(115deg,#9b4fe8,#6137bd);font-weight:800;box-shadow:0 6px 20px #6e35b344}.btn.secondary{background:#29223d;border:1px solid #59466f;box-shadow:none}.btn.ghost{background:#151226;border:1px solid #403650;box-shadow:none;color:#cfc5e2}.btn.small{padding:8px 12px;font-size:10px}.btn:disabled{opacity:.45}
+.page{display:none;padding:0 0 24px}.page.active{display:block}.hero{position:relative;overflow:hidden;border-radius:0 0 24px 24px;margin:0 -17px 20px;padding:28px 23px;background:linear-gradient(110deg,#40205f,#121b35 72%);border:0;min-height:190px}.hero:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 30%,#a66bff44,transparent 34%),linear-gradient(0deg,#090817aa,transparent 70%);pointer-events:none}.hero>*{position:relative;z-index:1}.hero h1{font-size:26px;line-height:1.5;margin:7px 0}.hero h1 span{color:#d4a0ff}.hero p{color:#c6bbd9;font-size:11px;line-height:2;margin:0}.eyebrow,.hero-kicker{font-size:9px;color:#d3a7ff;letter-spacing:2px;font-weight:900}.section-head{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:23px 0 13px}.section-head h2{font-size:16px;margin:0 0 5px}.section-head p,.muted{font-size:10px;color:var(--muted);line-height:1.9;margin:0}.panel,.dialog{background:linear-gradient(145deg,#211a34eF,#151326f2);border:1px solid #ffffff19;border-radius:20px;padding:15px;box-shadow:0 12px 30px #0004}.empty{padding:22px 13px;text-align:center;border:1px dashed #625176;border-radius:15px;color:#b8aecb;font-size:11px;line-height:2;background:#ffffff06}
+.subnav{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:16px 0 19px;padding:5px;background:#ffffff0b;border:1px solid #ffffff0d;border-radius:18px}.subnav button{border:0;border-radius:14px;background:transparent;color:#a9a1bb;padding:12px;font-weight:800;font-size:12px}.subnav button.active{background:#ffffff20;color:#fff;box-shadow:0 4px 15px #0003}
+.home-section-label{display:flex;align-items:center;gap:10px;margin:22px 0 5px}.home-section-label span{font-size:8px;letter-spacing:2px;color:#b88aff}.home-section-label b{font-size:14px}.home-section-label i{height:1px;flex:1;background:linear-gradient(90deg,#8e4edb55,transparent)}
+.home-shortcuts{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:15px 0}.home-shortcuts button{position:relative;min-width:0;text-align:right;padding:12px 10px;border-radius:16px;border:1px solid #ffffff19;background:linear-gradient(145deg,#251b3a,#151426);color:#fff}.home-shortcuts b,.home-shortcuts small{display:block}.home-shortcuts b{font-size:10px;margin:8px 0 4px}.home-shortcuts small{font-size:8px;color:#a9a0bd}.home-shortcuts i{position:absolute;left:9px;top:10px;color:#c18aff;font-style:normal}.shortcut-icon{display:grid;place-items:center;width:29px;height:29px;border-radius:10px;background:#8c48ce33;color:#d8b4ff;font-size:16px}
+
+.user-list{display:grid;gap:9px}.user-row{display:flex;align-items:center;gap:10px;padding:10px;background:#171327;border:1px solid #ffffff17;border-radius:14px}.user-row .user-info{flex:1;min-width:0}.user-row strong{font-size:11px;display:block}.user-row small{font-size:9px;color:var(--muted)}.searchbar{display:flex;gap:8px;margin-bottom:12px}.searchbar input{flex:1;min-width:0}
+.tournament-grid{display:grid;grid-template-columns:1fr;gap:16px}.tournament{overflow:hidden;padding:0;border-radius:23px;background:#181529;border:1px solid #ffffff1e;box-shadow:0 14px 30px #0005}.tournament img{width:100%;height:245px;object-fit:cover;display:block;background:#20172d}.tournament-content{padding:15px}.tournament h3{font-size:15px;margin:8px 0}.tag{display:inline-block;border:1px solid #8b5cb5;background:#38234f;color:#e7d0ff;border-radius:20px;padding:5px 9px;font-size:9px}.meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0}.meta div{background:#100e20;border:1px solid #ffffff15;padding:10px;border-radius:12px}.meta small{display:block;color:#a99fba;font-size:9px}.meta strong{font-size:11px;display:block;margin-top:5px}
+.profile-grid{display:block}.profile-card{position:relative;text-align:center;margin:0 -17px 15px;padding:28px 18px 22px;border:0;border-radius:0 0 25px 25px;background:radial-gradient(ellipse at 50% 15%,#7644a65e,transparent 56%),linear-gradient(140deg,#24143c,#11172c)!important;box-shadow:none}.profile-big{width:112px;height:112px;border-radius:50%;object-fit:cover;background:linear-gradient(145deg,#3c8c66,#e8e7e9 50%,#ba563c);border:4px solid #161326;box-shadow:0 0 0 2px #a46bea,0 8px 22px #0008;margin:0 auto 13px;display:grid;place-items:center;font-size:34px;color:white}.profile-card h2{font-size:20px;margin:7px 0}.profile-card>p{max-width:330px;margin:12px auto 16px}.profile-card .btn{margin:4px}.profile-form{margin:14px 0}.profile-form label,.settings-panel label{display:block;color:#c5bbd6;font-size:10px;margin:11px 0}.profile-form input,.settings-panel select{margin-top:6px}.wallet-card{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0;padding:18px;border:1px solid #8d65b7;border-radius:23px;background:linear-gradient(115deg,#34205b,#1d3155 64%,#124b4b);box-shadow:0 12px 28px #0005;cursor:pointer}.wallet-kicker,.wallet-note{display:block;color:#d7c8ec;font-size:10px}.wallet-balance{display:block;margin:8px 0;color:#8ef0c1;font-size:26px}.wallet-balance small{font-size:10px;color:#bce8d1}.wallet-icon{font-size:32px;color:#d7b0ff}.settings-panel{margin-bottom:15px}.about-ex1{font-size:12px;line-height:2}
+.chat-layout{display:grid;grid-template-columns:1fr;gap:12px;min-height:420px}.chat-list{display:grid;align-content:start;gap:8px}.chat-contact{display:flex;align-items:center;gap:9px;width:100%;padding:9px;border:1px solid #ffffff17;border-radius:12px;background:#171327;color:#fff;text-align:right}.chat-contact strong{font-size:10px}.chat-window{display:flex;flex-direction:column;min-height:420px}.chat-messages{flex:1;overflow:auto;max-height:420px;padding:8px}.bubble{max-width:82%;padding:9px 12px;border-radius:13px;background:#29203d;margin:7px 0;font-size:10px;line-height:1.8;overflow-wrap:anywhere}.bubble.mine{background:#633b87;margin-right:auto}.chat-send{display:flex;gap:7px;border-top:1px solid #ffffff15;padding-top:10px}.chat-send input{flex:1;min-width:0}
+.room-grid{display:grid;grid-template-columns:1fr;gap:14px}.room-card{overflow:hidden;padding:0;border-radius:23px;background:linear-gradient(145deg,#21172e,#131426);border:1px solid #ffffff22;box-shadow:0 14px 28px #0005}.room-card>img,.room-card>video,.room-card-fallback{display:block;width:100%;height:205px;object-fit:cover;background:linear-gradient(135deg,#321b50,#142b40)}.room-card-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;color:#b985ff;gap:5px}.room-card-fallback b{font-size:42px}.room-card-fallback span{font-size:9px;letter-spacing:3px}.room-card-body{padding:15px}.room-card-top{display:flex;justify-content:space-between;align-items:center}.room-card-mode{font-size:9px;letter-spacing:2px;color:#7fe6d3;font-weight:900}.room-card h3{margin:12px 0 8px;font-size:15px}.room-meta{display:flex;gap:7px;flex-wrap:wrap;color:#b7adc8;font-size:10px}.room-open-btn{width:100%;margin-top:14px;border:1px solid #7951a4;border-radius:13px;padding:12px;background:linear-gradient(110deg,#6736a3,#294d70);color:white;font-weight:800;display:flex;justify-content:space-between;align-items:center}
+.room-detail{margin:18px -17px 95px!important;padding:0!important;overflow:hidden;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}.room-detail[hidden]{display:none!important}.room-detail-hero{position:relative;height:265px;background:#120c1c;overflow:hidden;margin:0 -1px}.room-cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover!important;border:0!important;border-radius:0!important}.room-cover-fallback{display:flex;align-items:center;justify-content:center;flex-direction:column;color:#c18bff;gap:5px}.room-cover-fallback b{font-size:54px}.room-cover-fallback span{letter-spacing:4px;font-size:10px}.room-hero-shade{position:absolute;inset:0;background:linear-gradient(0deg,#090711f5 0%,#09071110 76%)}.room-hero-title{position:absolute;right:18px;bottom:15px;left:18px;z-index:2}.room-hero-title h2{font-size:24px;margin:10px 0 4px;color:#fff}.room-hero-title small{font-size:9px;letter-spacing:2px;color:#d2b6f4}.room-live-tag{font-size:10px;color:#8df1cf;background:#142d2bba;border:1px solid #54c7a866;padding:6px 10px;border-radius:20px}.room-back-btn{position:absolute;top:13px;right:13px;z-index:3;border:1px solid #ffffff45;border-radius:20px;padding:9px 13px;background:#090713a8;color:white;font-size:10px}.room-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:14px 14px 4px}.room-summary-grid>div{border:1px solid #ffffff1c;border-radius:15px;padding:13px 7px;background:linear-gradient(145deg,#ffffff0d,#ffffff04);text-align:center}.room-summary-grid small{display:block;color:#a99abf;font-size:10px}.room-summary-grid strong{display:block;color:#fff;font-size:13px;margin-top:7px}.room-detail .room-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:17px 14px;padding:5px;background:#090711b8;border:1px solid #ffffff16;border-radius:30px}.room-detail .room-tabs button{border:0;background:transparent;color:#bcaed0;border-radius:24px;padding:13px;font-weight:800}.room-detail .room-tabs button.active{background:linear-gradient(110deg,#8d50ce,#354e82);color:#fff;box-shadow:0 5px 20px #6b35ad55}.room-section-title{display:flex;align-items:center;gap:10px;padding:7px 15px 13px}.room-section-title>span{width:5px;height:28px;border-radius:5px;background:linear-gradient(#c08aff,#55d9c3);box-shadow:0 0 15px #a45cff66}.room-section-title h3{font-size:16px;margin:0;color:#fff}.room-section-title small{display:block;font-size:9px;color:#9f91b5;margin-top:4px}#roomSlotsMessage{padding:0 16px 12px;color:#a99aba!important}.team-slots{display:grid;grid-template-columns:1fr;gap:12px;padding:0 13px 110px}.team-slot{position:relative;display:flex;align-items:center;gap:10px;min-height:82px;border:1px solid #ffffff20;border-radius:16px;background:linear-gradient(110deg,#ffffff0d,#ffffff04);padding:10px 12px;color:#f7f1ff}.team-slot-number{display:none}.team-slot-watermark{position:absolute;left:12px;top:-9px;font-size:54px;font-weight:1000;color:#ffffff12;line-height:1;z-index:0}.team-slot-avatars{display:flex;gap:5px;position:relative;z-index:1}.team-avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#26164b;border:2px solid #81708e;color:#b6a5c8;font-size:11px}.team-slot-info{position:relative;z-index:1}.team-slot-info{flex:1;min-width:0}.team-slot-info strong{display:block;color:#fff;font-size:12px}.team-slot-info small{display:block;color:#a99aba;font-size:9px;margin-top:4px}.team-slot button{border:1px solid #8e5bc0;border-radius:10px;padding:9px 13px;background:linear-gradient(110deg,#8f4bd0,#3c7290);color:#fff;font-size:10px;font-weight:900}.team-slot-status{font-size:9px;color:#e3bbff;border:1px solid #754d94;border-radius:10px;padding:7px 9px}.room-rules{margin:0 14px 18px!important;padding:0!important;background:transparent!important;border:0!important;color:#d8cde5!important}.room-rules-copy{white-space:pre-wrap;line-height:2.2;font-size:12px;padding:17px;border:1px solid #ffffff20;border-radius:17px;background:#ffffff08}.room-register-bar{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom));left:12px;right:12px;margin:0 auto;max-width:720px;z-index:35;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 12px 12px;padding:12px 14px;border-radius:21px;background:linear-gradient(110deg,#e8e5f0,#c9c6d2);color:#191522;box-shadow:0 8px 28px #0008}.room-register-bar small{display:block;font-size:9px;color:#5d5867}.room-register-bar strong{display:block;font-size:15px;margin-top:4px}.room-register-bar strong span{font-size:10px}.room-register-bar button{border:0;border-radius:14px;padding:13px 15px;background:linear-gradient(110deg,#171322,#3d2c56);color:white;font-weight:900;font-size:12px;white-space:nowrap}.room-register-bar button:disabled{opacity:.5}
+.bottom-nav{position:fixed;z-index:30;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(4,1fr);padding:8px 13px calc(8px + env(safe-area-inset-bottom));background:#111020eF;border-top:1px solid #ffffff1c;backdrop-filter:blur(18px)}.bottom-nav button{border:0;background:transparent;color:#a59bb9;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;font-size:9px;padding:5px}.bottom-nav button.active{color:#d5a4ff}.bottom-nav svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.rank-icon{width:22px;height:22px;border:1.5px solid currentColor;border-radius:50%;font-weight:900;line-height:20px;text-align:center;font-size:13px}
+.modal{display:none;position:fixed;inset:0;z-index:50;background:#000d;align-items:center;justify-content:center;padding:18px}.modal.show{display:flex}.dialog{width:min(460px,100%);background:#1a152b;border:1px solid #6a4b8a;border-radius:20px;padding:18px}.dialog h3{margin:0 0 10px}.dialog input{margin:8px 0}.dialog .btn{width:100%;margin-top:8px}.toast{position:fixed;z-index:60;bottom:95px;left:15px;max-width:calc(100% - 30px);padding:11px 14px;background:#21182d;border:1px solid #614786;border-radius:12px;font-size:11px;display:none}.toast.show{display:block}footer{padding:18px 0;color:#8e859f;font-size:9px;text-align:center}
+@media(min-width:650px){.wrap{padding-left:24px;padding-right:24px}.room-detail{margin-left:0!important;margin-right:0!important;border-radius:22px!important;border:1px solid #ffffff20!important;background:#141126!important}.room-detail-hero{border-radius:22px 22px 0 0}.room-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tournament-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.team-slots{grid-template-columns:repeat(2,minmax(0,1fr))}.profile-card{margin-left:0;margin-right:0;border-radius:22px}.feed-side{grid-template-columns:1fr 1fr}}
+@media(max-width:380px){.home-shortcuts{gap:6px}.home-shortcuts button{padding:10px 7px}.home-shortcuts b{font-size:9px}.room-summary-grid{gap:6px}.room-summary-grid strong{font-size:11px}.room-register-bar{margin-left:8px;margin-right:8px;padding:10px}.room-register-bar button{padding:12px 10px;font-size:11px}}
+
+.home-top-title{display:flex;align-items:center;justify-content:space-between;padding:21px 0 3px}.home-top-title h1{font-size:22px;margin:6px 0}.home-top-title .eyebrow{font-size:8px}
+.tournament-banner{position:relative;min-height:260px;overflow:hidden;margin:0 -17px 16px;padding:23px;background:radial-gradient(ellipse at 75% 28%,#a44dff99,transparent 35%),linear-gradient(120deg,#4a1b75,#1a1740 58%,#07394b);border-radius:0 0 24px 24px}.tournament-banner:before{content:"";position:absolute;width:220px;height:220px;border:1px solid #ffffff22;border-radius:50%;right:-30px;top:-45px;box-shadow:0 0 0 22px #ffffff08,0 0 0 48px #ffffff05}.tournament-banner-copy{position:relative;z-index:1}.tournament-banner-copy>span{font-size:8px;letter-spacing:2px;color:#e5c7ff}.tournament-banner h1{font-size:30px;line-height:1.25;margin:12px 0}.tournament-banner p{font-size:10px;color:#d6c9e9;max-width:220px;line-height:2}.tournament-banner-mark{position:absolute;left:20px;top:45px;font-size:54px;font-weight:1000;color:#ffffff22;letter-spacing:-5px}.banner-bottom{position:absolute;bottom:17px;right:22px;left:22px;display:flex;justify-content:space-between;gap:8px;align-items:center;padding:12px 14px;border-radius:14px;background:#08071888;border:1px solid #ffffff22}.banner-bottom b{font-size:11px}.banner-bottom small{font-size:8px;color:#c7bad8}.tournament-filter{display:flex;gap:8px;overflow:auto;padding:2px 0 12px;scrollbar-width:none}.tournament-filter button{white-space:nowrap;border:1px solid #ffffff25;background:#1a172b;color:#c5bbd6;padding:11px 16px;border-radius:20px;font-size:10px}.tournament-filter button.active{background:linear-gradient(110deg,#a14ded,#6535b9);color:#fff;border-color:#bb80ef;box-shadow:0 5px 18px #963fe755}
+.profile-cover{position:relative;text-align:center;margin:0 -17px;padding:25px 16px 24px;background:radial-gradient(ellipse at 50% 20%,#8146bd70,transparent 60%),linear-gradient(145deg,#25143d,#10182e);border-radius:0 0 24px 24px}.profile-menu{position:absolute;left:20px;top:18px;border:0;background:transparent;color:#fff;font-size:22px}.profile-level{position:relative;margin:-27px auto 3px;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#56ed9b,#167f53);border:3px solid #181329;color:#fff;font-size:19px}.profile-cover h1{font-size:21px;margin:7px 0 3px}.profile-handle{font-size:10px;color:#bdb0d3;letter-spacing:1px}.profile-cover>p{font-size:9px;color:#a99bbd;margin:10px 0 0}.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);margin:15px 0;padding:15px 5px;border-radius:19px;background:#171428;border:1px solid #ffffff18}.profile-stats>div{text-align:center;border-left:1px solid #ffffff16}.profile-stats>div:last-child{border:0}.profile-stats strong{display:block;font-size:18px}.profile-stats small{display:block;color:#a99fbb;font-size:9px;margin-top:5px}.profile-bio{text-align:center;margin-bottom:14px}.profile-bio p{font-size:11px;line-height:2;margin:0 0 12px}.profile-tabs{display:grid;grid-template-columns:repeat(4,1fr);padding:5px;background:#171428;border:1px solid #ffffff17;border-radius:25px;margin:16px 0}.profile-tabs span{text-align:center;padding:10px 2px;font-size:10px;color:#aaa1bb;border-radius:20px}.profile-tabs span.active{background:#35224c;color:#fff;font-weight:800}
+
+<style>.avatar-upload-btn{display:inline-block;margin:0 auto 10px;padding:8px 14px;border:1px solid #9a65ca;border-radius:20px;background:#241638;color:#e8caff;font-size:10px;font-weight:800;cursor:pointer}.profile-tabs button{flex:1;border:0;background:transparent;color:#b9aecb;padding:12px 6px;border-radius:18px;font-size:11px;font-weight:800}.profile-tabs button.active{background:#673b91;color:white}.profile-tabs{display:flex;gap:5px;padding:5px;background:#171329;border:1px solid #ffffff17;border-radius:20px;margin:16px 0}#profileMatches,#profileTeam,{margin:10px 0 20px}#openSettings{font-size:17px;min-width:38px}#authOtp{letter-spacing:5px;text-align:center;font-weight:900}</style><style>.avatar-upload-btn{display:inline-block;margin:0 auto 10px;padding:8px 14px;border:1px solid #9a65ca;border-radius:20px;background:#241638;color:#e8caff;font-size:10px;font-weight:800;cursor:pointer}.profile-tabs button{flex:1;border:0;background:transparent;color:#b9aecb;padding:12px 6px;border-radius:18px;font-size:11px;font-weight:800}.profile-tabs button.active{background:#673b91;color:white}.profile-tabs{display:flex;gap:5px;padding:5px;background:#171329;border:1px solid #ffffff17;border-radius:20px;margin:16px 0}#profileMatches,#profileTeam,{margin:10px 0 20px}#openSettings{font-size:17px;min-width:38px}#authOtp{letter-spacing:5px;text-align:center;font-weight:900}#roomCategoryEmpty{margin-top:10px}</style><style>
+:root[data-ex1-theme="blue"]{--accent:#39b9ff;--accent2:#865bff}:root[data-ex1-theme="green"]{--accent:#36e0a0;--accent2:#238eab}:root[data-ex1-theme="amber"]{--accent:#f0bd65;--accent2:#b65bca}
+:root[data-ex1-font="system"] body{font-family:system-ui,sans-serif}:root[data-ex1-font="arial"] body{font-family:Arial,sans-serif}:root[data-ex1-font="mono"] body{font-family:monospace}
+.room-card{position:relative;background:linear-gradient(145deg,#ffffff18,#8d63bb12 48%,#0d1c328c);border:1px solid #c89cff55;box-shadow:0 12px 34px #0008,inset 0 1px #ffffff26;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.room-card>img,.room-card>video,.room-card-fallback{height:218px}
+.room-card-fallback{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 72% 32%,#8b5ab6 0,transparent 25%),radial-gradient(ellipse at 20% 85%,#0d8294 0,transparent 36%),linear-gradient(130deg,#302046,#121a32 55%,#473027)}
+.room-card-fallback:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 25%,#ffffff17 26%,transparent 27%),repeating-linear-gradient(0deg,transparent 0 27px,#ffffff0b 28px),linear-gradient(0deg,#090b16a8,transparent 60%);z-index:-1}
+.room-card-fallback b{font-size:52px;text-shadow:0 0 25px #a75aff;color:#f0d9ff}
+.room-card-body{background:linear-gradient(130deg,#ffffff12,#ffffff04);backdrop-filter:blur(14px)}
+.room-open-btn{background:linear-gradient(110deg,#763fe0,#a54cd1);box-shadow:0 0 22px #944de755}
+.room-detail-hero{border-radius:22px 22px 0 0;overflow:hidden}
+.room-cover-fallback{background:radial-gradient(ellipse at 65% 25%,#a96ae6 0,transparent 25%),radial-gradient(ellipse at 20% 75%,#167d9d 0,transparent 36%),linear-gradient(140deg,#322045,#10172d 65%,#5b3a29);text-shadow:0 0 24px #b85cff}
+.room-summary-grid>div,.room-rules-copy,.team-slot{background:linear-gradient(135deg,#ffffff1c,#ffffff08);backdrop-filter:blur(16px);box-shadow:inset 0 1px #ffffff20,0 8px 22px #0003;border-color:#c89cff4d}
+.room-tabs{background:#130f21;border:1px solid #a76ce555;box-shadow:inset 0 0 18px #a04cff22}
+.room-tabs button.active{background:linear-gradient(100deg,#57308b,#a54bd0);color:white;box-shadow:0 0 18px #a04bd066}
+.room-register-bar{background:linear-gradient(110deg,#f4efff,#cfc4e4);box-shadow:0 0 26px #b66aff66,0 10px 28px #0009}
+.room-empty-state{margin:14px 0;padding:24px;text-align:center;border:1px solid #b77bff55;background:linear-gradient(130deg,#ffffff17,#7045a222);backdrop-filter:blur(16px)}
+.room-empty-state p{color:#c4b6d9;font-size:12px;line-height:2}
+.team-create-wrap{padding:14px;margin-top:12px;border:1px solid #a96be755;background:linear-gradient(120deg,#ffffff16,#8e52be18)}
+.team-create-wrap form{display:grid;gap:10px}
+</style><style>
+.room-card-fallback img,.room-cover-fallback img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.9}
+.room-card-fallback span,.room-cover-fallback span{position:relative;z-index:1;margin-top:auto;padding:10px 0 12px;text-shadow:0 2px 10px #000}
+.room-card-fallback img{inset:0}
+.room-cover-fallback{position:absolute;inset:0}
+.profile-cover{background-image:linear-gradient(145deg,#120d20b8,#0b172cb8),url('/room-arena-art.svg')!important;background-size:cover!important;background-position:center 34%!important}
+.tournament-banner{background-image:linear-gradient(90deg,#120d20d9,#120d2088),url('/room-arena-art.svg')!important;background-size:cover!important;background-position:center 36%!important}
+.room-card{border:1px solid #bd8cff66;box-shadow:0 0 0 1px #a85eff1b,0 18px 38px #0009}
+</style><style>
+:root{--ex1-ui-accent:#b9d9cf;--ex1-ui-button:#9278c7}
+:root[data-ex1-theme="blue"]{--ex1-ui-accent:#9bc9f5;--ex1-ui-button:#3e78ae}
+:root[data-ex1-theme="green"]{--ex1-ui-accent:#a9dfbd;--ex1-ui-button:#4d9270}
+:root[data-ex1-theme="amber"]{--ex1-ui-accent:#f1d19a;--ex1-ui-button:#a77a37}
+.btn:not(.secondary):not(.ghost),.room-open-btn{background:var(--ex1-ui-button)!important}
+.bottom-nav button.active,.home-section-label span{color:var(--ex1-ui-accent)!important}
+.room-detail .room-tabs button.active,.profile-tabs button.active{background:var(--ex1-ui-button)!important;color:#fff!important}
+#settingsModal .dialog,#profileEditorModal .dialog{border:1px solid var(--ex1-ui-accent)}
+.profile-avatar-image{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover;border:0;margin:0}.profile-big{cursor:pointer}.profile-big:focus-visible,.avatar-upload-btn:focus-visible{outline:2px solid var(--ex1-ui-accent);outline-offset:4px}.team-summary{margin-bottom:10px;text-align:right}.team-summary h3{margin:8px 0;font-size:18px}.team-invite-note{padding:8px 2px}</style></head>
+</head>
+<body>
+<header><div class="topbar"><div class="header-actions"><button class="btn ghost small" type="button" aria-label="جست‌وجو" onclick="switchPage('tournaments')">⌕</button><button class="btn ghost small" type="button" aria-label="وضعیت اتصال"><span id="connectionStatus" class="connection-status"><i></i></span> ◉</button></div><a class="brand" href="#home" aria-label="EX1 LEGEND"><span><b>EX1</b> LEGEND</span></a><div class="header-actions"><button class="btn ghost small" id="openSettings" type="button" aria-label="تنظیمات">⚙</button><span id="headerUser" class="muted"></span><button class="btn secondary small" id="headerAuth" type="button">ورود</button></div></div></header>
+<main class="wrap">
+<section class="page active" id="page-home">
+ <div class="home-top-title"><div><span class="eyebrow">EX1 LEGEND COMMUNITY</span><h1>میدان بازیکنان</h1></div><button class="btn ghost small" type="button" onclick="switchPage('profile')">پروفایل من</button></div>
+ <div class="subnav" aria-label="بخش‌های خانه"><button class="active" data-home-tab="explore">اکسپلور بازیکنان</button><button data-home-tab="messages">چت</button></div>
+ <div class="home-shortcuts"><button type="button" onclick="switchPage('tournaments')"><span class="shortcut-icon">♜</span><b>مسابقات</b><small>روم‌های فعال</small><i>↗</i></button><button type="button" onclick="switchPage('ranking')"><span class="shortcut-icon">✦</span><b>قهرمانان</b><small>رتبه‌ها</small><i>↗</i></button><button type="button" onclick="switchPage('profile');setTimeout(()=>$('walletOpen').click(),80)"><span class="shortcut-icon">◈</span><b>مبلغ</b><small>کیف پول آزمایشی</small><i>↗</i></button></div>
+ <div id="home-explore" class="home-panel"><div class="section-head"><div><h2>اکسپلور بازیکنان</h2><p>بازیکن‌های جامعه EX1 را پیدا کن</p></div></div><div class="searchbar"><input id="userSearch" class="field" maxlength="40" placeholder="جست‌وجوی نام بازیکن..."><button class="btn small" id="searchUsers" type="button">جست‌وجو</button></div><div id="exploreUsers" class="user-list"><div class="empty">برای جست‌وجو وارد حساب شو.</div></div></div>
+ <div id="home-messages" class="home-panel" hidden><div class="section-head"><div><h2>گفت‌وگوها</h2><p>پیام فقط بین بازیکن‌هایی که دوطرفه همدیگر را دنبال می‌کنند فعال است.</p></div></div><div class="chat-layout"><div id="chatContacts" class="chat-list"><div class="empty">برای شروع چت وارد حساب شو.</div></div><div class="panel chat-window"><div id="chatTitle" class="muted">یک بازیکن را انتخاب کن.</div><div id="chatMessages" class="chat-messages"></div><form id="chatForm" class="chat-send"><input id="chatText" class="field" maxlength="2000" placeholder="پیام..." disabled><button class="btn small" type="submit" disabled id="chatSend">ارسال</button></form></div></div></div>
+</section>
+<section class="page" id="page-profile">
+ <div class="profile-cover"><button class="profile-menu" type="button" id="profileMenuEdit" aria-label="ویرایش پروفایل">☰</button><div id="profileAvatar" class="profile-big">EX</div><button class="avatar-upload-btn" id="chooseAvatarButton" type="button">＋ انتخاب عکس پروفایل</button><input id="profileAvatarFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><div class="profile-level">◆</div><h1 id="profileDisplayName">بازیکن EX1</h1><div id="profileUsername" class="profile-handle">EX1 PLAYER</div><p>پروفایل بازیکن و فعالیت‌های جامعه</p></div>
+ <div class="profile-stats"><div><strong>—</strong><small>دنبال‌کننده</small></div><div><strong>—</strong><small>دنبال‌شونده</small></div><div><strong>EX1</strong><small>عضویت</small></div></div>
+ <div class="profile-bio panel"><p>پروفایل عمومی فقط اطلاعات پایه‌ی بازیکن را نمایش می‌دهد.</p><button class="btn small" type="button" id="openProfileEditor">ویرایش پروفایل　✎</button></div>
+ <div class="wallet-card" role="button" tabindex="0" id="walletOpen"><div><span class="wallet-kicker">کیف پول EX1 · تومان آزمایشی</span><strong id="walletCardBalance" class="wallet-balance">۰ <small>تومان آزمایشی</small></strong><span class="wallet-note">مشاهده موجودی و تاریخچه</span></div><span class="wallet-icon">▣</span></div>
+ <div class="profile-tabs"><button class="active" type="button" data-profile-tab="matches" aria-controls="profileMatches">مسابقات من</button><button type="button" data-profile-tab="team" aria-controls="profileTeam">تیم من</button></div><section id="profileMatches"><div class="section-head"><div><h2>روم‌های من و جوایز</h2><p>سوابق ثبت‌نام و جوایز نمایشی</p></div></div><div id="myMatches" class="user-list"><div class="empty">برای مشاهده سوابق وارد حساب شو.</div></div></section><section id="profileTeam" hidden><div class="section-head"><div><h2>تیم من</h2><p>اعضای تیم و دعوت آزمایشی دوستان</p></div></div><div id="myTeam" class="user-list"></div><div id="createTeamWrap" class="panel team-create-wrap" hidden><h3>ساخت تیم جدید</h3><form id="createTeamForm"><input id="newTeamName" class="field" maxlength="40" placeholder="نام تیم" required><input id="newTeamTag" class="field" maxlength="8" placeholder="تگ کوتاه تیم (اختیاری)"><button class="btn" type="submit">ساخت تیم</button></form></div><p class="muted team-invite-note">دعوت اعضای جدید از حساب‌های دیگر هنوز فعال نشده است.</p></section>
+ <div class="section-head"><div><h2>درخواست‌های دنبال‌کردن</h2><p>درخواست‌هایی که منتظر تأیید تو هستند</p></div></div><div id="followRequests" class="user-list"><div class="empty">درخواستی وجود ندارد.</div></div>
+</section>
+<section class="page" id="page-tournaments">
+ <div class="tournament-banner"><div class="tournament-banner-copy"><span>EX1 LEGEND · ARENA</span><h1>جوایز و<br>مسابقات</h1><p>رقابت‌های جامعه، روم‌های فعال و جدول قهرمانان</p></div><div class="tournament-banner-mark">EX1</div><div class="banner-bottom"><b>مسابقات فعال</b><small>برای دیدن جزئیات، کارت هر مسابقه را انتخاب کن</small></div></div>
+ <div class="tournament-filter" id="roomCategoryFilter"><button class="active" type="button" data-room-category="all">برای شما</button><button type="button" data-room-category="fight">فایت</button><button type="button" data-room-category="br">بتل‌رویال</button><button type="button" data-room-category="multi">مولتی</button></div><div id="aiRoomPlaceholder" class="panel" style="margin:12px 0;border-color:#8a59ba;background:linear-gradient(110deg,#2b1744,#142a3c)"><strong>✦ پیشنهادهای هوشمند EX1</strong><p class="muted">در نسخهٔ فعلی، روم‌ها بر اساس دسته‌بندی نمایش داده می‌شوند. اتصال هوش مصنوعی برای پیشنهاد روم بر اساس علایق و سابقهٔ بازی در مرحلهٔ بعدی اضافه می‌شود.</p></div><div class="section-head"><div><h2 id="roomCategoryTitle">روم‌های پیشنهادی</h2><p>یک روم را انتخاب کن تا جزئیاتش را ببینی.</p></div></div>
+ <div id="roomCards" class="room-grid"><div class="empty">در حال دریافت روم‌ها...</div></div><div id="roomNoData" class="panel room-empty-state" hidden><strong>هنوز رومی برای ثبت‌نام فعال نشده</strong><p>به‌محض اینکه مدیر روم فایت، بتل‌رویال یا مولتی بسازد، کارت و تصویر آن اینجا نمایش داده می‌شود.</p><a href="/admin.html" class="btn secondary small">ورود به پنل مدیریت</a></div><div id="roomCategoryEmpty" class="empty" hidden>فعلاً رومی در این دسته وجود ندارد.</div><section id="roomDetail" class="panel room-detail" hidden></section>
+</section>
+<section class="page" id="page-ranking">
+ <div class="section-head"><div><h2>برترین‌ها</h2><p>رتبه‌بندی فقط بر اساس نتایج تأییدشده‌ی مسابقات</p></div></div>
+ <div id="ranking" class="panel"><div class="empty">هنوز نتیجه‌ی تأییدشده‌ای ثبت نشده است.</div></div>
+</section>
+</main>
+<nav class="bottom-nav" aria-label="منوی اصلی">
+  <button class="active" data-page="home"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>خانه</span></button>
+  <button data-page="tournaments"><svg viewBox="0 0 24 24"><path d="M7 4h10v4a5 5 0 0 1-10 0zM7 6H3v2a4 4 0 0 0 4 4m10-6h4v2a4 4 0 0 1-4 4M12 13v6m-4 2h8"/></svg><span>مسابقات</span></button>
+  <button data-page="ranking"><span class="rank-icon">✦</span><span>قهرمانان</span></button>
+  <button data-page="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 21c.7-4 3.2-6 7.5-6s6.8 2 7.5 6"/></svg><span>پروفایل</span></button>
+ </nav>
+<footer>EX1 LEGEND · جامعه‌ی رقابت سالم</footer>
+<div class="modal" id="authModal"><div class="dialog"><h3 id="authTitle">ورود به EX1 LEGEND</h3><p id="authHint" class="muted">برای ساخت حساب، کد یک‌بارمصرف به ایمیلت ارسال می‌شود.</p><form id="authForm"><input id="authName" class="field" maxlength="30" placeholder="نام نمایشی" hidden><input id="authEmail" class="field" type="email" maxlength="254" placeholder="ایمیل" required><input id="authPassword" type="hidden" disabled><input id="authOtp" class="field" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="کد ۶ رقمی تأیید ایمیل" hidden><button class="btn" id="authSubmit" type="submit">ارسال کد ورود</button></form><button class="btn secondary" id="authResend" type="button" hidden>ارسال دوباره کد</button><button class="btn secondary" id="authSwitch" type="button">ساخت حساب با کد ایمیل</button><button class="btn ghost" type="button" onclick="closeAuth()">بستن</button><p class="muted">ثبت‌نام با پیامک پس از اتصال سرویس پیامکی فعال می‌شود.</p></div></div>
+<div class="modal" id="profileEditorModal"><div class="dialog"><h3>ویرایش پروفایل</h3><form id="profileForm"><label>نام نمایشی<input class="field" id="profileName" maxlength="30" required></label><label>نام کاربری<input class="field" id="profileHandle" maxlength="24" placeholder="اختیاری"></label><label>UID کالاف دیوتی موبایل<input class="field" id="profileGameUid" maxlength="32" placeholder="شناسهٔ بازیکن در بازی"></label><button class="btn" type="submit">ذخیره تغییرات</button></form><button class="btn ghost" type="button" data-close-modal="profileEditorModal">بستن</button></div></div><div class="modal" id="settingsModal"><div class="dialog"><h3>تنظیمات EX1</h3><button class="btn secondary" id="showAppearanceSettings" type="button">تنظیمات ظاهری</button><div id="appearanceSettings" hidden><label>تم رنگی<select class="field" id="userTheme"><option value="soft">نرم و متعادل</option><option value="blue">آبی</option><option value="green">سبز</option><option value="amber">کهربایی</option></select></label><label>فونت برنامه<select class="field" id="userFont"><option value="tahoma">Tahoma</option><option value="system">فونت سیستم</option><option value="arial">Arial</option><option value="mono">Monospace</option></select></label><button class="btn small" id="saveUserSettings" type="button">ذخیره تنظیمات</button><p class="muted" id="userSettingsMessage">تنظیمات روی همین دستگاه ذخیره می‌شوند.</p></div><button class="btn secondary" id="showBlockedSettings" type="button">حساب‌های مسدودشده</button><div id="blockedSettings" hidden><div id="blockedUsers" class="user-list"><div class="empty">در حال دریافت فهرست...</div></div></div><button class="btn secondary" id="logoutButton" type="button">خروج از حساب</button><button class="btn ghost" type="button" data-close-modal="settingsModal">بستن</button></div></div>
+<div class="modal" id="walletModal"><div class="dialog"><h3>کیف پول EX1</h3><div class="wallet-modal-balance"><span>موجودی فعلی</span><strong id="walletModalBalance">۰ <small>تومان آزمایشی</small></strong></div><p class="muted">مبالغ این کیف پول فقط برای آزمایش رابط کاربری هستند؛ هیچ پرداخت، واریز، برداشت یا جایزه نقدی واقعی انجام نمی‌شود.</p><div class="wallet-history"><h4>تراکنش‌ها</h4><div id="walletHistory" class="empty">در حال دریافت تاریخچه...</div></div><button class="btn ghost" type="button" data-close-modal="walletModal">بستن</button></div></div><div class="modal" id="joinRoomModal"><div class="dialog"><h3>ثبت‌نام در روم</h3><p id="joinRoomSummary" class="muted"></p><div class="panel"><strong>نوع حضور</strong><p>فعلاً ثبت‌نام انفرادی انجام می‌شود و جایگاه تیم به نام حساب شما رزرو خواهد شد.</p><small class="muted">هماهنگی هم‌تیمی و دعوت دوست در مرحله بعد اضافه می‌شود.</small></div><p class="muted">این ثبت‌نام در دیتابیس ذخیره می‌شود؛ مبلغ فقط نمایشی و آزمایشی است و هیچ پرداختی انجام نمی‌شود.</p><button class="btn" id="confirmRoomJoin" type="button">تأیید و ثبت‌نام</button><button class="btn ghost" type="button" data-close-modal="joinRoomModal">بازگشت</button></div></div><div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
+<script src="/supabase-config.js"></script>
+<script>
+const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
+const $=id=>document.getElementById(id);
+window.addEventListener("error",e=>{console.error("EX1 runtime error:",e.error||e.message);const t=$("toast");if(t){t.textContent="یک خطای فنی در برنامه رخ داد؛ صفحه را تازه‌سازی کن.";t.classList.add("show");}});
+window.addEventListener("unhandledrejection",e=>{console.error("EX1 async error:",e.reason);const t=$("toast");if(t){t.textContent=e.reason?.message||"ارتباط با سرویس کامل نشد؛ دوباره تلاش کن.";t.classList.add("show");}});
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let currentUser=null,authMode="login",activeConversation=null,activeConversationUser=null;
+let toastTimer;
+function toast(s){$("toast").textContent=s;$("toast").classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.remove("show"),3200);}
+function closeAuth(){$("authModal").classList.remove("show");}
+function openAuth(){$("authModal").classList.add("show");}
+const userThemes={soft:{accent:"#b9d9cf",button:"#9278c7"},blue:{accent:"#9bc9f5",button:"#3e78ae"},green:{accent:"#a9dfbd",button:"#4d9270"},amber:{accent:"#f1d19a",button:"#a77a37"}};
+function applyUserSettings(){
+ const t=localStorage.getItem("ex1-theme")||"soft",f=localStorage.getItem("ex1-font")||"tahoma";
+ const selected=userThemes[t]||userThemes.soft;
+ document.documentElement.dataset.ex1Theme=t;
+ document.documentElement.dataset.ex1Font=f;
+ document.documentElement.style.setProperty("--ex1-ui-accent",selected.accent);
+ document.documentElement.style.setProperty("--ex1-ui-button",selected.button);
+ document.body.style.fontFamily=({tahoma:"Tahoma,Arial,sans-serif",system:"system-ui,sans-serif",arial:"Arial,sans-serif",mono:"monospace"})[f]||"Tahoma,Arial,sans-serif";
+ if($("userTheme"))$("userTheme").value=t;
+ if($("userFont"))$("userFont").value=f;
+}
+async function loadUserSettings(){
+ if(!currentUser){applyUserSettings();return;}
+ const {data,error}=await sb.from("user_settings").select("theme,font").eq("user_id",currentUser.id).maybeSingle();
+ if(error){console.warn("EX1 settings load:",error.message);applyUserSettings();return;}
+ if(data){localStorage.setItem("ex1-theme",data.theme);localStorage.setItem("ex1-font",data.font);}
+ applyUserSettings();
+}
+applyUserSettings();
+$("saveUserSettings").onclick=async()=>{
+ const theme=$("userTheme").value,font=$("userFont").value;
+ localStorage.setItem("ex1-theme",theme);localStorage.setItem("ex1-font",font);applyUserSettings();
+ if(currentUser){
+  const {error}=await sb.from("user_settings").upsert({user_id:currentUser.id,theme,font,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+  if(error){$("userSettingsMessage").textContent="روی این دستگاه ذخیره شد، اما همگام‌سازی حساب انجام نشد: "+error.message;toast("ذخیره تنظیمات حساب ناموفق بود.");return;}
+  $("userSettingsMessage").textContent="تنظیمات در حساب کاربری ذخیره و بین دستگاه‌ها همگام شد.";
+ }else{
+  $("userSettingsMessage").textContent="روی همین دستگاه ذخیره شد؛ برای همگام‌سازی بین دستگاه‌ها وارد حساب شو.";
+ }
+ toast("تنظیمات با موفقیت ذخیره شد.");
+};
+async function loadWallet(){
+ $("walletHistory").textContent="در حال دریافت تاریخچه...";
+ const [{data:summary,error:se},{data:history,error:he}]=await Promise.all([sb.rpc("wallet_my_summary"),sb.rpc("wallet_my_history",{p_limit:30})]);
+ if(se){$("walletCardBalance").innerHTML='۰ <small>تومان آزمایشی</small>';$("walletModalBalance").innerHTML='۰ <small>تومان آزمایشی</small>';$("walletHistory").innerHTML='<div class="empty">موجودی کیف پول در دسترس نیست.</div>';return;}
+ const row=Array.isArray(summary)?summary[0]:summary,bal=Number(row?.balance_units||0);
+ const fmt=n=>Number(n||0).toLocaleString("fa-IR");
+ $("walletCardBalance").innerHTML=fmt(bal)+' <small>تومان آزمایشی</small>';$("walletModalBalance").innerHTML=fmt(bal)+' <small>تومان آزمایشی</small>';
+ if(he){$("walletHistory").innerHTML='<div class="empty">تاریخچه تراکنش‌ها دریافت نشد.</div>';return;}
+ const rows=history||[];
+ $("walletHistory").innerHTML=rows.length?'<div class="user-list">'+rows.map(x=>'<div class="user-row"><div class="user-info"><strong>'+(x.entry_type==="credit"?"واریز نمایشی":"برداشت نمایشی")+'</strong><small>'+esc(x.reason||"تراکنش آزمایشی")+' · '+esc(formatDate(x.created_at))+'</small></div><strong style="color:'+(x.entry_type==="credit"?"#8ef0a9":"#ed8999")+'">'+(x.entry_type==="credit"?"+":"−")+fmt(x.amount_units)+' تومان'+'</strong></div>').join("")+'</div>':'<div class="empty">هنوز تراکنشی ثبت نشده است.</div>';
+}
+$("walletOpen").onclick=()=>{$("walletModal").classList.add("show");loadWallet();};
+$("walletOpen").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("walletOpen").click();}};
+document.querySelectorAll("[data-close-modal]").forEach(b=>b.addEventListener("click",()=>$(b.dataset.closeModal).classList.remove("show")));
+let activeRoomForJoin=null;
+let activeRoomDetail=null;
+function openRoomJoin(room,slot){
+ if(!currentUser){toast("برای ثبت‌نام ابتدا وارد حساب EX1 شو.");openAuth();return;}
+ activeRoomForJoin={room,slot};
+ $("joinRoomSummary").textContent="جایگاه انتخابی "+slot+" · "+(room.team_size===2?"تیم دونفره":"تیم چهارنفره")+" · ورودی نمایشی "+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+" تومان";
+ $("joinRoomModal").classList.add("show");
+}
+$("confirmRoomJoin").onclick=async()=>{
+ if(!activeRoomForJoin)return;
+ if(!currentUser){$("joinRoomModal").classList.remove("show");openAuth();return;}
+ const btn=$("confirmRoomJoin");btn.disabled=true;btn.textContent="در حال ثبت‌نام...";
+ try{
+  const {data,error}=await sb.rpc("register_for_tournament_room",{p_room_id:activeRoomForJoin.room.id});
+  if(error)throw error;
+  $("joinRoomModal").classList.remove("show");
+  toast("ثبت‌نامت با موفقیت ثبت شد. جایگاه "+Number(data.slot_number).toLocaleString("fa-IR"));
+  activeRoomForJoin=null;
+  await loadTournaments();
+ }catch(err){toast(err.message||"ثبت‌نام انجام نشد.");}
+ finally{btn.disabled=false;btn.textContent="تأیید و ثبت‌نام";}
+};
+async function showRoomDetail(room){
+ activeRoomDetail=room;
+ const media=room.room_media_type==="video"&&room.room_video_url?'<video class="room-cover" controls playsinline preload="metadata" src="'+esc(room.room_video_url)+'"></video>':(room.room_image_url?'<img class="room-cover" src="'+esc(room.room_image_url)+'" alt="تصویر روم">':'<div class="room-cover room-cover-fallback"><img src="/room-arena-art.svg" alt="تصویر میدان رقابت EX1"><span>LEGEND ARENA</span></div>');
+ const n=Math.max(1,Math.min(25,Number(room.max_teams)||25));
+ const entry=Number(room.entry_demo_points||0).toLocaleString("fa-IR");
+ $("roomDetail").innerHTML='<div class="room-detail-hero">'+media+'<div class="room-hero-shade"></div><div class="room-hero-title"><span class="room-live-tag">'+(room.status==="open"?"● ثبت‌نام فعال":"● ظرفیت تکمیل")+'</span><h2>'+esc(room.title)+'</h2><small>EX1 LEGEND · BATTLE ARENA</small></div><button class="room-back-btn" type="button" id="roomBackToList">بازگشت به روم‌ها</button></div><div class="room-summary-grid"><div><small>فرمت</small><strong>'+(room.team_size===2?"دو نفره":"چهار نفره")+'</strong></div><div><small>ورودی</small><strong>'+entry+' تومان</strong></div><div><small>ظرفیت</small><strong>'+n+' تیم</strong></div></div><div class="room-tabs"><button class="active" type="button" data-room-tab="teams">تیم‌ها</button><button type="button" data-room-tab="rules">قوانین</button></div><div id="roomTeamsPanel"><div class="room-section-title"><span></span><div><h3>لیست تیم‌ها</h3><small>وضعیت جایگاه‌ها از دیتابیس به‌روز می‌شود</small></div></div><div class="muted" id="roomSlotsMessage">در حال دریافت جایگاه‌ها...</div><div class="team-slots" id="roomSlotsList"></div></div><div id="roomRulesPanel" class="room-rules" hidden><div class="room-section-title"><span></span><div><h3>قوانین و توضیحات</h3><small>قبل از ثبت‌نام قوانین روم را بخوان</small></div></div><div class="room-rules-copy">'+esc(room.rules||"قوانین اختصاصی برای این روم ثبت نشده است.")+'</div></div><div class="room-register-bar"><div><small>ورودی نمایشی روم</small><strong>'+entry+' <span>تومان</span></strong></div><button type="button" id="roomMainJoin" '+(room.status!=="open"?"disabled":"")+'>ثبت‌نام در روم <b>⚡</b></button></div>';
+ $("roomDetail").hidden=false;
+ $("roomBackToList").onclick=()=>{$("roomDetail").hidden=true;document.getElementById("roomCards").scrollIntoView({behavior:"smooth",block:"start"});};
+ $("roomDetail").querySelectorAll("[data-room-tab]").forEach(b=>b.onclick=()=>{const rules=b.dataset.roomTab==="rules";$("roomTeamsPanel").hidden=rules;$("roomRulesPanel").hidden=!rules;$("roomDetail").querySelectorAll("[data-room-tab]").forEach(x=>x.classList.toggle("active",x===b));});
+ $("roomMainJoin").disabled=true;$("roomMainJoin").textContent="در حال دریافت جایگاه‌ها...";$("roomMainJoin").onclick=()=>{const first=$("roomSlotsList").querySelector("[data-room-slot]");if(!first){toast("فعلاً جایگاه خالی برای ثبت‌نام وجود ندارد.");return;}openRoomJoin(room,Number(first.dataset.roomSlot));};
+ const {data:occupied,error}=await sb.rpc("get_tournament_room_slots",{p_room_id:room.id});
+ if(error){$("roomSlotsMessage").textContent="جایگاه‌ها دریافت نشدند؛ اتصال دیتابیس یا دسترسی روم را بررسی کن.";return;}
+ const used=new Map((occupied||[]).map(x=>[Number(x.slot_number),x]));
+ const free=n-used.size;
+ $("roomMainJoin").disabled=free<=0||room.status!=="open";$("roomMainJoin").innerHTML=free>0?"ثبت‌نام در روم <b>⚡</b>":"ظرفیت تکمیل";
+ $("roomSlotsMessage").textContent=free.toLocaleString("fa-IR")+" جایگاه خالی از "+n.toLocaleString("fa-IR")+" تیم"; $("roomSlotsList").innerHTML=Array.from({length:n},(_,i)=>{const slot=i+1,row=used.get(slot);return '<div class="team-slot '+(row?"is-full":"is-open")+'"><span class="team-slot-watermark">'+slot+'</span><div class="team-slot-avatars"><span class="team-avatar">●</span><span class="team-avatar">●</span><span class="team-avatar">●</span><span class="team-avatar">●</span></div><div class="team-slot-info"><strong>'+(row?esc(row.team_name||"تیم ثبت‌شده"):"تیم آزاد")+'</strong><small>'+(row?"جایگاه رزرو شده":"آماده ثبت‌نام")+'</small></div>'+(row?'<span class="team-slot-status">رزرو</span>':'<button type="button" data-room-slot="'+slot+'" '+(room.status!=="open"?"disabled":"")+'>انتخاب</button>')+'</div>';}).join("");
+ $("roomDetail").querySelectorAll("[data-room-slot]").forEach(b=>b.onclick=()=>openRoomJoin(room,Number(b.dataset.roomSlot)));
+ $("roomDetail").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function switchPage(page){
+ document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+page));
+ document.querySelectorAll(".bottom-nav [data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
+ if(page==="profile")loadProfile();
+ if(page==="tournaments")loadTournaments();
+ if(page==="ranking")loadRanking();
+}
+document.querySelectorAll(".bottom-nav [data-page]").forEach(b=>b.addEventListener("click",()=>switchPage(b.dataset.page)));
+function switchHome(tab){
+ const selected=["explore","messages"].includes(tab)?tab:"explore";
+ document.querySelectorAll("[data-home-tab]").forEach(b=>b.classList.toggle("active",b.dataset.homeTab===selected));
+ ["explore","messages"].forEach(x=>{$("home-"+x).hidden=x!==selected;});
+ if(selected==="explore")loadExplore();
+ if(selected==="messages")loadChatContacts();
+}
+document.querySelectorAll("[data-home-tab]").forEach(b=>b.addEventListener("click",()=>switchHome(b.dataset.homeTab)));
+$("headerAuth").onclick=()=>currentUser?switchPage("profile"):openAuth();
+$("logoutButton").onclick=async()=>{const {error}=await sb.auth.signOut();if(error){toast("خروج انجام نشد.");return;}currentUser=null;activeConversation=null;switchPage("home");toast("از حساب خارج شدی.");};
+function formatDate(v){try{return new Date(v).toLocaleString("fa-IR",{dateStyle:"short",timeStyle:"short"});}catch{return "";}}
+function avatarHTML(profile,sizeClass="avatar"){const name=profile?.display_name||profile?.username||"EX";return profile?.avatar_url?'<img class="'+sizeClass+'" src="'+esc(profile.avatar_url)+'" alt="">':'<div class="'+sizeClass+'">'+esc(name.slice(0,1).toUpperCase())+'</div>';}
+async function authState(){
+ const {data,error}=await sb.auth.getUser();
+ if(error)console.warn("Auth state refresh failed:",error.message);
+ currentUser=data?.user||null;
+ $("headerUser").textContent=currentUser?"آنلاین":"";
+ $("headerAuth").textContent=currentUser?"حساب من":"ورود / ثبت‌نام";
+ if(currentUser){await loadUserSettings();await loadProfile();await loadExplore();}
+ else $("exploreUsers").innerHTML='<div class="empty">برای دیدن بازیکنان وارد حساب شو.</div>';
+}
+let pendingEmailOtp=false;
+$("authSwitch").onclick=()=>{authMode=authMode==="login"?"signup":"login";pendingEmailOtp=false;$("authOtp").hidden=true;$("authOtp").required=false;$("authResend").hidden=true;$("authTitle").textContent=authMode==="login"?"ورود با کد ایمیل":"ساخت حساب با کد ایمیل";$("authHint").textContent=authMode==="login"?"کد ورود برای ایمیلت ارسال می‌شود.":"کد یک‌بارمصرف برای تأیید ایمیل ارسال می‌شود.";$("authName").hidden=authMode!=="signup";$("authName").required=authMode==="signup";$("authPassword").hidden=true;$("authPassword").required=false;$("authSubmit").textContent="ارسال کد";$("authSwitch").textContent=authMode==="login"?"ساخت حساب جدید":"بازگشت به ورود";};
+$("authResend").onclick=async()=>{const email=$("authEmail").value.trim();if(!email)return toast("ابتدا ایمیل را وارد کن.");const button=$("authResend");button.disabled=true;try{const options={shouldCreateUser:authMode==="signup"};if(authMode==="signup")options.data={display_name:$("authName").value.trim()};const {error}=await sb.auth.signInWithOtp({email,options});if(error)throw error;toast("درخواست ارسال دوبارهٔ کد ثبت شد.");}catch(err){toast(err?.message||"ارسال دوبارهٔ کد انجام نشد.");}finally{button.disabled=false;}};
+$("authForm").addEventListener("submit",async e=>{e.preventDefault();$("authSubmit").disabled=true;try{const email=$("authEmail").value.trim();if(!pendingEmailOtp){if(authMode==="signup"&&$("authName").value.trim().length<2)throw new Error("نام نمایشی باید حداقل ۲ نویسه باشد.");const options={shouldCreateUser:authMode==="signup"};if(authMode==="signup")options.data={display_name:$("authName").value.trim()};const {error}=await sb.auth.signInWithOtp({email,options});if(error)throw error;pendingEmailOtp=true;$("authOtp").hidden=false;$("authOtp").required=true;$("authResend").hidden=false;$("authSubmit").textContent="تأیید کد";$("authHint").textContent="کد ارسال‌شده را وارد کن. پوشهٔ هرزنامه (Spam) را هم بررسی کن.";$("authOtp").focus();toast("درخواست ارسال کد ثبت شد؛ صندوق ورودی و Spam را بررسی کن.");return;}const {error}=await sb.auth.verifyOtp({email,token:$("authOtp").value.trim(),type:"email"});if(error)throw error;pendingEmailOtp=false;toast("ایمیل تأیید شد؛ وارد EX1 شدی.");$("authResend").hidden=true;$("authOtp").value="";closeAuth();await authState();}catch(err){toast(err.message||"احراز هویت انجام نشد.");}finally{$("authSubmit").disabled=false;}});
+$("openProfileEditor").onclick=()=>{if(!currentUser){openAuth();return;}$("profileEditorModal").classList.add("show");};
+$("profileMenuEdit").onclick=()=>$("openProfileEditor").click();
+$("chooseAvatarButton").onclick=()=>{if(!currentUser){openAuth();return;}$("profileAvatarFile").click();};
+$("profileAvatar").onclick=()=>{if(!currentUser){openAuth();return;}$("profileAvatarFile").click();};
+$("profileAvatarFile").addEventListener("change",async()=>{
+ const input=$("profileAvatarFile"),file=input.files?.[0];if(!file)return;
+ if(!currentUser){input.value="";openAuth();return;}
+ const button=$("chooseAvatarButton");
+ try{
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type))throw new Error("فقط تصویر JPG، PNG یا WebP مجاز است.");
+  if(file.size>5*1024*1024)throw new Error("حجم تصویر باید حداکثر ۵ مگابایت باشد.");
+  button.disabled=true;button.textContent="در حال بارگذاری عکس...";
+  const ext=file.type==="image/jpeg"?"jpg":file.type.split("/")[1];
+  const path=currentUser.id+"/avatar-"+crypto.randomUUID()+"."+ext;
+  const {error:uploadError}=await sb.storage.from("ex1-avatars").upload(path,file,{upsert:false,contentType:file.type,cacheControl:"3600"});
+  if(uploadError)throw uploadError;
+  const {data:publicData}=sb.storage.from("ex1-avatars").getPublicUrl(path);
+  const publicUrl=publicData.publicUrl+(publicData.publicUrl.includes("?")?"&":"?")+"v="+Date.now();
+  const {error:profileError}=await sb.from("profiles").update({avatar_url:publicUrl}).eq("id",currentUser.id);
+  if(profileError)throw profileError;
+  await loadProfile();toast("عکس پروفایل با موفقیت ذخیره شد.");
+ }catch(err){console.error("EX1 avatar upload:",err);toast(err?.message||"بارگذاری عکس انجام نشد؛ اتصال و مجوز ذخیره‌سازی را بررسی کن.");}
+ finally{button.disabled=false;button.textContent="＋ انتخاب عکس پروفایل";input.value="";}
+});
+document.querySelectorAll("[data-profile-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-profile-tab]").forEach(x=>x.classList.toggle("active",x===b));["matches","team"].forEach(k=>{$("profile"+k[0].toUpperCase()+k.slice(1)).hidden=k!==b.dataset.profileTab;});if(b.dataset.profileTab==="team")loadMyTeam();});
+$("openSettings").onclick=()=>{$("settingsModal").classList.add("show");$("appearanceSettings").hidden=false;$("blockedSettings").hidden=true;$("userSettingsMessage").textContent="تغییرات پس از ذخیره روی همین دستگاه اعمال می‌شوند.";};
+$("showAppearanceSettings").onclick=()=>{$("appearanceSettings").hidden=!$("appearanceSettings").hidden;};
+$("showBlockedSettings").onclick=()=>{$("blockedSettings").hidden=!$("blockedSettings").hidden;if(!$("blockedSettings").hidden)loadBlockedUsers();};
+document.querySelectorAll("[data-close-modal]").forEach(b=>b.onclick=()=>$(b.dataset.closeModal).classList.remove("show"));
+["settingsModal","profileEditorModal","walletModal","joinRoomModal","authModal"].forEach(id=>$(id).addEventListener("click",e=>{if(e.target===$(id))$(id).classList.remove("show");}));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".modal.show").forEach(m=>m.classList.remove("show"));});
+async function loadProfile(){
+ if(!currentUser)return;
+ loadWallet();
+ const {data,error}=await sb.from("profiles").select("id,display_name,username,avatar_url,game_uid").eq("id",currentUser.id).maybeSingle();
+ if(error){console.error("EX1 profile load:",error);toast("اطلاعات پروفایل دریافت نشد: "+(error.message||"خطای اتصال"));return;}
+ if(!data){toast("پروفایل این حساب هنوز ساخته نشده است؛ دوباره وارد شو.");return;}
+ $("profileDisplayName").textContent=data.display_name||"بازیکن EX1";
+ $("profileUsername").textContent=data.username?"@"+data.username:"نام کاربری ثبت نشده";
+ $("profileAvatar").innerHTML=data.avatar_url?'<img class="profile-avatar-image" src="'+esc(data.avatar_url)+'" alt="عکس پروفایل" onerror="this.remove()">':esc((data.display_name||"EX").slice(0,1));
+ $("profileName").value=data.display_name||"";$("profileHandle").value=data.username||"";$("profileGameUid").value=data.game_uid||"";loadFollowRequests();loadMyMatches();loadMyTeam();
+}
+$("profileForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!currentUser){openAuth();return;}
+ const payload={display_name:$("profileName").value.trim(),username:$("profileHandle").value.trim()||null,game_uid:$("profileGameUid").value.trim()||null};
+ const {error}=await sb.from("profiles").update(payload).eq("id",currentUser.id);
+ if(error){toast(error.message.includes("duplicate")?"این نام کاربری قبلاً گرفته شده.":"ذخیره پروفایل انجام نشد.");return;}
+ toast("پروفایل ذخیره شد.");$("profileEditorModal").classList.remove("show");loadProfile();
+});
+
+async function profilesFor(ids){
+ const unique=[...new Set(ids.filter(Boolean))];if(!unique.length)return {};
+ const {data}=await sb.from("profiles").select("id,display_name,username,avatar_url").in("id",unique);
+ return Object.fromEntries((data||[]).map(x=>[x.id,x]));
+}
+$("searchUsers").onclick=loadExplore;
+$("userSearch").addEventListener("keydown",e=>{if(e.key==="Enter")loadExplore();});
+async function loadExplore(){
+ if(!currentUser){$("exploreUsers").innerHTML='<div class="empty">برای اکسپلور وارد حساب شو.</div>';return;}
+ let q=($("userSearch").value||"").trim();
+ let req=sb.from("profiles").select("id,display_name,username,avatar_url").neq("id",currentUser.id).limit(50);
+ if(q)req=req.or("display_name.ilike.%"+q+"%,username.ilike.%"+q+"%");
+ const [{data,error},follows]=await Promise.all([req,sb.from("user_follows").select("follower_id,followed_id,status")]);
+ if(error){$("exploreUsers").innerHTML='<div class="empty">جست‌وجو انجام نشد.</div>';return;}
+ const edges=follows.data||[];
+ $("exploreUsers").innerHTML=(data||[]).map(p=>{
+  const mine=edges.find(x=>x.follower_id===currentUser.id&&x.followed_id===p.id);
+  const label=mine?.status==="accepted"?"دنبال می‌کنی":mine?.status==="pending"?"درخواست ارسال شد":"دنبال‌کردن";
+  return '<div class="user-row">'+avatarHTML(p)+'<div class="user-info"><strong>'+esc(p.display_name||"بازیکن")+'</strong><small>'+(p.username?"@"+esc(p.username):"بازیکن EX1")+'</small></div><button class="btn secondary small" data-follow="'+esc(p.id)+'" '+(mine?"disabled":"")+'>'+label+'</button><button class="btn ghost small" data-block-user="'+esc(p.id)+'">مسدود</button><button class="btn ghost small" data-report-user="'+esc(p.id)+'">گزارش</button></div>';
+ }).join("")||'<div class="empty">بازیکنی پیدا نشد.</div>';
+ $("exploreUsers").querySelectorAll("[data-follow]").forEach(b=>b.onclick=async()=>{const {error}=await sb.from("user_follows").insert({follower_id:currentUser.id,followed_id:b.dataset.follow,status:"pending"});if(error){toast("درخواست دنبال‌کردن ارسال نشد.");return;}toast("درخواست دنبال‌کردن ارسال شد.");loadExplore();});
+ $("exploreUsers").querySelectorAll("[data-block-user]").forEach(b=>b.onclick=async()=>{
+  if(!confirm("این بازیکن مسدود شود؟ پیام‌رسانی و نمایش محتوای دوطرفه محدود می‌شود."))return;
+  const target=b.dataset.blockUser;
+  const {error}=await sb.from("user_blocks").insert({blocker_id:currentUser.id,blocked_id:target});
+  if(error){toast("مسدودسازی انجام نشد.");return;}
+  await sb.from("user_follows").delete().eq("follower_id",currentUser.id).eq("followed_id",target);
+  await sb.from("user_follows").delete().eq("follower_id",target).eq("followed_id",currentUser.id);
+  toast("بازیکن مسدود شد.");loadExplore();loadChatContacts();
+ });
+ $("exploreUsers").querySelectorAll("[data-report-user]").forEach(b=>b.onclick=async()=>{
+  const {error}=await sb.from("social_reports").insert({reporter_id:currentUser.id,target_user_id:b.dataset.reportUser,reason:"other",details:"گزارش پروفایل کاربر"});
+  toast(error?"گزارش ثبت نشد.":"گزارش پروفایل برای بررسی ثبت شد.");
+ });
+}
+async function loadFollowRequests(){
+ if(!currentUser)return;
+ const {data,error}=await sb.from("user_follows").select("follower_id,followed_id,created_at").eq("followed_id",currentUser.id).eq("status","pending");
+ if(error)return;
+ const people=await profilesFor((data||[]).map(x=>x.follower_id));
+ $("followRequests").innerHTML=(data||[]).map(x=>'<div class="user-row">'+avatarHTML(people[x.follower_id])+'<div class="user-info"><strong>'+esc(people[x.follower_id]?.display_name||"بازیکن")+'</strong><small>درخواست دنبال‌کردن</small></div><button class="btn small" data-approve="'+esc(x.follower_id)+'">تأیید</button></div>').join("")||'<div class="empty">درخواستی وجود ندارد.</div>';
+ $("followRequests").querySelectorAll("[data-approve]").forEach(b=>b.onclick=async()=>{const {error}=await sb.from("user_follows").update({status:"accepted"}).eq("follower_id",b.dataset.approve).eq("followed_id",currentUser.id);toast(error?"تأیید انجام نشد.":"درخواست تأیید شد.");loadFollowRequests();});
+}
+
+async function loadBlockedUsers(){
+ if(!currentUser)return;
+ const {data,error}=await sb.from("user_blocks").select("blocked_id,created_at").eq("blocker_id",currentUser.id);
+ if(error){$("blockedUsers").innerHTML='<div class="empty">فهرست دریافت نشد.</div>';return;}
+ const people=await profilesFor((data||[]).map(x=>x.blocked_id));
+ $("blockedUsers").innerHTML=(data||[]).map(x=>'<div class="user-row">'+avatarHTML(people[x.blocked_id])+'<div class="user-info"><strong>'+esc(people[x.blocked_id]?.display_name||"بازیکن")+'</strong><small>مسدودشده</small></div><button class="btn secondary small" data-unblock="'+esc(x.blocked_id)+'">رفع مسدودیت</button></div>').join("")||'<div class="empty">فهرست مسدودشده‌ها خالی است.</div>';
+ $("blockedUsers").querySelectorAll("[data-unblock]").forEach(b=>b.onclick=async()=>{
+  const {error}=await sb.from("user_blocks").delete().eq("blocker_id",currentUser.id).eq("blocked_id",b.dataset.unblock);
+  toast(error?"رفع مسدودیت انجام نشد.":"مسدودیت برداشته شد.");loadBlockedUsers();
+ });
+}
+async function loadChatContacts(){
+ if(!currentUser){$("chatContacts").innerHTML='<div class="empty">برای چت وارد حساب شو.</div>';return;}
+ const {data,error}=await sb.from("user_follows").select("follower_id,followed_id,status").eq("status","accepted");
+ if(error){$("chatContacts").innerHTML='<div class="empty">فهرست ارتباط‌ها دریافت نشد.</div>';return;}
+ const edges=data||[],mutual=edges.filter(a=>a.follower_id===currentUser.id&&edges.some(b=>b.follower_id===a.followed_id&&b.followed_id===currentUser.id)).map(x=>x.followed_id);
+ const people=await profilesFor(mutual);
+ $("chatContacts").innerHTML=mutual.map(id=>'<button class="chat-contact" data-chat-user="'+esc(id)+'">'+avatarHTML(people[id])+'<strong>'+esc(people[id]?.display_name||"بازیکن")+'</strong></button>').join("")||'<div class="empty">برای شروع چت، باید دوطرفه همدیگر را دنبال کنید.</div>';
+ $("chatContacts").querySelectorAll("[data-chat-user]").forEach(b=>b.onclick=()=>openConversation(b.dataset.chatUser,people[b.dataset.chatUser]));
+}
+async function openConversation(otherId,person){
+ if(!currentUser)return;
+ try{
+  const {data:mine,error}=await sb.from("social_conversation_members").select("conversation_id").eq("user_id",currentUser.id);
+  if(error)throw error;
+  const ids=(mine||[]).map(x=>x.conversation_id);
+  let convId=null;
+  if(ids.length){
+   const {data:members}=await sb.from("social_conversation_members").select("conversation_id,user_id").in("conversation_id",ids).eq("user_id",otherId);
+   convId=members?.[0]?.conversation_id||null;
+  }
+  if(!convId){
+   const {data:conv,error:ce}=await sb.from("social_conversations").insert({created_by:currentUser.id}).select("id").single();if(ce)throw ce;
+   const {error:me}=await sb.from("social_conversation_members").insert([{conversation_id:conv.id,user_id:currentUser.id},{conversation_id:conv.id,user_id:otherId}]);if(me)throw me;
+   convId=conv.id;
+  }
+  activeConversation=convId;activeConversationUser=otherId;
+  $("chatTitle").textContent="گفت‌وگو با "+(person?.display_name||"بازیکن");
+  $("chatText").disabled=false;$("chatSend").disabled=false;
+  await loadMessages();
+ }catch(err){toast("گفت‌وگو باز نشد؛ مطمئن شو دنبال‌کردن دوطرفه تأیید شده باشد.");}
+}
+async function loadMessages(){
+ if(!activeConversation)return;
+ const {data,error}=await sb.from("social_messages").select("id,sender_id,body,created_at,deleted_at").eq("conversation_id",activeConversation).order("created_at",{ascending:true}).limit(100);
+ if(error){$("chatMessages").innerHTML='<div class="empty">پیام‌ها دریافت نشدند.</div>';return;}
+ $("chatMessages").innerHTML=(data||[]).map(m=>'<div class="bubble '+(m.sender_id===currentUser.id?"mine":"")+'">'+esc(m.deleted_at?"پیام حذف‌شده":m.body)+'</div>').join("")||'<div class="empty">اولین پیام را بفرست.</div>';
+ $("chatMessages").scrollTop=$("chatMessages").scrollHeight;
+}
+$("chatForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!activeConversation)return;const body=$("chatText").value.trim();if(!body)return;
+ const {error}=await sb.from("social_messages").insert({conversation_id:activeConversation,sender_id:currentUser.id,body});
+ if(error){toast("ارسال پیام انجام نشد.");return;}$("chatText").value="";loadMessages();
+});
+function roomCategory(mode){const m=String(mode||"").toLowerCase();if(/fight|1v1|solo|فایت|تک/.test(m))return "fight";if(/battle|br|بتل|رویال/.test(m))return "br";if(/multi|mp|مولتی/.test(m))return "multi";return "all";}
+function applyRoomCategory(category){if($("aiRoomPlaceholder"))$("aiRoomPlaceholder").hidden=category!=="all";document.querySelectorAll("[data-room-category]").forEach(b=>b.classList.toggle("active",b.dataset.roomCategory===category));const rooms=window.ex1Rooms||[];const filtered=category==="all"?rooms:rooms.filter(r=>roomCategory(r.game_mode)===category);$("roomCategoryTitle").textContent=({all:"روم‌های پیشنهادی",fight:"روم‌های فایت",br:"روم‌های بتل‌رویال",multi:"روم‌های مولتی"})[category];$("roomCards").querySelectorAll("[data-open-room]").forEach(b=>{b.closest(".room-card").hidden=!filtered.some(r=>r.id===b.dataset.openRoom);});if($("roomCategoryEmpty"))$("roomCategoryEmpty").hidden=filtered.length>0;}
+document.querySelectorAll("[data-room-category]").forEach(b=>b.onclick=()=>applyRoomCategory(b.dataset.roomCategory));
+async function loadTournaments(){
+  const {data:rooms,error:re}=await sb.from("tournament_rooms").select("id,tournament_id,title,game_mode,map,capacity,team_size,max_teams,entry_demo_points,starts_at,status,room_image_url,room_media_type,room_video_url,rules").in("status",["open","full"]).order("starts_at",{ascending:true,nullsFirst:false});
+ if(re){$("roomCards").innerHTML='<div class="empty">روم‌ها دریافت نشدند یا دسترسی عمومی آن‌ها تنظیم نشده است.</div>';return;}
+ const rr=rooms||[];window.ex1Rooms=rr;$("roomNoData").hidden=rr.length>0;$("roomCards").innerHTML=rr.map(r=>'<article class="panel room-card">'+(r.room_media_type==="video"&&r.room_video_url?'<video muted playsinline preload="metadata" src="'+esc(r.room_video_url)+'"></video>':(r.room_image_url?'<img src="'+esc(r.room_image_url)+'" alt="">':'<div class="room-card-fallback"><img src="/room-arena-art.svg" alt="تصویر میدان رقابت EX1"><span>ARENA ROOM</span></div>'))+'<div class="room-card-body"><div class="room-card-top"><span class="tag">'+(r.status==="open"?"ثبت‌نام باز":"ظرفیت تکمیل")+'</span><span class="room-card-mode">'+(r.team_size===2?"DUO":"SQUAD")+'</span></div><h3>'+esc(r.title)+'</h3><div class="room-meta"><span>'+Number(r.max_teams||25)+' تیم</span><span>·</span><span>ورودی '+Number(r.entry_demo_points||0).toLocaleString("fa-IR")+' تومان</span></div><button class="room-open-btn" type="button" data-open-room="'+esc(r.id)+'">مشاهده جزئیات روم <span>←</span></button></div></article>').join("")||'<div class="empty">هنوز رومی برای نمایش وجود ندارد.</div>';
+ $("roomCards").querySelectorAll("[data-open-room]").forEach(button=>button.addEventListener("click",()=>{const room=rr.find(x=>x.id===button.dataset.openRoom);if(room)showRoomDetail(room);}));
+ applyRoomCategory("all");$("roomDetail").hidden=true;
+}async function loadMyMatches(){if(!currentUser)return;$("myMatches").innerHTML='<div class="empty">در حال دریافت سابقه...</div>';const {data,error}=await sb.from("tournament_room_registrations").select("id,room_id,tournament_id,team_id,slot_number,status,registered_at,tournament_rooms(title,game_mode,entry_demo_points)").eq("user_id",currentUser.id).order("registered_at",{ascending:false}).limit(30);if(error){$("myMatches").innerHTML='<div class="empty">سابقهٔ روم‌ها دریافت نشد.</div>';return;}const rows=data||[];const teamIds=[...new Set(rows.map(x=>x.team_id).filter(Boolean))];let prizes={};if(teamIds.length){const {data:results}=await sb.from("tournament_results").select("team_id,placement,points").in("team_id",teamIds);(results||[]).forEach(x=>prizes[x.team_id]=x);} $("myMatches").innerHTML=rows.map(x=>{const result=prizes[x.team_id];const reward=result?(result.placement===1?"جایزهٔ آزمایشی: ۱,۰۰۰,۰۰۰ تومان":result.placement===2?"جایزهٔ آزمایشی: ۵۰۰,۰۰۰ تومان":"جایزهٔ آزمایشی: ۱۰۰,۰۰۰ تومان"):"هنوز جایزه‌ای ثبت نشده";return '<div class="panel user-row"><div class="user-info"><strong>'+esc(x.tournament_rooms?.title||"روم EX1")+'</strong><small>'+esc(x.tournament_rooms?.game_mode||"مسابقه")+' · جایگاه '+Number(x.slot_number||0)+' · '+esc(x.status)+'</small><small>'+esc(reward)+'</small></div></div>';}).join("")||'<div class="empty">هنوز در رومی ثبت‌نام نکرده‌ای.</div>';}
+async function loadMyTeam(){
+ if(!currentUser){$("myTeam").innerHTML='<div class="empty">برای دیدن تیم وارد حساب شو.</div>';return;}
+ const box=$("myTeam"),create=$("createTeamWrap");box.innerHTML='<div class="empty">در حال دریافت اطلاعات تیم از دیتابیس...</div>';
+ try{
+  const {data:mine,error:mineError}=await sb.from("team_members").select("team_id,role").eq("user_id",currentUser.id).limit(1).maybeSingle();
+  if(mineError)throw mineError;
+  if(!mine){box.innerHTML='<div class="empty">هنوز عضو هیچ تیمی نیستی. می‌توانی تیم خودت را بسازی.</div>';create.hidden=false;return;}
+  const [{data:team,error:teamError},{data:members,error:membersError}]=await Promise.all([
+   sb.from("teams").select("id,name,tag,description,captain_id").eq("id",mine.team_id).maybeSingle(),
+   sb.from("team_members").select("user_id,role,joined_at").eq("team_id",mine.team_id).order("joined_at",{ascending:true})
+  ]);
+  if(teamError)throw teamError;if(membersError)throw membersError;
+  if(!team){box.innerHTML='<div class="empty">اطلاعات تیم پیدا نشد؛ با پشتیبانی تماس بگیر.</div>';create.hidden=true;return;}
+  create.hidden=true;const people=await profilesFor((members||[]).map(x=>x.user_id));
+  const header='<div class="panel team-summary"><span class="eyebrow">EX1 TEAM</span><h3>'+esc(team.name)+'</h3><p class="muted">'+(team.tag?'تگ تیم: '+esc(team.tag)+' · ':'')+esc(team.description||"تیم بازیکنان EX1")+'</p><small class="muted">'+(members||[]).length+' عضو ثبت‌شده</small></div>';
+  const rows=(members||[]).map(x=>'<div class="user-row">'+avatarHTML(people[x.user_id])+'<div class="user-info"><strong>'+esc(people[x.user_id]?.display_name||"بازیکن")+'</strong><small>'+(x.user_id===team.captain_id?"کاپیتان":x.role==="captain"?"کاپیتان":"عضو تیم")+'</small></div></div>').join("");
+  box.innerHTML=header+(rows||'<div class="empty">هنوز عضوی برای نمایش وجود ندارد.</div>');
+ }catch(err){console.error("EX1 team load:",err);box.innerHTML='<div class="empty">بارگذاری تیم انجام نشد: '+esc(err?.message||"خطای اتصال")+'</div>';create.hidden=true;}
+}
+$("createTeamForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!currentUser){openAuth();return;}const name=$("newTeamName").value.trim();if(name.length<2){toast("نام تیم باید حداقل دو حرف باشد.");return;}
+ const tag=$("newTeamTag").value.trim().toUpperCase()||null,button=e.submitter||$("createTeamForm").querySelector('button[type="submit"]');button.disabled=true;button.textContent="در حال ساخت...";
+ try{
+  const {data:team,error}=await sb.from("teams").insert({name,tag,captain_id:currentUser.id}).select("id").single();if(error)throw error;
+  const {error:memberError}=await sb.from("team_members").insert({team_id:team.id,user_id:currentUser.id,role:"captain"});if(memberError)throw new Error("تیم ایجاد شد اما ثبت عضویت کاپیتان ناموفق بود: "+memberError.message);
+  $("newTeamName").value="";$("newTeamTag").value="";await loadMyTeam();toast("تیم در دیتابیس ساخته شد و عضویت کاپیتان ثبت شد.");
+ }catch(err){console.error("EX1 team create:",err);toast(err?.message||"ساخت تیم انجام نشد.");}
+ finally{button.disabled=false;button.textContent="ساخت تیم";}
+});
+async function loadRanking(){
+ const {data,error}=await sb.from("tournament_results").select("placement,kills,points,teams(name,tag),tournaments(title)").order("points",{ascending:false}).order("placement",{ascending:true}).limit(30);
+ if(error||!data?.length){$("ranking").innerHTML='<div class="empty">هنوز نتیجه‌ی تأییدشده‌ای برای رتبه‌بندی ثبت نشده است.</div>';return;}
+ $("ranking").innerHTML='<div class="user-list">'+data.map((x,i)=>'<div class="user-row"><div class="rank-icon">'+(i+1)+'</div><div class="user-info"><strong>'+esc(x.teams?.name||"تیم")+'</strong><small>'+esc(x.tournaments?.title||"مسابقه")+'</small></div><strong>'+esc(x.points)+' تومان آزمایشی</strong></div>').join("")+'</div>';
+}
+async function checkConnection(){
+ const el=$("connectionStatus");if(!el)return;
+ try{
+  const {error}=await sb.from("tournaments").select("id").limit(1);
+  if(error)throw error;
+  el.innerHTML='<i></i> متصل به EX1';el.classList.add("connected");el.classList.remove("disconnected");
+ }catch{
+  el.innerHTML='<i></i> اتصال برقرار نیست';el.classList.add("disconnected");el.classList.remove("connected");
+ }
+}
+sb.auth.onAuthStateChange(()=>setTimeout(authState,0));
+checkConnection();
+authState();
+</script>
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js"));}
+</script>
+</body>
+</html>
