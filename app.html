@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0b0912">
+<meta name="theme-color" content="#191720">
 <meta name="description" content="اپلیکیشن EX1 LEGEND؛ جامعه بازیکنان و رقابت‌های رایگان">
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" type="image/svg+xml" href="/ex1-legend-mark.svg">
@@ -25,6 +25,37 @@ header{position:sticky;top:0;z-index:20;background:#0b0912ed;border-bottom:1px s
 footer{padding:20px 0;color:var(--muted);font-size:10px;text-align:center}
 @media(max-width:760px){.feed-layout{grid-template-columns:1fr}.feed-side{display:grid;grid-template-columns:1fr 1fr;gap:10px}.side-card{margin:0}.profile-grid{grid-template-columns:1fr}.chat-layout{grid-template-columns:1fr}.chat-list{grid-template-columns:repeat(2,minmax(0,1fr))}.tournament-grid{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column;padding:18px}.hero .btn{width:100%}}
 @media(max-width:420px){.wrap{width:calc(100% - 22px)}.header-actions .btn{padding:9px 10px;font-size:10px}.feed-side{grid-template-columns:1fr}.chat-list{grid-template-columns:1fr}.section-head{align-items:flex-start;flex-direction:column}}
+
+/* EX1 Soft Dark refresh: clearer surfaces, calm contrast, readable controls */
+:root{color-scheme:dark;--bg:#191720;--panel:#24212d;--panel2:#302b3a;--line:#494253;--text:#f3eff8;--muted:#c0b8ca;--purple:#aa91df;--purple2:#826bb7;--lime:#c8dca0;--danger:#ed8999}
+body{background:radial-gradient(ellipse at 80% -10%,#8a70b51c,transparent 36%),var(--bg);color:var(--text)}
+header{background:#1d1a25ed;border-bottom-color:var(--line)}
+.panel,.card,.dialog{background:var(--panel);border-color:var(--line)}
+.hero{background:linear-gradient(115deg,#383044,#24212d 72%);border-color:#665779}
+.hero:after{color:#ffffff0b}
+.field,.compose textarea,.meta div,.user-row,.chat-contact{background:#2b2733;color:var(--text);border-color:#51495d}
+.field::placeholder,.compose textarea::placeholder{color:#aaa1b5}
+.btn{background:linear-gradient(120deg,#9278c7,#715b9f);color:#fff}
+.btn.secondary{background:#393244;border-color:#5a5068;color:#f4f0fa}
+.btn.ghost{background:#2d2935;border-color:#51495d;color:#d0c8d8}
+.subnav button{background:#2b2733;border-color:#51495d;color:#c9c1d1}
+.subnav button.active{background:#493b60;border-color:#9078b7;color:#fff}
+.story-placeholder{background:#393244}
+.story-ring{background:linear-gradient(135deg,#aa91df,#c8dca0)}
+.bottom-nav{background:#211e29f5;border-top-color:#51495d}
+.bottom-nav button{color:#b8afc2}
+.bottom-nav button.active{color:#d2e7a8}
+.tag{background:#443653;border-color:#80699e;color:#eadfff}
+.bubble{background:#393244}
+.bubble.mine{background:#66528b}
+.empty{background:#292530;border-color:#5b5267;color:#c4bbce}
+.toast{background:#393244;border-color:#77638e;color:#fff}
+.modal{background:#0009}
+.avatar{background:#494052}
+.quick-stat{border-bottom-color:#494253}
+.post-actions{border-top-color:#494253}
+@media(prefers-reduced-transparency:reduce){header,.bottom-nav{backdrop-filter:none}}
+
 </style>
 </head>
 <body>
