@@ -165,7 +165,7 @@ if(!window.supabase||typeof window.supabase.createClient!=="function"){showStart
 if(!window.EX1_CONFIG||!EX1_CONFIG.url||!EX1_CONFIG.publishableKey){showStartupError("تنظیمات اتصال EX1 پیدا نشد.");throw new Error("EX1 Supabase configuration is missing");}
 const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",audit:"گزارش فعالیت",socialReports:"گزارش‌های کاربران",wallet:"کیف پول",settings:"تنظیمات"};
+const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",audit:"گزارش فعالیت",socialReports:"گزارش‌های کاربران",wallet:"امتیازها",settings:"تنظیمات"};
 let permissions={};
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200);}
 function table(headers,rows){if(!rows.length)return '<div class="empty">هنوز داده‌ای ثبت نشده است.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';}
