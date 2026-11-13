@@ -262,9 +262,9 @@ async function loadRooms(){
  const rows=rooms.map(r=>{
   const t=tournamentCache.find(x=>x.id===r.tournament_id);
   const actions=canManage?'<button class="action-btn" data-edit-room="'+esc(r.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-room="'+esc(r.id)+'">حذف</button>':"—";
-  return row([esc(r.title),esc(t?.title||"—"),esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.capacity),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
+  return row([esc(r.title),esc(t?.title||"—"),esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.team_size===2?"دو نفره":"چهارنفره"),esc(r.max_teams||25),esc(r.entry_demo_points||0),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
  });
- $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","نقشه","ظرفیت","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
+ $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","نقشه","نوع تیم","جایگاه تیم","ورودی آزمایشی","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
 }
 $("addTournamentButton").onclick=()=>{
  if(!permissions["tournaments.create"])return;
