@@ -51,13 +51,13 @@
  <div class="profile-cover"><button class="profile-menu" type="button" id="profileMenuEdit" aria-label="ویرایش پروفایل">☰</button><div id="profileAvatar" class="profile-big">EX</div><button class="avatar-upload-btn" id="chooseAvatarButton" type="button">＋ انتخاب عکس پروفایل</button><input id="profileAvatarFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><div class="profile-level">◆</div><h1 id="profileDisplayName">بازیکن EX1</h1><div id="profileUsername" class="profile-handle">EX1 PLAYER</div><p>پروفایل بازیکن و فعالیت‌های جامعه</p></div>
  <div class="profile-stats"><div><strong>—</strong><small>دنبال‌کننده</small></div><div><strong>—</strong><small>دنبال‌شونده</small></div><div><strong>EX1</strong><small>عضویت</small></div></div>
  <div class="profile-bio panel"><p>پروفایل عمومی فقط اطلاعات پایه‌ی بازیکن را نمایش می‌دهد.</p><button class="btn small" type="button" id="openProfileEditor">ویرایش پروفایل　✎</button></div>
- <div class="wallet-card" role="button" tabindex="0" id="walletOpen"><div><span class="wallet-kicker">کیف پول EX1 · تومان آزمایشی</span><strong id="walletCardBalance" class="wallet-balance">۰ <small>تومان آزمایشی</small></strong><span class="wallet-note">مشاهده موجودی و تاریخچه</span></div><span class="wallet-icon">▣</span></div>
- <div class="profile-tabs"><button class="active" type="button" data-profile-tab="matches" aria-controls="profileMatches">مسابقات من</button><button type="button" data-profile-tab="team" aria-controls="profileTeam">تیم من</button></div><section id="profileMatches"><div class="section-head"><div><h2>روم‌های من و جوایز</h2><p>سوابق ثبت‌نام و جوایز نمایشی</p></div></div><div id="myMatches" class="user-list"><div class="empty">برای مشاهده سوابق وارد حساب شو.</div></div></section><section id="profileTeam" hidden><div class="section-head"><div><h2>تیم من</h2><p>مشاهده مشخصات تیم و اعضای ثبت‌شده</p></div></div><div id="myTeam" class="user-list"></div><div id="createTeamWrap" class="panel team-create-wrap" hidden><h3>ساخت تیم جدید</h3><form id="createTeamForm"><input id="newTeamName" class="field" maxlength="40" placeholder="نام تیم" required><input id="newTeamTag" class="field" maxlength="8" placeholder="تگ کوتاه تیم (اختیاری)"><button class="btn" type="submit">ساخت تیم</button></form></div></section>
+ <div class="wallet-card" role="button" tabindex="0" id="walletOpen"><div><span class="wallet-kicker">امتیاز EX1 · نمایشی و غیرقابل‌برداشت</span><strong id="walletCardBalance" class="wallet-balance">۰ <small>امتیاز</small></strong><span class="wallet-note">مشاهده امتیاز و تاریخچه</span></div><span class="wallet-icon">✦</span></div>
+ <div class="profile-tabs"><button class="active" type="button" data-profile-tab="matches" aria-controls="profileMatches">مسابقات من</button><button type="button" data-profile-tab="team" aria-controls="profileTeam">تیم من</button></div><section id="profileMatches"><div class="section-head"><div><h2>روم‌های من و جوایز</h2><p>سوابق ثبت‌نام و جوایز نمایشی</p></div></div><div id="myMatches" class="user-list"><div class="empty">برای مشاهده سوابق وارد حساب شو.</div></div></section><section id="profileTeam" hidden><div class="section-head"><div><h2>تیم من</h2><p>مدیریت اعضا، دعوت بازیکن و تنظیمات تیم</p></div></div><div id="myTeam" class="user-list"></div><div id="createTeamWrap" class="panel team-create-wrap" hidden><h3>ساخت تیم جدید</h3><form id="createTeamForm"><input id="newTeamName" class="field" maxlength="40" placeholder="نام تیم" required><input id="newTeamTag" class="field" maxlength="8" placeholder="تگ کوتاه تیم (اختیاری)"><button class="btn" type="submit">ساخت تیم</button></form></div><div id="teamSettingsPanel" class="panel" hidden><h3>تنظیمات تیم</h3><form id="teamSettingsForm"><label>نام تیم<input id="teamSettingsName" class="field" maxlength="40" required></label><label>تگ تیم<input id="teamSettingsTag" class="field" maxlength="8"></label><label>توضیحات<textarea id="teamSettingsDescription" class="field" maxlength="240" rows="3"></textarea></label><button class="btn" type="submit">ذخیره تنظیمات تیم</button></form><label>لوگوی تیم<input id="teamLogoFile" class="field" type="file" accept="image/jpeg,image/png,image/webp"></label><button class="btn secondary" id="uploadTeamLogo" type="button">بارگذاری لوگوی تیم</button><p id="teamSettingsMessage" class="muted"></p><hr><h3>دعوت بازیکن</h3><form id="teamInviteForm"><input id="teamInviteUsername" class="field" maxlength="24" placeholder="نام کاربری بازیکن" required><button class="btn" type="submit">ارسال دعوت</button></form><div id="teamSentInvites" class="user-list"></div></div><div id="incomingTeamInvites" class="user-list"></div></section>
  <div class="section-head"><div><h2>درخواست‌های دنبال‌کردن</h2><p>درخواست‌هایی که منتظر تأیید تو هستند</p></div></div><div id="followRequests" class="user-list"><div class="empty">درخواستی وجود ندارد.</div></div>
 </section>
 <section class="page" id="page-tournaments">
  <div class="tournament-banner"><div class="tournament-banner-copy"><span>EX1 LEGEND · ARENA</span><h1>جوایز و<br>مسابقات</h1><p>رقابت‌های جامعه، روم‌های فعال و جدول قهرمانان</p></div><div class="tournament-banner-mark">EX1</div><div class="banner-bottom"><b>مسابقات فعال</b><small>برای دیدن جزئیات، کارت هر مسابقه را انتخاب کن</small></div></div>
- <div class="tournament-filter" id="roomCategoryFilter"><button class="active" type="button" data-room-category="all">برای شما</button><button type="button" data-room-category="fight">فایت</button><button type="button" data-room-category="br">بتل‌رویال</button><button type="button" data-room-category="multi">مولتی</button></div><div id="aiRoomPlaceholder" class="panel" style="margin:12px 0;border-color:#8a59ba;background:linear-gradient(110deg,#2b1744,#142a3c)"><strong>✦ پیشنهادهای هوشمند EX1</strong><p class="muted">در نسخهٔ فعلی، روم‌ها بر اساس دسته‌بندی نمایش داده می‌شوند. اتصال هوش مصنوعی برای پیشنهاد روم بر اساس علایق و سابقهٔ بازی در مرحلهٔ بعدی اضافه می‌شود.</p></div><div class="section-head"><div><h2 id="roomCategoryTitle">روم‌های پیشنهادی</h2><p>یک روم را انتخاب کن تا جزئیاتش را ببینی.</p></div></div>
+ <div class="tournament-filter" id="roomCategoryFilter"><button class="active" type="button" data-room-category="all">برای شما</button><button type="button" data-room-category="fight">فایت</button><button type="button" data-room-category="br">بتل‌رویال</button><button type="button" data-room-category="multi">مولتی</button></div><div class="section-head"><div><h2 id="roomCategoryTitle">روم‌های پیشنهادی</h2><p>یک روم را انتخاب کن تا جزئیاتش را ببینی.</p></div></div>
  <div id="roomCards" class="room-grid"><div class="empty">در حال دریافت روم‌ها...</div></div><div id="roomNoData" class="panel room-empty-state" hidden><strong>هنوز رومی برای ثبت‌نام فعال نشده</strong><p>به‌محض اینکه مدیر روم فایت، بتل‌رویال یا مولتی بسازد، کارت و تصویر آن اینجا نمایش داده می‌شود.</p><a href="/admin.html" class="btn secondary small">ورود به پنل مدیریت</a></div><div id="roomCategoryEmpty" class="empty" hidden>فعلاً رومی در این دسته وجود ندارد.</div><section id="roomDetail" class="panel room-detail" hidden></section>
 </section>
 <section class="page" id="page-ranking">
@@ -74,7 +74,7 @@
 <footer>EX1 LEGEND · جامعه‌ی رقابت سالم</footer>
 <div class="modal" id="authModal"><div class="dialog"><h3 id="authTitle">ورود به EX1 LEGEND</h3><p id="authHint" class="muted">با ایمیل و رمز عبور وارد شو یا حساب جدید بساز.</p><form id="authForm"><input id="authName" class="field" maxlength="30" placeholder="نام نمایشی" hidden><input id="authEmail" class="field" type="email" maxlength="254" autocomplete="email" placeholder="ایمیل" required><input id="authPassword" class="field" type="password" minlength="8" maxlength="72" autocomplete="current-password" placeholder="رمز عبور (حداقل ۸ نویسه)" required><button class="btn" id="authSubmit" type="submit">ورود</button></form><button class="btn secondary" id="authSwitch" type="button">ساخت حساب جدید</button><button class="btn ghost" type="button" onclick="closeAuth()">بستن</button><p class="muted">رمز عبورت را در اختیار هیچ‌کس قرار نده و آن را در چت ارسال نکن.</p></div></div>
 <div class="modal" id="profileEditorModal"><div class="dialog"><h3>ویرایش پروفایل</h3><form id="profileForm"><label>نام نمایشی<input class="field" id="profileName" maxlength="30" required></label><label>نام کاربری<input class="field" id="profileHandle" maxlength="24" placeholder="اختیاری"></label><label>UID کالاف دیوتی موبایل<input class="field" id="profileGameUid" maxlength="32" placeholder="شناسهٔ بازیکن در بازی"></label><button class="btn" type="submit">ذخیره تغییرات</button></form><button class="btn ghost" type="button" data-close-modal="profileEditorModal">بستن</button></div></div><div class="modal" id="settingsModal"><div class="dialog"><h3>تنظیمات EX1</h3><button class="btn secondary" id="showAppearanceSettings" type="button">تنظیمات ظاهری</button><div id="appearanceSettings" hidden><label>تم رنگی<select class="field" id="userTheme"><option value="soft">نرم و متعادل</option><option value="blue">آبی</option><option value="green">سبز</option><option value="amber">کهربایی</option></select></label><label>فونت برنامه<select class="field" id="userFont"><option value="tahoma">Tahoma</option><option value="system">فونت سیستم</option><option value="arial">Arial</option><option value="mono">Monospace</option></select></label><button class="btn small" id="saveUserSettings" type="button">ذخیره تنظیمات</button><p class="muted" id="userSettingsMessage">تنظیمات روی همین دستگاه ذخیره می‌شوند.</p></div><button class="btn secondary" id="showBlockedSettings" type="button">حساب‌های مسدودشده</button><div id="blockedSettings" hidden><div id="blockedUsers" class="user-list"><div class="empty">در حال دریافت فهرست...</div></div></div><button class="btn secondary" id="logoutButton" type="button">خروج از حساب</button><button class="btn ghost" type="button" data-close-modal="settingsModal">بستن</button></div></div>
-<div class="modal" id="walletModal"><div class="dialog"><h3>کیف پول EX1</h3><div class="wallet-modal-balance"><span>موجودی فعلی</span><strong id="walletModalBalance">۰ <small>تومان آزمایشی</small></strong></div><p class="muted">مبالغ این کیف پول فقط برای آزمایش رابط کاربری هستند؛ هیچ پرداخت، واریز، برداشت یا جایزه نقدی واقعی انجام نمی‌شود.</p><div class="wallet-history"><h4>تراکنش‌ها</h4><div id="walletHistory" class="empty">در حال دریافت تاریخچه...</div></div><button class="btn ghost" type="button" data-close-modal="walletModal">بستن</button></div></div><div class="modal" id="joinRoomModal"><div class="dialog"><h3>ثبت‌نام در روم</h3><p id="joinRoomSummary" class="muted"></p><div class="panel"><strong>نوع حضور</strong><p>فعلاً ثبت‌نام انفرادی انجام می‌شود و جایگاه تیم به نام حساب شما رزرو خواهد شد.</p><small class="muted">هماهنگی هم‌تیمی و دعوت دوست در مرحله بعد اضافه می‌شود.</small></div><p class="muted">این ثبت‌نام در دیتابیس ذخیره می‌شود؛ مبلغ فقط نمایشی و آزمایشی است و هیچ پرداختی انجام نمی‌شود.</p><button class="btn" id="confirmRoomJoin" type="button">تأیید و ثبت‌نام</button><button class="btn ghost" type="button" data-close-modal="joinRoomModal">بازگشت</button></div></div><div class="toast" id="toast"></div>
+<div class="modal" id="walletModal"><div class="dialog"><h3>کیف پول EX1</h3><div class="wallet-modal-balance"><span>موجودی فعلی</span><strong id="walletModalBalance">۰ <small>امتیاز</small></strong></div><p class="muted">این امتیازها فقط برای نمایش داخل برنامه‌اند؛ ارزش پولی ندارند و قابل خرید، فروش یا برداشت نیستند.</p><div class="wallet-history"><h4>تراکنش‌ها</h4><div id="walletHistory" class="empty">در حال دریافت تاریخچه...</div></div><button class="btn ghost" type="button" data-close-modal="walletModal">بستن</button></div></div><div class="modal" id="joinRoomModal"><div class="dialog"><h3>ثبت‌نام در روم</h3><p id="joinRoomSummary" class="muted"></p><div class="panel"><strong>نوع حضور</strong><p>ثبت‌نام فقط با تیم واقعی انجام می‌شود. کاپیتان تیم باید ثبت‌نام کند و تعداد اعضا باید با نوع روم برابر باشد.</p><small class="muted">برای دعوت اعضا از بخش «تیم من» استفاده کن.</small></div><p class="muted">ثبت‌نام تیم در دیتابیس ذخیره می‌شود؛ هیچ پرداخت یا جایزهٔ نقدی در این برنامه فعال نیست.</p><button class="btn" id="confirmRoomJoin" type="button">تأیید و ثبت‌نام</button><button class="btn ghost" type="button" data-close-modal="joinRoomModal">بازگشت</button></div></div><div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2.119.0/dist/umd/supabase.js'"></script>
 <script src="/supabase-config.js"></script>
 <script>
@@ -140,7 +140,7 @@ $("saveUserSettings").onclick=async()=>{
 async function loadWallet(){
  $("walletHistory").textContent="در حال دریافت تاریخچه...";
  const [{data:summary,error:se},{data:history,error:he}]=await Promise.all([sb.rpc("wallet_my_summary"),sb.rpc("wallet_my_history",{p_limit:30})]);
- if(se){$("walletCardBalance").innerHTML='۰ <small>تومان آزمایشی</small>';$("walletModalBalance").innerHTML='۰ <small>تومان آزمایشی</small>';$("walletHistory").innerHTML='<div class="empty">موجودی کیف پول در دسترس نیست.</div>';return;}
+ if(se){$("walletCardBalance").innerHTML='۰ <small>امتیاز نمایشی</small>';$("walletModalBalance").innerHTML='۰ <small>امتیاز آزمایشی</small>';$("walletHistory").innerHTML='<div class="empty">موجودی کیف پول در دسترس نیست.</div>';return;}
  const row=Array.isArray(summary)?summary[0]:summary,bal=Number(row?.balance_units||0);
  const fmt=n=>Number(n||0).toLocaleString("fa-IR");
  $("walletCardBalance").innerHTML=fmt(bal)+' <small>تومان آزمایشی</small>';$("walletModalBalance").innerHTML=fmt(bal)+' <small>تومان آزمایشی</small>';
@@ -373,7 +373,7 @@ $("chatForm").addEventListener("submit",async e=>{
  if(error){toast("ارسال پیام انجام نشد.");return;}$("chatText").value="";loadMessages();
 });
 function roomCategory(mode){const m=String(mode||"").toLowerCase();if(/fight|1v1|solo|فایت|تک/.test(m))return "fight";if(/battle|br|بتل|رویال/.test(m))return "br";if(/multi|mp|مولتی/.test(m))return "multi";return "all";}
-function applyRoomCategory(category){if($("aiRoomPlaceholder"))$("aiRoomPlaceholder").hidden=category!=="all";document.querySelectorAll("[data-room-category]").forEach(b=>b.classList.toggle("active",b.dataset.roomCategory===category));const rooms=window.ex1Rooms||[];const filtered=category==="all"?rooms:rooms.filter(r=>roomCategory(r.game_mode)===category);$("roomCategoryTitle").textContent=({all:"روم‌های پیشنهادی",fight:"روم‌های فایت",br:"روم‌های بتل‌رویال",multi:"روم‌های مولتی"})[category];$("roomCards").querySelectorAll("[data-open-room]").forEach(b=>{b.closest(".room-card").hidden=!filtered.some(r=>r.id===b.dataset.openRoom);});if($("roomCategoryEmpty"))$("roomCategoryEmpty").hidden=filtered.length>0;}
+function applyRoomCategory(category){document.querySelectorAll("[data-room-category]").forEach(b=>b.classList.toggle("active",b.dataset.roomCategory===category));const rooms=window.ex1Rooms||[];const filtered=category==="all"?rooms:rooms.filter(r=>roomCategory(r.game_mode)===category);$("roomCategoryTitle").textContent=({all:"روم‌های پیشنهادی",fight:"روم‌های فایت",br:"روم‌های بتل‌رویال",multi:"روم‌های مولتی"})[category];$("roomCards").querySelectorAll("[data-open-room]").forEach(b=>{b.closest(".room-card").hidden=!filtered.some(r=>r.id===b.dataset.openRoom);});if($("roomCategoryEmpty"))$("roomCategoryEmpty").hidden=filtered.length>0;}
 document.querySelectorAll("[data-room-category]").forEach(b=>b.onclick=()=>applyRoomCategory(b.dataset.roomCategory));
 async function loadTournaments(){
   const {data:rooms,error:re}=await sb.from("tournament_rooms").select("id,tournament_id,title,game_mode,map,capacity,team_size,max_teams,entry_demo_points,starts_at,status,room_image_url,room_media_type,room_video_url,rules").in("status",["open","full"]).order("starts_at",{ascending:true,nullsFirst:false});
@@ -382,25 +382,92 @@ async function loadTournaments(){
  $("roomCards").querySelectorAll("[data-open-room]").forEach(button=>button.addEventListener("click",()=>{const room=rr.find(x=>x.id===button.dataset.openRoom);if(room)showRoomDetail(room);}));
  applyRoomCategory("all");$("roomDetail").hidden=true;
 }async function loadMyMatches(){if(!currentUser)return;$("myMatches").innerHTML='<div class="empty">در حال دریافت سابقه...</div>';const {data,error}=await sb.from("tournament_room_registrations").select("id,room_id,tournament_id,team_id,slot_number,status,registered_at,tournament_rooms(title,game_mode,entry_demo_points)").eq("user_id",currentUser.id).order("registered_at",{ascending:false}).limit(30);if(error){$("myMatches").innerHTML='<div class="empty">سابقهٔ روم‌ها دریافت نشد.</div>';return;}const rows=data||[];const teamIds=[...new Set(rows.map(x=>x.team_id).filter(Boolean))];let prizes={};if(teamIds.length){const {data:results}=await sb.from("tournament_results").select("team_id,placement,points").in("team_id",teamIds);(results||[]).forEach(x=>prizes[x.team_id]=x);} $("myMatches").innerHTML=rows.map(x=>{const result=prizes[x.team_id];const reward=result?(result.placement===1?"جایزهٔ آزمایشی: ۱,۰۰۰,۰۰۰ تومان":result.placement===2?"جایزهٔ آزمایشی: ۵۰۰,۰۰۰ تومان":"جایزهٔ آزمایشی: ۱۰۰,۰۰۰ تومان"):"هنوز جایزه‌ای ثبت نشده";return '<div class="panel user-row"><div class="user-info"><strong>'+esc(x.tournament_rooms?.title||"روم EX1")+'</strong><small>'+esc(x.tournament_rooms?.game_mode||"مسابقه")+' · جایگاه '+Number(x.slot_number||0)+' · '+esc(x.status)+'</small><small>'+esc(reward)+'</small></div></div>';}).join("")||'<div class="empty">هنوز در رومی ثبت‌نام نکرده‌ای.</div>';}
+let currentTeamId=null;
+async function loadTeamInvites(){
+ const box=$("incomingTeamInvites");if(!box)return;
+ if(!currentUser){box.innerHTML="";return;}
+ const {data,error}=await sb.from("team_invites").select("id,created_at,teams(name,tag),profiles!team_invites_invited_by_fkey(display_name,username)").eq("invited_user_id",currentUser.id).eq("status","pending").order("created_at",{ascending:false});
+ if(error){box.innerHTML='<div class="empty">دعوت‌های تیم دریافت نشد.</div>';console.warn("EX1 incoming invites:",error.message);return;}
+ const rows=data||[];
+ box.innerHTML=rows.length?'<h3>دعوت‌های دریافتی</h3>'+rows.map(x=>'<div class="panel user-row"><div class="user-info"><strong>'+esc(x.teams?.name||"تیم EX1")+'</strong><small>دعوت از '+esc(x.profiles?.display_name||x.profiles?.username||"کاپیتان")+'</small></div><button class="btn small" data-team-invite-action="accept" data-invite-id="'+esc(x.id)+'">پذیرش</button><button class="btn ghost small" data-team-invite-action="decline" data-invite-id="'+esc(x.id)+'">رد</button></div>').join(""):'<div class="empty">دعوت تازه‌ای برای عضویت در تیم نداری.</div>';
+}
+async function loadTeamSentInvites(teamId){
+ const box=$("teamSentInvites");if(!box)return;
+ const {data,error}=await sb.from("team_invites").select("id,created_at,profiles!team_invites_invited_user_id_fkey(display_name,username)").eq("team_id",teamId).eq("status","pending").order("created_at",{ascending:false});
+ if(error){box.innerHTML='<div class="empty">فهرست دعوت‌ها دریافت نشد.</div>';return;}
+ const rows=data||[];
+ box.innerHTML=rows.length?'<h4>دعوت‌های در انتظار پاسخ</h4>'+rows.map(x=>'<div class="user-row"><div class="user-info"><strong>'+esc(x.profiles?.display_name||"بازیکن")+'</strong><small>@'+esc(x.profiles?.username||"بدون نام کاربری")+'</small></div><button class="btn ghost small" data-team-invite-cancel="'+esc(x.id)+'">لغو دعوت</button></div>').join(""):'<p class="muted">دعوت در انتظاری وجود ندارد.</p>';
+}
 async function loadMyTeam(){
  if(!currentUser){$("myTeam").innerHTML='<div class="empty">برای دیدن تیم وارد حساب شو.</div>';return;}
- const box=$("myTeam"),create=$("createTeamWrap");box.innerHTML='<div class="empty">در حال دریافت اطلاعات تیم از دیتابیس...</div>';
+ const box=$("myTeam"),create=$("createTeamWrap"),settings=$("teamSettingsPanel");box.innerHTML='<div class="empty">در حال دریافت اطلاعات تیم از دیتابیس...</div>';
  try{
   const {data:mine,error:mineError}=await sb.from("team_members").select("team_id,role").eq("user_id",currentUser.id).limit(1).maybeSingle();
   if(mineError)throw mineError;
-  if(!mine){box.innerHTML='<div class="empty">هنوز عضو هیچ تیمی نیستی. می‌توانی تیم خودت را بسازی.</div>';create.hidden=false;return;}
+  if(!mine){currentTeamId=null;box.innerHTML='<div class="empty">هنوز عضو هیچ تیمی نیستی. می‌توانی تیم بسازی یا دعوت دریافتی را بپذیری.</div>';create.hidden=false;settings.hidden=true;await loadTeamInvites();return;}
   const [{data:team,error:teamError},{data:members,error:membersError}]=await Promise.all([
-   sb.from("teams").select("id,name,tag,description,captain_id").eq("id",mine.team_id).maybeSingle(),
+   sb.from("teams").select("id,name,tag,description,captain_id,logo_url").eq("id",mine.team_id).maybeSingle(),
    sb.from("team_members").select("user_id,role,joined_at").eq("team_id",mine.team_id).order("joined_at",{ascending:true})
   ]);
   if(teamError)throw teamError;if(membersError)throw membersError;
-  if(!team){box.innerHTML='<div class="empty">اطلاعات تیم پیدا نشد؛ با پشتیبانی تماس بگیر.</div>';create.hidden=true;return;}
-  create.hidden=true;const people=await profilesFor((members||[]).map(x=>x.user_id));
-  const header='<div class="panel team-summary"><span class="eyebrow">EX1 TEAM</span><h3>'+esc(team.name)+'</h3><p class="muted">'+(team.tag?'تگ تیم: '+esc(team.tag)+' · ':'')+esc(team.description||"تیم بازیکنان EX1")+'</p><small class="muted">'+(members||[]).length+' عضو ثبت‌شده</small></div>';
-  const rows=(members||[]).map(x=>'<div class="user-row">'+avatarHTML(people[x.user_id])+'<div class="user-info"><strong>'+esc(people[x.user_id]?.display_name||"بازیکن")+'</strong><small>'+(x.user_id===team.captain_id?"کاپیتان":x.role==="captain"?"کاپیتان":"عضو تیم")+'</small></div></div>').join("");
+  if(!team){box.innerHTML='<div class="empty">اطلاعات تیم پیدا نشد؛ با پشتیبانی تماس بگیر.</div>';create.hidden=true;settings.hidden=true;return;}
+  currentTeamId=team.id;create.hidden=true;
+  const isCaptain=team.captain_id===currentUser.id;
+  settings.hidden=!isCaptain;
+  if(isCaptain){$("teamSettingsName").value=team.name||"";$("teamSettingsTag").value=team.tag||"";$("teamSettingsDescription").value=team.description||"";await loadTeamSentInvites(team.id);}
+  const people=await profilesFor((members||[]).map(x=>x.user_id));
+  const logo=team.logo_url?'<img class="avatar" src="'+esc(team.logo_url)+'" alt="لوگوی تیم">':'<div class="avatar">EX1</div>';
+  const header='<div class="panel team-summary">'+logo+'<span class="eyebrow">EX1 TEAM</span><h3>'+esc(team.name)+'</h3><p class="muted">'+(team.tag?'تگ تیم: '+esc(team.tag)+' · ':'')+esc(team.description||"تیم بازیکنان EX1")+'</p><small class="muted">'+(members||[]).length+' از ۴ عضو · '+(isCaptain?"کاپیتان":"عضو تیم")+'</small></div>';
+  const rows=(members||[]).map(x=>'<div class="user-row">'+avatarHTML(people[x.user_id])+'<div class="user-info"><strong>'+esc(people[x.user_id]?.display_name||"بازیکن")+'</strong><small>'+(x.user_id===team.captain_id?"کاپیتان":"عضو تیم")+'</small></div></div>').join("");
   box.innerHTML=header+(rows||'<div class="empty">هنوز عضوی برای نمایش وجود ندارد.</div>');
- }catch(err){console.error("EX1 team load:",err);box.innerHTML='<div class="empty">بارگذاری تیم انجام نشد: '+esc(err?.message||"خطای اتصال")+'</div>';create.hidden=true;}
+  await loadTeamInvites();
+ }catch(err){console.error("EX1 team load:",err);box.innerHTML='<div class="empty">بارگذاری تیم انجام نشد: '+esc(err?.message||"خطای اتصال")+'</div>';create.hidden=true;settings.hidden=true;}
 }
+$("teamSettingsForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!currentUser||!currentTeamId)return;
+ const button=e.submitter||$("teamSettingsForm").querySelector('button[type="submit"]');button.disabled=true;
+ try{
+  const payload={name:$("teamSettingsName").value.trim(),tag:$("teamSettingsTag").value.trim().toUpperCase()||null,description:$("teamSettingsDescription").value.trim()||null};
+  if(payload.name.length<2)throw new Error("نام تیم باید حداقل دو نویسه باشد.");
+  const {error}=await sb.from("teams").update(payload).eq("id",currentTeamId).eq("captain_id",currentUser.id);if(error)throw error;
+  $("teamSettingsMessage").textContent="تنظیمات تیم ذخیره شد.";await loadMyTeam();toast("تنظیمات تیم به‌روزرسانی شد.");
+ }catch(err){$("teamSettingsMessage").textContent=err.message||"ذخیره تنظیمات انجام نشد.";}
+ finally{button.disabled=false;}
+});
+$("uploadTeamLogo").onclick=async()=>{
+ const file=$("teamLogoFile").files?.[0];if(!file||!currentTeamId||!currentUser){toast("ابتدا یک تصویر انتخاب کن.");return;}
+ if(!["image/jpeg","image/png","image/webp"].includes(file.type)){toast("فقط JPG، PNG یا WebP مجاز است.");return;}
+ if(file.size>5*1024*1024){toast("حجم تصویر باید حداکثر ۵ مگابایت باشد.");return;}
+ const button=$("uploadTeamLogo");button.disabled=true;
+ try{
+  const ext=file.type==="image/jpeg"?"jpg":file.type.split("/")[1],path=currentUser.id+"/team-"+currentTeamId+"-"+crypto.randomUUID()+"."+ext;
+  const {error:upErr}=await sb.storage.from("ex1-avatars").upload(path,file,{upsert:false,contentType:file.type,cacheControl:"3600"});if(upErr)throw upErr;
+  const url=sb.storage.from("ex1-avatars").getPublicUrl(path).data.publicUrl;
+  const {error}=await sb.from("teams").update({logo_url:url}).eq("id",currentTeamId).eq("captain_id",currentUser.id);if(error)throw error;
+  $("teamSettingsMessage").textContent="لوگوی تیم ذخیره شد.";await loadMyTeam();toast("لوگوی تیم به‌روزرسانی شد.");
+ }catch(err){$("teamSettingsMessage").textContent=err.message||"بارگذاری لوگو انجام نشد.";}
+ finally{button.disabled=false;}
+};
+$("teamInviteForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!currentUser||!currentTeamId)return;
+ const username=$("teamInviteUsername").value.trim();if(!username)return;
+ const button=e.submitter||$("teamInviteForm").querySelector('button[type="submit"]');button.disabled=true;
+ try{const {error}=await sb.rpc("team_invite_create",{p_username:username});if(error)throw error;$("teamInviteUsername").value="";await loadTeamSentInvites(currentTeamId);toast("دعوت برای بازیکن ارسال شد.");}
+ catch(err){toast(err.message||"ارسال دعوت انجام نشد.");}
+ finally{button.disabled=false;}
+});
+$("incomingTeamInvites").addEventListener("click",async e=>{
+ const b=e.target.closest("[data-team-invite-action]");if(!b)return;
+ b.disabled=true;
+ try{const {error}=await sb.rpc("team_invite_respond",{p_invite_id:b.dataset.inviteId,p_accept:b.dataset.teamInviteAction==="accept"});if(error)throw error;toast(b.dataset.teamInviteAction==="accept"?"به تیم پیوستی.":"دعوت رد شد.");await loadMyTeam();}
+ catch(err){toast(err.message||"پاسخ به دعوت انجام نشد.");b.disabled=false;}
+});
+$("teamSentInvites").addEventListener("click",async e=>{
+ const b=e.target.closest("[data-team-invite-cancel]");if(!b)return;
+ b.disabled=true;
+ try{const {error}=await sb.rpc("team_invite_cancel",{p_invite_id:b.dataset.teamInviteCancel});if(error)throw error;await loadTeamSentInvites(currentTeamId);toast("دعوت لغو شد.");}
+ catch(err){toast(err.message||"لغو دعوت انجام نشد.");b.disabled=false;}
+});
 $("createTeamForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!currentUser){openAuth();return;}const name=$("newTeamName").value.trim();if(name.length<2){toast("نام تیم باید حداقل دو حرف باشد.");return;}
  const tag=$("newTeamTag").value.trim().toUpperCase()||null,button=e.submitter||$("createTeamForm").querySelector('button[type="submit"]');button.disabled=true;button.textContent="در حال ساخت...";
