@@ -6,14 +6,15 @@
 <title>پنل مدیریت | EX1 LEGEND</title>
 <style>
 :root{color-scheme:dark;--bg:#090910;--panel:#12121d;--line:#27273a;--text:#f4f3ff;--muted:#9998b2;--purple:#8b5cf6;--cyan:#22d3ee;--green:#34d399}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#24134a 0,transparent 38%),var(--bg);color:var(--text);font-family:system-ui,Tahoma,Arial,sans-serif}button,input{font:inherit}a{color:inherit;text-decoration:none}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#24134a 0,transparent 38%),var(--bg);color:var(--text);font-family:system-ui,Tahoma,Arial,sans-serif;-webkit-user-select:none;user-select:none}button,input,select,textarea{font:inherit}input,select,textarea{ -webkit-user-select:text;user-select:text}button,a{ -webkit-user-select:none;user-select:none;touch-action:manipulation}a{color:inherit;text-decoration:none}
 .wrap{max-width:1200px;margin:auto;padding:22px}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:22px}.brand{font-weight:900;font-size:21px;letter-spacing:1px}.brand span{color:var(--cyan)}
 .btn{border:1px solid var(--line);background:#171725;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer}.btn.primary{background:linear-gradient(110deg,#6d3bd1,#276d91);border:0}.btn:disabled{opacity:.5;cursor:not-allowed}
 .hero,.card,.section,.authbox{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:18px}.hero{background:linear-gradient(120deg,#21143c,#111522);border-color:#39304f;margin-bottom:16px}.hero h1{margin:0 0 8px;font-size:24px}.muted{color:var(--muted);font-size:13px;line-height:1.8}.notice{margin-top:12px;padding:11px 13px;border-radius:12px;background:#382b16;border:1px solid #705326;color:#fbd38d;font-size:13px}
 .authbox{max-width:430px;margin:9vh auto}.authbox h2{margin-top:0}.field{display:block;width:100%;margin:9px 0 13px;padding:13px;border-radius:10px;border:1px solid var(--line);background:#0d0d16;color:white}.authbox .btn{width:100%;margin-top:8px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.stat small{color:var(--muted)}.stat strong{display:block;font-size:27px;margin-top:7px}
 .layout{display:grid;grid-template-columns:205px 1fr;gap:14px}.nav{display:flex;flex-direction:column;gap:7px;height:max-content}.nav button{background:transparent;border:1px solid transparent;color:var(--muted);text-align:right;padding:12px;border-radius:11px;cursor:pointer}.nav button.active,.nav button:hover{background:#211a35;border-color:#49366e;color:white}
-.section h2{font-size:18px;margin:0 0 15px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:550px}th,td{text-align:right;padding:11px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-weight:600}
+.section h2{font-size:18px;margin:0 0 15px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.tablewrap{overflow:auto}
+.manager-form{margin:14px 0;padding:15px;border:1px solid #39304f;border-radius:14px;background:#0e0e18}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.manager-form label{display:block;color:var(--muted);font-size:12px}.manager-form input,.manager-form select,.manager-form textarea{display:block;width:100%;margin-top:6px;padding:11px;border:1px solid var(--line);border-radius:9px;background:#090910;color:var(--text);font:inherit}.manager-form textarea{min-height:82px;resize:vertical}.manager-form .wide{grid-column:1/-1}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.action-btn{padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:#1a1928;color:white;cursor:pointer;font-size:12px}.action-btn.danger{border-color:#713b4a;color:#ffb4c2}@media(max-width:620px){.formgrid{grid-template-columns:1fr}.manager-form .wide{grid-column:auto}}table{width:100%;border-collapse:collapse;min-width:550px}th,td{text-align:right;padding:11px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-weight:600}
 .tag{display:inline-block;padding:4px 9px;border-radius:20px;background:#1d3b34;color:#8ff0c9;font-size:11px}.empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed #38384c;border-radius:12px}.hidden{display:none}.colorgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.colorfield{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px}.colorfield input{width:48px;height:38px;border:0;background:transparent}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{position:fixed;bottom:18px;left:18px;background:#222035;border:1px solid #5c477e;padding:12px 16px;border-radius:12px;display:none;z-index:10}.toast.show{display:block}
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.nav{display:grid;grid-template-columns:repeat(3,1fr)}.nav button{text-align:center;padding:9px;font-size:12px}.wrap{padding:14px}.colorgrid{grid-template-columns:1fr}}
@@ -23,15 +24,56 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{p
 <header class="top"><div class="brand"><img src="/ex1-legend-mark.svg" alt="" width="30" height="30" style="vertical-align:middle;margin-inline-end:7px">EX1 <span>LEGEND</span> <small style="color:#9998b2;font-size:12px">/ مدیریت</small></div><a class="btn" href="/">بازگشت به سایت ↗</a></header>
 <section id="authView" class="authbox"><h2>ورود مدیران EX1 LEGEND</h2><p class="muted">با حساب کاربری تأییدشده وارد شو. ساخت حساب یا اعطای دسترسی مدیریتی از این صفحه ممکن نیست.</p><form id="loginForm"><label class="muted" for="email">ایمیل</label><input class="field" id="email" type="email" autocomplete="username" required maxlength="254"><label class="muted" for="password">رمز عبور</label><input class="field" id="password" type="password" autocomplete="current-password" required maxlength="72"><button class="btn primary" id="loginButton" type="submit">ورود امن</button></form><p id="authMessage" class="muted" aria-live="polite"></p></section>
 <div id="appView" class="hidden">
-<section class="hero"><div class="row"><div><h1>پنل مدیریت EX1 LEGEND</h1><div class="muted" id="identity">در حال بررسی دسترسی...</div></div><button class="btn" id="logoutButton">خروج امن</button></div><div class="notice">پنل به دیتابیس زنده متصل است. هر بخش فقط با مجوز سمت سرور قابل مشاهده است؛ عملیات تغییردهنده تا تکمیل کنترل‌های بیشتر غیرفعال‌اند.</div></section>
+<section class="hero"><div class="row"><div><h1>پنل مدیریت EX1 LEGEND</h1><div class="muted" id="identity">در حال بررسی دسترسی...</div></div><button class="btn" id="logoutButton">خروج امن</button></div><div class="notice">پنل به دیتابیس زنده متصل است. ساخت و ویرایش مسابقه و روم بر اساس مجوزهای حساب انجام می‌شود؛ امتیازها فقط آزمایشی و بدون ارزش نقدی هستند.</div></section>
 <div class="stats"><div class="card stat"><small>مسابقات</small><strong id="statTournaments">—</strong></div><div class="card stat"><small>ثبت‌نام‌ها</small><strong id="statRegistrations">—</strong></div><div class="card stat"><small>تیم‌ها</small><strong id="statTeams">—</strong></div><div class="card stat"><small>پروفایل‌ها</small><strong id="statUsers">—</strong></div></div>
 <div class="layout"><nav class="card nav" id="nav"></nav><main>
 <section class="section tab" id="overview"><h2>نمای کلی زنده</h2><div class="muted" id="overviewText">آمار از دیتابیس خوانده می‌شود.</div><div class="empty" id="overviewEmpty">در حال دریافت اطلاعات...</div><div class="notice">بخش مالی تا زمان پیاده‌سازی قفل امنیتی مخصوص ورود بزرگسال مسئول، در پنل نمایش داده نمی‌شود.</div></section>
-<section class="section tab hidden" id="tournaments"><div class="row"><h2>مسابقات</h2><span class="tag">داده زنده</span></div><div id="tournamentsTable" class="empty">در حال بارگذاری...</div></section>
+<section class="section tab hidden" id="tournaments">
+<div class="row"><h2>مدیریت مسابقات</h2><button class="btn primary" id="addTournamentButton">افزودن مسابقه</button></div>
+<form id="tournamentForm" class="manager-form hidden">
+<input id="tf_id" type="hidden">
+<div class="formgrid">
+<label>عنوان مسابقه<input id="tf_title" required maxlength="120"></label>
+<label>بازی<input id="tf_game" value="Call of Duty Mobile" required maxlength="80"></label>
+<label>حالت بازی<input id="tf_mode" maxlength="80" placeholder="Battle Royale"></label>
+<label>نقشه<input id="tf_map" maxlength="80" placeholder="Isolated"></label>
+<label>وضعیت<select id="tf_status"><option value="draft">پیش‌نویس</option><option value="published">منتشرشده</option><option value="registration_open">ثبت‌نام باز</option><option value="ongoing">در حال برگزاری</option><option value="completed">پایان‌یافته</option><option value="cancelled">لغوشده</option></select></label>
+<label>حداکثر تعداد تیم‌ها<input id="tf_max_teams" type="number" min="1" max="1000" value="25" required></label>
+<label>زمان شروع<input id="tf_starts_at" type="datetime-local"></label>
+<label>تصویر مسابقه (نشانی یا انتخاب فایل)<input id="tf_cover_image_url" type="url" placeholder="https://..."><input id="tf_cover_image_file" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label>
+<label>ورودی امتیازی آزمایشی<input id="tf_entry_demo_points" type="number" min="0" max="1000000000" value="0"></label>
+<label>جایزه امتیازی آزمایشی<input id="tf_prize_demo_points" type="number" min="0" max="1000000000" value="0"></label>
+<label class="wide">توضیحات و قوانین مسابقه<textarea id="tf_rules" maxlength="5000"></textarea></label>
+</div>
+<p class="muted">امتیازهای این فرم صرفاً آزمایشی، غیرقابل خرید و غیرقابل برداشت‌اند و ارزش نقدی ندارند. برای تصویر فعلاً نشانی تصویر ثبت می‌شود.</p>
+<div class="actions"><button class="btn primary" type="submit" id="saveTournamentButton">ذخیره مسابقه</button><button class="btn" type="button" id="cancelTournamentButton">انصراف</button></div>
+</form>
+<div id="tournamentsTable" class="empty">در حال بارگذاری...</div>
+</section>
+<section class="section tab hidden" id="rooms">
+<div class="row"><h2>مدیریت روم‌ها</h2><button class="btn primary" id="addRoomButton">افزودن روم جدید</button></div>
+<form id="roomForm" class="manager-form hidden">
+<input id="rf_id" type="hidden">
+<div class="formgrid">
+<label>مسابقه مرتبط<select id="rf_tournament_id" required></select></label>
+<label>نام روم<input id="rf_title" required maxlength="120"></label>
+<label>حالت بازی<input id="rf_game_mode" maxlength="80" placeholder="Battle Royale"></label>
+<label>نقشه<input id="rf_map" maxlength="80" placeholder="Isolated"></label>
+<label>ظرفیت<input id="rf_capacity" type="number" min="1" max="1000" value="100" required></label>
+<label>زمان شروع<input id="rf_starts_at" type="datetime-local"></label>
+<label>وضعیت<select id="rf_status"><option value="draft">پیش‌نویس</option><option value="open">باز</option><option value="full">تکمیل ظرفیت</option><option value="closed">بسته</option><option value="completed">پایان‌یافته</option><option value="cancelled">لغوشده</option></select></label>
+<label>تصویر روم (نشانی یا انتخاب فایل)<input id="rf_room_image_url" type="url" placeholder="https://..."><input id="rf_room_image_file" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label>
+<label class="wide">قوانین اختصاصی این روم<textarea id="rf_rules" maxlength="5000"></textarea></label>
+</div>
+<div class="actions"><button class="btn primary" type="submit" id="saveRoomButton">ذخیره روم</button><button class="btn" type="button" id="cancelRoomButton">انصراف</button></div>
+</form>
+<div id="roomsTable" class="empty">در حال بارگذاری...</div>
+</section>
 <section class="section tab hidden" id="registrations"><h2>ثبت‌نام‌های تیمی</h2><div id="registrationsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="users"><h2>کاربران و پروفایل‌ها</h2><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
-<section class="section tab hidden" id="wallet"><h2>کیف امتیاز آزمایشی</h2><div class="notice">این بخش فعلاً فقط برای نمایش وضعیت آماده‌سازی است. هیچ شارژ، برداشت یا تراکنش واقعی از این پنل انجام نمی‌شود و دسترسی مالی جداگانه نیازمند تأیید بزرگسال مسئول است.</div><div id="walletTable" class="empty">در انتظار دسترسی مجاز...</div></section>
+<section class="section tab hidden" id="audit"><h2>گزارش فعالیت مدیران</h2><p class="muted">تغییرات ایجاد، ویرایش و حذف مسابقه‌ها و روم‌ها به‌صورت خودکار ثبت می‌شوند.</p><div id="auditTable" class="empty">در حال بارگذاری...</div></section>
+<section class="section tab hidden" id="socialReports"><h2>گزارش‌های اجتماعی</h2><p class="muted">گزارش پست‌ها، دیدگاه‌ها، استوری‌ها و پروفایل‌ها. رسیدگی فقط برای مدیر دارای مجوز social.moderate فعال است.</p><div id="socialReportsTable" class="empty">در حال بارگذاری...</div></section>\n<section class="section tab hidden" id="wallet"><h2>کیف امتیاز آزمایشی</h2><div class="notice">این بخش فعلاً فقط برای نمایش وضعیت آماده‌سازی است. هیچ شارژ، برداشت یا تراکنش واقعی از این پنل انجام نمی‌شود و دسترسی مالی جداگانه نیازمند تأیید بزرگسال مسئول است.</div><div id="walletTable" class="empty">در انتظار دسترسی مجاز...</div></section>
 <section class="section tab hidden" id="settings"><h2>تنظیمات ظاهری سایت</h2><p class="muted">رنگ‌ها فقط با مجوز settings.manage ذخیره می‌شوند.</p><form id="themeForm"><div class="colorgrid">
 <label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
 </div><button class="btn primary" id="saveTheme" type="submit" style="margin-top:14px">ذخیره تنظیمات</button></form><div id="themeMessage" class="muted" style="margin-top:10px"></div></section>
@@ -41,7 +83,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{p
 const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const labels={overview:"نمای کلی",tournaments:"مسابقات",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",wallet:"کیف امتیاز",settings:"تنظیمات"};
+const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",audit:"گزارش فعالیت",socialReports:"گزارش‌های اجتماعی",wallet:"کیف امتیاز",settings:"تنظیمات"};
 let permissions={};
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200);}
 function table(headers,rows){if(!rows.length)return '<div class="empty">هنوز داده‌ای ثبت نشده است.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';}
@@ -49,15 +91,83 @@ function row(cells){return '<tr>'+cells.map(x=>'<td>'+x+'</td>').join("")+'</tr>
 function showTab(id){document.querySelectorAll(".tab").forEach(s=>s.classList.toggle("hidden",s.id!==id));document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));}
 function addNav(id){const b=document.createElement("button");b.type="button";b.dataset.tab=id;b.textContent=labels[id];b.onclick=()=>showTab(id);$("nav").appendChild(b);}
 async function rpc(name,args){const {data,error}=await sb.rpc(name,args||{});if(error)throw error;return data||[];}
+let adminUserCache=[];
+async function loadAdminUsers(){
+ const {data,error}=await sb.rpc("admin_dashboard_users");
+ if(error)throw error;
+ adminUserCache=data||[];$("statUsers").textContent=adminUserCache.length;
+ let flags=[];
+ if(permissions["profiles.view_all"]||permissions["profiles.manage"]){
+  const result=await sb.from("profile_moderation").select("user_id,moderation_status,note,updated_at");
+  if(result.error)throw result.error;
+  flags=result.data||[];
+ }
+ const flagMap=new Map(flags.map(x=>[x.user_id,x]));
+ const rows=adminUserCache.map(x=>{
+  const flag=flagMap.get(x.user_id);
+  const action=permissions["profiles.manage"]?(flag
+   ?'<button class="action-btn" data-clear-user-flag="'+esc(x.user_id)+'">رفع علامت بررسی</button>'
+   :'<button class="action-btn" data-flag-user="'+esc(x.user_id)+'">ارجاع برای بررسی</button>'):"—";
+  return row([esc(x.display_name||"—"),esc(x.username||"—"),'<small>'+esc(x.user_id)+'</small>',esc(x.created_at?new Date(x.created_at).toLocaleDateString("fa-IR"):"—"),flag?"نیازمند بررسی":"عادی",action]);
+ });
+ $("usersTable").innerHTML='<p class="muted">علامت بررسی فقط برای پیگیری مدیران است؛ ورود کاربر را مسدود نمی‌کند و حسابی را حذف نمی‌کند.</p>'+table(["نام نمایشی","نام کاربری","شناسه","ایجاد","وضعیت بررسی","عملیات"],rows);
+}
+$("usersTable").addEventListener("click",async e=>{
+ const flag=e.target.closest("[data-flag-user]"),clear=e.target.closest("[data-clear-user-flag]");
+ const target=flag?.dataset.flagUser||clear?.dataset.clearUserFlag;
+ if(!target||!permissions["profiles.manage"])return;
+ try{
+  if(flag){
+   const {data,error}=await sb.auth.getUser();if(error||!data.user)throw error||new Error("نشست نامعتبر");
+   const result=await sb.from("profile_moderation").insert({user_id:target,moderation_status:"review",note:"ارجاع برای بررسی توسط مدیر",updated_by:data.user.id});
+   if(result.error)throw result.error;
+  }else{
+   const result=await sb.from("profile_moderation").delete().eq("user_id",target);
+   if(result.error)throw result.error;
+  }
+  await loadAdminUsers();toast(flag?"کاربر به صف بررسی اضافه شد.":"علامت بررسی برداشته شد.");
+ }catch(err){toast("تغییر وضعیت بررسی انجام نشد؛ مجوز را بررسی کن.");}
+});
+
+async function loadSocialReports(){
+ const {data,error}=await sb.from("social_reports").select("id,reporter_id,target_user_id,post_id,comment_id,story_id,message_id,reason,details,status,created_at").order("created_at",{ascending:false}).limit(100);
+ if(error)throw error;
+ const statusLabel={open:"باز",reviewing:"در حال بررسی",resolved:"رسیدگی شد",dismissed:"رد شد"};
+ const rows=(data||[]).map(x=>{
+  const target=x.post_id?"پست":x.comment_id?"دیدگاه":x.story_id?"استوری":x.message_id?"پیام":"پروفایل";
+  const actions=x.status==="resolved"||x.status==="dismissed"?"—":'<button class="action-btn" data-report-status="reviewing" data-report-id="'+esc(x.id)+'">شروع بررسی</button> <button class="action-btn" data-report-status="resolved" data-report-id="'+esc(x.id)+'">حل شد</button> <button class="action-btn danger" data-report-status="dismissed" data-report-id="'+esc(x.id)+'">رد گزارش</button>';
+  return row([esc(target),esc(x.reason),esc(x.details||"—"),esc(x.reporter_id),esc(statusLabel[x.status]||x.status),esc(x.created_at?new Date(x.created_at).toLocaleString("fa-IR"):"—"),actions]);
+ });
+ $("socialReportsTable").innerHTML=rows.length?table(["نوع","دلیل","توضیحات","گزارش‌دهنده","وضعیت","زمان","عملیات"],rows):'<div class="empty">گزارش اجتماعی ثبت نشده است.</div>';
+}
+$("socialReportsTable").addEventListener("click",async e=>{
+ const b=e.target.closest("[data-report-status]");if(!b||!permissions["social.moderate"])return;
+ const {data,error}=await sb.auth.getUser();if(error||!data.user)return toast("نشست مدیر معتبر نیست.");
+ const status=b.dataset.reportStatus;
+ const result=await sb.from("social_reports").update({status,reviewed_by:data.user.id,reviewed_at:new Date().toISOString()}).eq("id",b.dataset.reportId);
+ if(result.error){toast("ثبت نتیجه بررسی انجام نشد.");return;}
+ toast("وضعیت گزارش به‌روزرسانی شد.");loadSocialReports();
+});
+async function loadAuditLogs(){
+ const {data,error}=await sb.from("admin_audit_logs_view").select("id,actor_id,action,entity_type,entity_id,created_at").order("created_at",{ascending:false}).limit(100);
+ if(error)throw error;
+ const rows=(data||[]).map(x=>row([esc(x.action),esc(x.entity_type),esc(x.entity_id||"—"),esc(x.actor_id||"سیستم"),esc(x.created_at?new Date(x.created_at).toLocaleString("fa-IR"):"—")]));
+ $("auditTable").innerHTML=rows.length?table(["عملیات","بخش","شناسه","مدیر","زمان"],rows):'<div class="empty">هنوز گزارشی ثبت نشده است.</div>';
+}
 async function loadTableData(){
  const tasks=[];
- if(permissions["tournaments.view"])tasks.push(rpc("admin_dashboard_tournaments").then(d=>{ $("statTournaments").textContent=d.length;$("tournamentsTable").innerHTML=table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع"],d.map(t=>row([esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—")])));}));
+ const canSeeTournaments=permissions["tournaments.view"]||permissions["tournaments.create"]||permissions["tournaments.update"]||permissions["tournaments.delete"]||permissions["rooms.view"]||permissions["rooms.manage"];
+ if(canSeeTournaments)tasks.push(loadTournaments());
  if(permissions["registrations.view_all"])tasks.push(rpc("admin_dashboard_registrations").then(d=>{$("statRegistrations").textContent=d.length;$("registrationsTable").innerHTML=table(["مسابقه","تیم","برچسب","وضعیت","زمان"],d.map(x=>row([esc(x.tournament_title),esc(x.team_name),esc(x.team_tag||"—"),esc(x.status),esc(new Date(x.registered_at).toLocaleString("fa-IR"))])));}));
  if(permissions["teams.view"])tasks.push(rpc("admin_dashboard_teams").then(d=>{$("statTeams").textContent=d.length;$("teamsTable").innerHTML=table(["نام تیم","برچسب","تعداد اعضا","توضیحات"],d.map(x=>row([esc(x.name),esc(x.tag||"—"),esc(x.member_count),esc(x.description||"—")])));}));
- if(permissions["users.view"]||permissions["profiles.view_all"])tasks.push(rpc("admin_dashboard_users").then(d=>{$("statUsers").textContent=d.length;$("usersTable").innerHTML=table(["نام نمایشی","نام کاربری","شناسه","ایجاد"],d.map(x=>row([esc(x.display_name||"—"),esc(x.username||"—"),'<small>'+esc(x.user_id)+'</small>',esc(x.created_at?new Date(x.created_at).toLocaleDateString("fa-IR"):"—")])));}));
+ if(permissions["users.view"]||permissions["profiles.view_all"])tasks.push(loadAdminUsers());
  
+ if(permissions["audit.view"])tasks.push(loadAuditLogs());\n if(permissions["social.moderate"])tasks.push(loadSocialReports());
  const settled=await Promise.allSettled(tasks);
  const failed=settled.filter(x=>x.status==="rejected");
+ if(permissions["rooms.view"]||permissions["rooms.manage"]) {
+   try { await loadRooms(); } catch(e) { failed.push({status:"rejected"}); }
+ }
  if(failed.length)toast("بعضی بخش‌ها به‌دلیل محدودیت دسترسی یا خطای ارتباط بارگذاری نشدند.");
  const counts=["statTournaments","statRegistrations","statTeams","statUsers"].map(id=>$(id).textContent).filter(x=>x!=="—");
  $("overviewEmpty").textContent=counts.length?"داده‌های مجاز از دیتابیس بارگذاری شدند. برای جزئیات، بخش مربوطه را باز کن.":"برای این حساب، مجوز مشاهده داده‌های مدیریتی ثبت نشده است.";
@@ -74,10 +184,12 @@ async function applyAccess(user){
  try{list=await rpc("admin_my_permissions");}catch(e){$("appView").classList.add("hidden");$("authView").classList.remove("hidden");$("authMessage").textContent="دریافت مجوزها ممکن نشد؛ دسترسی رد شد.";return;}
  list.forEach(p=>permissions[p.permission_code]=p.is_allowed===true);
  const allowedTabs=["overview"];
- if(permissions["tournaments.view"])allowedTabs.push("tournaments");
+ if(permissions["tournaments.view"]||permissions["tournaments.create"]||permissions["tournaments.update"]||permissions["tournaments.delete"])allowedTabs.push("tournaments");
+ if(permissions["rooms.view"]||permissions["rooms.manage"])allowedTabs.push("rooms");
  if(permissions["registrations.view_all"])allowedTabs.push("registrations");
  if(permissions["teams.view"])allowedTabs.push("teams");
  if(permissions["users.view"]||permissions["profiles.view_all"])allowedTabs.push("users");
+ if(permissions["audit.view"])allowedTabs.push("audit");\n if(permissions["social.moderate"])allowedTabs.push("socialReports");
  if(permissions["settings.view"]||permissions["settings.manage"])allowedTabs.push("settings");
  allowedTabs.forEach(addNav);showTab("overview");
  const count=Object.values(permissions).filter(Boolean).length;
@@ -85,6 +197,161 @@ async function applyAccess(user){
  if(permissions["settings.manage"]||permissions["settings.view"]){await loadTheme();$("saveTheme").hidden=!permissions["settings.manage"];}
  await loadTableData();
 }
+
+let tournamentCache=[];
+function localDateTime(value){
+ if(!value)return "";
+ const d=new Date(value);if(Number.isNaN(d.getTime()))return "";
+ const pad=n=>String(n).padStart(2,"0");
+ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes());
+}
+function isoDate(value){return value?new Date(value).toISOString():null;}
+async function uploadTournamentAsset(file,folder){
+ if(!file)return null;
+ const allowed=["image/jpeg","image/png","image/webp","image/gif"];
+ if(!allowed.includes(file.type))throw new Error("فرمت تصویر مجاز نیست.");
+ if(file.size>5*1024*1024)throw new Error("حجم تصویر باید حداکثر ۵ مگابایت باشد.");
+ const {data:userData,error:userError}=await sb.auth.getUser();
+ if(userError||!userData.user)throw new Error("نشست کاربری معتبر نیست.");
+ const ext=({ "image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif" })[file.type];
+ const path=folder+"/"+userData.user.id+"/"+Date.now()+"-"+Math.random().toString(36).slice(2)+"."+ext;
+ const {error}=await sb.storage.from("tournament-assets").upload(path,file,{contentType:file.type,upsert:false,cacheControl:"3600"});
+ if(error)throw error;
+ return sb.storage.from("tournament-assets").getPublicUrl(path).data.publicUrl;
+}
+function resetTournamentForm(){
+ $("tournamentForm").reset();$("tf_id").value="";$("tf_game").value="Call of Duty Mobile";$("tf_status").value="draft";
+ $("tf_max_teams").value=25;$("tf_entry_demo_points").value=0;$("tf_prize_demo_points").value=0;
+ $("tournamentForm").classList.add("hidden");
+}
+function resetRoomForm(){
+ $("roomForm").reset();$("rf_id").value="";$("rf_capacity").value=100;$("rf_status").value="draft";
+ $("roomForm").classList.add("hidden");
+}
+function tournamentOptions(selected){
+ $("rf_tournament_id").innerHTML=tournamentCache.map(t=>'<option value="'+esc(t.id)+'" '+(t.id===selected?"selected":"")+'>'+esc(t.title)+'</option>').join("");
+}
+async function loadTournaments(){
+ const {data,error}=await sb.from("tournaments").select("id,title,game,mode,map,status,max_teams,starts_at,cover_image_url,rules,entry_demo_points,prize_demo_points").order("created_at",{ascending:false});
+ if(error)throw error;
+ tournamentCache=data||[];$("statTournaments").textContent=tournamentCache.length;
+ const canEdit=permissions["tournaments.update"],canDelete=permissions["tournaments.delete"];
+ const rows=tournamentCache.map(t=>{
+  const actions=[];
+  if(canEdit)actions.push('<button class="action-btn" data-edit-tournament="'+esc(t.id)+'">ویرایش</button>');
+  if(canDelete)actions.push('<button class="action-btn danger" data-delete-tournament="'+esc(t.id)+'">حذف</button>');
+  return row([esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—"),esc(t.entry_demo_points||0),esc(t.prize_demo_points||0),actions.join(" ")||"—"]);
+ });
+ $("tournamentsTable").innerHTML=tournamentCache.length?table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع","ورودی امتیازی","جایزه امتیازی","عملیات"],rows):'<div class="empty">هنوز مسابقه‌ای ثبت نشده است.</div>';
+ $("addTournamentButton").hidden=!permissions["tournaments.create"];
+ $("tournamentForm").classList.add("hidden");
+}
+async function loadRooms(){
+ const {data,error}=await sb.from("tournament_rooms").select("*").order("starts_at",{ascending:true});
+ if(error)throw error;
+ const rooms=data||[];
+ tournamentOptions(rooms[0]?.tournament_id);
+ const canManage=permissions["rooms.manage"];
+ $("addRoomButton").hidden=!canManage;
+ $("roomForm").classList.add("hidden");
+ const rows=rooms.map(r=>{
+  const t=tournamentCache.find(x=>x.id===r.tournament_id);
+  const actions=canManage?'<button class="action-btn" data-edit-room="'+esc(r.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-room="'+esc(r.id)+'">حذف</button>':"—";
+  return row([esc(r.title),esc(t?.title||"—"),esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.capacity),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
+ });
+ $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","نقشه","ظرفیت","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
+}
+$("addTournamentButton").onclick=()=>{
+ if(!permissions["tournaments.create"])return;
+ resetTournamentForm();$("tournamentForm").classList.remove("hidden");$("tf_title").focus();
+};
+$("cancelTournamentButton").onclick=resetTournamentForm;
+$("tournamentForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const id=$("tf_id").value;
+ const payload={
+  title:$("tf_title").value.trim(),game:$("tf_game").value.trim(),mode:$("tf_mode").value.trim()||null,
+  map:$("tf_map").value.trim()||null,status:$("tf_status").value,
+  max_teams:Number($("tf_max_teams").value),starts_at:isoDate($("tf_starts_at").value),
+  cover_image_url:$("tf_cover_image_url").value.trim()||null,rules:$("tf_rules").value.trim()||null,
+  entry_demo_points:Number($("tf_entry_demo_points").value||0),prize_demo_points:Number($("tf_prize_demo_points").value||0)
+ };
+ if(id&&!permissions["tournaments.update"])return toast("مجوز ویرایش مسابقه را نداری.");
+ if(!id&&!permissions["tournaments.create"])return toast("مجوز ساخت مسابقه را نداری.");
+ $("saveTournamentButton").disabled=true;
+ try{
+  const result=id?await sb.from("tournaments").update(payload).eq("id",id).select("id").single():await sb.from("tournaments").insert(payload).select("id").single();
+  if(result.error)throw result.error;
+  const imageFile=$("tf_cover_image_file").files[0];
+  if(imageFile){const imageUrl=await uploadTournamentAsset(imageFile,"tournaments");const imageUpdate=await sb.from("tournaments").update({cover_image_url:imageUrl}).eq("id",result.data.id);if(imageUpdate.error)throw imageUpdate.error;}
+  resetTournamentForm();await loadTournaments();toast("مسابقه ذخیره شد.");
+ }catch(err){toast("ذخیره مسابقه انجام نشد؛ مجوز و اطلاعات را بررسی کن.");}
+ finally{$("saveTournamentButton").disabled=false;}
+});
+$("tournamentsTable").addEventListener("click",async e=>{
+ const edit=e.target.closest("[data-edit-tournament]"),del=e.target.closest("[data-delete-tournament]");
+ if(edit){
+  const t=tournamentCache.find(x=>x.id===edit.dataset.editTournament);if(!t||!permissions["tournaments.update"])return;
+  $("tf_id").value=t.id;$("tf_title").value=t.title||"";$("tf_game").value=t.game||"Call of Duty Mobile";
+  $("tf_mode").value=t.mode||"";$("tf_map").value=t.map||"";$("tf_status").value=t.status||"draft";
+  $("tf_max_teams").value=t.max_teams||25;$("tf_starts_at").value=localDateTime(t.starts_at);
+  $("tf_cover_image_url").value=t.cover_image_url||"";$("tf_rules").value=t.rules||"";
+  $("tf_entry_demo_points").value=t.entry_demo_points||0;$("tf_prize_demo_points").value=t.prize_demo_points||0;
+  $("tournamentForm").classList.remove("hidden");$("tf_title").focus();
+ }
+ if(del&&permissions["tournaments.delete"]){
+  const t=tournamentCache.find(x=>x.id===del.dataset.deleteTournament);if(!t)return;
+  if(!confirm("مسابقه «"+t.title+"» حذف شود؟ ثبت‌نام‌های وابسته نیز ممکن است حذف شوند."))return;
+  const {error}=await sb.from("tournaments").delete().eq("id",t.id);
+  if(error)toast("حذف مسابقه انجام نشد.");else{await loadTournaments();await loadRooms().catch(()=>{});toast("مسابقه حذف شد.");}
+ }
+});
+$("addRoomButton").onclick=()=>{
+ if(!permissions["rooms.manage"])return;
+ if(!tournamentCache.length)return toast("اول یک مسابقه بساز.");
+ resetRoomForm();tournamentOptions();$("roomForm").classList.remove("hidden");$("rf_title").focus();
+};
+$("cancelRoomButton").onclick=resetRoomForm;
+$("roomForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!permissions["rooms.manage"])return;
+ const id=$("rf_id").value;
+ const payload={
+  tournament_id:$("rf_tournament_id").value,title:$("rf_title").value.trim(),
+  game_mode:$("rf_game_mode").value.trim()||null,map:$("rf_map").value.trim()||null,
+  capacity:Number($("rf_capacity").value),starts_at:isoDate($("rf_starts_at").value),
+  status:$("rf_status").value,room_image_url:$("rf_room_image_url").value.trim()||null,
+  rules:$("rf_rules").value.trim()
+ };
+ $("saveRoomButton").disabled=true;
+ try{
+  let result;
+  if(id)result=await sb.from("tournament_rooms").update({...payload,updated_at:new Date().toISOString()}).eq("id",id).select("id").single();
+  else {const {data}=await sb.auth.getUser();result=await sb.from("tournament_rooms").insert({...payload,created_by:data.user?.id||null}).select("id").single();}
+  if(result.error)throw result.error;
+  const imageFile=$("rf_room_image_file").files[0];
+  if(imageFile){const imageUrl=await uploadTournamentAsset(imageFile,"rooms");const roomId=result.data.id;if(roomId){const imageUpdate=await sb.from("tournament_rooms").update({room_image_url:imageUrl}).eq("id",roomId);if(imageUpdate.error)throw imageUpdate.error;}else{throw new Error("شناسه روم برای ثبت تصویر دریافت نشد.");}}
+  resetRoomForm();await loadRooms();toast("روم ذخیره شد.");
+ }catch(err){toast("ذخیره روم انجام نشد؛ مجوز و اطلاعات را بررسی کن.");}
+ finally{$("saveRoomButton").disabled=false;}
+});
+$("roomsTable").addEventListener("click",async e=>{
+ const edit=e.target.closest("[data-edit-room]"),del=e.target.closest("[data-delete-room]");
+ if(edit&&permissions["rooms.manage"]){
+  const {data,error}=await sb.from("tournament_rooms").select("*").eq("id",edit.dataset.editRoom).single();
+  if(error||!data)return toast("اطلاعات روم دریافت نشد.");
+  $("rf_id").value=data.id;tournamentOptions(data.tournament_id);$("rf_title").value=data.title||"";
+  $("rf_game_mode").value=data.game_mode||"";$("rf_map").value=data.map||"";
+  $("rf_capacity").value=data.capacity||100;$("rf_starts_at").value=localDateTime(data.starts_at);
+  $("rf_status").value=data.status||"draft";$("rf_room_image_url").value=data.room_image_url||"";
+  $("rf_rules").value=data.rules||"";$("roomForm").classList.remove("hidden");$("rf_title").focus();
+ }
+ if(del&&permissions["rooms.manage"]){
+  if(!confirm("این روم حذف شود؟"))return;
+  const {error}=await sb.from("tournament_rooms").delete().eq("id",del.dataset.deleteRoom);
+  if(error)toast("حذف روم انجام نشد.");else{await loadRooms();toast("روم حذف شد.");}
+ }
+});
+
 async function refreshSession(){
  const {data,error}=await sb.auth.getUser();
  if(error||!data.user){$("appView").classList.add("hidden");$("authView").classList.remove("hidden");return;}
