@@ -119,7 +119,7 @@ function switchHome(tab){
 }
 document.querySelectorAll("[data-home-tab]").forEach(b=>b.addEventListener("click",()=>switchHome(b.dataset.homeTab)));
 $("headerAuth").onclick=()=>currentUser?switchPage("profile"):openAuth();
-function publicMedia(path){if(!path)return "";return sb.storage.from("social-media").getPublicUrl(path).data.publicUrl;}
+async function signedMedia(path){if(!path)return "";const {data,error}=await sb.storage.from("social-media").createSignedUrl(path,3600);return error?"":data.signedUrl;}
 function formatDate(v){try{return new Date(v).toLocaleString("fa-IR",{dateStyle:"short",timeStyle:"short"});}catch{return "";}}
 function avatarHTML(profile,sizeClass="avatar"){const name=profile?.display_name||profile?.username||"EX";return profile?.avatar_url?'<img class="'+sizeClass+'" src="'+esc(profile.avatar_url)+'" alt="">':'<div class="'+sizeClass+'">'+esc(name.slice(0,1).toUpperCase())+'</div>';}
 async function authState(){
@@ -204,9 +204,9 @@ async function loadStories(){
  if(error){$("stories").innerHTML='<div class="empty">دریافت استوری‌ها ممکن نشد.</div>';return;}
  const people=await profilesFor((data||[]).map(x=>x.user_id));
  const add='<button class="story add" id="addStory"><span class="story-ring"><span class="story-placeholder">＋</span></span><span>استوری من</span></button>';
- $("stories").innerHTML=add+(data||[]).map(s=>{const p=people[s.user_id]||{};return '<button class="story" data-story="'+esc(s.id)+'" data-path="'+esc(s.media_path)+'" data-caption="'+esc(s.caption)+'"><span class="story-ring"><img src="'+esc(publicMedia(s.media_path))+'" alt=""></span><span>'+esc(p.display_name||p.username||"بازیکن")+'</span></button>';}).join("")||add;
+ const storyCards=await Promise.all((data||[]).map(async s=>{const p=people[s.user_id]||{},url=await signedMedia(s.media_path);return '<button class="story" data-story="'+esc(s.id)+'" data-path="'+esc(s.media_path)+'" data-caption="'+esc(s.caption)+'"><span class="story-ring"><img src="'+esc(url)+'" alt=""></span><span>'+esc(p.display_name||p.username||"بازیکن")+'</span></button>';}));$("stories").innerHTML=add+storyCards.join("");
  $("addStory").onclick=()=>{const input=document.createElement("input");input.type="file";input.accept="image/jpeg,image/png,image/webp";input.onchange=async()=>{try{const path=await uploadImage(input.files[0],"stories");if(!path)return;const caption=prompt("یک توضیح کوتاه برای استوری (اختیاری):")||"";const {error}=await sb.from("social_stories").insert({user_id:currentUser.id,media_path:path,caption});if(error)throw error;toast("استوری تا ۲۴ ساعت نمایش داده می‌شود.");loadStories();}catch(err){toast(err.message||"استوری منتشر نشد.");}};input.click();};
- document.querySelectorAll("[data-story]").forEach(b=>b.onclick=()=>{ $("storyImage").src=publicMedia(b.dataset.path);$("storyCaption").textContent=b.dataset.caption||"";$("storyModal").classList.add("show");});
+ document.querySelectorAll("[data-story]").forEach(b=>b.onclick=()=>{ $("storyCaption").textContent=b.dataset.caption||"";$("storyImage").src="";signedMedia(b.dataset.path).then(url=>$("storyImage").src=url);$("storyModal").classList.add("show");});
 }
 function closeStory(){$("storyModal").classList.remove("show");$("storyImage").src="";}
 async function loadFeed(){
@@ -215,6 +215,7 @@ async function loadFeed(){
  if(error){$("feed").innerHTML='<div class="empty">فید در دسترس نیست؛ دوباره تلاش کن.</div>';return;}
  if(!data?.length){$("feed").innerHTML='<div class="empty">هنوز پستی منتشر نشده. اولین پست جامعه EX1 را تو منتشر کن!</div>';return;}
  const people=await profilesFor(data.map(x=>x.user_id));
+ const mediaUrls={};await Promise.all(data.filter(x=>x.media_path).map(async x=>{mediaUrls[x.id]=await signedMedia(x.media_path);}));
  const ids=data.map(x=>x.id);
  const [reactions,comments]=await Promise.all([
   sb.from("social_post_reactions").select("post_id,user_id").in("post_id",ids),
@@ -223,7 +224,7 @@ async function loadFeed(){
  const reactionRows=reactions.data||[],commentRows=comments.data||[];
  $("feed").innerHTML=data.map(p=>{
   const user=people[p.user_id]||{},liked=reactionRows.some(r=>r.post_id===p.id&&r.user_id===currentUser.id),likes=reactionRows.filter(r=>r.post_id===p.id).length,commentCount=commentRows.filter(c=>c.post_id===p.id).length;
-  const media=p.media_path?'<img class="post-media" src="'+esc(publicMedia(p.media_path))+'" alt="">':"";
+  const media=p.media_path?'<img class="post-media" src="'+esc(mediaUrls[p.id]||"")+'" alt="">':"";
   return '<article class="panel post" data-post="'+esc(p.id)+'"><div class="post-head">'+avatarHTML(user)+'<div class="post-user"><strong>'+esc(user.display_name||user.username||"بازیکن EX1")+'</strong><small>'+esc(formatDate(p.created_at))+'</small></div><button class="btn ghost small" data-report-post="'+esc(p.id)+'">گزارش</button></div>'+(p.body?'<div class="post-body">'+esc(p.body)+'</div>':"")+media+'<div class="post-actions"><button class="'+(liked?"liked":"")+'" data-like="'+esc(p.id)+'">'+(liked?"♥":"♡")+' '+likes+' پسند</button><button data-comments="'+esc(p.id)+'">دیدگاه‌ها · '+commentCount+'</button></div><div class="comment-list" id="comments-'+esc(p.id)+'"></div><form class="comment-form" data-comment-form="'+esc(p.id)+'"><input class="field" maxlength="600" placeholder="دیدگاه محترمانه بنویس..." required><button class="btn secondary small" type="submit">ارسال</button></form></article>';
  }).join("");
  $("feed").querySelectorAll("[data-like]").forEach(b=>b.onclick=async()=>{const postId=b.dataset.like;const existing=reactionRows.find(r=>r.post_id===postId&&r.user_id===currentUser.id);if(existing){const {error}=await sb.from("social_post_reactions").delete().eq("post_id",postId).eq("user_id",currentUser.id);if(error)toast("انجام نشد.");}else{const {error}=await sb.from("social_post_reactions").insert({post_id:postId,user_id:currentUser.id,reaction:"like"});if(error)toast("انجام نشد.");}loadFeed();});
