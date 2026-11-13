@@ -1,96 +1,62 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head><link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#090909">
+<meta name="theme-color" content="#0b0d0c">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="EX1 — فهرست مسابقات و حساب کاربری">
-<meta property="og:title" content="EX1 LEGEND">
+<meta property="og:title" content="EX1 ARENA">
 <meta property="og:description" content="مسابقات و حساب کاربری EX1">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#090910">
-<title>EX1 | مسابقات</title>
+
+<title>EX1 ARENA | میدان مسابقات</title>
 <link rel="icon" type="image/svg+xml" href="/ex1-legend-mark.svg">
 <style>
-:root{--bg:#090910;--panel:#141420;--panel2:#1b1b2a;--purple:#9b5cff;--cyan:#57e6ff;--text:#f4f1ff;--muted:#aaa6bc;--line:#2c2940}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
-a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}.wrap{max-width:1120px;margin:auto;padding:0 20px}
-header{position:sticky;top:0;z-index:5;background:#090910eF;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
-.nav{height:54px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{font-size:23px;font-weight:900;letter-spacing:1px;direction:ltr}.brand b{color:var(--purple)}.links{display:flex;gap:22px;color:var(--muted);font-size:14px}.links a:hover{color:white}
-.btn{border:0;border-radius:12px;padding:12px 18px;background:linear-gradient(110deg,#8d4bff,#bb63ff);color:white;font-weight:800;box-shadow:0 8px 28px #8d4bff35}.btn.secondary{background:#242236;border:1px solid #40395a;box-shadow:none}.hero{padding:18px 0 10px;display:block}.hero-card{display:none}.eyebrow{display:none}.eyebrow{color:var(--cyan);font-size:12px;letter-spacing:3px;font-weight:bold;direction:ltr;text-align:right}.hero h1{font-size:22px;line-height:1.3;margin:0 0 5px;direction:rtl;text-align:right}.hero h1 span{color:var(--purple);text-shadow:0 0 32px #9b5cff65}.hero p{display:none}.actions{display:none}.hero-card{background:linear-gradient(145deg,#201934,#11111c 70%);border:1px solid #49336c;border-radius:24px;padding:26px;min-height:260px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 20px 70px #0008}.hero-mark{font-size:62px;font-weight:1000;letter-spacing:-5px;direction:ltr;color:white;text-shadow:4px 4px 0 var(--purple),0 0 35px #9b5cff}.hero-card small{color:var(--cyan);letter-spacing:2px;direction:ltr}.stats{display:none}.stat,.card,.wallet{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px}.stat strong{display:block;font-size:24px;margin-bottom:5px}.stat span,.muted{color:var(--muted);font-size:13px}.section{padding:12px 0 24px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:18px}.section h2{font-size:18px;margin:0 0 5px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card{position:relative;overflow:hidden;padding:13px;border-radius:12px}.tag{display:inline-block;border:1px solid #59417e;color:#cba9ff;border-radius:30px;padding:5px 10px;font-size:11px}.card h3{margin:9px 0 6px;font-size:15px}.details{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:11px;margin:12px 0}.card .btn{width:100%;padding:9px;font-size:12px}.wallet{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--panel);padding:12px;border-radius:12px}.wallet strong{font-size:17px;color:var(--cyan)}.notice{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:10px 12px;border-radius:10px;line-height:1.7;font-size:11px;margin:12px 0}.footer{border-top:1px solid var(--line);padding:14px 0;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:8;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px max(10px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));background:#11111df2;border-top:1px solid var(--line);backdrop-filter:blur(14px)}
-.bottom-nav a,.bottom-nav button{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;background:transparent;color:var(--muted);font-size:10px;padding:4px 2px;text-decoration:none}
-.bottom-nav .nav-icon{width:23px;height:23px;display:block}.bottom-nav .nav-icon svg{width:100%;height:100%;display:block}.bottom-nav .rank-icon{width:23px;height:23px;border:1.7px solid currentColor;border-radius:50%;font-size:14px;font-weight:900;line-height:20px;text-align:center}.bottom-nav a.active,.bottom-nav button.active{color:#d7baff}
-body{padding-bottom:78px}
-.modal{display:none;position:fixed;inset:0;background:#000b;z-index:10;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.dialog{width:min(440px,100%);background:#171624;border:1px solid #51406f;border-radius:20px;padding:24px}.dialog h3{margin-top:0}.dialog input{width:100%;padding:13px;margin:8px 0 14px;border-radius:10px;border:1px solid var(--line);background:#0d0d16;color:white}.dialog .btn{width:100%;margin-top:8px}.toast{position:fixed;bottom:20px;left:20px;background:#222035;border:1px solid #5c477e;padding:13px 18px;border-radius:12px;display:none;z-index:20}.toast.show{display:block}.empty{padding:24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px;line-height:1.8}
-
-/* EX1 mobile esports refresh */
-body{background:radial-gradient(ellipse at 85% -10%,#38205b55,transparent 38%),var(--bg);min-height:100vh}
-.wrap{max-width:980px;padding-inline:16px}
-header{background:#090910e8;border-bottom-color:#302443}
-.nav{height:58px}
-.brand{font-size:19px;letter-spacing:.4px}
-.brand img{width:29px;height:29px}
-.nav>.btn{font-size:12px;padding:9px 13px;border-radius:10px}
-.hero{padding:22px 0 15px}
-.hero h1{font-size:24px;font-weight:900;letter-spacing:-.5px}
-.hero .muted{margin-top:5px;font-size:12px}
-.section{padding:12px 0 22px}
-.section-head{margin-bottom:12px;align-items:center}
-.section h2{font-size:17px}
-.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.tournament-card{padding:0;border-radius:16px;background:linear-gradient(160deg,#191624,#11111a 75%);border:1px solid #30283e;box-shadow:0 10px 28px #0003}
-.cover{height:142px;overflow:hidden;background:linear-gradient(135deg,#39205b,#171522);position:relative}
-.cover:after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,#11111a)}
-.cover img{width:100%;height:100%;object-fit:cover;display:block}
-.cover-empty{display:grid;place-items:center;color:#ffffff55;font-size:38px;font-weight:1000;letter-spacing:3px}
-.card-content{padding:13px}
-.card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.tag{border-color:#62438a;background:#9b5cff18;color:#d7bdff;padding:4px 9px;font-size:10px}
-.game-label{color:#aaa6bc;font-size:10px}
-.tournament-card h3{font-size:15px;margin:10px 0 5px}
-.card-description{font-size:11px;color:var(--muted);line-height:1.7;margin:6px 0}
-.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:13px 0}
-.meta-grid>div{background:#ffffff06;border:1px solid #ffffff0a;border-radius:9px;padding:8px;min-width:0}
-.meta-grid small{display:block;color:#9691a7;font-size:9px;margin-bottom:4px}
-.meta-grid strong{display:block;color:#eeeaf7;font-size:10px;line-height:1.5;overflow-wrap:anywhere}
-.tournament-card .btn{width:100%;padding:9px;font-size:11px;border-radius:9px}
-.empty{background:#14121d;border-color:#383047;font-size:12px}
-.wallet{border-radius:14px;background:linear-gradient(120deg,#171522,#12121c);border-color:#30283e}
-.notice{font-size:11px}
-.bottom-nav{background:#10101bf5;border-top-color:#342943;padding-top:9px}
-.bottom-nav a,.bottom-nav button{font-size:10px;gap:5px}
-.bottom-nav .nav-icon{width:22px;height:22px}
-.bottom-nav a.active,.bottom-nav button.active{color:#d7baff}
-.bottom-nav a.active .nav-icon,.bottom-nav button.active .nav-icon{filter:drop-shadow(0 0 5px #a65cff88)}
-@media(max-width:620px){.grid{grid-template-columns:1fr;gap:12px}.cover{height:155px}.hero{padding-top:17px}.hero h1{font-size:21px}.tournament-card .card-content{padding:12px}.meta-grid{gap:7px}}
-
-@media(max-width:760px){.links{display:none}.hero{padding-top:14px}.grid{grid-template-columns:1fr}.stats{gap:8px}.stat{padding:13px}.stat strong{font-size:19px}.wallet{align-items:flex-start;flex-direction:column}}
+:root{color-scheme:dark;--bg:#0b0d0c;--panel:#141816;--panel2:#1b211d;--lime:#c7f36b;--text:#f2f5ef;--muted:#9aa69c;--line:#29332c;--purple:#c7f36b}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:82px}body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;min-height:100vh;padding-bottom:88px;background-image:radial-gradient(ellipse at 80% 0%,#b4e65c0d,transparent 34%)}
+a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}.wrap{width:min(1120px,100% - 36px);margin-inline:auto}
+header{position:sticky;top:0;z-index:9;background:#0b0d0cf2;border-bottom:1px solid var(--line);backdrop-filter:blur(16px)}
+.nav{height:66px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:flex;align-items:center;gap:9px;font-size:17px;font-weight:900;letter-spacing:1px;direction:ltr}.brand img{width:30px;height:30px}.brand b{color:var(--lime)}.links{display:flex;gap:26px;color:var(--muted);font-size:12px}.links a:hover{color:var(--lime)}
+.btn{border:0;border-radius:9px;padding:12px 17px;background:var(--lime);color:#10150c;font-weight:900;box-shadow:none}.btn:hover{filter:brightness(1.06)}.btn.secondary{background:#202820;color:var(--text);border:1px solid #3b493d}
+main{padding-top:24px}.intro{display:grid;grid-template-columns:1.4fr .8fr;gap:16px;align-items:stretch;margin-bottom:30px}.intro-copy{padding:25px 0 22px}.kicker{display:flex;align-items:center;gap:8px;color:var(--lime);font-size:10px;font-weight:bold;letter-spacing:2px}.kicker:before{content:"";width:22px;height:2px;background:var(--lime)}.intro h1{font-size:clamp(27px,5vw,46px);line-height:1.35;letter-spacing:-1.5px;margin:14px 0 8px;max-width:620px}.intro h1 span{color:var(--lime)}.intro p{color:var(--muted);font-size:13px;line-height:2;margin:0;max-width:510px}
+.intro-side{border:1px solid #384532;border-radius:14px;background:linear-gradient(145deg,#1b241b,#111612);padding:18px;display:flex;flex-direction:column;justify-content:space-between;min-height:172px;position:relative;overflow:hidden}.intro-side:after{content:"EX1";position:absolute;left:-5px;bottom:-28px;font-size:90px;font-weight:1000;letter-spacing:-8px;color:#ffffff08;direction:ltr}.side-top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}.live-dot{display:inline-flex;align-items:center;gap:7px;color:var(--lime);font-size:10px;font-weight:bold}.live-dot:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 12px #c7f36b}.side-label{color:var(--muted);font-size:10px}.side-bottom{position:relative;z-index:1}.side-bottom strong{display:block;font-size:19px;margin-bottom:5px}.side-bottom span{font-size:11px;color:var(--muted)}
+.section{padding:8px 0 28px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:15px}.section-title{display:flex;align-items:center;gap:10px}.section-mark{width:4px;height:25px;background:var(--lime);border-radius:5px}.section h2{font-size:18px;margin:0 0 4px}.section-head .muted{color:var(--muted);font-size:11px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.tournament-card{padding:0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:linear-gradient(145deg,#171d19,#111512);transition:transform .18s,border-color .18s}.tournament-card:hover{transform:translateY(-3px);border-color:#60764c}.cover{height:158px;position:relative;overflow:hidden;background:linear-gradient(135deg,#34432c,#151d17)}.cover:after{content:"";position:absolute;inset:40% 0 0;background:linear-gradient(transparent,#111512)}.cover img{width:100%;height:100%;object-fit:cover;display:block}.cover-empty{display:grid;place-items:center;color:#d8f5a044;font-size:42px;font-weight:1000;letter-spacing:4px;direction:ltr}.card-content{padding:15px}.card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.tag{display:inline-block;padding:5px 9px;border-radius:5px;background:#c7f36b14;color:var(--lime);font-size:10px;border:1px solid #c7f36b30}.game-label{font-size:10px;color:var(--muted)}.tournament-card h3{font-size:16px;margin:11px 0 5px}.card-description{font-size:11px;color:var(--muted);line-height:1.8;margin:6px 0}.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:13px 0}.meta-grid>div{padding:9px;background:#ffffff05;border:1px solid #ffffff0a;border-radius:7px}.meta-grid small{display:block;color:var(--muted);font-size:9px;margin-bottom:5px}.meta-grid strong{font-size:10px;line-height:1.6;display:block;overflow-wrap:anywhere}.tournament-card .btn{width:100%;padding:10px;font-size:11px;border-radius:7px}
+.wallet{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(100deg,#182018,#121713)}.wallet strong{display:block;font-size:21px;color:var(--lime);margin-top:5px}.muted{color:var(--muted);font-size:11px}.empty{padding:27px 18px;text-align:center;color:var(--muted);border:1px dashed #3a463c;border-radius:12px;background:#ffffff03;font-size:12px;line-height:2}
+#accountPanel .wallet{background:#182018}.notice{border:1px solid var(--line);background:#121713;color:var(--muted);padding:11px 13px;border-radius:9px;line-height:1.8;font-size:10px;margin:12px 0}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:10;display:grid;grid-template-columns:repeat(4,1fr);padding:8px max(12px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));background:#101511f5;border-top:1px solid #303b32;backdrop-filter:blur(16px)}.bottom-nav a,.bottom-nav button{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:0;background:transparent;color:#849087;font-size:10px;padding:4px 2px}.bottom-nav .nav-icon{width:22px;height:22px;display:block}.bottom-nav .nav-icon svg{width:100%;height:100%;display:block}.bottom-nav .rank-icon{width:22px;height:22px;border:1.6px solid currentColor;border-radius:50%;font-size:13px;font-weight:900;line-height:19px;text-align:center}.bottom-nav a.active,.bottom-nav button.active{color:var(--lime)}
+.footer{border-top:1px solid var(--line);padding:17px 0;color:var(--muted);font-size:10px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.modal{display:none;position:fixed;inset:0;background:#000c;z-index:20;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.dialog{width:min(440px,100%);background:#171d18;border:1px solid #4a5b42;border-radius:14px;padding:24px}.dialog h3{margin-top:0}.dialog input{width:100%;padding:13px;margin:8px 0 14px;border-radius:8px;border:1px solid var(--line);background:#0d120e;color:white}.dialog .btn{width:100%;margin-top:8px}.toast{position:fixed;bottom:92px;left:18px;background:#202820;border:1px solid #526448;padding:12px 16px;border-radius:9px;display:none;z-index:30;font-size:12px}.toast.show{display:block}
+@media(max-width:700px){.wrap{width:calc(100% - 28px)}.nav{height:59px}.links{display:none}.intro{grid-template-columns:1fr;gap:10px;margin-bottom:23px}.intro-copy{padding:15px 0 5px}.intro h1{font-size:29px}.intro-side{min-height:125px;padding:14px}.side-bottom strong{font-size:16px}.grid{grid-template-columns:1fr;gap:12px}.cover{height:165px}.section{padding-bottom:22px}.wallet{align-items:flex-start;flex-direction:column}.wallet .btn{width:100%}.footer{padding-bottom:18px}}
 </style>
 </head>
 <body>
 <header><div class="wrap nav">
-  <a class="brand" href="#" aria-label="EX1 LEGEND"><img src="/ex1-legend-mark.svg" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:7px"><b>EX1</b> LEGEND</a>
-  <nav class="links"><a href="#tournaments">مسابقات</a><a href="#wallet">کیف امتیاز</a><a href="#about">درباره ما</a></nav>
-  <button class="btn secondary" onclick="openLogin()">ورود / ثبت‌نام</button>
+ <a class="brand" href="#home" aria-label="EX1"><img src="/ex1-legend-mark.svg" alt=""><span><b>EX1</b> ARENA</span></a>
+ <nav class="links"><a href="#tournaments">میدان مسابقات</a><a href="#wallet">امتیازها</a><a href="#ranking">جدول برترین‌ها</a></nav>
+ <button class="btn secondary" onclick="openLogin()">ورود به حساب</button>
 </div></header>
 <main class="wrap">
-<section class="hero" id="home"><h1>مسابقات</h1><div class="muted">فهرست رقابت‌های منتشرشده</div></section>
-<section id="accountPanel" class="section" style="display:none;padding:8px 0 14px">
- <div class="wallet"><div><strong id="accountName" style="font-size:14px;color:var(--text)">حساب کاربری</strong><div class="muted" id="accountEmail"></div></div><button class="btn secondary" style="padding:8px 12px" id="accountLogout">خروج</button></div>
-</section>
-<section class="section" id="tournaments">
- <div class="section-head"><div><h2>همه مسابقات</h2><div class="muted">مسابقات باز و در حال برگزاری</div></div></div>
- <div class="grid" id="cards"></div>
-</section>
-<section class="section" id="wallet">
- <div class="section-head"><div><h2>کیف امتیاز من</h2><div class="muted">امتیازهای نمایشی برای تست تجربه کاربری.</div></div></div>
- <div class="wallet"><div><div class="muted">موجودی امتیاز آزمایشی</div><strong id="points">1,000 XP</strong></div><button class="btn secondary" onclick="toast('در نسخه آزمایشی، امتیاز قابل خرید یا برداشت نیست.')">جزئیات امتیاز</button></div>
-</section>
-<section class="section" id="ranking">
- <div class="section-head"><div><h2>رتبه‌بندی برترین‌ها</h2><div class="muted">بازیکنان و تیم‌های برتر EX1</div></div></div>
- <div class="empty">هنوز نتیجه‌ی تأییدشده‌ای برای رتبه‌بندی ثبت نشده است.</div>
-</section>
+ <section class="intro" id="home">
+  <div class="intro-copy"><div class="kicker">EX1 COMPETITIVE HUB</div><h1>وقتشه وارد <span>میدان</span> بشی.</h1><p>مسابقات، رقابت‌ها و بازیکن‌های جامعه EX1؛ همه‌چیز در یک فضای ساده و متمرکز.</p></div>
+  <aside class="intro-side"><div class="side-top"><span class="live-dot">مرکز رقابت EX1</span><span class="side-label">SEASON 01</span></div><div class="side-bottom"><strong>رقابت از همین‌جا شروع می‌شه</strong><span>مسابقه‌ی موردنظرت رو پیدا کن و جزئیاتش رو ببین.</span></div></aside>
+ </section>
+ <section id="accountPanel" class="section" style="display:none;padding-top:0">
+  <div class="wallet"><div><strong id="accountName" style="font-size:14px;color:var(--text);margin:0">حساب کاربری</strong><div class="muted" id="accountEmail"></div></div><button class="btn secondary" style="padding:8px 12px" id="accountLogout">خروج از حساب</button></div>
+ </section>
+ <section class="section" id="tournaments">
+  <div class="section-head"><div class="section-title"><span class="section-mark"></span><div><h2>میدان مسابقات</h2><div class="muted">رقابت‌های منتشرشده در EX1</div></div></div><span class="muted">TOURNAMENTS / 01</span></div>
+  <div class="grid" id="cards"><div class="empty">در حال دریافت مسابقات...</div></div>
+ </section>
+ <section class="section" id="wallet">
+  <div class="section-head"><div class="section-title"><span class="section-mark"></span><div><h2>کیف امتیاز</h2><div class="muted">اعتبار آزمایشی حساب</div></div></div></div>
+  <div class="wallet"><div><div class="muted">موجودی امتیاز نمایشی</div><strong id="points">1,000 XP</strong></div><button class="btn secondary" onclick="toast('این امتیازها آزمایشی‌اند و ارزش نقدی ندارند.')">درباره امتیازها</button></div>
+  <div class="notice">امتیازهای این نسخه صرفاً نمایشی هستند و قابل خرید، انتقال یا تبدیل به پول نیستند.</div>
+ </section>
+ <section class="section" id="ranking">
+  <div class="section-head"><div class="section-title"><span class="section-mark"></span><div><h2>جدول برترین‌ها</h2><div class="muted">فقط نتایج تأییدشده نمایش داده می‌شوند</div></div></div><span class="muted">LEADERBOARD</span></div>
+  <div class="empty">هنوز نتیجه‌ی تأییدشده‌ای برای رتبه‌بندی ثبت نشده است.</div>
+ </section>
 </main>
 <nav class="bottom-nav" aria-label="منوی اصلی">
  <a href="#home" class="active" data-tab="home"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8v9.1a1.1 1.1 0 0 1-1.1 1.1h-5.2v-6.2H9.3V21H4.1A1.1 1.1 0 0 1 3 19.9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>خانه</span></a>
@@ -98,7 +64,7 @@ header{background:#090910e8;border-bottom-color:#302443}
  <a href="#tournaments" data-tab="tournaments"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v4.5a5 5 0 0 1-10 0zM7 6H3v2a4 4 0 0 0 4 4m10-6h4v2a4 4 0 0 1-4 4M12 13.5V19m-4 2h8m-6-2h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>جوایز و مسابقات</span></a>
  <a href="#ranking" data-tab="ranking"><span class="nav-icon rank-icon" aria-hidden="true">1</span><span>برترین‌ها</span></a>
 </nav>
-<footer><div class="wrap footer"><span>© 2026 EX1 LEGEND</span><span>ساخته‌شده برای جامعه بازیکنان CODM</span></div></footer>
+<footer><div class="wrap footer"><span>© 2026 EX1 ARENA</span><span>رقابت سالم، نتیجه‌ی واقعی</span></div></footer>
 <div class="modal" id="login"><div class="dialog"><h3 id="authTitle">ورود به EX1 LEGEND</h3><p class="muted" id="authHint">با ایمیل و رمز عبور وارد شو یا حساب بساز.</p><form id="authForm"><input id="displayName" maxlength="30" placeholder="نام نمایشی (برای ثبت‌نام)" autocomplete="nickname" style="display:none"><input id="email" type="email" maxlength="254" placeholder="ایمیل" autocomplete="email" required><input id="password" type="password" minlength="8" maxlength="72" placeholder="رمز عبور (حداقل ۸ نویسه)" autocomplete="current-password" required><button class="btn" id="authSubmit" type="submit">ورود</button></form><button class="btn secondary" id="authSwitch" type="button" onclick="toggleAuthMode()">ساخت حساب جدید</button><button class="btn secondary" type="button" onclick="closeLogin()">بستن</button></div></div>
 <div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
