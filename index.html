@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#090910">
-<title>EX1 HOUSE | Gaming Arena</title>
+<title>EX1 LEGEND | Gaming Arena</title>
 <style>
 :root{--bg:#090910;--panel:#141420;--panel2:#1b1b2a;--purple:#9b5cff;--cyan:#57e6ff;--text:#f4f1ff;--muted:#aaa6bc;--line:#2c2940}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% -10%,#38205d 0,transparent 38%),var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
@@ -19,7 +19,7 @@ header{position:sticky;top:0;z-index:5;background:#090910eF;border-bottom:1px so
 </head>
 <body>
 <header><div class="wrap nav">
-  <a class="brand" href="#"><b>EX1</b> HOUSE</a>
+  <a class="brand" href="#" aria-label="EX1 LEGEND"><b>EX1</b> LEGEND</a>
   <nav class="links"><a href="#tournaments">مسابقات</a><a href="#wallet">کیف امتیاز</a><a href="#about">درباره ما</a></nav>
   <button class="btn secondary" onclick="openLogin()">ورود / ثبت‌نام</button>
 </div></header>
@@ -27,10 +27,10 @@ header{position:sticky;top:0;z-index:5;background:#090910eF;border-bottom:1px so
 <section class="hero">
  <div><div class="eyebrow">CALL OF DUTY MOBILE COMMUNITY</div>
   <h1>ENTER THE <span>ARENA.</span></h1>
-  <p>به EX1 HOUSE خوش اومدی؛ جایی برای رقابت دوستانه، کاستوم‌های بتل‌رویال و ثبت رکوردهای بهتر. تیم خودت رو جمع کن و وارد میدان شو.</p>
+  <p>وارد میدان شو، افسانه شو</p><p>خانه رقابت‌های Call of Duty Mobile؛ تیم خودت رو بساز، مهارتت رو نشون بده و برای پیروزی بجنگ.</p>
   <div class="actions"><a class="btn" href="#tournaments">دیدن مسابقات</a><a class="btn secondary" href="#about">قوانین و راهنما</a></div>
  </div>
- <div class="hero-card"><small>EX1 HOUSE • EST. 2026</small><div class="hero-mark">EX1</div><div style="font-weight:bold;letter-spacing:3px;direction:ltr">PLAY • COMPETE • REPEAT</div></div>
+ <div class="hero-card"><small>THE LEGEND BEGINS • EST. 2026</small><div class="hero-mark">EX1</div><div style="font-size:18px;font-weight:900;letter-spacing:3px;direction:ltr">LEGEND</div><div style="font-weight:bold;letter-spacing:3px;direction:ltr">PLAY • COMPETE • REPEAT</div></div>
 </section>
 <section class="stats">
  <div class="stat"><strong id="count">03</strong><span>مسابقه نمایشی</span></div>
@@ -48,8 +48,8 @@ header{position:sticky;top:0;z-index:5;background:#090910eF;border-bottom:1px so
 <div class="notice">اتصال حساب و فهرست مسابقات به دیتابیس فعال شده است. ثبت‌نام تیمی و کیف امتیاز هنوز در مرحله راه‌اندازی‌اند؛ هیچ پرداخت، برداشت یا جایزه نقدی در این نسخه فعال نیست.</div>
 <section class="section" id="about"><h2>چطور شرکت کنم؟</h2><p class="muted" style="line-height:2">۱) حساب کاربری بساز یا وارد شو. ۲) مسابقه‌های منتشرشده رو ببین. ۳) قابلیت ساخت تیم و ثبت‌نام تیمی پس از تکمیل بخش تیم‌ها فعال می‌شه. قوانین هر مسابقه باید قبل از شروع مشخص و برای همه یکسان باشه.</p></section>
 </main>
-<footer><div class="wrap footer"><span>© 2026 EX1 HOUSE</span><span>ساخته‌شده برای جامعه بازیکنان CODM</span></div></footer>
-<div class="modal" id="login"><div class="dialog"><h3 id="authTitle">ورود به EX1 HOUSE</h3><p class="muted" id="authHint">با ایمیل و رمز عبور وارد شو یا حساب بساز.</p><form id="authForm"><input id="displayName" maxlength="30" placeholder="نام نمایشی (برای ثبت‌نام)" autocomplete="nickname" style="display:none"><input id="email" type="email" maxlength="254" placeholder="ایمیل" autocomplete="email" required><input id="password" type="password" minlength="8" maxlength="72" placeholder="رمز عبور (حداقل ۸ نویسه)" autocomplete="current-password" required><button class="btn" id="authSubmit" type="submit">ورود</button></form><button class="btn secondary" id="authSwitch" type="button" onclick="toggleAuthMode()">ساخت حساب جدید</button><button class="btn secondary" type="button" onclick="closeLogin()">بستن</button></div></div>
+<footer><div class="wrap footer"><span>© 2026 EX1 LEGEND</span><span>ساخته‌شده برای جامعه بازیکنان CODM</span></div></footer>
+<div class="modal" id="login"><div class="dialog"><h3 id="authTitle">ورود به EX1 LEGEND</h3><p class="muted" id="authHint">با ایمیل و رمز عبور وارد شو یا حساب بساز.</p><form id="authForm"><input id="displayName" maxlength="30" placeholder="نام نمایشی (برای ثبت‌نام)" autocomplete="nickname" style="display:none"><input id="email" type="email" maxlength="254" placeholder="ایمیل" autocomplete="email" required><input id="password" type="password" minlength="8" maxlength="72" placeholder="رمز عبور (حداقل ۸ نویسه)" autocomplete="current-password" required><button class="btn" id="authSubmit" type="submit">ورود</button></form><button class="btn secondary" id="authSwitch" type="button" onclick="toggleAuthMode()">ساخت حساب جدید</button><button class="btn secondary" type="button" onclick="closeLogin()">بستن</button></div></div>
 <div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
 <script src="/supabase-config.js"></script>
@@ -73,7 +73,7 @@ function openLogin(){document.getElementById("login").classList.add("show");}
 function closeLogin(){document.getElementById("login").classList.remove("show");}
 function toggleAuthMode(){
  authMode=authMode==="login"?"signup":"login";
- document.getElementById("authTitle").textContent=authMode==="login"?"ورود به EX1 HOUSE":"ساخت حساب EX1";
+ document.getElementById("authTitle").textContent=authMode==="login"?"ورود به EX1 LEGEND":"ساخت حساب EX1";
  document.getElementById("authHint").textContent=authMode==="login"?"با ایمیل و رمز عبور وارد شو.":"نام نمایشی، ایمیل و رمز عبور را وارد کن.";
  document.getElementById("displayName").style.display=authMode==="signup"?"block":"none";
  document.getElementById("displayName").required=authMode==="signup";
@@ -126,7 +126,7 @@ async function loadAuthState(){
  if(currentUser){
   const {data:profile}=await supabaseClient.from("profiles").select("display_name,username").eq("id",currentUser.id).maybeSingle();
   const label=profile?.display_name||profile?.username||currentUser.email;
-  document.querySelector(".hero p").textContent="خوش اومدی، "+label+"! مسابقات منتشرشده EX1 HOUSE رو ببین.";
+  document.querySelector(".hero p").textContent="خوش اومدی، "+label+"! مسابقات منتشرشده EX1 LEGEND رو ببین.";
  }
 }
 let toastTimer;
