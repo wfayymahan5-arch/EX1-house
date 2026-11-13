@@ -78,7 +78,8 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{p
 <section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="users"><h2>کاربران و پروفایل‌ها</h2><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="audit"><h2>گزارش فعالیت مدیران</h2><p class="muted">تغییرات ایجاد، ویرایش و حذف مسابقه‌ها و روم‌ها به‌صورت خودکار ثبت می‌شوند.</p><div id="auditTable" class="empty">در حال بارگذاری...</div></section>
-<section class="section tab hidden" id="socialReports"><h2>گزارش‌های اجتماعی</h2><p class="muted">گزارش پست‌ها، دیدگاه‌ها، استوری‌ها و پروفایل‌ها. رسیدگی فقط برای مدیر دارای مجوز social.moderate فعال است.</p><div id="socialReportsTable" class="empty">در حال بارگذاری...</div></section>\n<section class="section tab hidden" id="wallet"><h2>کیف امتیاز آزمایشی</h2><div class="notice">این بخش فعلاً فقط برای نمایش وضعیت آماده‌سازی است. هیچ شارژ، برداشت یا تراکنش واقعی از این پنل انجام نمی‌شود و دسترسی مالی جداگانه نیازمند تأیید بزرگسال مسئول است.</div><div id="walletTable" class="empty">در انتظار دسترسی مجاز...</div></section>
+<section class="section tab hidden" id="socialReports"><h2>گزارش‌های اجتماعی</h2><p class="muted">گزارش پست‌ها، دیدگاه‌ها، استوری‌ها و پروفایل‌ها. رسیدگی فقط برای مدیر دارای مجوز social.moderate فعال است.</p><div id="socialReportsTable" class="empty">در حال بارگذاری...</div></section>
+<section class="section tab hidden" id="wallet"><h2>کیف امتیاز آزمایشی</h2><div class="notice">این بخش فعلاً فقط برای نمایش وضعیت آماده‌سازی است. هیچ شارژ، برداشت یا تراکنش واقعی از این پنل انجام نمی‌شود و دسترسی مالی جداگانه نیازمند تأیید بزرگسال مسئول است.</div><div id="walletTable" class="empty">در انتظار دسترسی مجاز...</div></section>
 <section class="section tab hidden" id="settings"><h2>تنظیمات ظاهری سایت</h2><p class="muted">رنگ‌ها فقط با مجوز settings.manage ذخیره می‌شوند.</p><form id="themeForm"><div class="colorgrid">
 <label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
 </div><button class="btn primary" id="saveTheme" type="submit" style="margin-top:14px">ذخیره تنظیمات</button></form><div id="themeMessage" class="muted" style="margin-top:10px"></div></section>
@@ -167,7 +168,8 @@ async function loadTableData(){
  if(permissions["teams.view"])tasks.push(rpc("admin_dashboard_teams").then(d=>{$("statTeams").textContent=d.length;$("teamsTable").innerHTML=table(["نام تیم","برچسب","تعداد اعضا","توضیحات"],d.map(x=>row([esc(x.name),esc(x.tag||"—"),esc(x.member_count),esc(x.description||"—")])));}));
  if(permissions["users.view"]||permissions["profiles.view_all"])tasks.push(loadAdminUsers());
  
- if(permissions["audit.view"])tasks.push(loadAuditLogs());\n if(permissions["social.moderate"])tasks.push(loadSocialReports());
+ if(permissions["audit.view"])tasks.push(loadAuditLogs());
+ if(permissions["social.moderate"])tasks.push(loadSocialReports());
  const settled=await Promise.allSettled(tasks);
  const failed=settled.filter(x=>x.status==="rejected");
  if(permissions["rooms.view"]||permissions["rooms.manage"]) {
@@ -194,7 +196,8 @@ async function applyAccess(user){
  if(permissions["registrations.view_all"])allowedTabs.push("registrations");
  if(permissions["teams.view"])allowedTabs.push("teams");
  if(permissions["users.view"]||permissions["profiles.view_all"])allowedTabs.push("users");
- if(permissions["audit.view"])allowedTabs.push("audit");\n if(permissions["social.moderate"])allowedTabs.push("socialReports");
+ if(permissions["audit.view"])allowedTabs.push("audit");
+ if(permissions["social.moderate"])allowedTabs.push("socialReports");
  if(permissions["settings.view"]||permissions["settings.manage"])allowedTabs.push("settings");
  allowedTabs.forEach(addNav);showTab("overview");
  const count=Object.values(permissions).filter(Boolean).length;
