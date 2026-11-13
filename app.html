@@ -134,13 +134,25 @@ function applyUserSettings(){
  if($("userTheme"))$("userTheme").value=t;
  if($("userFont"))$("userFont").value=f;
 }
-applyUserSettings();
-$("saveUserSettings").onclick=()=>{
- localStorage.setItem("ex1-theme",$("userTheme").value);
- localStorage.setItem("ex1-font",$("userFont").value);
+async function loadUserSettings(){
+ if(!currentUser){applyUserSettings();return;}
+ const {data,error}=await sb.from("user_settings").select("theme,font").eq("user_id",currentUser.id).maybeSingle();
+ if(error){console.warn("EX1 settings load:",error.message);applyUserSettings();return;}
+ if(data){localStorage.setItem("ex1-theme",data.theme);localStorage.setItem("ex1-font",data.font);}
  applyUserSettings();
- $("userSettingsMessage").textContent="تنظیمات این دستگاه ذخیره شد.";
- toast("ظاهر برنامه به‌روزرسانی شد.");
+}
+applyUserSettings();
+$("saveUserSettings").onclick=async()=>{
+ const theme=$("userTheme").value,font=$("userFont").value;
+ localStorage.setItem("ex1-theme",theme);localStorage.setItem("ex1-font",font);applyUserSettings();
+ if(currentUser){
+  const {error}=await sb.from("user_settings").upsert({user_id:currentUser.id,theme,font,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+  if(error){$("userSettingsMessage").textContent="روی این دستگاه ذخیره شد، اما همگام‌سازی حساب انجام نشد: "+error.message;toast("ذخیره تنظیمات حساب ناموفق بود.");return;}
+  $("userSettingsMessage").textContent="تنظیمات در حساب کاربری ذخیره و بین دستگاه‌ها همگام شد.";
+ }else{
+  $("userSettingsMessage").textContent="روی همین دستگاه ذخیره شد؛ برای همگام‌سازی بین دستگاه‌ها وارد حساب شو.";
+ }
+ toast("تنظیمات با موفقیت ذخیره شد.");
 };
 async function loadWallet(){
  $("walletHistory").textContent="در حال دریافت تاریخچه...";
@@ -224,7 +236,7 @@ async function authState(){
  currentUser=data?.user||null;
  $("headerUser").textContent=currentUser?"آنلاین":"";
  $("headerAuth").textContent=currentUser?"حساب من":"ورود / ثبت‌نام";
- if(currentUser){await loadProfile();await loadExplore();}
+ if(currentUser){await loadUserSettings();await loadProfile();await loadExplore();}
  else $("exploreUsers").innerHTML='<div class="empty">برای دیدن بازیکنان وارد حساب شو.</div>';
 }
 let pendingEmailOtp=false;
