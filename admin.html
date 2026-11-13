@@ -305,7 +305,7 @@ async function loadWalletAdmin(){
 $("walletTable").addEventListener("click",async e=>{
  const history=e.target.closest("[data-wallet-history]"),adjust=e.target.closest("[data-wallet-adjust]");
  if(history){
-  try{const data=await rpc("admin_wallet_demo_history",{p_user_id:history.dataset.walletHistory,p_limit:50});$("walletHistory").innerHTML=data.length?table(["نوع","مقدار","موجودی پس از ثبت","دلیل","زمان"],data.map(x=>row([x.entry_type==="credit"?"افزایش":"کاهش",Number(x.amount_units).toLocaleString("fa-IR"),Number(x.balance_after_units).toLocaleString("fa-IR"),esc(x.reason),esc(new Date(x.created_at).toLocaleString("fa-IR"))])):'<div class="empty">تراکنشی ثبت نشده است.</div>';}catch(err){toast(err.message||"سوابق امتیاز دریافت نشد.");}
+  try{const data=await rpc("admin_wallet_demo_history",{p_user_id:history.dataset.walletHistory,p_limit:50});$("walletHistory").innerHTML=data.length?table(["نوع","مقدار","موجودی پس از ثبت","دلیل","زمان"],data.map(x=>row([x.entry_type==="credit"?"افزایش":"کاهش",Number(x.amount_units).toLocaleString("fa-IR"),Number(x.balance_after_units).toLocaleString("fa-IR"),esc(x.reason),esc(new Date(x.created_at).toLocaleString("fa-IR"))]))):'<div class="empty">تراکنشی ثبت نشده است.</div>';}catch(err){toast(err.message||"سوابق امتیاز دریافت نشد.");}
  }
  if(adjust&&permissions["wallet.demo_adjust"]){
   $("wallet_user_id").value=adjust.dataset.walletAdjust;$("walletAdjustTitle").textContent="اصلاح امتیاز کاربر";$("walletAdjustPanel").classList.remove("hidden");$("wallet_amount").value="";$("wallet_reason").value="";$("walletAdjustPanel").scrollIntoView({behavior:"smooth",block:"center"});
