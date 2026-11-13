@@ -57,7 +57,7 @@ header{position:sticky;top:0;z-index:5;background:#090910eF;border-bottom:1px so
 </main>
 <footer><div class="wrap footer"><span>© 2026 EX1 LEGEND</span><span>ساخته‌شده برای جامعه بازیکنان CODM</span></div></footer>
 <div class="modal" id="login"><div class="dialog"><h3 id="authTitle">ورود به EX1 LEGEND</h3><p class="muted" id="authHint">با ایمیل و رمز عبور وارد شو یا حساب بساز.</p><form id="authForm"><input id="displayName" maxlength="30" placeholder="نام نمایشی (برای ثبت‌نام)" autocomplete="nickname" style="display:none"><input id="email" type="email" maxlength="254" placeholder="ایمیل" autocomplete="email" required><input id="password" type="password" minlength="8" maxlength="72" placeholder="رمز عبور (حداقل ۸ نویسه)" autocomplete="current-password" required><button class="btn" id="authSubmit" type="submit">ورود</button></form><button class="btn secondary" id="authSwitch" type="button" onclick="toggleAuthMode()">ساخت حساب جدید</button><button class="btn secondary" type="button" onclick="closeLogin()">بستن</button></div></div>
-<div class="toast" id="toast"></div>
+<div class="modal" id="roomRegisterModal"><div class="dialog"><h3>ثبت‌نام تیم در روم</h3><p class="muted">تیمی را انتخاب کن که کاپیتان آن هستی. ثبت‌نام رایگان است.</p><label for="roomTeamSelect" class="muted">تیم من</label><select id="roomTeamSelect" style="width:100%;padding:13px;margin:8px 0 14px;border-radius:10px;border:1px solid var(--line);background:#0d0d16;color:white"></select><button class="btn" id="confirmRoomRegistration" type="button">ثبت‌نام رایگان</button><button class="btn secondary" type="button" id="cancelRoomRegistration">انصراف</button></div></div><div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
 <script src="/supabase-config.js"></script>
 <script>
@@ -96,7 +96,8 @@ async function renderTournaments(){
   const roomMarkup=tournamentRooms.map(r=>{
    const image=safeRoomImage(r.room_image_url);
    const details=[r.game_mode||t.mode,r.map||t.map].filter(Boolean).map(esc).join(" · ");
-   return '<div class="room-item">'+(image?'<img src="'+esc(image)+'" alt="" loading="lazy">':"")+'<div class="room-info"><strong>'+esc(r.title)+'</strong><div class="muted">'+(details||"جزئیات بازی اعلام‌نشده")+' · ظرفیت: '+esc(r.capacity)+'</div><div class="muted">'+esc(formatStart(r.starts_at||t.starts_at))+'</div>'+(r.rules?'<p class="muted">'+esc(r.rules)+'</p>':"")+'</div><span class="tag">'+esc(roomStatusLabel(r.status))+'</span></div>';
+   const canRegister=r.status==="open"&&(!r.starts_at||new Date(r.starts_at).getTime()>Date.now());
+   return '<div class="room-item">'+(image?'<img src="'+esc(image)+'" alt="" loading="lazy">':"")+'<div class="room-info"><strong>'+esc(r.title)+'</strong><div class="muted">'+(details||"جزئیات بازی اعلام‌نشده")+' · ظرفیت: '+esc(r.capacity)+'</div><div class="muted">'+esc(formatStart(r.starts_at||t.starts_at))+'</div>'+(r.rules?'<p class="muted">'+esc(r.rules)+'</p>':"")+(canRegister?'<button class="btn" type="button" data-register-room="'+esc(r.id)+'" style="margin-top:8px">ثبت‌نام رایگان تیم</button>':'<span class="muted">ثبت‌نام در حال حاضر بسته است</span>')+'</div><span class="tag">'+esc(roomStatusLabel(r.status))+'</span></div>';
   }).join("");
   return '<article class="card"><span class="tag">'+esc(statusLabel(t.status))+'</span><h3>'+esc(t.title)+'</h3><div class="muted">'+esc(t.game||"Call of Duty Mobile")+' · '+esc(t.mode||"حالت اعلام‌نشده")+'</div><div class="muted" style="margin-top:8px">نقشه: '+esc(t.map||"اعلام‌نشده")+'</div>'+(t.description?'<p class="muted">'+esc(t.description)+'</p>':"")+'<div class="details"><span>ظرفیت تیم: '+esc(t.max_teams??"اعلام‌نشده")+'</span><span>'+esc(formatStart(t.starts_at))+'</span></div><div class="room-list"><h4>روم‌های این مسابقه</h4>'+(roomMarkup||'<div class="muted room-empty">هنوز رومی برای این مسابقه منتشر نشده است.</div>')+'</div><button class="btn secondary" disabled>ثبت‌نام تیمی به‌زودی فعال می‌شود</button></article>';
  }).join("");
@@ -106,6 +107,38 @@ function scheduleTournamentRefresh(){
  clearTimeout(tournamentRefreshTimer);
  tournamentRefreshTimer=setTimeout(()=>renderTournaments(),250);
 }
+let selectedRoomForRegistration=null;
+function closeRoomRegistration(){document.getElementById("roomRegisterModal").classList.remove("show");selectedRoomForRegistration=null;}
+document.getElementById("cancelRoomRegistration").addEventListener("click",closeRoomRegistration);
+document.getElementById("cards").addEventListener("click",async event=>{
+ const button=event.target.closest("[data-register-room]");
+ if(!button)return;
+ if(!currentUser){openLogin();toast("برای ثبت‌نام ابتدا وارد حساب شو.");return;}
+ const roomId=button.dataset.registerRoom;
+ const select=document.getElementById("roomTeamSelect");
+ select.innerHTML='<option>در حال دریافت تیم‌ها...</option>';
+ document.getElementById("roomRegisterModal").classList.add("show");
+ selectedRoomForRegistration=roomId;
+ const {data,error}=await supabaseClient.from("teams").select("id,name,tag").eq("captain_id",currentUser.id).order("created_at",{ascending:false});
+ if(error){closeRoomRegistration();toast("دریافت تیم‌ها ممکن نشد؛ دوباره تلاش کن.");return;}
+ if(!data?.length){closeRoomRegistration();toast("برای ثبت‌نام باید ابتدا یک تیم بسازی و کاپیتان آن باشی.");return;}
+ select.innerHTML=data.map(team=>'<option value="'+esc(team.id)+'">'+esc(team.name)+(team.tag?' ['+esc(team.tag)+']':"")+'</option>').join("");
+});
+document.getElementById("confirmRoomRegistration").addEventListener("click",async()=>{
+ const roomId=selectedRoomForRegistration;
+ const teamId=document.getElementById("roomTeamSelect").value;
+ if(!roomId||!teamId)return;
+ const button=document.getElementById("confirmRoomRegistration");
+ button.disabled=true;
+ try{
+  const {data,error}=await supabaseClient.rpc("register_team_for_room",{p_room_id:roomId,p_team_id:teamId});
+  if(error)throw error;
+  closeRoomRegistration();
+  toast("ثبت‌نام تیم انجام شد؛ شماره جایگاه: "+Number(data).toLocaleString("fa-IR"));
+  await renderTournaments();
+ }catch(error){toast(error.message||"ثبت‌نام انجام نشد.");}
+ finally{button.disabled=false;}
+});
 function startTournamentRealtime(){
  supabaseClient.channel("ex1-live-tournaments-and-rooms")
   .on("postgres_changes",{event:"*",schema:"public",table:"tournaments"},scheduleTournamentRefresh)
