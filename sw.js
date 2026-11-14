@@ -1,4 +1,4 @@
-const CACHE_NAME = "ex1-legend-v33";
+const CACHE_NAME = "ex1-legend-v34";
 
 const ASSETS = [
   "/",
