@@ -611,6 +611,9 @@ $("adminPermissionForm").addEventListener("submit",async e=>{
 });
 
 async function loadTableData(){
+ const ownerCheck=await sb.rpc("is_current_user_owner");
+ ownerCanBanUsers=!ownerCheck.error&&ownerCheck.data===true;
+ if(ownerCanBanUsers&&!document.querySelector('[data-tab="socialReports"]'))addNav("socialReports");
  const tasks=[];
  if(permissions["admins.manage"]&&permissions["permissions.manage"])tasks.push(loadAdminManagement());
  const canSeeTournaments=permissions["tournaments.view"]||permissions["tournaments.create"]||permissions["tournaments.update"]||permissions["tournaments.delete"]||permissions["rooms.view"]||permissions["rooms.manage"];
