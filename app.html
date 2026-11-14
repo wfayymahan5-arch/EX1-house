@@ -699,9 +699,15 @@ $("createTeamForm").addEventListener("submit",async e=>{
  finally{button.disabled=false;button.textContent="ساخت تیم";}
 });
 async function loadRanking(){
- const {data,error}=await sb.from("tournament_results").select("placement,kills,points,teams(name,tag),tournaments(title)").order("points",{ascending:false}).order("placement",{ascending:true}).limit(30);
- if(error||!data?.length){$("ranking").innerHTML='<div class="empty">هنوز نتیجه‌ی تأییدشده‌ای برای رتبه‌بندی ثبت نشده است.</div>';return;}
- $("ranking").innerHTML='<div class="user-list">'+data.map((x,i)=>'<div class="user-row"><div class="rank-icon">'+(i+1)+'</div><div class="user-info"><strong>'+esc(x.teams?.name||"تیم")+'</strong><small>'+esc(x.tournaments?.title||"مسابقه")+'</small></div><strong>'+esc(x.points)+' امتیاز آزمایشی</strong></div>').join("")+'</div>';
+ const [{data:teams,error:teamError},{data:players,error:playerError}]=await Promise.all([
+  sb.from("tournament_results").select("placement,kills,points,teams(name,tag),tournaments(title)").order("points",{ascending:false}).order("placement",{ascending:true}).limit(30),
+  sb.from("tournament_player_results").select("placement,kills,points,profiles(display_name,username,game_name,game_uid),tournaments(title),tournament_rooms(title)").order("points",{ascending:false}).order("kills",{ascending:false}).limit(30)
+ ]);
+ if(teamError||playerError){$("ranking").innerHTML='<div class="empty">رتبه‌بندی فعلاً بارگذاری نشد. کمی بعد دوباره تلاش کن.</div>';return;}
+ const teamRows=teams||[],playerRows=players||[];
+ $("ranking").innerHTML=(teamRows.length?'<h3>رتبه‌بندی تیم‌ها</h3><div class="user-list">'+teamRows.map((x,i)=>'<div class="user-row"><div class="rank-icon">'+(i+1)+'</div><div class="user-info"><strong>'+esc(x.teams?.name||"تیم")+'</strong><small>'+esc(x.tournaments?.title||"مسابقه")+' · جایگاه '+esc(x.placement)+' · '+esc(x.kills)+' کیل</small></div><strong>'+esc(x.points)+' امتیاز</strong></div>').join("")+'</div>':'')+
+ (playerRows.length?'<h3 style="margin-top:18px">بازیکنان برتر</h3><div class="user-list">'+playerRows.map((x,i)=>'<div class="user-row"><div class="rank-icon">'+(i+1)+'</div><div class="user-info"><strong>'+esc(x.profiles?.game_name||x.profiles?.display_name||x.profiles?.username||"بازیکن")+'</strong><small>'+esc(x.tournaments?.title||"مسابقه")+' · '+esc(x.tournament_rooms?.title||"روم")+' · جایگاه '+esc(x.placement||"—")+'</small></div><strong>'+esc(x.kills)+' کیل · '+esc(x.points)+' امتیاز</strong></div>').join("")+'</div>':'')||
+ '<div class="empty">هنوز نتیجه‌ای برای رتبه‌بندی ثبت نشده است.</div>';
 }
 async function checkConnection(){
  const el=$("connectionStatus");if(!el)return;
