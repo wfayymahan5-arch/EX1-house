@@ -83,6 +83,7 @@ Deno.serve(async (req: Request) => {
       .eq("user_id", authData.user.id)
       .maybeSingle();
     if (error || !conversation) return reply(404, { error: "گفت‌وگوی پشتیبانی پیدا نشد." });
+    if (conversation.status === "waiting_for_human") return reply(409, { error: "درخواستت در صف پشتیبانی انسانی است؛ پاسخ بعدی از طرف پشتیبان ارسال می‌شود." });
     if (conversation.status === "closed" || conversation.status === "resolved") {
       return reply(409, { error: "این گفت‌وگو بسته شده است. یک گفت‌وگوی تازه ایجاد کن." });
     }
@@ -110,7 +111,7 @@ Deno.serve(async (req: Request) => {
   if (historyError) return reply(500, { error: "دریافت سابقه گفت‌وگو انجام نشد." });
 
   const chatMessages = (history ?? []).reverse().map((item) => ({
-    role: item.sender_role === "assistant" ? "assistant" : "user",
+    role: item.sender_role === "assistant" || item.sender_role === "human_support" ? "assistant" : "user",
     content: String(item.body).slice(0, 3000),
   }));
 
