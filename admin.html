@@ -302,6 +302,7 @@ async function loadResults(){
  window.ex1AdminRooms=rooms||[];window.ex1AdminPlayers=players||[];
  $("player_result_room_id").innerHTML=opts(rooms||[]);
  $("player_result_room_id").innerHTML=(rooms||[]).map(x=>'<option value="'+esc(x.id)+'" data-tournament="'+esc(x.tournament_id)+'">'+esc(x.title)+'</option>').join("");
+ $("player_result_tournament_id").dispatchEvent(new Event("change"));
  const plabel=x=>(x.game_name||x.display_name||x.username||"بازیکن")+" · "+(x.game_uid||x.username||x.id.slice(0,8));
  $("player_result_user_id").innerHTML=(players||[]).map(x=>'<option value="'+esc(x.id)+'">'+esc(plabel(x))+'</option>').join("");
  const can=permissions["results.manage"];
