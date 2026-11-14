@@ -4,7 +4,7 @@
 create table if not exists public.ai_moderation_cases (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade,
-  content_type text not null check (content_type in ('profile_avatar','team_logo','social_post_text','social_post_image','social_story','chat_message')),
+  content_type text not null check (content_type in ('profile_avatar','team_logo','profile_text','team_description','social_post_text','social_post_image','social_story','chat_message')),
   source_table text,
   source_id uuid,
   original_storage_bucket text,
