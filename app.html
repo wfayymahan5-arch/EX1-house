@@ -98,7 +98,15 @@ if(!window.EX1_CONFIG||!EX1_CONFIG.url||!EX1_CONFIG.publishableKey){
  showStartupError("تنظیمات اتصال EX1 پیدا نشد. فایل پیکربندی پروژه باید بررسی شود.");
  throw new Error("EX1 Supabase configuration is missing");
 }
-const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
+// Keep the user's session on this device between app launches.
+const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey,{
+ auth:{
+  persistSession:true,
+  autoRefreshToken:true,
+  detectSessionInUrl:true,
+  storage:window.localStorage
+ }
+});
 
 // رنگ‌بندی عمومی سایت از تنظیمات ذخیره‌شده در Supabase
 function applySiteTheme(theme){
@@ -349,9 +357,10 @@ function formatDate(v){try{return new Date(v).toLocaleString("fa-IR",{dateStyle:
 function avatarHTML(profile,sizeClass="avatar"){const name=profile?.display_name||profile?.username||"EX";const initial=esc(name.slice(0,1).toUpperCase());let url=profile?.avatar_url||"";if(url&&!/^https?:\/\//i.test(url))url=sb.storage.from("ex1-avatars").getPublicUrl(url).data.publicUrl;return url?'<img class="'+sizeClass+'" data-avatar-fallback="'+initial+'" data-avatar-class="'+sizeClass+'" src="'+esc(url)+'" alt="">':'<div class="'+sizeClass+'">'+initial+'</div>';}
 document.addEventListener("error",event=>{const img=event.target;if(!(img instanceof HTMLImageElement)||!img.dataset.avatarFallback)return;const fallback=document.createElement("div");fallback.className=img.dataset.avatarClass||"avatar";fallback.textContent=img.dataset.avatarFallback;img.replaceWith(fallback);},true);
 async function authState(){
- const {data,error}=await sb.auth.getUser();
- if(error)console.warn("Auth state refresh failed:",error.message);
- currentUser=data?.user||null;
+ // getSession restores the locally persisted session immediately on app relaunch.
+ const {data,error}=await sb.auth.getSession();
+ if(error)console.warn("Auth session restore failed:",error.message);
+ currentUser=data?.session?.user||null;
  $("headerUser").textContent=currentUser?"آنلاین":"";
  $("headerAuth").textContent=currentUser?"حساب من":"ورود / ثبت‌نام";
  if(currentUser){await loadUserSettings();await loadProfile();await loadExplore();}
