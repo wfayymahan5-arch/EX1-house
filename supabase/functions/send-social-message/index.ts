@@ -33,6 +33,11 @@ Deno.serve(async (req:Request) => {
   if(!uuid.test(conversationId)||!message||message.length>2000) return out(400,{error:"شناسه گفت‌وگو یا متن پیام معتبر نیست."});
 
   const admin=createClient(url,service,{auth:{persistSession:false,autoRefreshToken:false}});
+  const since=new Date(Date.now()-60_000).toISOString();
+  const {count:recentCount,error:rateError}=await admin.from("social_messages")
+    .select("id",{count:"exact",head:true}).eq("sender_id",auth.user.id).gte("created_at",since);
+  if(rateError)return out(503,{error:"محدودیت ارسال پیام بررسی نشد."});
+  if((recentCount??0)>=12)return out(429,{error:"تعداد پیام‌های ارسالی زیاد است؛ کمی بعد دوباره تلاش کن."});
   const {data:ban}=await admin.from("user_bans").select("user_id").eq("user_id",auth.user.id).maybeSingle();
   if(ban) return out(403,{error:"حساب کاربری در حال حاضر مسدود است."});
 
