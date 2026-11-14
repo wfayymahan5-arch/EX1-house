@@ -180,8 +180,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <section class="section tab hidden" id="admins">
  <div class="row"><div><h2>مدیریت مدیران و دسترسی‌ها</h2><p class="muted">فقط حساب‌های ثبت‌نام‌شده EX1 را می‌توانی مدیر کنی. هر مجوز را جداگانه انتخاب کن.</p></div><button class="btn primary" id="adminAddButton" type="button">افزودن مدیر</button></div>
  <form id="adminPermissionForm" class="admin-form hidden">
-  <label class="muted" for="adminTargetUser">انتخاب حساب کاربری</label>
-  <select id="adminTargetUser" required><option value="">انتخاب کاربر...</option></select>
+  <label class="muted" for="adminUserIdSearch">جست‌وجوی کاربر با شناسه (User ID)</label>
+  <div class="actions" style="margin-top:6px">
+   <input id="adminUserIdSearch" type="search" dir="ltr" autocomplete="off" placeholder="شناسه کاربری را وارد کن..." style="flex:1;min-width:220px">
+   <button class="btn" id="adminUserSearchButton" type="button">جست‌وجو</button>
+  </div>
+  <input id="adminTargetUser" type="hidden" required>
+  <div id="adminUserSearchResults" class="muted" aria-live="polite">برای پیدا کردن حساب، شناسه کاربری EX1 را جست‌وجو کن.</div>
   <p class="muted">دسترسی‌های فعال دقیقاً مطابق انتخاب تو ذخیره می‌شوند؛ مجوزهای خاموش نیز صریحاً مسدود می‌شوند.</p>
   <div id="adminPermissionGrid" class="permission-groups"></div>
   <div class="actions"><button class="btn primary" id="adminSaveButton" type="submit">ذخیره دسترسی‌های مدیر</button><button class="btn" id="adminCancelButton" type="button">انصراف</button></div>
@@ -378,9 +383,10 @@ async function loadAdminManagement(){
  if(!permissions["admins.manage"]||!permissions["permissions.manage"])return;
  const [users,catalog]=await Promise.all([rpc("admin_manage_list_users"),rpc("admin_list_permissions")]);
  adminManagementUsers=users||[];adminPermissionCatalog=catalog||[];
- $("adminTargetUser").innerHTML='<option value="">انتخاب کاربر...</option>'+adminManagementUsers.map(u=>
-  '<option value="'+esc(u.user_id)+'">'+esc(u.display_name||u.username||"کاربر بدون نام")+' · '+esc(u.username||u.user_id.slice(0,8))+'</option>'
- ).join("");
+ $("adminTargetUser").value="";
+ $("adminUserIdSearch").value="";
+ $("adminUserIdSearch").disabled=false;
+ $("adminUserSearchResults").textContent="برای پیدا کردن حساب، شناسه کاربری EX1 را جست‌وجو کن.";
  const admins=adminManagementUsers.filter(u=>u.is_admin);
  const rows=admins.map(u=>row([
   esc(u.display_name||"—"),esc(u.username||"—"),esc((u.role_codes||[]).join("، ")),
@@ -390,8 +396,28 @@ async function loadAdminManagement(){
  $("adminUsersTable").innerHTML=table(["نام","نام کاربری","نوع مدیر","دسترسی‌های فعال","عملیات"],rows);
  renderAdminPermissionGrid([]);
 }
+function findAdminUserById(){
+ const query=$("adminUserIdSearch").value.trim().toLowerCase();
+ $("adminTargetUser").value="";
+ if(!query){$("adminUserSearchResults").textContent="ابتدا شناسه کاربری را وارد کن.";return;}
+ const matches=adminManagementUsers.filter(u=>String(u.user_id||"").toLowerCase().includes(query));
+ if(!matches.length){$("adminUserSearchResults").textContent="کاربری با این شناسه پیدا نشد. شناسه را بررسی کن.";return;}
+ $("adminUserSearchResults").innerHTML=matches.map(u=>
+  '<div class="manager-form" style="margin:8px 0;padding:10px"><strong>'+esc(u.display_name||"کاربر بدون نام")+'</strong><div class="muted">'+esc(u.username||"بدون نام کاربری")+'</div><div class="muted" dir="ltr" style="overflow-wrap:anywhere">'+esc(u.user_id)+'</div><button class="action-btn" type="button" data-admin-pick-user="'+esc(u.user_id)+'" style="margin-top:8px">انتخاب این حساب</button></div>'
+ ).join("");
+}
+$("adminUserSearchButton").addEventListener("click",findAdminUserById);
+$("adminUserIdSearch").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();findAdminUserById();}});
+$("adminUserSearchResults").addEventListener("click",e=>{
+ const pick=e.target.closest("[data-admin-pick-user]");if(!pick)return;
+ const user=adminManagementUsers.find(u=>u.user_id===pick.dataset.adminPickUser);if(!user)return;
+ $("adminTargetUser").value=user.user_id;
+ $("adminUserSearchResults").innerHTML='<div class="notice">حساب انتخاب‌شده: <strong>'+esc(user.display_name||user.username||"کاربر")+'</strong><div dir="ltr" style="overflow-wrap:anywhere">'+esc(user.user_id)+'</div></div>';
+});
 $("adminAddButton").addEventListener("click",()=>{
- $("adminPermissionForm").reset();$("adminTargetUser").disabled=false;$("adminPermissionMessage").textContent="";
+ $("adminPermissionForm").reset();$("adminTargetUser").value="";$("adminUserIdSearch").disabled=false;
+ $("adminUserSearchResults").textContent="برای پیدا کردن حساب، شناسه کاربری EX1 را جست‌وجو کن.";
+ $("adminPermissionMessage").textContent="";
  renderAdminPermissionGrid([]);$("adminPermissionForm").classList.remove("hidden");
 });
 $("adminCancelButton").addEventListener("click",()=>$("adminPermissionForm").classList.add("hidden"));
@@ -399,7 +425,8 @@ $("adminUsersTable").addEventListener("click",async e=>{
  const edit=e.target.closest("[data-admin-edit]"),remove=e.target.closest("[data-admin-remove]");
  if(edit){
   const user=adminManagementUsers.find(u=>u.user_id===edit.dataset.adminEdit);if(!user)return;
-  $("adminTargetUser").value=user.user_id;$("adminTargetUser").disabled=true;
+  $("adminTargetUser").value=user.user_id;$("adminUserIdSearch").value=user.user_id;$("adminUserIdSearch").disabled=true;
+  $("adminUserSearchResults").innerHTML='<div class="notice">در حال ویرایش دسترسی‌های: <strong>'+esc(user.display_name||user.username||"مدیر")+'</strong><div dir="ltr" style="overflow-wrap:anywhere">'+esc(user.user_id)+'</div></div>';
   $("adminPermissionMessage").textContent="دسترسی‌های فعلی این مدیر بارگذاری شد.";
   renderAdminPermissionGrid(user.effective_permissions||[]);
   $("adminPermissionForm").classList.remove("hidden");$("adminPermissionForm").scrollIntoView({behavior:"smooth",block:"start"});
@@ -416,7 +443,7 @@ $("adminUsersTable").addEventListener("click",async e=>{
 $("adminPermissionForm").addEventListener("submit",async e=>{
  e.preventDefault();
  if(!permissions["admins.manage"]||!permissions["permissions.manage"])return toast("مجوز مدیریت مدیران را نداری.");
- const userId=$("adminTargetUser").value;if(!userId)return toast("ابتدا یک حساب کاربری انتخاب کن.");
+ const userId=$("adminTargetUser").value;if(!userId)return toast("ابتدا شناسه کاربر را جست‌وجو و حساب درست را انتخاب کن.");
  const chosen={};$("adminPermissionGrid").querySelectorAll("[data-admin-permission]").forEach(input=>chosen[input.dataset.adminPermission]=input.checked);
  if(Object.keys(chosen).length!==adminPermissionCatalog.length)return toast("فهرست دسترسی‌ها کامل بارگذاری نشده است.");
  const button=$("adminSaveButton");button.disabled=true;button.textContent="در حال ذخیره...";
