@@ -17,7 +17,7 @@ Deno.serve(async(req:Request)=>{
  let body:{case_id?:string;decision?:string;note?:string};
  try{body=await req.json();}catch{return reply(400,{error:"درخواست معتبر نیست."});}
  const id=String(body.case_id??""),decision=String(body.decision??""),note=String(body.note??"").trim().slice(0,500);
- if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)||!["warn_and_ban","dismiss"].includes(decision))return reply(400,{error:"پرونده یا تصمیم معتبر نیست."});
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)||!["warn_only","warn_and_ban","dismiss"].includes(decision))return reply(400,{error:"پرونده یا تصمیم معتبر نیست."});
  const {data:record,error:caseErr}=await admin.from("ai_moderation_cases").select("id,user_id,status,content_type").eq("id",id).maybeSingle();
  if(caseErr||!record)return reply(404,{error:"پرونده پیدا نشد."});
  if(record.status!=="pending_review")return reply(409,{error:"این پرونده قبلاً بررسی شده است."});
@@ -25,6 +25,20 @@ Deno.serve(async(req:Request)=>{
   const {error}=await admin.from("ai_moderation_cases").update({status:"rejected",owner_decision_by:auth.user.id,owner_decision_at:new Date().toISOString(),owner_note:note}).eq("id",id).eq("status","pending_review");
   if(error)return reply(500,{error:"ثبت رد پرونده انجام نشد."});
   return reply(200,{success:true,decision:"dismissed"});
+ }
+ if(decision==="warn_only"){
+  const {error:noticeErr}=await admin.from("user_notifications").insert({
+   user_id:record.user_id,notification_type:"moderation_warning",title:"اخطار رعایت قوانین EX1",
+   body:"محتوای ارسالی شما با قوانین ایمنی EX1 سازگار تشخیص داده شد. این اخطار برای آگاه‌سازی است؛ اگر بررسی اشتباه بوده، از پشتیبانی درخواست بازبینی کنید.",
+   related_case_id:id
+  });
+  if(noticeErr)return reply(500,{error:"ارسال اخطار به کاربر انجام نشد."});
+  const {error:updateErr}=await admin.from("ai_moderation_cases").update({
+   status:"warning_approved",owner_decision_by:auth.user.id,owner_decision_at:new Date().toISOString(),
+   owner_note:note,warning_sent_at:new Date().toISOString()
+  }).eq("id",id).eq("status","pending_review");
+  if(updateErr)return reply(500,{error:"اخطار ارسال شد اما ثبت نهایی پرونده انجام نشد."});
+  return reply(200,{success:true,decision:"warning_sent"});
  }
  if(record.user_id===auth.user.id)return reply(400,{error:"مالک نمی‌تواند خودش را مسدود کند."});
  const {data:isTargetOwner,error:targetOwnerErr}=await admin.rpc("is_system_owner",{p_user_id:record.user_id});
