@@ -177,7 +177,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="users"><h2>کاربران و پروفایل‌ها</h2><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="audit"><h2>گزارش فعالیت مدیران</h2><p class="muted">تغییرات ایجاد، ویرایش و حذف مسابقه‌ها و روم‌ها به‌صورت خودکار ثبت می‌شوند.</p><div id="auditTable" class="empty">در حال بارگذاری...</div></section>
-<section class="section tab hidden" id="socialReports"><h2>گزارش‌های کاربران</h2><p class="muted">گزارش پیام‌ها و پروفایل‌ها. رسیدگی فقط برای مدیر دارای مجوز social.moderate فعال است.</p><div id="socialReportsTable" class="empty">در حال بارگذاری...</div><hr style="margin:24px 0;border-color:#ffffff20"><h2>بررسی هوشمند محتوا</h2><p class="muted">این پرونده‌ها فقط برای مالک اصلی نمایش داده می‌شوند. هیچ کاربری بدون تأیید مالک مسدود نمی‌شود.</p><div id="aiModerationCases" class="empty">در انتظار بررسی مالک...</div></section>
+<section class="section tab hidden" id="socialReports"><h2>گزارش‌های کاربران</h2><p class="muted">گزارش پیام‌ها و پروفایل‌ها. رسیدگی فقط برای مدیر دارای مجوز social.moderate فعال است.</p><div id="socialReportsTable" class="empty">در حال بارگذاری...</div><hr style="margin:24px 0;border-color:#ffffff20"><h2>بررسی هوشمند محتوا</h2><p class="muted">این پرونده‌ها فقط برای مالک اصلی نمایش داده می‌شوند. هیچ کاربری بدون تأیید مالک مسدود نمی‌شود.</p><div id="aiModerationCases" class="empty">در انتظار بررسی مالک...</div><hr style="margin:24px 0;border-color:#ffffff20"><h2>درخواست‌های پشتیبانی انسانی</h2><p class="muted">گفت‌وگوهایی که دستیار هوشمند برای پاسخ دقیق‌تر به پشتیبان ارجاع داده است.</p><div id="supportInbox" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="wallet"><h2>مدیریت امتیازهای EX1</h2><div class="notice">این امتیازها فقط داخل EX1 کاربرد دارند؛ قابل خرید، فروش، انتقال یا برداشت نیستند و هیچ ارزش پولی ندارند.</div><div id="walletTable" class="empty">در انتظار دسترسی مجاز...</div><div id="walletAdjustPanel" class="panel hidden" style="margin-top:16px"><h3 id="walletAdjustTitle">اصلاح امتیاز کاربر</h3><form id="walletAdjustForm" class="manager-form"><input id="wallet_user_id" type="hidden"><div class="formgrid"><label>نوع عملیات<select id="wallet_entry_type"><option value="credit">افزایش امتیاز</option><option value="debit">کاهش امتیاز</option></select></label><label>مقدار امتیاز<input id="wallet_amount" type="number" min="1" max="1000000" required></label><label class="wide">دلیل ثبت<input id="wallet_reason" maxlength="300" minlength="2" required placeholder="مثلاً پاداش عملکرد تأییدشده"></label></div><div class="actions"><button class="btn primary" type="submit" id="walletAdjustSubmit">ثبت تغییر امتیاز</button><button class="btn" type="button" id="walletAdjustCancel">انصراف</button></div></form></div><div id="walletHistory" class="empty" style="margin-top:16px"></div></section>
 <section class="section tab hidden" id="settings"><h2>تنظیمات ظاهری سایت</h2><p class="muted">رنگ‌ها فقط با مجوز settings.manage ذخیره می‌شوند.</p><form id="themeForm"><div class="colorgrid">
 <label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
@@ -633,6 +633,7 @@ async function loadTableData(){
  }
  if(failed.length)toast("بعضی بخش‌ها به‌دلیل محدودیت دسترسی یا خطای ارتباط بارگذاری نشدند.");
  if(ownerCanBanUsers){try{await loadAIModerationCases();}catch(e){failed.push({status:"rejected"});}}
+ if(ownerCanBanUsers){try{await loadSupportInbox();}catch(e){failed.push({status:"rejected"});}}
  const counts=["statTournaments","statRegistrations","statTeams","statUsers"].map(id=>$(id).textContent).filter(x=>x!=="—");
  $("overviewEmpty").textContent=counts.length?"داده‌های مجاز از دیتابیس بارگذاری شدند. برای جزئیات، بخش مربوطه را باز کن.":"برای این حساب، مجوز مشاهده داده‌های مدیریتی ثبت نشده است.";
 }
@@ -678,6 +679,38 @@ async function loadAIModerationCases(){
    toast(decision==="warn_and_ban"?"اخطار ثبت و حساب مسدود شد.":"گزارش رد شد.");
    await loadAIModerationCases();
   }catch(err){toast(err?.message||"ثبت تصمیم انجام نشد.");button.disabled=false;}
+ }));
+}
+async function loadSupportInbox(){
+ if(!ownerCanBanUsers)return;
+ const box=$("supportInbox");
+ const {data:conversations,error}=await sb.from("support_conversations").select("id,user_id,subject,status,created_at,updated_at").eq("status","waiting_for_human").order("updated_at",{ascending:false}).limit(50);
+ if(error)throw error;
+ if(!conversations?.length){box.innerHTML='<div class="empty">درخواست پشتیبانی انسانی در انتظار نیست.</div>';return;}
+ const ids=[...new Set(conversations.map(x=>x.user_id))];
+ const {data:profiles,error:profileError}=await sb.from("profiles").select("id,username,display_name,game_name").in("id",ids);
+ if(profileError)throw profileError;
+ const people=new Map((profiles||[]).map(p=>[p.id,p]));
+ const cards=[];
+ for(const item of conversations){
+  const {data:messages,error:messageError}=await sb.from("support_messages").select("sender_role,body,created_at").eq("conversation_id",item.id).order("created_at",{ascending:true}).limit(20);
+  if(messageError)throw messageError;
+  const p=people.get(item.user_id),name=p?[p.display_name||p.game_name||"کاربر",p.username?"@"+p.username:""].filter(Boolean).join(" · "):item.user_id;
+  const transcript=(messages||[]).map(m=>'<div class="bubble '+(m.sender_role==="user"?"":"mine")+'"><b>'+esc(m.sender_role==="assistant"?"هوش مصنوعی":m.sender_role==="human_support"?"پشتیبان":"کاربر")+'</b><p>'+esc(m.body)+'</p></div>').join("");
+  cards.push('<article class="panel" style="margin:12px 0;padding:16px"><b>'+esc(name)+'</b><small class="muted"> · '+new Date(item.updated_at).toLocaleString("fa-IR")+'</small><div style="max-height:260px;overflow:auto;padding:8px">'+transcript+'</div><textarea class="field" rows="3" maxlength="4000" data-support-reply="'+esc(item.id)+'" placeholder="پاسخ پشتیبان..."></textarea><div class="actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn primary" data-support-send="'+esc(item.id)+'">ارسال پاسخ</button><button class="btn secondary" data-support-resolve="'+esc(item.id)+'">ارسال و بستن درخواست</button></div></article>');
+ }
+ box.innerHTML=cards.join("");
+ box.querySelectorAll("[data-support-send],[data-support-resolve]").forEach(button=>button.addEventListener("click",async()=>{
+  const id=button.dataset.supportSend||button.dataset.supportResolve;
+  const field=box.querySelector('[data-support-reply="'+id+'"]');
+  const message=field?.value.trim();if(!message){toast("پاسخ را بنویس.");return;}
+  button.disabled=true;
+  try{
+   const {data,error}=await sb.functions.invoke("reply-support",{body:{conversation_id:id,message,resolve:Boolean(button.dataset.supportResolve)}});
+   if(error)throw error;if(!data?.success)throw new Error(data?.error||"ثبت پاسخ انجام نشد.");
+   toast(button.dataset.supportResolve?"پاسخ ارسال و درخواست بسته شد.":"پاسخ پشتیبان ارسال شد.");
+   await loadSupportInbox();
+  }catch(err){toast(err?.message||"ارسال پاسخ انجام نشد.");button.disabled=false;}
  }));
 }
 async function loadTheme(){
