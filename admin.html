@@ -664,19 +664,19 @@ async function loadAIModerationCases(){
   }
   const textContent=item.content_text?'<blockquote style="white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border-right:3px solid #9b72d1;background:#ffffff08;border-radius:8px">'+esc(item.content_text)+'</blockquote>':'';
   const cats=Object.entries(categories).filter(([,v])=>v===true).map(([k])=>k).join("، ")||"تشخیص محتوای مشکوک";
-  cards.push('<article class="panel" style="margin:12px 0;padding:16px" id="ai-case-'+esc(item.id)+'"><div><b>'+esc(who)+'</b><small class="muted"> · '+esc(item.content_type)+' · '+esc(item.severity)+' · اطمینان: '+(item.confidence==null?"—":Math.round(Number(item.confidence)*100)+"٪")+'</small></div><p class="muted">دسته‌ها: '+esc(cats)+' · '+new Date(item.created_at).toLocaleString("fa-IR")+'</p>'+textContent+imageHtml+'<div class="actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn primary" data-ai-decision="warn_and_ban" data-ai-case="'+esc(item.id)+'">تأیید تخلف، اخطار و مسدودسازی</button><button class="btn danger" data-ai-decision="dismiss" data-ai-case="'+esc(item.id)+'">رد گزارش</button></div></article>');
+  cards.push('<article class="panel" style="margin:12px 0;padding:16px" id="ai-case-'+esc(item.id)+'"><div><b>'+esc(who)+'</b><small class="muted"> · '+esc(item.content_type)+' · '+esc(item.severity)+' · اطمینان: '+(item.confidence==null?"—":Math.round(Number(item.confidence)*100)+"٪")+'</small></div><p class="muted">دسته‌ها: '+esc(cats)+' · '+new Date(item.created_at).toLocaleString("fa-IR")+'</p>'+textContent+imageHtml+'<div class="actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn" data-ai-decision="warn_only" data-ai-case="'+esc(item.id)+'">اخطار اول؛ بدون مسدودسازی</button><button class="btn primary" data-ai-decision="warn_and_ban" data-ai-case="'+esc(item.id)+'">تأیید تخلف، اخطار و مسدودسازی</button><button class="btn danger" data-ai-decision="dismiss" data-ai-case="'+esc(item.id)+'">رد گزارش</button></div></article>');
  }
  box.innerHTML=cards.join("");
  box.querySelectorAll("[data-ai-decision]").forEach(button=>button.addEventListener("click",async()=>{
   const id=button.dataset.aiCase,decision=button.dataset.aiDecision;
-  const prompt=decision==="warn_and_ban"?"با تأیید این تصمیم، ابتدا اخطار برای کاربر ثبت و سپس حساب او مسدود می‌شود. مطمئنی؟":"این گزارش رد می‌شود. ادامه می‌دهی؟";
+  const prompt=decision==="warn_and_ban"?"با تأیید این تصمیم، ابتدا اخطار برای کاربر ثبت و سپس حساب او مسدود می‌شود. مطمئنی؟":decision==="warn_only"?"برای کاربر اخطار ثبت می‌شود و حسابش مسدود نخواهد شد. ادامه می‌دهی؟":"این گزارش رد می‌شود. ادامه می‌دهی؟";
   if(!window.confirm(prompt))return;
   button.disabled=true;
   try{
    const {data,error}=await sb.functions.invoke("manage-ai-moderation-case",{body:{case_id:id,decision,note:"بررسی و تصمیم مالک از پنل EX1"}});
    if(error)throw error;
    if(!data?.success)throw new Error(data?.error||"ثبت تصمیم انجام نشد.");
-   toast(decision==="warn_and_ban"?"اخطار ثبت و حساب مسدود شد.":"گزارش رد شد.");
+   toast(decision==="warn_and_ban"?"اخطار ثبت و حساب مسدود شد.":decision==="warn_only"?"اخطار ثبت شد؛ حساب مسدود نشد.":"گزارش رد شد.");
    await loadAIModerationCases();
   }catch(err){toast(err?.message||"ثبت تصمیم انجام نشد.");button.disabled=false;}
  }));
