@@ -492,12 +492,17 @@ async function loadTheme(){
  if(error||!data){$("themeMessage").textContent="خواندن تنظیمات ممکن نشد.";return;}
  Object.entries(data).forEach(([k,v])=>{if($(k))$(k).value=v;});
 }
+let accessRunId=0;
 async function applyAccess(user){
+ const runId=++accessRunId;
  $("authView").classList.add("hidden");$("appView").classList.remove("hidden");$("identity").textContent=user.email||"حساب واردشده";
- $("nav").innerHTML="";permissions={};
+ $("nav").replaceChildren();permissions={};
  let list;
- try{list=await rpc("admin_my_permissions");}catch(e){$("appView").classList.add("hidden");$("authView").classList.remove("hidden");$("authMessage").textContent="دریافت مجوزها ممکن نشد؛ دسترسی رد شد.";return;}
- list.forEach(p=>permissions[p.permission_code]=p.is_allowed===true);
+ try{list=await rpc("admin_my_permissions");}catch(e){if(runId!==accessRunId)return;$("appView").classList.add("hidden");$("authView").classList.remove("hidden");$("authMessage").textContent="دریافت مجوزها ممکن نشد؛ دسترسی رد شد.";return;}
+ if(runId!==accessRunId)return;
+ const nextPermissions={};
+ (Array.isArray(list)?list:[]).forEach(p=>{if(p&&p.permission_code)nextPermissions[p.permission_code]=p.is_allowed===true;});
+ permissions=nextPermissions;
  const allowedTabs=["overview"];
  if(permissions["tournaments.view"]||permissions["tournaments.create"]||permissions["tournaments.update"]||permissions["tournaments.delete"])allowedTabs.push("tournaments");
  if(permissions["rooms.view"]||permissions["rooms.manage"])allowedTabs.push("rooms");
@@ -510,11 +515,11 @@ async function applyAccess(user){
  if(permissions["wallet.view_all"]||permissions["wallet.demo_adjust"])allowedTabs.push("wallet");
  if(permissions["settings.view"]||permissions["settings.manage"])allowedTabs.push("settings");
   if(permissions["admins.manage"]&&permissions["permissions.manage"])allowedTabs.push("admins");
- allowedTabs.forEach(addNav);showTab("overview");
+ [...new Set(allowedTabs)].forEach(addNav);showTab("overview");
  const count=Object.values(permissions).filter(Boolean).length;
  if(count===0){$("overviewEmpty").textContent="این حساب دسترسی مدیریتی ندارد. برای امنیت، هیچ داده مدیریتی نمایش داده نمی‌شود.";$("overviewText").textContent="ورود موفق بود، اما مجوز مدیریتی برای این حساب ثبت نشده است.";}
- if(permissions["settings.manage"]||permissions["settings.view"]){await loadTheme();$("saveTheme").hidden=!permissions["settings.manage"];}
- await loadTableData();
+ if(permissions["settings.manage"]||permissions["settings.view"]){await loadTheme();if(runId!==accessRunId)return;$("saveTheme").hidden=!permissions["settings.manage"];}
+ if(runId===accessRunId)await loadTableData();
 }
 
 let tournamentCache=[];
