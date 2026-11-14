@@ -87,7 +87,7 @@ img,video{max-width:100%}
  </nav>
 <footer>EX1 LEGEND · جامعه‌ی رقابت سالم</footer>
 <div class="modal" id="authModal"><div class="dialog"><h3 id="authTitle">ورود به EX1 LEGEND</h3><p id="authHint" class="muted">با ایمیل و رمز عبور وارد شو یا حساب جدید بساز.</p><form id="authForm"><input id="authName" class="field" maxlength="30" placeholder="نام نمایشی" hidden><input id="authEmail" class="field" type="email" maxlength="254" autocomplete="email" placeholder="ایمیل" required><input id="authPassword" class="field" type="password" minlength="8" maxlength="72" autocomplete="current-password" placeholder="رمز عبور (حداقل ۸ نویسه)" required><button class="btn" id="authSubmit" type="submit">ورود</button></form><button class="btn ghost" id="forgotPasswordButton" type="button">فراموشی رمز عبور؟</button><button class="btn secondary" id="authSwitch" type="button">ساخت حساب جدید</button><button class="btn ghost" type="button" onclick="closeAuth()">بستن</button><p class="muted">رمز عبورت را در اختیار هیچ‌کس قرار نده و آن را در چت ارسال نکن.</p></div></div>
-<div class="modal" id="profileEditorModal"><div class="dialog"><h3>ویرایش پروفایل</h3><form id="profileForm"><label>نام نمایشی<input class="field" id="profileName" maxlength="30" required></label><label>نام کاربری<input class="field" id="profileHandle" maxlength="24" placeholder="اختیاری"></label><label>UID کالاف دیوتی موبایل<input class="field" id="profileGameUid" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="شناسهٔ بازیکن در بازی (بدون ایمیل)"></label><label>نام دقیق داخل بازی<input class="field" id="profileGameName" maxlength="40" placeholder="Nickname کالاف"></label><small class="muted">UID را از پروفایل داخل بازی وارد کن؛ ایمیل یا نشانی جیمیل قابل قبول نیست. نام بازی را دقیقاً مطابق پروفایل کالاف بنویس.</small><button class="btn" type="submit">ذخیره تغییرات</button></form><button class="btn ghost" type="button" data-close-modal="profileEditorModal">بستن</button></div></div><div class="modal" id="settingsModal"><div class="dialog"><h3>تنظیمات EX1</h3><button class="btn secondary" id="showAppearanceSettings" type="button">تنظیمات ظاهری</button><div id="appearanceSettings" hidden><label>تم رنگی<select class="field" id="userTheme"><option value="soft">نرم و متعادل</option><option value="blue">آبی</option><option value="green">سبز</option><option value="amber">کهربایی</option></select></label><label>فونت برنامه<select class="field" id="userFont"><option value="tahoma">Tahoma</option><option value="system">فونت سیستم</option><option value="arial">Arial</option><option value="mono">Monospace</option></select></label><button class="btn small" id="saveUserSettings" type="button">ذخیره تنظیمات</button><p class="muted" id="userSettingsMessage">تنظیمات روی همین دستگاه ذخیره می‌شوند.</p></div><button class="btn secondary" id="showBlockedSettings" type="button">حساب‌های مسدودشده</button><div id="blockedSettings" hidden><div id="blockedUsers" class="user-list"><div class="empty">در حال دریافت فهرست...</div></div></div><button class="btn secondary" id="changeAccountButton" type="button">تغییر حساب کاربری</button><button class="btn ghost" id="logoutButton" type="button">خروج از حساب</button><button class="btn ghost" type="button" data-close-modal="settingsModal">بستن</button></div></div>
+<div class="modal" id="profileEditorModal"><div class="dialog"><h3>ویرایش پروفایل</h3><form id="profileForm"><label>نام نمایشی<input class="field" id="profileName" maxlength="30" required></label><label>نام کاربری<input class="field" id="profileHandle" maxlength="24" placeholder="اختیاری"></label><label>UID کالاف دیوتی موبایل<input class="field" id="profileGameUid" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="شناسهٔ بازیکن در بازی (بدون ایمیل)"></label><label>نام دقیق داخل بازی<input class="field" id="profileGameName" maxlength="40" placeholder="Nickname کالاف"></label><small class="muted">UID را از پروفایل داخل بازی وارد کن؛ ایمیل یا نشانی جیمیل قابل قبول نیست. نام بازی را دقیقاً مطابق پروفایل کالاف بنویس.</small><button class="btn" type="submit">ذخیره تغییرات</button></form><button class="btn ghost" type="button" data-close-modal="profileEditorModal">بستن</button></div></div><div class="modal" id="settingsModal"><div class="dialog"><h3>تنظیمات EX1</h3><button class="btn secondary" id="showAppearanceSettings" type="button">تنظیمات ظاهری</button><div id="appearanceSettings" hidden><label>تم رنگی<select class="field" id="userTheme"><option value="soft">نرم و متعادل</option><option value="blue">آبی</option><option value="green">سبز</option><option value="amber">کهربایی</option></select></label><label>فونت برنامه<select class="field" id="userFont"><option value="tahoma">Tahoma</option><option value="system">فونت سیستم</option><option value="arial">Arial</option><option value="mono">Monospace</option></select></label><button class="btn small" id="saveUserSettings" type="button">ذخیره تنظیمات</button><p class="muted" id="userSettingsMessage">تنظیمات روی همین دستگاه ذخیره می‌شوند.</p></div><button class="btn secondary" id="showBlockedSettings" type="button">حساب‌های مسدودشده</button><div id="blockedSettings" hidden><div id="blockedUsers" class="user-list"><div class="empty">در حال دریافت فهرست...</div></div></div><button class="btn secondary" id="changeAccountButton" type="button">تغییر حساب کاربری</button><button class="btn ghost" id="logoutButton" type="button">خروج از حساب</button><button class="btn ghost" id="deleteAccountButton" type="button" style="border-color:#b94a4a;color:#b94a4a">حذف حساب کاربری</button><p class="muted">حذف حساب دائمی است و پس از تأیید هویت قابل بازگشت نیست.</p><button class="btn ghost" type="button" data-close-modal="settingsModal">بستن</button></div></div>
 <div class="modal" id="walletModal"><div class="dialog"><h3>استار هدیه EX1</h3><div class="wallet-modal-balance"><span>موجودی فعلی</span><strong id="walletModalBalance">۰ <small>استار هدیه</small></strong></div><p class="muted">استار هدیه غیرنقدی است؛ قابل خرید، انتقال، فروش، برداشت یا تبدیل به پول نیست و برای ورودی پولی مسابقات یا دریافت جایزه نقدی استفاده نمی‌شود.</p><div class="wallet-history"><h4>تاریخچه دفترکل استار</h4><div id="walletHistory" class="empty">در حال دریافت تاریخچه...</div></div><button class="btn ghost" type="button" data-close-modal="walletModal">بستن</button></div></div><div class="modal" id="joinRoomModal"><div class="dialog"><h3>ثبت‌نام در روم</h3><p id="joinRoomSummary" class="muted"></p><div class="panel"><strong>چطور شرکت می‌کنی؟</strong><p>لازم نیست از قبل تیم داشته باشی. ثبت‌نام انفرادی کن تا سیستم به‌ترتیب بازیکنان را در تیم‌های کامل دو یا چهار نفره قرار دهد.</p><small class="muted">اگر تیم کامل خودت را داری، کاپیتان می‌تواند گزینهٔ ثبت‌نام با تیم را انتخاب کند.</small></div><p id="soloJoinProgress" class="muted"></p><button class="btn" id="confirmRoomSoloJoin" type="button">ثبت‌نام انفرادی و تشکیل خودکار تیم</button><button class="btn secondary" id="confirmRoomJoin" type="button">ثبت‌نام با تیم کامل</button><p class="muted">ثبت‌نام رایگان است و هیچ پرداختی انجام نمی‌شود.</p><button class="btn ghost" type="button" data-close-modal="joinRoomModal">بازگشت</button></div></div><div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2.119.0/dist/umd/supabase.js'"></script>
 <script src="/supabase-config.js"></script>
@@ -399,11 +399,16 @@ function switchHome(tab){
 document.querySelectorAll("[data-home-tab]").forEach(b=>b.addEventListener("click",()=>switchHome(b.dataset.homeTab)));
 $("headerAuth").onclick=()=>currentUser?switchPage("profile"):openAuth();
 async function signOutCurrentAccount(){const {error}=await sb.auth.signOut();if(error)throw error;currentUser=null;activeConversation=null;activeConversationUser=null;await authState();switchPage("home");}
-$("logoutButton").onclick=async()=>{try{await signOutCurrentAccount();$("settingsModal").classList.remove("show");toast("از حساب خارج شدی.");}catch(err){toast(err?.message||"خروج انجام نشد.");}};
+async function confirmedSignOut(){
+ if(!currentUser)return;
+ if(!window.confirm("آیا می‌خواهید از حساب کاربری خود خارج شوید؟"))return false;
+ await signOutCurrentAccount();$("settingsModal").classList.remove("show");toast("با موفقیت از حساب خارج شدی.");return true;
+}
+$("logoutButton").onclick=async()=>{try{await confirmedSignOut();}catch(err){toast(err?.message||"خروج انجام نشد.");}};
 $("changeAccountButton").onclick=async()=>{
  const button=$("changeAccountButton");button.disabled=true;button.textContent="در حال تغییر حساب...";
  try{
-  if(currentUser)await signOutCurrentAccount();
+  if(currentUser){const didSignOut=await confirmedSignOut();if(!didSignOut)return;}
   $("settingsModal").classList.remove("show");
   $("authForm").reset();authMode="login";
   $("authTitle").textContent="ورود به EX1 LEGEND";
@@ -415,6 +420,31 @@ $("changeAccountButton").onclick=async()=>{
   openAuth();
  }catch(err){toast(err?.message||"تغییر حساب انجام نشد.");}
  finally{button.disabled=false;button.textContent="تغییر حساب کاربری";}
+};
+$("deleteAccountButton").onclick=async()=>{
+ const button=$("deleteAccountButton");
+ if(!currentUser)return toast("ابتدا وارد حساب شو.");
+ if(!window.confirm("آیا می‌خواهید حساب کاربری خود را حذف کنید؟ این عملیات دائمی است و قابل بازگشت نیست."))return;
+ const password=window.prompt("برای تأیید هویت، رمز عبور فعلی حساب EX1 را وارد کن:");
+ if(password===null)return;
+ if(!password.trim())return toast("برای حذف حساب، وارد کردن رمز عبور لازم است.");
+ const confirmation=window.prompt("برای تأیید نهایی، عبارت «حذف حساب» را دقیقاً وارد کن:");
+ if(confirmation===null)return;
+ if(confirmation.trim()!=="حذف حساب")return toast("عبارت تأیید درست نبود؛ حساب حذف نشد.");
+ button.disabled=true;button.textContent="در حال حذف امن حساب...";
+ try{
+  const {data,error}=await sb.functions.invoke("delete-account",{body:{password,confirmation:confirmation.trim()}});
+  if(error)throw error;
+  if(!data?.success)throw new Error(data?.error||"حذف حساب انجام نشد.");
+  await sb.auth.signOut({scope:"local"});
+  currentUser=null;activeConversation=null;activeConversationUser=null;
+  $("settingsModal").classList.remove("show");
+  await authState();switchPage("home");
+  toast("حساب کاربری با موفقیت حذف شد.");
+ }catch(err){
+  const message=err?.context?.body?.error||err?.message||"حذف حساب انجام نشد.";
+  toast(message);
+ }finally{button.disabled=false;button.textContent="حذف حساب کاربری";}
 };
 function formatDate(v){try{return new Date(v).toLocaleString("fa-IR",{dateStyle:"short",timeStyle:"short"});}catch{return "";}}
 function avatarHTML(profile,sizeClass="avatar"){const name=profile?.display_name||profile?.username||"EX";const initial=esc(name.slice(0,1).toUpperCase());let url=profile?.avatar_url||"";if(url&&!/^https?:\/\//i.test(url))url=sb.storage.from("ex1-avatars").getPublicUrl(url).data.publicUrl;return url?'<img class="'+sizeClass+'" data-avatar-fallback="'+initial+'" data-avatar-class="'+sizeClass+'" src="'+esc(url)+'" alt="">':'<div class="'+sizeClass+'">'+initial+'</div>';}
