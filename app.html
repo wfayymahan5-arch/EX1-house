@@ -164,15 +164,6 @@ sb.channel("ex1-site-theme-settings")
 loadSiteTheme();
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let currentUser=null,authMode="login",activeConversation=null,activeConversationUser=null;
-async function moderateUserText(contentType,contentText,sourceId){
- const text=String(contentText||"").trim();if(!text)return true;
- try{
-  const {data,error}=await sb.functions.invoke("moderate-text",{body:{content_type:contentType,content_text:text,source_id:sourceId||null}});
-  if(error)throw error;
-  if(data?.allowed!==true){toast(data?.message||"این متن برای بررسی مالک ارسال شد و ذخیره نمی‌شود.");return false;}
-  return true;
- }catch(err){toast(err?.message||"بررسی ایمنی متن انجام نشد؛ متن ذخیره نشد.");return false;}
-}
 
 let toastTimer;
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.remove("show"),3200);}
@@ -551,9 +542,10 @@ $("profileForm").addEventListener("submit",async e=>{
   const gameUid=$("profileGameUid").value.trim();
   if(gameUid.includes("@")){toast("UID کالاف نباید ایمیل باشد؛ شناسه داخل بازی را وارد کن.");$("profileGameUid").focus();return;}
   const payload={display_name:$("profileName").value.trim(),username:$("profileHandle").value.trim()||null,game_uid:gameUid||null,game_name:$("profileGameName").value.trim()||null};
- if(!(await moderateUserText("profile_text",[payload.display_name,payload.username,payload.game_name].filter(Boolean).join("\n"),currentUser.id)))return;
- const {error}=await sb.from("profiles").update(payload).eq("id",currentUser.id);
- if(error){toast(profileDuplicateMessage(error)||"ذخیره پروفایل انجام نشد.");return;}
+ const {data:updateData,error:updateError}=await sb.functions.invoke("update-profile",{body:payload});
+ if(updateError){toast(profileDuplicateMessage(updateError)||"ذخیره پروفایل انجام نشد.");return;}
+ if(updateData?.pending_review){toast(updateData.message||"پروفایل برای بررسی مالک ارسال شد.");return;}
+ if(!updateData?.success){toast(updateData?.error||"ذخیره پروفایل انجام نشد.");return;}
  toast("پروفایل ذخیره شد.");$("profileEditorModal").classList.remove("show");loadProfile();
 });
 
@@ -777,8 +769,10 @@ $("teamSettingsForm").addEventListener("submit",async e=>{
  try{
   const payload={name:$("teamSettingsName").value.trim(),tag:$("teamSettingsTag").value.trim().toUpperCase()||null,description:$("teamSettingsDescription").value.trim()||null};
   if(payload.name.length<2)throw new Error("نام تیم باید حداقل دو نویسه باشد.");
-  if(!(await moderateUserText("team_description",[payload.name,payload.tag,payload.description].filter(Boolean).join("\n"),currentTeamId)))return;
-  const {error}=await sb.from("teams").update(payload).eq("id",currentTeamId).eq("captain_id",currentUser.id);if(error)throw error;
+  const {data:updateData,error:updateError}=await sb.functions.invoke("manage-team",{body:{action:"update",team_id:currentTeamId,...payload}});
+  if(updateError)throw updateError;
+  if(updateData?.pending_review){$("teamSettingsMessage").textContent=updateData.message||"اطلاعات تیم برای بررسی مالک ارسال شد.";return;}
+  if(!updateData?.success)throw new Error(updateData?.error||"به‌روزرسانی تیم انجام نشد.");
   $("teamSettingsMessage").textContent="تنظیمات تیم ذخیره شد.";await loadMyTeam();toast("تنظیمات تیم به‌روزرسانی شد.");
  }catch(err){$("teamSettingsMessage").textContent=err.message||"ذخیره تنظیمات انجام نشد.";}
  finally{button.disabled=false;}
@@ -843,9 +837,10 @@ $("createTeamForm").addEventListener("submit",async e=>{
  const name=$("newTeamName").value.trim(),tag=$("newTeamTag").value.trim().toUpperCase()||null,description=$("newTeamDescription").value.trim()||null;
  const button=e.submitter||$("createTeamForm").querySelector('button[type="submit"]');button.disabled=true;button.textContent="در حال ساخت...";
  try{
-  if(!(await moderateUserText("team_description",[name,tag,description].filter(Boolean).join("\n"))))return;
-  const {data:teamId,error}=await sb.rpc("team_create",{p_name:name,p_tag:tag,p_description:description});if(error)throw error;
-  if(!teamId)throw new Error("شناسه تیم از سرور دریافت نشد.");
+  const {data:createData,error:createError}=await sb.functions.invoke("manage-team",{body:{action:"create",name,tag,description}});
+  if(createError)throw createError;
+  if(createData?.pending_review){toast(createData.message||"اطلاعات تیم برای بررسی ارسال شد.");return;}
+  if(!createData?.success||!createData.team_id)throw new Error(createData?.error||"ساخت تیم انجام نشد.");
   $("createTeamForm").reset();await loadMyTeam();toast("تیم و عضویت کاپیتان با موفقیت و به‌صورت یکپارچه ساخته شد.");
  }catch(err){console.error("EX1 team create:",err);toast(err?.message||"ساخت تیم انجام نشد.");}
  finally{button.disabled=false;button.textContent="ساخت تیم";}
