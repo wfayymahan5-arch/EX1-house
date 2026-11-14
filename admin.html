@@ -536,14 +536,14 @@ $("roomsTable").addEventListener("click",async e=>{
      const avatar=url?'<img src="'+esc(url)+'" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover">':'<span style="display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#e9e2f8">'+esc((p.game_name||"؟").slice(0,1))+'</span>';
      return '<div style="display:flex;align-items:center;gap:9px;margin:6px 0">'+avatar+'<span><b>'+esc(p.game_name||"نام کالاف ثبت نشده")+'</b><br><small>آیدی بازی: '+esc(p.game_uid||"ثبت نشده")+'</small></span></div>';
     }).join("");
-    return '<tr><td>'+Number(slot.slot_number)+'</td><td>'+esc(slot.team_name||"تیم")+'</td><td>'+(people||"—")+'</td><td>'+esc(slot.status||"—")+'</td></tr>';
+    return '<tr><td>'+Number(slot.slot_number)+'</td><td>'+esc(slot.team_name||"تیم")+'</td><td>'+(people||"—")+'</td><td>'+esc(slot.status==="waiting"?"در حال تشکیل تیم":slot.status||"—")+'</td></tr>';
    });
-    const queueRows=(waitingPlayers||[]).map(p=>{
+    const queueRows=(waitingPlayers||[]).filter(p=>!p.slot_number).map(p=>{
      let url=p.avatar_url||"";
      if(url&&!/^https?:\/\//i.test(url))url=sb.storage.from("ex1-avatars").getPublicUrl(url).data.publicUrl;
      const avatar=url?'<img src="'+esc(url)+'" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover">' : '<span style="display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#e9e2f8">'+esc((p.game_name||"؟").slice(0,1))+'</span>';
      const person='<div style="display:flex;align-items:center;gap:9px;margin:6px 0">'+avatar+'<span><b>'+esc(p.game_name||"نام کالاف ثبت نشده")+'</b><br><small>آیدی بازی: '+esc(p.game_uid||"ثبت نشده")+'</small></span></div>';
-     return '<tr><td>—</td><td>صف تشکیل تیم</td><td>'+person+'</td><td>در انتظار تکمیل تیم</td></tr>';
+     return '<tr><td>'+(Number(p.slot_number)||"—")+'</td><td>صف تشکیل تیم</td><td>'+person+'</td><td>در انتظار تکمیل تیم</td></tr>';
     });
    $("roomParticipantsTitle").textContent="شرکت‌کنندگان · "+(room.title||"روم");
    $("roomParticipantsContent").innerHTML=(rows.length||queueRows.length)?'<div class="tablewrap"><table><thead><tr><th>جایگاه</th><th>تیم</th><th>بازیکنان</th><th>وضعیت</th></tr></thead><tbody>'+rows.concat(queueRows).join("")+'</tbody></table></div>':'<div class="empty">برای این روم هنوز ثبت‌نامی ثبت نشده است.</div>';
