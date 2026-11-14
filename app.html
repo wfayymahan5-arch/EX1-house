@@ -310,17 +310,32 @@ async function refreshRoomAccess(roomId){
  const {data,error}=await sb.rpc("get_my_tournament_room_access",{p_room_id:roomId});
  if(error||!data){box.hidden=true;return;}
  box.hidden=false;
- box.innerHTML="<h3>اطلاعات ورود به روم کالاف</h3><p>تیم "+Number(data.slot_number).toLocaleString("fa-IR")+" · "+esc(data.team_name||"تیم EX1")+"</p><p><b>کد روم:</b> <span class=\"allow-select\">"+esc(data.room_code)+"</span> <button type=\"button\" data-copy-room=\"code\">کپی</button></p><p><b>رمز روم:</b> <span class=\"allow-select\">"+esc(data.room_password)+"</span> <button type=\"button\" data-copy-room=\"password\">کپی</button></p><h4>اعضای تیم</h4>"+(data.players||[]).map(p=>"<div class=\"user-row\">"+avatarHTML({...p,display_name:p.game_name||"نام کالاف ثبت نشده"},"team-avatar")+"<div class=\"user-info\"><strong>"+esc(p.game_name||"نام کالاف ثبت نشده")+"</strong><small>"+esc(p.game_uid||"")+"</small></div></div>").join("")+"<h4>قوانین مسابقه</h4><div class=\"room-rules-copy\">"+esc(data.rules||"قوانيني ثبت نشده است.")+"</div>";
+ if(data.access_ready!==true){
+  const startsAt=data.starts_at||activeRoomDetail?.starts_at||null;
+  let statusText=data.waiting_for_start?"اطلاعات ورود تا زمان شروع مخفی می‌ماند.":(data.waiting_for_admin?"زمان شروع رسیده؛ مدیر هنوز کد و رمز را ثبت نکرده است.":"اطلاعات ورود هنوز آماده نیست.");
+  let countdown="";
+  if(startsAt){
+   const delta=new Date(startsAt).getTime()-Date.now();
+   if(delta>0){
+    const total=Math.floor(delta/1000),days=Math.floor(total/86400),hours=Math.floor((total%86400)/3600),mins=Math.floor((total%3600)/60),secs=total%60;
+    countdown="<p><b>زمان باقی‌مانده:</b> "+(days?days.toLocaleString("fa-IR")+" روز و ":"")+hours.toLocaleString("fa-IR")+" ساعت، "+mins.toLocaleString("fa-IR")+" دقیقه و "+secs.toLocaleString("fa-IR")+" ثانیه</p>";
+   }else countdown="<p><b>زمان شروع:</b> "+new Date(startsAt).toLocaleString("fa-IR")+"</p>";
+  }
+  box.innerHTML="<h3>دسترسی به اطلاعات روم</h3><p>تیم "+Number(data.slot_number||0).toLocaleString("fa-IR")+" · "+esc(data.team_name||"تیم EX1")+"</p><p>"+statusText+"</p>"+countdown+"<p class=\"muted\">به محض رسیدن زمان شروع، کد و رمز همین‌جا به‌طور خودکار نمایش داده می‌شوند.</p>";
+  return;
+ }
+ box.innerHTML="<h3>اطلاعات ورود به روم کالاف</h3><p class=\"notice\">زمان شروع فرا رسیده است؛ اطلاعات این روم برای اعضای ثبت‌نام‌شده نمایش داده می‌شود.</p><p>تیم "+Number(data.slot_number).toLocaleString("fa-IR")+" · "+esc(data.team_name||"تیم EX1")+"</p><p><b>کد روم:</b> <span class=\"allow-select\">"+esc(data.room_code)+"</span> <button type=\"button\" data-copy-room=\"code\">کپی</button></p><p><b>رمز روم:</b> <span class=\"allow-select\">"+esc(data.room_password)+"</span> <button type=\"button\" data-copy-room=\"password\">کپی</button></p><h4>اعضای تیم</h4>"+(data.players||[]).map(p=>"<div class=\"user-row\">"+avatarHTML({...p,display_name:p.game_name||"نام کالاف ثبت نشده"},"team-avatar")+"<div class=\"user-info\"><strong>"+esc(p.game_name||"نام کالاف ثبت نشده")+"</strong><small>"+esc(p.game_uid||"")+"</small></div></div>").join("")+"<h4>قوانین مسابقه</h4><div class=\"room-rules-copy\">"+esc(data.rules||"قوانيني ثبت نشده است.")+"</div>";
  box.querySelectorAll("[data-copy-room]").forEach(btn=>btn.onclick=async()=>{const value=btn.dataset.copyRoom==="code"?data.room_code:data.room_password;try{await navigator.clipboard.writeText(value);toast("کپی شد.");}catch{toast("کپی خودکار در این مرورگر در دسترس نیست؛ متن را انتخاب و کپی کن.");}});
 }
 async function showRoomDetail(room){
+ if(window.ex1RoomAccessTimer){clearInterval(window.ex1RoomAccessTimer);window.ex1RoomAccessTimer=null;}
  activeRoomDetail=room;
  const media=room.room_media_type==="video"&&room.room_video_url?'<video class="room-cover" controls playsinline preload="metadata" src="'+esc(room.room_video_url)+'"></video>':(room.room_image_url?'<img class="room-cover" src="'+esc(room.room_image_url)+'" alt="تصویر روم">':'<div class="room-cover room-cover-fallback"><img src="/room-arena-art.svg" alt="تصویر میدان رقابت EX1"><span>LEGEND ARENA</span></div>');
  const n=Math.max(1,Math.min(25,Number(room.max_teams)||25));
  const teamSize=Math.max(1,Math.min(4,Number(room.team_size)||4));
  $("roomDetail").innerHTML='<div class="room-detail-hero">'+media+'<div class="room-hero-shade"></div><div class="room-hero-title"><span class="room-live-tag">'+(room.status==="open"?"● ثبت‌نام فعال":"● ظرفیت تکمیل")+'</span><h2>'+esc(room.title)+'</h2><small>EX1 LEGEND · BATTLE ARENA</small></div><button class="room-back-btn" type="button" id="roomBackToList">بازگشت به روم‌ها</button></div><div class="room-summary-grid"><div><small>فرمت</small><strong>'+(room.team_size===2?"دو نفره":"چهار نفره")+'</strong></div><div><small>زمان شروع</small><strong>'+formatRoomStart(room.starts_at)+'</strong></div><div><small>ثبت‌نام</small><strong>رایگان</strong></div><div><small>ظرفیت</small><strong>'+n+' تیم</strong></div></div><div class="room-tabs"><button class="active" type="button" data-room-tab="teams">تیم‌ها</button><button type="button" data-room-tab="rules">قوانین</button></div><div id="roomAccessInline" class="panel" style="margin:12px 14px" hidden></div><div id="roomTeamsPanel"><div class="room-section-title"><span></span><div><h3>لیست تیم‌ها</h3><small>وضعیت جایگاه‌ها از دیتابیس به‌روز می‌شود</small></div></div><div class="muted" id="roomSlotsMessage">در حال دریافت جایگاه‌ها...</div><div class="team-slots" id="roomSlotsList"></div><section id="roomWaitingPanel" hidden><div class="room-section-title"><span></span><div><h3>بازیکنان در انتظار تشکیل تیم</h3><small>ثبت‌نام انفرادی تا تکمیل تعداد اعضا</small></div></div><div id="roomWaitingPlayers" class="user-list" style="padding:0 14px 12px"></div></section><div id="soloQueueStatus" class="muted" style="margin:12px 14px;padding:12px;border:1px solid #ffffff20;border-radius:12px;background:#ffffff08" hidden></div></div><div id="roomRulesPanel" class="room-rules" hidden><div class="room-section-title"><span></span><div><h3>قوانین و توضیحات</h3><small>قبل از ثبت‌نام قوانین روم را بخوان</small></div></div><div class="room-rules-copy">'+esc(room.rules||"قوانین اختصاصی برای این روم ثبت نشده است.")+'</div></div><div class="room-register-bar"><div><small>هزینه ثبت‌نام</small><strong>رایگان</strong></div><button type="button" id="roomMainJoin" '+(room.status!=="open"?"disabled":"")+'>ثبت‌نام در روم <b>⚡</b></button></div>';
  $("roomDetail").hidden=false;
- $("roomBackToList").onclick=()=>{$("roomDetail").hidden=true;document.getElementById("roomCards").scrollIntoView({behavior:"smooth",block:"start"});};
+ $("roomBackToList").onclick=()=>{if(window.ex1RoomAccessTimer){clearInterval(window.ex1RoomAccessTimer);window.ex1RoomAccessTimer=null;}activeRoomDetail=null;$("roomDetail").hidden=true;document.getElementById("roomCards").scrollIntoView({behavior:"smooth",block:"start"});};
  $("roomDetail").querySelectorAll("[data-room-tab]").forEach(b=>b.onclick=()=>{const rules=b.dataset.roomTab==="rules";$("roomTeamsPanel").hidden=rules;$("roomRulesPanel").hidden=!rules;$("roomDetail").querySelectorAll("[data-room-tab]").forEach(x=>x.classList.toggle("active",x===b));});
  $("roomMainJoin").disabled=true;$("roomMainJoin").textContent="در حال دریافت جایگاه‌ها...";$("roomMainJoin").onclick=()=>{const first=$("roomSlotsList").querySelector("[data-room-slot]");if(!first){toast("فعلاً جایگاه خالی برای ثبت‌نام وجود ندارد.");return;}openRoomJoin(room,Number(first.dataset.roomSlot));};
  const {data:occupied,error}=await sb.rpc("get_tournament_room_slots",{p_room_id:room.id});
@@ -348,6 +363,7 @@ async function showRoomDetail(room){
  $("roomDetail").querySelectorAll("[data-room-slot]").forEach(b=>b.onclick=()=>openRoomJoin(room,Number(b.dataset.roomSlot)));
  await refreshSoloQueueStatus(room.id);
   await refreshRoomAccess(room.id);
+ if(currentUser)window.ex1RoomAccessTimer=setInterval(()=>{if(activeRoomDetail?.id===room.id&&!document.hidden)refreshRoomAccess(room.id).catch(()=>{});},10000);
  $("roomDetail").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
