@@ -66,6 +66,13 @@ img,video{max-width:100%}
  <div class="profile-stats"><div><strong id="profileFollowersCount">۰</strong><small>دنبال‌کننده</small></div><div><strong id="profileFollowingCount">۰</strong><small>دنبال‌شونده</small></div><div><strong>EX1</strong><small>عضویت</small></div></div>
  <div class="profile-bio panel"><p>پروفایل عمومی فقط اطلاعات پایه‌ی بازیکن را نمایش می‌دهد.</p><button class="btn small" type="button" id="openProfileEditor">ویرایش پروفایل　✎</button></div>
  <div class="wallet-card" role="button" tabindex="0" id="walletOpen"><div><span class="wallet-kicker">استار هدیه EX1 · غیرنقدی</span><strong id="walletCardBalance" class="wallet-balance">۰ <small>امتیاز</small></strong><span class="wallet-note">مشاهده موجودی و تاریخچه استار</span></div><span class="wallet-icon">✦</span></div>
+ 
+ <section class="panel" id="supportPanel" style="margin:16px 0;padding:16px">
+  <div class="section-head"><div><h2>پشتیبانی هوشمند EX1</h2><p>برای سؤال درباره ورود، مسابقات، روم‌ها و امکانات اپ</p></div><button class="btn small secondary" type="button" id="supportNew">گفت‌وگوی تازه</button></div>
+  <div id="supportMessages" class="chat-messages" style="min-height:100px;max-height:300px"><div class="empty">برای شروع، پیام خودت را بنویس.</div></div>
+  <form id="supportForm" class="chat-send"><input id="supportText" class="field" maxlength="3000" placeholder="سؤالت را بنویس..." required><button class="btn small" type="submit" id="supportSend">ارسال</button></form>
+  <p class="muted" id="supportHint">اگر پاسخ قطعی نباشد، گفت‌وگو برای پشتیبان انسانی علامت‌گذاری می‌شود.</p>
+ </section>
  <div class="profile-tabs"><button class="active" type="button" data-profile-tab="matches" aria-controls="profileMatches">مسابقات من</button><button type="button" data-profile-tab="team" aria-controls="profileTeam">تیم من</button></div><section id="profileMatches"><div class="section-head"><div><h2>روم‌های من و جوایز</h2><p>سوابق ثبت‌نام و جوایز نمایشی</p></div></div><div id="myMatches" class="user-list"><div class="empty">برای مشاهده سوابق وارد حساب شو.</div></div></section><section id="profileTeam" hidden><div class="section-head"><div><h2>تیم من</h2><p>مدیریت اعضا، دعوت بازیکن و تنظیمات تیم</p></div></div><div id="myTeam" class="user-list"></div><div id="createTeamWrap" class="panel team-create-wrap" hidden><h3>ساخت تیم جدید</h3><form id="createTeamForm"><input id="newTeamName" class="field" maxlength="40" placeholder="نام تیم" required><input id="newTeamTag" class="field" maxlength="8" placeholder="تگ کوتاه تیم (اختیاری)"><textarea id="newTeamDescription" class="field" maxlength="240" rows="2" placeholder="توضیح کوتاه درباره تیم (اختیاری)"></textarea><button class="btn" type="submit">ساخت تیم</button></form></div><div id="teamSettingsPanel" class="panel" hidden><h3>تنظیمات تیم</h3><form id="teamSettingsForm"><label>نام تیم<input id="teamSettingsName" class="field" maxlength="40" required></label><label>تگ تیم<input id="teamSettingsTag" class="field" maxlength="8"></label><label>توضیحات<textarea id="teamSettingsDescription" class="field" maxlength="240" rows="3"></textarea></label><button class="btn" type="submit">ذخیره تنظیمات تیم</button></form><label>لوگوی تیم<input id="teamLogoFile" class="field" type="file" accept="image/jpeg,image/png,image/webp"></label><button class="btn secondary" id="uploadTeamLogo" type="button">بارگذاری لوگوی تیم</button><p id="teamSettingsMessage" class="muted"></p><hr><h3>دعوت بازیکن</h3><form id="teamInviteForm"><input id="teamInviteUsername" class="field" maxlength="24" placeholder="نام کاربری بازیکن" required><button class="btn" type="submit">ارسال دعوت</button></form><div id="teamSentInvites" class="user-list"></div></div><div id="incomingTeamInvites" class="user-list"></div></section>
  <div class="section-head"><div><h2>درخواست‌های دنبال‌کردن</h2><p>درخواست‌هایی که منتظر تأیید تو هستند</p></div></div><div id="followRequests" class="user-list"><div class="empty">درخواستی وجود ندارد.</div></div>
 </section>
@@ -384,7 +391,7 @@ async function showRoomDetail(room){
 function switchPage(page){
  document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+page));
  document.querySelectorAll(".bottom-nav [data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
- if(page==="profile")loadProfile();
+ if(page==="profile"){loadProfile();loadSupportConversation().catch(()=>{});}
  if(page==="tournaments")loadTournaments();
  if(page==="ranking")loadRanking();
 }
@@ -635,9 +642,52 @@ async function loadMessages(){
  $("chatMessages").scrollTop=$("chatMessages").scrollHeight;
 }
 $("chatForm").addEventListener("submit",async e=>{
- e.preventDefault();if(!activeConversation)return;const body=$("chatText").value.trim();if(!body)return;
- const {error}=await sb.from("social_messages").insert({conversation_id:activeConversation,sender_id:currentUser.id,body});
- if(error){toast("ارسال پیام انجام نشد.");return;}$("chatText").value="";loadMessages();
+ e.preventDefault();if(!activeConversation||!currentUser)return;const body=$("chatText").value.trim();if(!body)return;
+ $("chatSend").disabled=true;
+ try{
+  const {data,error}=await sb.functions.invoke("send-social-message",{body:{conversation_id:activeConversation,body}});
+  if(error)throw error;
+  if(data?.pending_review){$("chatText").value="";toast(data.message||"پیام برای بررسی ارسال نشد.");return;}
+  if(!data?.success)throw new Error(data?.error||"ارسال پیام ناموفق بود.");
+  $("chatText").value="";await loadMessages();
+ }catch(err){toast(err?.message||"ارسال پیام انجام نشد.");}
+ finally{$("chatSend").disabled=false;}
+});
+
+let supportConversationId=null;
+function supportStorageKey(){return currentUser?"ex1_support_"+currentUser.id:null;}
+function renderSupportMessages(rows){
+ const box=$("supportMessages");
+ box.innerHTML=(rows||[]).map(m=>'<div class="bubble '+(m.sender_role==="user"?"mine":"")+'">'+esc(m.body)+'</div>').join("")||'<div class="empty">برای شروع، پیام خودت را بنویس.</div>';
+ box.scrollTop=box.scrollHeight;
+}
+async function loadSupportConversation(){
+ if(!currentUser){$("supportMessages").innerHTML='<div class="empty">برای استفاده از پشتیبانی وارد حساب شو.</div>';return;}
+ supportConversationId=sessionStorage.getItem(supportStorageKey())||null;
+ if(!supportConversationId){renderSupportMessages([]);return;}
+ const {data:messages,error}=await sb.from("support_messages").select("sender_role,body,created_at").eq("conversation_id",supportConversationId).order("created_at",{ascending:true}).limit(40);
+ if(error){sessionStorage.removeItem(supportStorageKey());supportConversationId=null;renderSupportMessages([]);return;}
+ renderSupportMessages(messages||[]);
+}
+$("supportNew").addEventListener("click",()=>{
+ if(!currentUser){toast("برای استفاده از پشتیبانی وارد حساب شو.");return;}
+ supportConversationId=null;sessionStorage.removeItem(supportStorageKey());renderSupportMessages([]);
+ $("supportHint").textContent="گفت‌وگوی تازه آماده است.";
+});
+$("supportForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!currentUser){toast("ابتدا وارد حساب شو.");return;}
+ const message=$("supportText").value.trim();if(!message)return;
+ $("supportSend").disabled=true;$("supportHint").textContent="در حال دریافت پاسخ...";
+ try{
+  const {data,error}=await sb.functions.invoke("ai-support",{body:{message,conversation_id:supportConversationId}});
+  if(error)throw error;
+  if(!data?.success)throw new Error(data?.error||"پاسخی دریافت نشد.");
+  supportConversationId=data.conversation_id;sessionStorage.setItem(supportStorageKey(),supportConversationId);
+  $("supportText").value="";
+  await loadSupportConversation();
+  $("supportHint").textContent=data.handoff?"این پرسش برای پیگیری انسانی علامت‌گذاری شد.":"پاسخ دستیار هوشمند";
+ }catch(err){$("supportHint").textContent=err?.message||"پشتیبانی موقتاً در دسترس نیست.";}
+ finally{$("supportSend").disabled=false;}
 });
 function roomCategory(mode){const m=String(mode||"").toLowerCase();if(/fight|1v1|solo|فایت|تک/.test(m))return "fight";if(/battle|br|بتل|رویال/.test(m))return "br";if(/multi|mp|مولتی/.test(m))return "multi";return "all";}
 function formatRoomStart(value){if(!value)return "اعلام نشده";const d=new Date(value);return Number.isNaN(d.getTime())?"اعلام نشده":d.toLocaleString("fa-IR",{dateStyle:"short",timeStyle:"short"});}
