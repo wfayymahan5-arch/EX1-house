@@ -321,7 +321,7 @@ $("resultForm").addEventListener("submit",async e=>{
  const id=$("result_id").value,payload={tournament_id:$("result_tournament_id").value,team_id:$("result_team_id").value,placement:Number($("result_placement").value),kills:Number($("result_kills").value),points:Number($("result_points").value)};
  if(!payload.tournament_id||!payload.team_id)return toast("مسابقه و تیم را انتخاب کن.");
  const b=$("saveResultButton");b.disabled=true;
- try{const r=id?await sb.from("tournament_results").update(payload).eq("id",id):await sb.from("tournament_results").insert(payload);if(r.error)throw r.error;resetResultForm();await loadResults();toast("نتیجه تیم ذخیره شد.");}catch(err){toast(err.message||"ذخیره نتیجه انجام نشد.");}finally{b.disabled=false;}
+ try{const r=id?await sb.from("tournament_results").update(payload).eq("id",id):await sb.from("tournament_results").upsert(payload,{onConflict:"tournament_id,team_id"});if(r.error)throw r.error;resetResultForm();await loadResults();toast("نتیجه تیم ذخیره شد.");}catch(err){toast(err.message||"ذخیره نتیجه انجام نشد.");}finally{b.disabled=false;}
 });
 $("player_result_tournament_id").addEventListener("change",()=>{
  const tid=$("player_result_tournament_id").value,rooms=(window.ex1AdminRooms||[]).filter(x=>x.tournament_id===tid);
