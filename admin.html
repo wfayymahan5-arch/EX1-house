@@ -177,7 +177,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="users"><h2>کاربران و پروفایل‌ها</h2><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="audit"><h2>گزارش فعالیت مدیران</h2><p class="muted">تغییرات ایجاد، ویرایش و حذف مسابقه‌ها و روم‌ها به‌صورت خودکار ثبت می‌شوند.</p><div id="auditTable" class="empty">در حال بارگذاری...</div></section>
-<section class="section tab hidden" id="socialReports"><h2>گزارش‌های کاربران</h2><p class="muted">گزارش پیام‌ها و پروفایل‌ها. رسیدگی فقط برای مدیر دارای مجوز social.moderate فعال است.</p><div id="socialReportsTable" class="empty">در حال بارگذاری...</div></section>
+<section class="section tab hidden" id="socialReports"><h2>گزارش‌های کاربران</h2><p class="muted">گزارش پیام‌ها و پروفایل‌ها. رسیدگی فقط برای مدیر دارای مجوز social.moderate فعال است.</p><div id="socialReportsTable" class="empty">در حال بارگذاری...</div><hr style="margin:24px 0;border-color:#ffffff20"><h2>بررسی هوشمند محتوا</h2><p class="muted">این پرونده‌ها فقط برای مالک اصلی نمایش داده می‌شوند. هیچ کاربری بدون تأیید مالک مسدود نمی‌شود.</p><div id="aiModerationCases" class="empty">در انتظار بررسی مالک...</div></section>
 <section class="section tab hidden" id="wallet"><h2>مدیریت امتیازهای EX1</h2><div class="notice">این امتیازها فقط داخل EX1 کاربرد دارند؛ قابل خرید، فروش، انتقال یا برداشت نیستند و هیچ ارزش پولی ندارند.</div><div id="walletTable" class="empty">در انتظار دسترسی مجاز...</div><div id="walletAdjustPanel" class="panel hidden" style="margin-top:16px"><h3 id="walletAdjustTitle">اصلاح امتیاز کاربر</h3><form id="walletAdjustForm" class="manager-form"><input id="wallet_user_id" type="hidden"><div class="formgrid"><label>نوع عملیات<select id="wallet_entry_type"><option value="credit">افزایش امتیاز</option><option value="debit">کاهش امتیاز</option></select></label><label>مقدار امتیاز<input id="wallet_amount" type="number" min="1" max="1000000" required></label><label class="wide">دلیل ثبت<input id="wallet_reason" maxlength="300" minlength="2" required placeholder="مثلاً پاداش عملکرد تأییدشده"></label></div><div class="actions"><button class="btn primary" type="submit" id="walletAdjustSubmit">ثبت تغییر امتیاز</button><button class="btn" type="button" id="walletAdjustCancel">انصراف</button></div></form></div><div id="walletHistory" class="empty" style="margin-top:16px"></div></section>
 <section class="section tab hidden" id="settings"><h2>تنظیمات ظاهری سایت</h2><p class="muted">رنگ‌ها فقط با مجوز settings.manage ذخیره می‌شوند.</p><form id="themeForm"><div class="colorgrid">
 <label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
@@ -631,6 +631,48 @@ async function loadTableData(){
  if(failed.length)toast("بعضی بخش‌ها به‌دلیل محدودیت دسترسی یا خطای ارتباط بارگذاری نشدند.");
  const counts=["statTournaments","statRegistrations","statTeams","statUsers"].map(id=>$(id).textContent).filter(x=>x!=="—");
  $("overviewEmpty").textContent=counts.length?"داده‌های مجاز از دیتابیس بارگذاری شدند. برای جزئیات، بخش مربوطه را باز کن.":"برای این حساب، مجوز مشاهده داده‌های مدیریتی ثبت نشده است.";
+}
+async function loadAIModerationCases(){
+ if(!ownerCanBanUsers)return;
+ const box=$("aiModerationCases");
+ const {data:cases,error}=await sb.from("ai_moderation_cases").select("id,user_id,content_type,content_text,moderation_categories,moderation_scores,severity,confidence,evidence_bucket,evidence_path,created_at").eq("status","pending_review").order("created_at",{ascending:false}).limit(100);
+ if(error)throw error;
+ if(!cases?.length){box.innerHTML='<div class="empty">پروندهٔ تازه‌ای برای بررسی وجود ندارد.</div>';return;}
+ const ids=[...new Set(cases.map(x=>x.user_id))];
+ const {data:profiles,error:profileError}=await sb.from("profiles").select("id,username,display_name,game_name").in("id",ids);
+ if(profileError)throw profileError;
+ const profileMap=new Map((profiles||[]).map(p=>[p.id,p]));
+ const cards=[];
+ for(const item of cases){
+  const p=profileMap.get(item.user_id);
+  const who=p?[p.display_name||p.game_name||"کاربر",p.username?"@"+p.username:""].filter(Boolean).join(" · "):item.user_id;
+  const categories=item.moderation_categories||{};
+  const sensitive=categories["sexual/minors"]===true||item.severity==="critical";
+  let imageHtml="";
+  if(item.evidence_bucket&&item.evidence_path&&!sensitive){
+   const {data:signed}=await sb.storage.from(item.evidence_bucket).createSignedUrl(item.evidence_path,90);
+   if(signed?.signedUrl)imageHtml='<img src="'+esc(signed.signedUrl)+'" alt="شواهد پرونده" style="display:block;max-width:100%;max-height:300px;object-fit:contain;border-radius:12px;margin:12px 0">';
+  }else if(sensitive&&item.evidence_path){
+   imageHtml='<p class="notice">شواهد تصویری به‌دلیل حساسیت بالا در نمای معمول پنل نمایش داده نمی‌شود و نیازمند مسیر رسیدگی ویژه است.</p>';
+  }
+  const textContent=item.content_text?'<blockquote style="white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border-right:3px solid #9b72d1;background:#ffffff08;border-radius:8px">'+esc(item.content_text)+'</blockquote>':'';
+  const cats=Object.entries(categories).filter(([,v])=>v===true).map(([k])=>k).join("، ")||"تشخیص محتوای مشکوک";
+  cards.push('<article class="panel" style="margin:12px 0;padding:16px" id="ai-case-'+esc(item.id)+'"><div><b>'+esc(who)+'</b><small class="muted"> · '+esc(item.content_type)+' · '+esc(item.severity)+' · اطمینان: '+(item.confidence==null?"—":Math.round(Number(item.confidence)*100)+"٪")+'</small></div><p class="muted">دسته‌ها: '+esc(cats)+' · '+new Date(item.created_at).toLocaleString("fa-IR")+'</p>'+textContent+imageHtml+'<div class="actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn primary" data-ai-decision="warn_and_ban" data-ai-case="'+esc(item.id)+'">تأیید تخلف، اخطار و مسدودسازی</button><button class="btn danger" data-ai-decision="dismiss" data-ai-case="'+esc(item.id)+'">رد گزارش</button></div></article>');
+ }
+ box.innerHTML=cards.join("");
+ box.querySelectorAll("[data-ai-decision]").forEach(button=>button.addEventListener("click",async()=>{
+  const id=button.dataset.aiCase,decision=button.dataset.aiDecision;
+  const prompt=decision==="warn_and_ban"?"با تأیید این تصمیم، ابتدا اخطار برای کاربر ثبت و سپس حساب او مسدود می‌شود. مطمئنی؟":"این گزارش رد می‌شود. ادامه می‌دهی؟";
+  if(!window.confirm(prompt))return;
+  button.disabled=true;
+  try{
+   const {data,error}=await sb.functions.invoke("manage-ai-moderation-case",{body:{case_id:id,decision,note:"بررسی و تصمیم مالک از پنل EX1"}});
+   if(error)throw error;
+   if(!data?.success)throw new Error(data?.error||"ثبت تصمیم انجام نشد.");
+   toast(decision==="warn_and_ban"?"اخطار ثبت و حساب مسدود شد.":"گزارش رد شد.");
+   await loadAIModerationCases();
+  }catch(err){toast(err?.message||"ثبت تصمیم انجام نشد.");button.disabled=false;}
+ }));
 }
 async function loadTheme(){
  const {data,error}=await sb.from("site_theme_settings").select("background_color,surface_color,primary_text_color,secondary_text_color,accent_color").eq("singleton",true).maybeSingle();
