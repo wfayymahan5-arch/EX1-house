@@ -337,10 +337,20 @@ $("showPlayerResultForm").onclick=()=>{if(!permissions["results.manage"])return;
 $("cancelResultButton").onclick=resetResultForm;$("cancelPlayerResultButton").onclick=resetPlayerResultForm;
 $("resultForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!permissions["results.manage"])return;
- const id=$("result_id").value;let evidenceUrl=$("result_evidence_url").value||null;const evidenceFile=$("result_evidence_file").files?.[0];if(evidenceFile)evidenceUrl=await uploadTournamentAsset(evidenceFile,"results");const payload={tournament_id:$("result_tournament_id").value,team_id:$("result_team_id").value,placement:Number($("result_placement").value),kills:Number($("result_kills").value),points:Number($("result_points").value),evidence_image_url:evidenceUrl};
- if(!payload.tournament_id||!payload.team_id)return toast("مسابقه و تیم را انتخاب کن.");
- const b=$("saveResultButton");b.disabled=true;
- try{const r=id?await sb.from("tournament_results").update(payload).eq("id",id):await sb.from("tournament_results").upsert(payload,{onConflict:"tournament_id,team_id"});if(r.error)throw r.error;resetResultForm();await loadResults();toast("نتیجه تیم ذخیره شد.");}catch(err){toast(err.message||"ذخیره نتیجه انجام نشد.");}finally{b.disabled=false;}
+ const id=$("result_id").value;
+ const tournamentId=$("result_tournament_id").value,teamId=$("result_team_id").value;
+ if(!tournamentId||!teamId)return toast("مسابقه و تیم را انتخاب کن.");
+ const b=$("saveResultButton");b.disabled=true;b.textContent="در حال ذخیره...";
+ try{
+  let evidenceUrl=$("result_evidence_url").value||null;
+  const evidenceFile=$("result_evidence_file").files?.[0];
+  if(evidenceFile)evidenceUrl=await uploadTournamentAsset(evidenceFile,"results");
+  const payload={tournament_id:tournamentId,team_id:teamId,placement:Number($("result_placement").value),kills:Number($("result_kills").value),points:Number($("result_points").value),evidence_image_url:evidenceUrl};
+  const result=id?await sb.from("tournament_results").update(payload).eq("id",id):await sb.from("tournament_results").upsert(payload,{onConflict:"tournament_id,team_id"});
+  if(result.error)throw result.error;
+  resetResultForm();await loadResults();toast("نتیجه تیم ذخیره شد.");
+ }catch(err){toast(err.message||"ذخیره نتیجه انجام نشد.");}
+ finally{b.disabled=false;b.textContent="ذخیره نتیجه تیم";}
 });
 $("player_result_tournament_id").addEventListener("change",()=>{
  const tid=$("player_result_tournament_id").value,rooms=(window.ex1AdminRooms||[]).filter(x=>x.tournament_id===tid);
@@ -354,10 +364,20 @@ $("player_result_search").addEventListener("input",()=>{
 $("playerResultForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!permissions["results.manage"])return;
  const id=$("player_result_id").value,roomId=$("player_result_room_id").value,room=(window.ex1AdminRooms||[]).find(x=>x.id===roomId);
- let evidenceUrl=$("player_result_evidence_url").value||null;const evidenceFile=$("player_result_evidence_file").files?.[0];if(evidenceFile)evidenceUrl=await uploadTournamentAsset(evidenceFile,"results");const payload={tournament_id:$("player_result_tournament_id").value,room_id:roomId,user_id:$("player_result_user_id").value,kills:Number($("player_result_kills").value),placement:$("player_result_placement").value?Number($("player_result_placement").value):null,points:Number($("player_result_points").value),evidence_image_url:evidenceUrl};
- if(!room||room.tournament_id!==payload.tournament_id)return toast("روم انتخاب‌شده متعلق به این مسابقه نیست.");if(!payload.user_id)return toast("بازیکن را انتخاب کن.");
- const b=$("savePlayerResultButton");b.disabled=true;
- try{const r=id?await sb.from("tournament_player_results").update(payload).eq("id",id):await sb.from("tournament_player_results").upsert(payload,{onConflict:"room_id,user_id"});if(r.error)throw r.error;resetPlayerResultForm();await loadResults();toast("نتیجه انفرادی ذخیره شد.");}catch(err){toast(err.message||"ذخیره نتیجه بازیکن انجام نشد.");}finally{b.disabled=false;}
+ const tournamentId=$("player_result_tournament_id").value,userId=$("player_result_user_id").value;
+ if(!room||room.tournament_id!==tournamentId)return toast("روم انتخاب‌شده متعلق به این مسابقه نیست.");
+ if(!userId)return toast("بازیکن را انتخاب کن.");
+ const b=$("savePlayerResultButton");b.disabled=true;b.textContent="در حال ذخیره...";
+ try{
+  let evidenceUrl=$("player_result_evidence_url").value||null;
+  const evidenceFile=$("player_result_evidence_file").files?.[0];
+  if(evidenceFile)evidenceUrl=await uploadTournamentAsset(evidenceFile,"results");
+  const payload={tournament_id:tournamentId,room_id:roomId,user_id:userId,kills:Number($("player_result_kills").value),placement:$("player_result_placement").value?Number($("player_result_placement").value):null,points:Number($("player_result_points").value),evidence_image_url:evidenceUrl};
+  const result=id?await sb.from("tournament_player_results").update(payload).eq("id",id):await sb.from("tournament_player_results").upsert(payload,{onConflict:"room_id,user_id"});
+  if(result.error)throw result.error;
+  resetPlayerResultForm();await loadResults();toast("نتیجه انفرادی ذخیره شد.");
+ }catch(err){toast(err.message||"ذخیره نتیجه بازیکن انجام نشد.");}
+ finally{b.disabled=false;b.textContent="ذخیره نتیجه بازیکن";}
 });
 $("resultsTable").addEventListener("click",async e=>{
  const edit=e.target.closest("[data-edit-result]"),del=e.target.closest("[data-delete-result]");
