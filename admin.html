@@ -266,13 +266,19 @@ $("usersTable").addEventListener("click",async e=>{
 async function loadSocialReports(){
  const {data,error}=await sb.from("social_reports").select("id,reporter_id,target_user_id,message_id,reason,details,status,created_at").is("post_id",null).is("comment_id",null).is("story_id",null).order("created_at",{ascending:false}).limit(100);
  if(error)throw error;
+ const ids=[...new Set((data||[]).flatMap(x=>[x.reporter_id,x.target_user_id]).filter(Boolean))];
+ const {data:profiles,error:profileError}=ids.length?await sb.from("profiles").select("id,username,display_name,game_name,game_uid").in("id",ids):{data:[],error:null};
+ if(profileError)throw profileError;
+ const byId=new Map((profiles||[]).map(p=>[p.id,p]));
+ const person=id=>{const p=byId.get(id);return p?[p.display_name||p.game_name||"کاربر",p.username?"@"+p.username:"",p.game_uid?"آیدی بازی: "+p.game_uid:""].filter(Boolean).join(" · "):(id||"—");};
  const statusLabel={open:"باز",reviewing:"در حال بررسی",resolved:"رسیدگی شد",dismissed:"رد شد"};
+ const reasonLabels={spam:"هرزنامه",harassment:"آزار و مزاحمت",inappropriate:"محتوای نامناسب",fake:"حساب جعلی",other:"سایر"};
  const rows=(data||[]).map(x=>{
   const target=x.message_id?"پیام":"پروفایل";
-  const actions=x.status==="resolved"||x.status==="dismissed"?"—":'<button class="action-btn" data-report-status="reviewing" data-report-id="'+esc(x.id)+'">شروع بررسی</button> <button class="action-btn" data-report-status="resolved" data-report-id="'+esc(x.id)+'">حل شد</button> <button class="action-btn danger" data-report-status="dismissed" data-report-id="'+esc(x.id)+'">رد گزارش</button>';
-  return row([esc(target),esc(x.reason),esc(x.details||"—"),esc(x.reporter_id),esc(statusLabel[x.status]||x.status),esc(x.created_at?new Date(x.created_at).toLocaleString("fa-IR"):"—"),actions]);
+  const actions=x.status==="resolved"||x.status==="dismissed"?"—":'<button class="action-btn" data-report-status="reviewing" data-report-id="'+esc(x.id)+'">شروع بررسی</button> <button class="action-btn" data-report-status="resolved" data-report-id="'+esc(x.id)+'">رسیدگی شد</button> <button class="action-btn danger" data-report-status="dismissed" data-report-id="'+esc(x.id)+'">رد گزارش</button>';
+  return row([esc(target),esc(reasonLabels[x.reason]||x.reason||"—"),esc(x.details||"—"),esc(person(x.reporter_id)),esc(person(x.target_user_id)),esc(statusLabel[x.status]||"نامشخص"),esc(x.created_at?new Date(x.created_at).toLocaleString("fa-IR"):"—"),actions]);
  });
- $("socialReportsTable").innerHTML=rows.length?table(["نوع","دلیل","توضیحات","گزارش‌دهنده","وضعیت","زمان","عملیات"],rows):'<div class="empty">گزارشی برای پیام یا پروفایل ثبت نشده است.</div>';
+ $("socialReportsTable").innerHTML=rows.length?table(["نوع","دلیل","توضیحات","گزارش‌دهنده","کاربر گزارش‌شده","وضعیت","زمان","عملیات"],rows):'<div class="empty">گزارشی برای پیام یا پروفایل ثبت نشده است.</div>';
 }
 $("socialReportsTable").addEventListener("click",async e=>{
  const b=e.target.closest("[data-report-status]");if(!b||!permissions["social.moderate"])return;
@@ -283,10 +289,19 @@ $("socialReportsTable").addEventListener("click",async e=>{
  toast("وضعیت گزارش به‌روزرسانی شد.");loadSocialReports();
 });
 async function loadAuditLogs(){
- const {data,error}=await sb.from("admin_audit_logs_view").select("id,actor_id,action,entity_type,entity_id,created_at").order("created_at",{ascending:false}).limit(100);
+ const {data,error}=await sb.from("admin_audit_logs_view").select("id,actor_id,target_user_id,actor_username,actor_display_name,target_username,target_display_name,action,entity_type,entity_id,details,created_at").order("created_at",{ascending:false}).limit(150);
  if(error)throw error;
- const rows=(data||[]).map(x=>row([esc(x.action),esc(x.entity_type),esc(x.entity_id||"—"),esc(x.actor_id||"سیستم"),esc(x.created_at?new Date(x.created_at).toLocaleString("fa-IR"):"—")]));
- $("auditTable").innerHTML=rows.length?table(["عملیات","بخش","شناسه","مدیر","زمان"],rows):'<div class="empty">هنوز گزارشی ثبت نشده است.</div>';
+ const actionLabels={insert:"ایجاد",update:"ویرایش",delete:"حذف"};
+ const entityLabels={tournaments:"مسابقه",tournament_rooms:"روم",profile_moderation:"رسیدگی به پروفایل",admin_user_roles:"نقش مدیر",admin_user_permission_overrides:"دسترسی مدیر"};
+ const rows=(data||[]).map(x=>{
+  const actor=[x.actor_display_name,x.actor_username?"@"+x.actor_username:""].filter(Boolean).join(" · ")||"مدیر نامشخص";
+  const target=[x.target_display_name,x.target_username?"@"+x.target_username:""].filter(Boolean).join(" · ")||(x.target_user_id?"شناسه: "+x.target_user_id:"—");
+  const action=actionLabels[String(x.action||"").toLowerCase()]||x.action||"فعالیت";
+  const entity=entityLabels[x.entity_type]||x.entity_type||"—";
+  const details=x.details&&typeof x.details==="object"?JSON.stringify(x.details):String(x.details||"");
+  return row([esc(action),esc(entity),esc(actor),esc(target),'<small>'+esc(details.slice(0,500)||"—")+'</small>',esc(x.created_at?new Date(x.created_at).toLocaleString("fa-IR"):"—")]);
+ });
+ $("auditTable").innerHTML=rows.length?table(["عملیات","بخش","نام مدیر و نام کاربری","کاربر هدف","جزئیات تغییر","زمان"],rows):'<div class="empty">هنوز گزارشی ثبت نشده است.</div>';
 }
 function setResultEvidencePreview(kind,url){
  const box=$(kind+"_evidence_preview");if(!box)return;
@@ -352,10 +367,32 @@ $("resultForm").addEventListener("submit",async e=>{
  }catch(err){toast(err.message||"ذخیره نتیجه انجام نشد.");}
  finally{b.disabled=false;b.textContent="ذخیره نتیجه تیم";}
 });
+async function loadRoomResultRoster(){
+ const roomId=$("player_result_room_id").value;
+ const select=$("player_result_user_id");
+ select.innerHTML='<option value="">در حال دریافت شرکت‌کنندگان روم...</option>';
+ if(!roomId){select.innerHTML='<option value="">ابتدا روم را انتخاب کن</option>';return;}
+ try{
+  const {data,error}=await sb.rpc("get_tournament_room_slots",{p_room_id:roomId});
+  if(error)throw error;
+  const roster=[];
+  (data||[]).forEach(slot=>(Array.isArray(slot.players)?slot.players:[]).forEach(p=>{
+   const uid=p.user_id||p.profile_id||p.id;
+   if(!uid)return;
+   roster.push({id:uid,label:(p.game_name||p.display_name||p.username||"بازیکن")+" · "+(p.game_uid||p.username||String(uid).slice(0,8))+" · جایگاه "+(slot.slot_number||"—")});
+  }));
+  const unique=[...new Map(roster.map(p=>[p.id,p])).values()];
+  select.innerHTML=unique.length?unique.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.label)+'</option>').join(""):'<option value="">شرکت‌کننده‌ای برای این روم پیدا نشد</option>';
+  $("player_result_search").value="";
+  $("player_result_search").placeholder="فهرست بازیکنان این روم به‌صورت خودکار بارگذاری شد";
+ }catch(err){select.innerHTML='<option value="">دریافت شرکت‌کنندگان ناموفق بود</option>';toast("شرکت‌کنندگان روم دریافت نشدند: "+(err.message||"خطای نامشخص"));}
+}
 $("player_result_tournament_id").addEventListener("change",()=>{
  const tid=$("player_result_tournament_id").value,rooms=(window.ex1AdminRooms||[]).filter(x=>x.tournament_id===tid);
  $("player_result_room_id").innerHTML=rooms.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.title)+'</option>').join("");
+ loadRoomResultRoster();
 });
+$("player_result_room_id").addEventListener("change",loadRoomResultRoster);
 $("player_result_search").addEventListener("input",()=>{
  const q=$("player_result_search").value.trim().toLocaleLowerCase(),players=window.ex1AdminPlayers||[];
  const filtered=!q?players:players.filter(x=>[x.game_uid,x.game_name,x.display_name,x.username].some(v=>String(v||"").toLocaleLowerCase().includes(q)));
