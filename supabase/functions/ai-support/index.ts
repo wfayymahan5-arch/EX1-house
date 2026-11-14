@@ -137,7 +137,9 @@ Deno.serve(async (req: Request) => {
     const result = await aiResponse.json();
     answer = String(result?.choices?.[0]?.message?.content ?? "").trim();
     if (!answer) throw new Error("Empty assistant response");
-    const explicitHumanRequest = /(?:وصل|ارتباط|ارجاع|صحبت).{0,24}(?:پشتیبان|انسان|اپراتور|مدیر)|(?:پشتیبان|اپراتور|مدیر).{0,24}(?:می.?خوام|می.?خواهم|وصل|صحبت)/i.test(message);\n    handoff = /اطلاعات کافی برای پاسخ قطعی ندارم/.test(answer) || explicitHumanRequest;\n    if (explicitHumanRequest && !/اطلاعات کافی برای پاسخ قطعی ندارم/.test(answer)) answer = "درخواستت برای پیگیری به پشتیبان انسانی ارجاع شد. پاسخ پشتیبان در همین گفت‌وگو نمایش داده می‌شود.";
+    const explicitHumanRequest = /(?:وصل|ارتباط|ارجاع|صحبت).{0,24}(?:پشتیبان|انسان|اپراتور|مدیر)|(?:پشتیبان|اپراتور|مدیر).{0,24}(?:می.?خوام|می.?خواهم|وصل|صحبت)/i.test(message);
+    handoff = /اطلاعات کافی برای پاسخ قطعی ندارم/.test(answer) || explicitHumanRequest;
+    if (explicitHumanRequest && !/اطلاعات کافی برای پاسخ قطعی ندارم/.test(answer)) answer = "درخواستت برای پیگیری به پشتیبان انسانی ارجاع شد. پاسخ پشتیبان در همین گفت‌وگو نمایش داده می‌شود.";
   } catch (error) {
     console.error("AI support error:", error);
     return reply(502, { error: "پاسخ‌گویی هوشمند با خطا روبه‌رو شد." });
