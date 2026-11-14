@@ -63,6 +63,7 @@ Deno.serve(async (req: Request) => {
   if (recentCount >= 8) return reply(429, { error: "برای جلوگیری از استفادهٔ بیش از حد، کمی صبر کن و دوباره پیام بده." });
 
   let conversationId = String(body.conversation_id ?? "");
+  let conversationWasWaitingForHuman = false;
   if (conversationId) {
     const { data: conversation, error } = await admin
       .from("support_conversations")
@@ -71,7 +72,7 @@ Deno.serve(async (req: Request) => {
       .eq("user_id", authData.user.id)
       .maybeSingle();
     if (error || !conversation) return reply(404, { error: "گفت‌وگوی پشتیبانی پیدا نشد." });
-    if (conversation.status === "waiting_for_human") return reply(409, { error: "درخواستت در صف پشتیبانی انسانی است؛ پاسخ بعدی از طرف پشتیبان ارسال می‌شود." });
+    conversationWasWaitingForHuman = conversation.status === "waiting_for_human";
     if (conversation.status === "closed" || conversation.status === "resolved") {
       return reply(409, { error: "این گفت‌وگو بسته شده است. یک گفت‌وگوی تازه ایجاد کن." });
     }
@@ -95,8 +96,11 @@ Deno.serve(async (req: Request) => {
   const normalized = message.replace(/[\u200c\s]+/g, " ").trim().toLowerCase();
   const explicitHumanRequest = /(?:وصل|ارتباط|ارجاع|صحبت).{0,24}(?:پشتیبان|انسان|اپراتور|مدیر)|(?:پشتیبان|اپراتور|مدیر).{0,24}(?:می.?خوام|می.?خواهم|وصل|صحبت)/i.test(message);
 
-  // Free, deterministic FAQ mode: no paid AI API is called.
-  if (explicitHumanRequest) {
+  // Once handed to a human, keep all follow-up messages in the same human-owned thread.
+  if (conversationWasWaitingForHuman) {
+    answer = "پیامت به همان گفت‌وگوی پشتیبانی اضافه شد. درخواستت همچنان در صف پشتیبان انسانی است و پاسخ بعدی در همین چت نمایش داده می‌شود.";
+    handoff = true;
+  } else if (explicitHumanRequest) {
     answer = "درخواستت برای پیگیری به پشتیبان انسانی ارجاع شد. پاسخ پشتیبان در همین گفت‌وگو نمایش داده می‌شود.";
     handoff = true;
   } else if (/^(سلام|درود|hi|hello|hey|سلام خوبی|سلام خوبی؟|خوبی؟?|وقت بخیر|صبح بخیر|شب بخیر)[!.؟\s]*$/i.test(normalized)) {
@@ -128,7 +132,7 @@ Deno.serve(async (req: Request) => {
   if (saveError) return reply(500, { error: "پاسخ تولید شد اما ذخیره آن انجام نشد." });
 
   await admin.from("support_conversations").update({
-    status: handoff ? "waiting_for_human" : "open",
+    status: conversationWasWaitingForHuman || handoff ? "waiting_for_human" : "open",
     updated_at: new Date().toISOString(),
   }).eq("id", conversationId);
 
