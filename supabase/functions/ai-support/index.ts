@@ -57,14 +57,22 @@ Deno.serve(async (req: Request) => {
     auth: { persistSession: false, autoRefreshToken: false },
   });
   const since = new Date(Date.now() - 60_000).toISOString();
-  const { count: recentCount, error: rateError } = await admin
-    .from("support_messages")
-    .select("id", { count: "exact", head: true })
-    .eq("sender_role", "user")
-    .gte("created_at", since)
-    .in("conversation_id", (await admin.from("support_conversations").select("id").eq("user_id", authData.user.id)).data?.map((x) => x.id) ?? []);
-  if (rateError) return reply(503, { error: "محدودیت استفاده بررسی نشد؛ کمی بعد دوباره تلاش کن." });
-  if ((recentCount ?? 0) >= 8) return reply(429, { error: "برای جلوگیری از استفادهٔ بیش از حد، کمی صبر کن و دوباره پیام بده." });
+  const { data: ownedConversations, error: conversationsError } = await admin
+    .from("support_conversations").select("id").eq("user_id", authData.user.id);
+  if (conversationsError) return reply(503, { error: "محدودیت استفاده بررسی نشد؛ کمی بعد دوباره تلاش کن." });
+  const ownedIds = (ownedConversations ?? []).map((x) => x.id);
+  let recentCount = 0;
+  if (ownedIds.length) {
+    const { count, error: rateError } = await admin
+      .from("support_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("sender_role", "user")
+      .gte("created_at", since)
+      .in("conversation_id", ownedIds);
+    if (rateError) return reply(503, { error: "محدودیت استفاده بررسی نشد؛ کمی بعد دوباره تلاش کن." });
+    recentCount = count ?? 0;
+  }
+  if (recentCount >= 8) return reply(429, { error: "برای جلوگیری از استفادهٔ بیش از حد، کمی صبر کن و دوباره پیام بده." });
 
   let conversationId = String(body.conversation_id ?? "");
   if (conversationId) {
