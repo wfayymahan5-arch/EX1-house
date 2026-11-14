@@ -18,7 +18,7 @@ Deno.serve(async(req:Request)=>{
  try{body=await req.json();}catch{return reply(400,{error:"درخواست معتبر نیست."});}
  const id=String(body.conversation_id??""),message=String(body.message??"").trim();
  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)||!message||message.length>4000)return reply(400,{error:"شناسه گفت‌وگو یا پاسخ معتبر نیست."});
- const {data:conversation,error:convErr}=await admin.from("support_conversations").select("id,status").eq("id",id).maybeSingle();
+ const {data:conversation,error:convErr}=await admin.from("support_conversations").select("id,user_id,status").eq("id",id).maybeSingle();
  if(convErr||!conversation)return reply(404,{error:"گفت‌وگوی پشتیبانی پیدا نشد."});
  const {error:insertErr}=await admin.from("support_messages").insert({conversation_id:id,sender_role:"human_support",body:message});
  if(insertErr)return reply(500,{error:"ذخیره پاسخ پشتیبان انجام نشد."});
