@@ -73,6 +73,10 @@ img,video{max-width:100%}
   <form id="supportForm" class="chat-send"><input id="supportText" class="field" maxlength="3000" placeholder="سؤالت را بنویس..." required><button class="btn small" type="submit" id="supportSend">ارسال</button></form>
   <p class="muted" id="supportHint">اگر پاسخ قطعی نباشد، گفت‌وگو برای پشتیبان انسانی علامت‌گذاری می‌شود.</p>
  </section>
+ <section class="panel" id="userNotificationsPanel" style="margin:16px 0;padding:16px">
+  <div class="section-head"><div><h2>اعلان‌های حساب</h2><p>اخطارها و پیام‌های مهم EX1</p></div></div>
+  <div id="userNotifications" class="user-list"><div class="empty">برای مشاهده اعلان‌ها وارد حساب شو.</div></div>
+ </section>
  <div class="profile-tabs"><button class="active" type="button" data-profile-tab="matches" aria-controls="profileMatches">مسابقات من</button><button type="button" data-profile-tab="team" aria-controls="profileTeam">تیم من</button></div><section id="profileMatches"><div class="section-head"><div><h2>روم‌های من و جوایز</h2><p>سوابق ثبت‌نام و جوایز نمایشی</p></div></div><div id="myMatches" class="user-list"><div class="empty">برای مشاهده سوابق وارد حساب شو.</div></div></section><section id="profileTeam" hidden><div class="section-head"><div><h2>تیم من</h2><p>مدیریت اعضا، دعوت بازیکن و تنظیمات تیم</p></div></div><div id="myTeam" class="user-list"></div><div id="createTeamWrap" class="panel team-create-wrap" hidden><h3>ساخت تیم جدید</h3><form id="createTeamForm"><input id="newTeamName" class="field" maxlength="40" placeholder="نام تیم" required><input id="newTeamTag" class="field" maxlength="8" placeholder="تگ کوتاه تیم (اختیاری)"><textarea id="newTeamDescription" class="field" maxlength="240" rows="2" placeholder="توضیح کوتاه درباره تیم (اختیاری)"></textarea><button class="btn" type="submit">ساخت تیم</button></form></div><div id="teamSettingsPanel" class="panel" hidden><h3>تنظیمات تیم</h3><form id="teamSettingsForm"><label>نام تیم<input id="teamSettingsName" class="field" maxlength="40" required></label><label>تگ تیم<input id="teamSettingsTag" class="field" maxlength="8"></label><label>توضیحات<textarea id="teamSettingsDescription" class="field" maxlength="240" rows="3"></textarea></label><button class="btn" type="submit">ذخیره تنظیمات تیم</button></form><label>لوگوی تیم<input id="teamLogoFile" class="field" type="file" accept="image/jpeg,image/png,image/webp"></label><button class="btn secondary" id="uploadTeamLogo" type="button">بارگذاری لوگوی تیم</button><p id="teamSettingsMessage" class="muted"></p><hr><h3>دعوت بازیکن</h3><form id="teamInviteForm"><input id="teamInviteUsername" class="field" maxlength="24" placeholder="نام کاربری بازیکن" required><button class="btn" type="submit">ارسال دعوت</button></form><div id="teamSentInvites" class="user-list"></div></div><div id="incomingTeamInvites" class="user-list"></div></section>
  <div class="section-head"><div><h2>درخواست‌های دنبال‌کردن</h2><p>درخواست‌هایی که منتظر تأیید تو هستند</p></div></div><div id="followRequests" class="user-list"><div class="empty">درخواستی وجود ندارد.</div></div>
 </section>
@@ -391,7 +395,7 @@ async function showRoomDetail(room){
 function switchPage(page){
  document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+page));
  document.querySelectorAll(".bottom-nav [data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
- if(page==="profile"){loadProfile();loadSupportConversation().catch(()=>{});}
+ if(page==="profile"){loadProfile();loadSupportConversation().catch(()=>{});loadUserNotifications().catch(()=>{});}
  if(page==="tournaments")loadTournaments();
  if(page==="ranking")loadRanking();
 }
@@ -654,6 +658,21 @@ $("chatForm").addEventListener("submit",async e=>{
  finally{$("chatSend").disabled=false;}
 });
 
+async function loadUserNotifications(){
+ const box=$("userNotifications");
+ if(!currentUser){box.innerHTML='<div class="empty">برای مشاهده اعلان‌ها وارد حساب شو.</div>';return;}
+ const {data,error}=await sb.from("user_notifications").select("id,title,body,notification_type,read_at,created_at").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(20);
+ if(error){box.innerHTML='<div class="empty">اعلان‌ها دریافت نشدند.</div>';return;}
+ if(!data?.length){box.innerHTML='<div class="empty">اعلان تازه‌ای وجود ندارد.</div>';return;}
+ box.innerHTML=data.map(n=>'<article class="panel" style="padding:12px;margin:8px 0;opacity:'+(n.read_at?"0.72":"1")+'"><b>'+esc(n.title)+'</b><p>'+esc(n.body)+'</p><small class="muted">'+new Date(n.created_at).toLocaleString("fa-IR")+'</small>'+(n.read_at?"":' <button class="btn small secondary" data-notification-read="'+esc(n.id)+'" type="button">خواندم</button>')+'</article>').join("");
+}
+$("userNotifications").addEventListener("click",async e=>{
+ const b=e.target.closest("[data-notification-read]");if(!b||!currentUser)return;
+ b.disabled=true;
+ const {error}=await sb.from("user_notifications").update({read_at:new Date().toISOString()}).eq("id",b.dataset.notificationRead).eq("user_id",currentUser.id);
+ if(error){toast("ثبت وضعیت اعلان انجام نشد.");b.disabled=false;return;}
+ await loadUserNotifications();
+});
 let supportConversationId=null;
 function supportStorageKey(){return currentUser?"ex1_support_"+currentUser.id:null;}
 function renderSupportMessages(rows){
