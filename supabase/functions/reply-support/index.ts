@@ -22,6 +22,11 @@ Deno.serve(async(req:Request)=>{
  if(convErr||!conversation)return reply(404,{error:"گفت‌وگوی پشتیبانی پیدا نشد."});
  const {error:insertErr}=await admin.from("support_messages").insert({conversation_id:id,sender_role:"human_support",body:message});
  if(insertErr)return reply(500,{error:"ذخیره پاسخ پشتیبان انجام نشد."});
+ const {error:notificationErr}=await admin.from("user_notifications").insert({
+  user_id:conversation.user_id,notification_type:"support_reply",title:"پاسخ پشتیبان EX1",
+  body:"پشتیبان انسانی به درخواستت پاسخ داده است. وارد بخش پروفایل و پشتیبانی هوشمند شو."
+ });
+ if(notificationErr)console.error("Support notification failed:",notificationErr);
  const {error:updateErr}=await admin.from("support_conversations").update({
   status:body.resolve===true?"resolved":"waiting_for_human",updated_at:new Date().toISOString()
  }).eq("id",id);
