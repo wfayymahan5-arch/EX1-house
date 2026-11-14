@@ -548,6 +548,7 @@ $("profileForm").addEventListener("submit",async e=>{
   const gameUid=$("profileGameUid").value.trim();
   if(gameUid.includes("@")){toast("UID کالاف نباید ایمیل باشد؛ شناسه داخل بازی را وارد کن.");$("profileGameUid").focus();return;}
   const payload={display_name:$("profileName").value.trim(),username:$("profileHandle").value.trim()||null,game_uid:gameUid||null,game_name:$("profileGameName").value.trim()||null};
+ await moderateUserText("profile_text",[payload.display_name,payload.username,payload.game_name].filter(Boolean).join("\n"),currentUser.id);
  const {error}=await sb.from("profiles").update(payload).eq("id",currentUser.id);
  if(error){toast(profileDuplicateMessage(error)||"ذخیره پروفایل انجام نشد.");return;}
  toast("پروفایل ذخیره شد.");$("profileEditorModal").classList.remove("show");loadProfile();
