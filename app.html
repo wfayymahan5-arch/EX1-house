@@ -328,7 +328,7 @@ async function showRoomDetail(room){
    const avatar=url?'<img class="team-avatar team-avatar-image" data-avatar-fallback="'+initial+'" data-avatar-class="team-avatar" src="'+esc(url)+'" alt="'+esc(gameName)+'" title="'+esc(gameName)+'">' : '<span class="team-avatar" title="'+esc(gameName)+'">'+initial+'</span>';
    return '<div class="team-player-card">'+avatar+'<small class="team-player-name" title="'+esc(gameName)+'">'+esc(gameName)+'</small></div>';
   }).join("");
-  return '<div class="team-slot '+(row?"is-full":"is-open")+'"><span class="team-slot-watermark">'+slot+'</span><div class="team-slot-avatars">'+avatars+'</div><div class="team-slot-info"><strong>'+(row?esc(row.team_name||"تیم ثبت‌شده"):"تیم آزاد")+'</strong><small>'+(row?players.length+" از "+teamSize+" بازیکن ثبت‌شده:"آماده ثبت‌نام")+'</small></div>'+(row?'<span class="team-slot-status">رزرو</span>':'<button type="button" data-room-slot="'+slot+'" '+(room.status!=="open"?"disabled":"")+'>انتخاب</button>')+'</div>';
+  return '<div class="team-slot '+(row?"is-full":"is-open")+'"><span class="team-slot-watermark">'+slot+'</span><div class="team-slot-avatars">'+avatars+'</div><div class="team-slot-info"><strong>'+(row?esc(row.team_name||"تیم ثبت‌شده"):"تیم آزاد")+'</strong><small>'+(row?players.length+" از "+teamSize+" بازیکن ثبت‌شده":"آماده ثبت‌نام")+'</small></div>'+(row?'<span class="team-slot-status">رزرو</span>':'<button type="button" data-room-slot="'+slot+'" '+(room.status!=="open"?"disabled":"")+'>انتخاب</button>')+'</div>';
  }).join("");
  $("roomDetail").querySelectorAll("[data-room-slot]").forEach(b=>b.onclick=()=>openRoomJoin(room,Number(b.dataset.roomSlot)));
   await refreshRoomWaitingPlayers(room.id);
