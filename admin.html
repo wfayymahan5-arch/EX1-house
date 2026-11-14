@@ -84,6 +84,16 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 }
 @media(max-width:420px){.nav{grid-template-columns:repeat(2,minmax(0,1fr))}.stats{gap:9px}.stat strong{font-size:24px}}
 
+
+.permission-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.permission-group{border:1px solid #e0e7f0;border-radius:12px;padding:12px;background:#fff}
+.permission-group h3{margin:0 0 9px;font-size:14px;color:#5944a5}
+.permission-option{display:flex;align-items:center;gap:8px;padding:7px 2px;font-size:13px;color:#40516a}
+.permission-option input{width:17px;height:17px;accent-color:#7657c8}
+.admin-form{margin:14px 0;padding:16px;border:1px solid #dce4ef;border-radius:14px;background:#f8fafd}
+.admin-form select{display:block;width:100%;padding:11px;border:1px solid #dce4ef;border-radius:9px;background:#fff;color:#25354a;margin-top:7px}
+@media(max-width:620px){.permission-groups{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body><div class="wrap">
@@ -166,6 +176,20 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <section class="section tab hidden" id="settings"><h2>تنظیمات ظاهری سایت</h2><p class="muted">رنگ‌ها فقط با مجوز settings.manage ذخیره می‌شوند.</p><form id="themeForm"><div class="colorgrid">
 <label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
 </div><button class="btn primary" id="saveTheme" type="submit" style="margin-top:14px">ذخیره تنظیمات</button></form><div id="themeMessage" class="muted" style="margin-top:10px"></div></section>
+
+<section class="section tab hidden" id="admins">
+ <div class="row"><div><h2>مدیریت مدیران و دسترسی‌ها</h2><p class="muted">فقط حساب‌های ثبت‌نام‌شده EX1 را می‌توانی مدیر کنی. هر مجوز را جداگانه انتخاب کن.</p></div><button class="btn primary" id="adminAddButton" type="button">افزودن مدیر</button></div>
+ <form id="adminPermissionForm" class="admin-form hidden">
+  <label class="muted" for="adminTargetUser">انتخاب حساب کاربری</label>
+  <select id="adminTargetUser" required><option value="">انتخاب کاربر...</option></select>
+  <p class="muted">دسترسی‌های فعال دقیقاً مطابق انتخاب تو ذخیره می‌شوند؛ مجوزهای خاموش نیز صریحاً مسدود می‌شوند.</p>
+  <div id="adminPermissionGrid" class="permission-groups"></div>
+  <div class="actions"><button class="btn primary" id="adminSaveButton" type="submit">ذخیره دسترسی‌های مدیر</button><button class="btn" id="adminCancelButton" type="button">انصراف</button></div>
+  <div id="adminPermissionMessage" class="muted" aria-live="polite"></div>
+ </form>
+ <div id="adminUsersTable" class="empty">در حال بارگذاری مدیران...</div>
+</section>
+
 </main></div></div><footer>EX1 LEGEND · پنل مدیریت متصل به Supabase</footer></div><div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2.119.0/dist/umd/supabase.js'"></script><script src="/supabase-config.js"></script>
 <script>
@@ -182,7 +206,7 @@ if(!window.supabase||typeof window.supabase.createClient!=="function"){showStart
 if(!window.EX1_CONFIG||!EX1_CONFIG.url||!EX1_CONFIG.publishableKey){showStartupError("تنظیمات اتصال EX1 پیدا نشد.");throw new Error("EX1 Supabase configuration is missing");}
 const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",registrations:"ثبت‌نام‌ها",results:"نتایج",teams:"تیم‌ها",users:"کاربران",audit:"گزارش فعالیت",socialReports:"گزارش‌های کاربران",wallet:"امتیازها",settings:"تنظیمات"};
+const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",registrations:"ثبت‌نام‌ها",results:"نتایج",teams:"تیم‌ها",users:"کاربران",audit:"گزارش فعالیت",socialReports:"گزارش‌های کاربران",wallet:"امتیازها",settings:"تنظیمات",admins:"مدیران و دسترسی‌ها"};
 let permissions={};
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200);}
 function table(headers,rows){if(!rows.length)return '<div class="empty">هنوز داده‌ای ثبت نشده است.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';}
@@ -324,6 +348,86 @@ $("walletAdjustForm").addEventListener("submit",async e=>{
  }catch(err){toast(err.message||"ثبت تغییر امتیاز انجام نشد.");}
  finally{button.disabled=false;}
 });
+
+let adminManagementUsers=[],adminPermissionCatalog=[];
+const adminGroupLabels={access:"دسترسی و مدیریت",audit:"گزارش‌ها",profiles:"پروفایل‌ها",registrations:"ثبت‌نام‌ها",results:"نتایج",rooms:"روم‌ها",settings:"تنظیمات",social:"بخش اجتماعی",support:"پشتیبانی",teams:"تیم‌ها",tournaments:"مسابقات",users:"کاربران",wallet:"امتیازها"};
+const adminPermissionLabels={
+ "admins.manage":"افزودن، ویرایش و حذف مدیران","permissions.manage":"تغییر دسترسی مدیران",
+ "audit.view":"مشاهده گزارش فعالیت مدیران","profiles.manage":"مدیریت پروفایل کاربران","profiles.view_all":"مشاهده همه پروفایل‌ها",
+ "registrations.review":"تأیید یا رد ثبت‌نام‌ها","registrations.view_all":"مشاهده همه ثبت‌نام‌ها",
+ "results.manage":"ثبت و ویرایش نتایج","results.view":"مشاهده نتایج",
+ "rooms.manage":"ساخت، ویرایش، انتشار و بستن روم‌ها","rooms.view":"مشاهده روم‌ها",
+ "settings.manage":"تغییر تنظیمات سایت","settings.view":"مشاهده تنظیمات",
+ "social.moderate":"مدیریت گزارش‌ها و محتوای اجتماعی","support.manage":"رسیدگی به درخواست‌های پشتیبانی",
+ "team_members.manage":"مدیریت اعضای تیم‌ها","teams.manage":"مدیریت تیم‌ها","teams.view":"مشاهده تیم‌ها",
+ "tournaments.create":"ساخت مسابقه","tournaments.delete":"حذف مسابقه","tournaments.update":"ویرایش مسابقه","tournaments.view":"مشاهده مسابقات",
+ "users.manage":"مدیریت کاربران","users.view":"مشاهده کاربران",
+ "wallet.demo_adjust":"افزایش یا کاهش امتیاز آزمایشی","wallet.view_all":"مشاهده امتیاز همه کاربران","wallet.view_own":"مشاهده امتیاز شخصی"
+};
+function renderAdminPermissionGrid(selected=[]){
+ const chosen=new Set(selected);
+ const groups={};
+ adminPermissionCatalog.forEach(p=>(groups[p.permission_group]??=[]).push(p));
+ $("adminPermissionGrid").innerHTML=Object.entries(groups).map(([group,items])=>
+  '<div class="permission-group"><h3>'+esc(adminGroupLabels[group]||group)+'</h3>'+
+  items.map(p=>'<label class="permission-option"><input type="checkbox" data-admin-permission="'+esc(p.permission_code)+'" '+(chosen.has(p.permission_code)?"checked":"")+'><span>'+esc(adminPermissionLabels[p.permission_code]||p.description)+'</span></label>').join("")+
+  '</div>'
+ ).join("");
+}
+async function loadAdminManagement(){
+ if(!permissions["admins.manage"]||!permissions["permissions.manage"])return;
+ const [users,catalog]=await Promise.all([rpc("admin_manage_list_users"),rpc("admin_list_permissions")]);
+ adminManagementUsers=users||[];adminPermissionCatalog=catalog||[];
+ $("adminTargetUser").innerHTML='<option value="">انتخاب کاربر...</option>'+adminManagementUsers.map(u=>
+  '<option value="'+esc(u.user_id)+'">'+esc(u.display_name||u.username||"کاربر بدون نام")+' · '+esc(u.username||u.user_id.slice(0,8))+'</option>'
+ ).join("");
+ const admins=adminManagementUsers.filter(u=>u.is_admin);
+ const rows=admins.map(u=>row([
+  esc(u.display_name||"—"),esc(u.username||"—"),esc((u.role_codes||[]).join("، ")),
+  esc((u.effective_permissions||[]).length+" مجوز فعال"),
+  '<button class="action-btn" data-admin-edit="'+esc(u.user_id)+'">ویرایش دسترسی</button> <button class="action-btn danger" data-admin-remove="'+esc(u.user_id)+'">حذف دسترسی مدیریت</button>'
+ ]));
+ $("adminUsersTable").innerHTML=table(["نام","نام کاربری","نوع مدیر","دسترسی‌های فعال","عملیات"],rows);
+ renderAdminPermissionGrid([]);
+}
+$("adminAddButton").addEventListener("click",()=>{
+ $("adminPermissionForm").reset();$("adminTargetUser").disabled=false;$("adminPermissionMessage").textContent="";
+ renderAdminPermissionGrid([]);$("adminPermissionForm").classList.remove("hidden");
+});
+$("adminCancelButton").addEventListener("click",()=>$("adminPermissionForm").classList.add("hidden"));
+$("adminUsersTable").addEventListener("click",async e=>{
+ const edit=e.target.closest("[data-admin-edit]"),remove=e.target.closest("[data-admin-remove]");
+ if(edit){
+  const user=adminManagementUsers.find(u=>u.user_id===edit.dataset.adminEdit);if(!user)return;
+  $("adminTargetUser").value=user.user_id;$("adminTargetUser").disabled=true;
+  $("adminPermissionMessage").textContent="دسترسی‌های فعلی این مدیر بارگذاری شد.";
+  renderAdminPermissionGrid(user.effective_permissions||[]);
+  $("adminPermissionForm").classList.remove("hidden");$("adminPermissionForm").scrollIntoView({behavior:"smooth",block:"start"});
+ }
+ if(remove){
+  const user=adminManagementUsers.find(u=>u.user_id===remove.dataset.adminRemove);if(!user)return;
+  if(!confirm("دسترسی مدیریتی "+(user.display_name||user.username||"این کاربر")+" حذف شود؟"))return;
+  remove.disabled=true;
+  try{await rpc("admin_manage_remove_custom_admin",{p_user_id:user.user_id});toast("دسترسی مدیریتی حذف شد.");await loadAdminManagement();}
+  catch(err){toast(err.message||"حذف دسترسی انجام نشد.");}
+  finally{remove.disabled=false;}
+ }
+});
+$("adminPermissionForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ if(!permissions["admins.manage"]||!permissions["permissions.manage"])return toast("مجوز مدیریت مدیران را نداری.");
+ const userId=$("adminTargetUser").value;if(!userId)return toast("ابتدا یک حساب کاربری انتخاب کن.");
+ const chosen={};$("adminPermissionGrid").querySelectorAll("[data-admin-permission]").forEach(input=>chosen[input.dataset.adminPermission]=input.checked);
+ if(Object.keys(chosen).length!==adminPermissionCatalog.length)return toast("فهرست دسترسی‌ها کامل بارگذاری نشده است.");
+ const button=$("adminSaveButton");button.disabled=true;button.textContent="در حال ذخیره...";
+ try{
+  await rpc("admin_manage_save_custom_admin",{p_user_id:userId,p_permissions:chosen});
+  $("adminPermissionMessage").textContent="دسترسی‌های انتخاب‌شده با موفقیت ذخیره شدند.";
+  $("adminPermissionForm").classList.add("hidden");toast("مدیر و دسترسی‌هایش ذخیره شدند.");await loadAdminManagement();
+ }catch(err){$("adminPermissionMessage").textContent=err.message||"ذخیره دسترسی‌ها انجام نشد.";toast("ذخیره مدیر انجام نشد.");}
+ finally{button.disabled=false;button.textContent="ذخیره دسترسی‌های مدیر";}
+});
+
 async function loadTableData(){
  const tasks=[];
  const canSeeTournaments=permissions["tournaments.view"]||permissions["tournaments.create"]||permissions["tournaments.update"]||permissions["tournaments.delete"]||permissions["rooms.view"]||permissions["rooms.manage"];
@@ -367,6 +471,7 @@ async function applyAccess(user){
  if(permissions["social.moderate"])allowedTabs.push("socialReports");
  if(permissions["wallet.view_all"]||permissions["wallet.demo_adjust"])allowedTabs.push("wallet");
  if(permissions["settings.view"]||permissions["settings.manage"])allowedTabs.push("settings");
+  if(permissions["admins.manage"]&&permissions["permissions.manage"])allowedTabs.push("admins");
  allowedTabs.forEach(addNav);showTab("overview");
  const count=Object.values(permissions).filter(Boolean).length;
  if(count===0){$("overviewEmpty").textContent="این حساب دسترسی مدیریتی ندارد. برای امنیت، هیچ داده مدیریتی نمایش داده نمی‌شود.";$("overviewText").textContent="ورود موفق بود، اما مجوز مدیریتی برای این حساب ثبت نشده است.";}
