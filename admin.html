@@ -147,7 +147,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <label class="wide">قوانین اختصاصی این روم<textarea id="rf_rules" maxlength="5000"></textarea></label>
 </div>
 <div class="actions"><button class="btn primary" type="submit" id="saveRoomButton">ذخیره روم</button><button class="btn" type="button" id="cancelRoomButton">انصراف</button></div>
-<div id="roomAccessAdminPanel" class="panel hidden" style="margin-top:14px"><h3>انتشار اطلاعات ورود کالاف</h3><p class="muted">پس از ساخت روم خصوصی در بازی، کد و رمز را وارد کن. این اطلاعات فقط برای ثبت‌نام‌کنندگان همان روم قابل مشاهده خواهد بود.</p><label>کد روم کالاف<input id="rf_room_code" maxlength="80" autocomplete="off"></label><label>رمز روم کالاف<input id="rf_room_password" maxlength="80" autocomplete="off"></label><button class="btn primary" id="publishRoomAccessButton" type="button">انتشار برای شرکت‌کنندگان</button><p id="roomAccessPublishMessage" class="muted" aria-live="polite"></p></div>
+<div id="roomAccessAdminPanel" class="panel hidden" style="margin-top:14px"><h3>انتشار اطلاعات ورود کالاف</h3><p class="muted">کد و رمز را همین‌جا قبل از زمان شروع ثبت کن. تا قبل از زمان شروع مخفی می‌مانند و پس از رسیدن زمان شروع، به‌صورت خودکار فقط برای شرکت‌کنندگان ثبت‌نام‌شدهٔ همان روم در اپ نمایش داده می‌شوند.</p><div id="roomAccessAdminStatus" class="notice" aria-live="polite">پس از ذخیره روم، وضعیت زمان‌بندی اینجا نمایش داده می‌شود.</div><label>کد روم کالاف<input id="rf_room_code" maxlength="80" autocomplete="off"></label><label>رمز روم کالاف<input id="rf_room_password" maxlength="80" autocomplete="off"></label><button class="btn primary" id="publishRoomAccessButton" type="button">ذخیره و زمان‌بندی نمایش خودکار</button><p id="roomAccessPublishMessage" class="muted" aria-live="polite"></p></div>
 </form>
 <div id="roomsTable" class="empty">در حال بارگذاری...</div>
 <div id="roomParticipantsPanel" class="card hidden" style="margin-top:14px"><div class="row"><h3 id="roomParticipantsTitle">شرکت‌کنندگان روم</h3><button type="button" class="btn" id="closeRoomParticipants">بستن</button></div><div id="roomParticipantsContent" class="empty">یک روم را انتخاب کن.</div></div>
@@ -730,11 +730,24 @@ $("roomForm").addEventListener("submit",async e=>{
   if(result.error)throw result.error;
   const imageFile=$("rf_room_image_file").files[0];
   if(imageFile){const imageUrl=await uploadTournamentAsset(imageFile,"rooms");const roomId=result.data.id;if(roomId){const imageUpdate=await sb.from("tournament_rooms").update({room_image_url:imageUrl}).eq("id",roomId);if(imageUpdate.error)throw imageUpdate.error;}else{throw new Error("شناسه روم برای ثبت تصویر دریافت نشد.");}}
-  $("rf_id").value=result.data.id;$("roomAccessAdminPanel").classList.remove("hidden");$("roomAccessPublishMessage").textContent="روم ذخیره شد. پس از ساخت روم در کالاف، کد و رمز را منتشر کن.";$("roomForm").classList.remove("hidden");await loadRooms();toast("روم ذخیره شد.");
+  $("rf_id").value=result.data.id;$("roomAccessAdminPanel").classList.remove("hidden");$("roomAccessPublishMessage").textContent="روم ذخیره شد. حالا کد و رمز را وارد کن تا برای زمان شروع آماده شوند.";$("roomForm").classList.remove("hidden");await refreshRoomAccessAdminStatus(result.data.id);await loadRooms();toast("روم ذخیره شد.");
  }catch(err){toast("ذخیره روم انجام نشد: "+(err.message||"مجوز یا اطلاعات را بررسی کن."));}
  finally{$("saveRoomButton").disabled=false;}
 });
-$("publishRoomAccessButton").addEventListener("click",async()=>{const roomId=$("rf_id").value;if(!roomId)return toast("ابتدا روم را ذخیره کن.");if(!permissions["rooms.manage"])return toast("مجوز انتشار اطلاعات روم را نداری.");const btn=$("publishRoomAccessButton");btn.disabled=true;btn.textContent="در حال انتشار...";try{const {error}=await sb.rpc("admin_publish_tournament_room_access",{p_room_id:roomId,p_room_code:$("rf_room_code").value.trim(),p_room_password:$("rf_room_password").value.trim()});if(error)throw error;$("roomAccessPublishMessage").textContent="اطلاعات برای شرکت‌کنندگان ثبت‌نام‌شده منتشر شد.";$("rf_room_password").value="";toast("اطلاعات روم منتشر شد.");}catch(err){$("roomAccessPublishMessage").textContent=err.message||"انتشار انجام نشد.";}finally{btn.disabled=false;btn.textContent="انتشار برای شرکت‌کنندگان";}});
+async function refreshRoomAccessAdminStatus(roomId){
+ const box=$("roomAccessAdminStatus");if(!box||!roomId){if(box)box.textContent="ابتدا روم را ذخیره کن.";return;}
+ box.textContent="در حال بررسی وضعیت انتشار خودکار...";
+ try{
+  const {data,error}=await sb.rpc("admin_get_tournament_room_access_status",{p_room_id:roomId});
+  if(error)throw error;
+  if(!data.has_credentials){box.textContent="کد و رمز هنوز ذخیره نشده‌اند. آن‌ها را وارد و ذخیره کن.";return;}
+  if(!data.starts_at){box.textContent="کد و رمز ذخیره شده‌اند، اما زمان شروع روم تعیین نشده است. زمان شروع را مشخص و روم را ذخیره کن.";return;}
+  const startText=new Date(data.starts_at).toLocaleString("fa-IR");
+  if(data.release_due){box.textContent="زمان شروع ("+startText+") فرا رسیده است. نمایش خودکار اطلاعات برای شرکت‌کنندگان ثبت‌نام‌شده فعال است.";}
+  else{box.textContent="کد و رمز با موفقیت ذخیره شده‌اند. نمایش خودکار در زمان شروع "+startText+" فعال می‌شود؛ تا آن زمان در اپ مخفی می‌مانند.";}
+ }catch(err){box.textContent=err.message||"وضعیت انتشار خودکار دریافت نشد.";}
+}
+$("publishRoomAccessButton").addEventListener("click",async()=>{const roomId=$("rf_id").value;if(!roomId)return toast("ابتدا روم را ذخیره کن.");if(!permissions["rooms.manage"])return toast("مجوز انتشار اطلاعات روم را نداری.");const btn=$("publishRoomAccessButton");btn.disabled=true;btn.textContent="در حال انتشار...";try{const {error}=await sb.rpc("admin_publish_tournament_room_access",{p_room_id:roomId,p_room_code:$("rf_room_code").value.trim(),p_room_password:$("rf_room_password").value.trim()});if(error)throw error;$("roomAccessPublishMessage").textContent="کد و رمز ذخیره شدند؛ پس از رسیدن زمان شروع به‌طور خودکار برای شرکت‌کنندگان ثبت‌نام‌شده نمایش داده می‌شوند.";$("rf_room_password").value="";await refreshRoomAccessAdminStatus(roomId);toast("اطلاعات روم برای نمایش زمان‌بندی‌شده ذخیره شد.");}catch(err){$("roomAccessPublishMessage").textContent=err.message||"انتشار انجام نشد.";}finally{btn.disabled=false;btn.textContent="انتشار برای شرکت‌کنندگان";}});
 $("closeRoomParticipants").onclick=()=> $("roomParticipantsPanel").classList.add("hidden");
 $("roomsTable").addEventListener("click",async e=>{
  const view=e.target.closest("[data-view-room-players]");
@@ -784,7 +797,7 @@ $("roomsTable").addEventListener("click",async e=>{
   $("rf_game_mode").value=data.game_mode||"";$("rf_map").value=data.map||"";
   $("rf_capacity").value=data.capacity||100;$("rf_team_size").value=String(data.team_size||4);$("rf_max_teams").value=data.max_teams||25;$("rf_starts_at").value=localDateTime(data.starts_at);
   $("rf_status").value=data.status||"draft";$("rf_room_image_url").value=data.room_image_url||"";$("rf_room_media_type").value=data.room_media_type||"image";$("rf_room_video_url").value=data.room_video_url||"";
-  $("rf_rules").value=data.rules||"";$("rf_room_code").value="";$("rf_room_password").value="";$("roomAccessPublishMessage").textContent="";$("roomAccessAdminPanel").classList.remove("hidden");$("roomForm").classList.remove("hidden");$("rf_title").focus();
+  $("rf_rules").value=data.rules||"";$("rf_room_code").value="";$("rf_room_password").value="";$("roomAccessPublishMessage").textContent="";$("roomAccessAdminPanel").classList.remove("hidden");$("roomForm").classList.remove("hidden");await refreshRoomAccessAdminStatus(data.id);$("rf_title").focus();
  }
  if(del&&permissions["rooms.manage"]){
   if(!confirm("این روم حذف شود؟"))return;
