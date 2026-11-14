@@ -23,7 +23,7 @@ Deno.serve(async(req:Request)=>{
  const {error:insertErr}=await admin.from("support_messages").insert({conversation_id:id,sender_role:"human_support",body:message});
  if(insertErr)return reply(500,{error:"ذخیره پاسخ پشتیبان انجام نشد."});
  const {error:updateErr}=await admin.from("support_conversations").update({
-  status:body.resolve===true?"resolved":"open",updated_at:new Date().toISOString()
+  status:body.resolve===true?"resolved":"waiting_for_human",updated_at:new Date().toISOString()
  }).eq("id",id);
  if(updateErr)return reply(500,{error:"پاسخ ذخیره شد اما وضعیت گفت‌وگو به‌روزرسانی نشد."});
  return reply(200,{success:true,resolved:body.resolve===true});
