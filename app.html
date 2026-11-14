@@ -72,7 +72,7 @@ img,video{max-width:100%}
 <section class="page" id="page-tournaments">
  <div class="tournament-banner"><div class="tournament-banner-copy"><span>EX1 LEGEND · ARENA</span><h1>جوایز و<br>مسابقات</h1><p>رقابت‌های جامعه، روم‌های فعال و جدول قهرمانان</p></div><div class="tournament-banner-mark">EX1</div><div class="banner-bottom"><b>مسابقات فعال</b><small>برای دیدن جزئیات، کارت هر مسابقه را انتخاب کن</small></div></div>
  <div class="tournament-filter" id="roomCategoryFilter"><button class="active" type="button" data-room-category="all">برای شما</button><button type="button" data-room-category="fight">فایت</button><button type="button" data-room-category="br">بتل‌رویال</button><button type="button" data-room-category="multi">مولتی</button></div><div class="section-head"><div><h2 id="roomCategoryTitle">روم‌های پیشنهادی</h2><p>یک روم را انتخاب کن تا جزئیاتش را ببینی.</p></div></div>
- <div id="roomCards" class="room-grid"><div class="empty">در حال دریافت روم‌ها...</div></div><div id="roomNoData" class="panel room-empty-state" hidden><strong>هنوز رومی برای ثبت‌نام فعال نشده</strong><p>به‌محض اینکه مدیر روم فایت، بتل‌رویال یا مولتی بسازد، کارت و تصویر آن اینجا نمایش داده می‌شود.</p><a href="/admin.html" class="btn secondary small">ورود به پنل مدیریت</a></div><div id="roomCategoryEmpty" class="empty" hidden>فعلاً رومی در این دسته وجود ندارد.</div><section id="roomDetail" class="panel room-detail" hidden></section>
+ <div id="roomCards" class="room-grid"><div class="empty">در حال دریافت روم‌ها...</div></div><div id="roomNoData" class="panel room-empty-state" hidden><strong>هنوز رومی برای ثبت‌نام فعال نشده</strong><p>به‌محض اینکه مدیر روم فایت، بتل‌رویال یا مولتی بسازد، کارت و تصویر آن اینجا نمایش داده می‌شود.</p></div><div id="roomCategoryEmpty" class="empty" hidden>فعلاً رومی در این دسته وجود ندارد.</div><section id="roomDetail" class="panel room-detail" hidden></section>
 </section>
 <section class="page" id="page-ranking">
  <div class="section-head"><div><h2>برترین‌ها</h2><p>رتبه‌بندی فقط بر اساس نتایج تأییدشده‌ی مسابقات</p></div></div>
@@ -454,6 +454,13 @@ async function authState(){
  const {data,error}=await sb.auth.getSession();
  if(error)console.warn("Auth session restore failed:",error.message);
  currentUser=data?.session?.user||null;
+ if(currentUser){
+  const {data:banned,error:banCheckError}=await sb.rpc("is_current_user_banned");
+  if(!banCheckError&&banned===true){
+   await sb.auth.signOut();currentUser=null;
+   toast("دسترسی این حساب به EX1 مسدود شده است. برای پیگیری با پشتیبانی تماس بگیر.");
+  }
+ }
  $("headerUser").textContent=currentUser?"آنلاین":"";
  $("headerAuth").textContent=currentUser?"حساب من":"ورود / ثبت‌نام";
  if(currentUser){await loadUserSettings();await loadProfile();await loadExplore();}
