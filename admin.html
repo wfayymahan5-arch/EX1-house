@@ -617,6 +617,13 @@ async function applyAccess(user){
  const nextPermissions={};
  (Array.isArray(list)?list:[]).forEach(p=>{if(p&&p.permission_code)nextPermissions[p.permission_code]=p.is_allowed===true;});
  permissions=nextPermissions;
+ const hasAnyAdminPermission=Object.values(permissions).some(Boolean);
+ if(!hasAnyAdminPermission){
+  $("appView").classList.add("hidden");
+  $("authView").classList.remove("hidden");
+  $("authMessage").textContent="این حساب کاربر عادی است و هیچ دسترسی مدیریتی ندارد. برای استفاده از امکانات EX1 به صفحه اصلی برنامه برگرد.";
+  return;
+ }
  const allowedTabs=["overview"];
  if(permissions["tournaments.view"]||permissions["tournaments.create"]||permissions["tournaments.update"]||permissions["tournaments.delete"])allowedTabs.push("tournaments");
  if(permissions["rooms.view"]||permissions["rooms.manage"])allowedTabs.push("rooms");
