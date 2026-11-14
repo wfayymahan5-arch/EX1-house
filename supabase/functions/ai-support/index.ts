@@ -32,7 +32,7 @@ Deno.serve(async (req: Request) => {
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
   const openAiKey = Deno.env.get("OPENAI_API_KEY") ?? "";
-  const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\\s+/i, "");
+  const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
 
   if (!token || !supabaseUrl || !anonKey || !serviceRoleKey) {
     return reply(401, { error: "برای استفاده از پشتیبانی ابتدا وارد حساب شو." });
