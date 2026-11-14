@@ -408,7 +408,7 @@ async function findAdminUserById(){
   adminSearchMatches=matches||[];
   if(!adminSearchMatches.length){$("adminUserSearchResults").textContent="کاربری با این ابتدای شناسه پیدا نشد. شناسه را بررسی کن.";return;}
   $("adminUserSearchResults").innerHTML=adminSearchMatches.map(u=>
-   '<div class="manager-form" style="margin:8px 0;padding:10px"><strong>'+esc(u.display_name||"کاربر بدون نام")+'</strong><div class="muted">'+esc(u.username||"بدون نام کاربری")+'</div><div class="muted" dir="ltr" style="overflow-wrap:anywhere">'+esc(u.user_id)+'</div><button class="action-btn" type="button" data-admin-pick-user="'+esc(u.user_id)+'" style="margin-top:8px">انتخاب این حساب</button></div>'
+   '<div class="manager-form" style="margin:8px 0;padding:10px"><strong>'+esc(u.display_name||"کاربر بدون نام")+'</strong><div class="muted">'+esc(u.username||"بدون نام کاربری")+'</div><div class="muted" dir="ltr" style="overflow-wrap:anywhere">'+esc(u.user_id)+'</div><div class="muted">'+(u.is_admin?"مدیر فعلی · دسترسی‌های قبلی حفظ و قابل ویرایش است":"حساب عادی · آماده تعیین دسترسی")+'</div><button class="action-btn" type="button" data-admin-pick-user="'+esc(u.user_id)+'" style="margin-top:8px">'+(u.is_admin?"انتخاب و ویرایش مدیر":"انتخاب این حساب")+'</button></div>'
   ).join("");
  }catch(err){$("adminUserSearchResults").textContent=err.message||"جست‌وجوی کاربر انجام نشد.";}
  finally{button.disabled=false;button.textContent="جست‌وجو";}
@@ -419,9 +419,12 @@ $("adminUserSearchResults").addEventListener("click",e=>{
  const pick=e.target.closest("[data-admin-pick-user]");if(!pick)return;
  const user=adminSearchMatches.find(u=>u.user_id===pick.dataset.adminPickUser);if(!user)return;
  $("adminTargetUser").value=user.user_id;
- $("adminUserSearchResults").innerHTML='<div class="notice">حساب انتخاب‌شده: <strong>'+esc(user.display_name||user.username||"کاربر")+'</strong><div dir="ltr" style="overflow-wrap:anywhere">'+esc(user.user_id)+'</div></div>';
+ renderAdminPermissionGrid(user.is_admin?(user.effective_permissions||[]):[]);
+ $("adminPermissionMessage").textContent=user.is_admin?"دسترسی‌های فعلی این مدیر بارگذاری شدند؛ تغییراتت جایگزین همین دسترسی‌ها می‌شود.":"حساب انتخاب شد؛ حالا دسترسی‌های موردنظر را انتخاب کن.";
+ $("adminUserSearchResults").innerHTML='<div class="notice">حساب انتخاب‌شده: <strong>'+esc(user.display_name||user.username||"کاربر")+'</strong><div dir="ltr" style="overflow-wrap:anywhere">'+esc(user.user_id)+'</div><div class="muted">'+(user.is_admin?"مدیر فعلی · دسترسی‌ها بارگذاری شدند":"کاربر عادی · آماده تبدیل به مدیر")+'</div></div>';
 });
 $("adminAddButton").addEventListener("click",()=>{
+ if(!adminPermissionCatalog.length){toast("فهرست دسترسی‌ها هنوز بارگذاری نشده؛ صفحه را تازه‌سازی کن.");return;}
  $("adminPermissionForm").reset();$("adminTargetUser").value="";adminSearchMatches=[];$("adminUserIdSearch").disabled=false;
  $("adminUserSearchResults").textContent="برای پیدا کردن حساب، شناسه کاربری EX1 را جست‌وجو کن.";
  $("adminPermissionMessage").textContent="";
@@ -464,6 +467,7 @@ $("adminPermissionForm").addEventListener("submit",async e=>{
 
 async function loadTableData(){
  const tasks=[];
+ if(permissions["admins.manage"]&&permissions["permissions.manage"])tasks.push(loadAdminManagement());
  const canSeeTournaments=permissions["tournaments.view"]||permissions["tournaments.create"]||permissions["tournaments.update"]||permissions["tournaments.delete"]||permissions["rooms.view"]||permissions["rooms.manage"];
  if(canSeeTournaments)tasks.push(loadTournaments());
  if(permissions["results.view"]||permissions["results.manage"])tasks.push(loadResults());
