@@ -1,12 +1,12 @@
 
 {
-  "id": "/",
+  "id": "/app.html",
   "name": "EX1 LEGEND",
   "short_name": "EX1 LEGEND",
   "description": "EX1 LEGEND - COD Mobile Tournaments | وارد میدان شو، افسانه شو",
   "lang": "fa",
   "dir": "rtl",
-  "start_url": "/",
+  "start_url": "/app.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
