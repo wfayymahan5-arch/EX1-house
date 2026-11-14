@@ -40,6 +40,10 @@ Deno.serve(async (req: Request) => {
   const contentText = String(body.content_text ?? "").trim();
   const allowedTypes = new Set(["chat_message", "profile_text", "team_description", "social_post_text"]);
   const contentType = String(body.content_type ?? "");
+  const sourceId = body.source_id == null ? null : String(body.source_id);
+  if (sourceId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sourceId)) {
+    return reply(400, { error: "شناسه محتوا معتبر نیست." });
+  }
   if (!contentText || contentText.length > 6000 || !allowedTypes.has(contentType)) {
     return reply(400, { error: "نوع یا متن محتوا معتبر نیست." });
   }
@@ -78,7 +82,7 @@ Deno.serve(async (req: Request) => {
     .insert({
       user_id: authData.user.id,
       content_type: contentType,
-      source_id: body.source_id ?? null,
+      source_id: sourceId,
       content_text: contentText,
       moderation_categories: categories,
       moderation_scores: scores,
