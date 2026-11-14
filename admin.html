@@ -629,10 +629,13 @@ async function loadTableData(){
    try { await loadRooms(); } catch(e) { failed.push({status:"rejected"}); }
  }
  if(failed.length)toast("بعضی بخش‌ها به‌دلیل محدودیت دسترسی یا خطای ارتباط بارگذاری نشدند.");
+ if(ownerCanBanUsers){try{await loadAIModerationCases();}catch(e){failed.push({status:"rejected"});}}
  const counts=["statTournaments","statRegistrations","statTeams","statUsers"].map(id=>$(id).textContent).filter(x=>x!=="—");
  $("overviewEmpty").textContent=counts.length?"داده‌های مجاز از دیتابیس بارگذاری شدند. برای جزئیات، بخش مربوطه را باز کن.":"برای این حساب، مجوز مشاهده داده‌های مدیریتی ثبت نشده است.";
 }
 async function loadAIModerationCases(){
+ const ownerResult=await sb.rpc("is_current_user_owner");
+ ownerCanBanUsers=!ownerResult.error&&ownerResult.data===true;
  if(!ownerCanBanUsers)return;
  const box=$("aiModerationCases");
  const {data:cases,error}=await sb.from("ai_moderation_cases").select("id,user_id,content_type,content_text,moderation_categories,moderation_scores,severity,confidence,evidence_bucket,evidence_path,created_at").eq("status","pending_review").order("created_at",{ascending:false}).limit(100);
