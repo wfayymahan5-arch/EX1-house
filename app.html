@@ -777,7 +777,8 @@ $("teamSettingsForm").addEventListener("submit",async e=>{
  try{
   const payload={name:$("teamSettingsName").value.trim(),tag:$("teamSettingsTag").value.trim().toUpperCase()||null,description:$("teamSettingsDescription").value.trim()||null};
   if(payload.name.length<2)throw new Error("نام تیم باید حداقل دو نویسه باشد.");
-  if(!(await moderateUserText("team_description",[payload.name,payload.tag,payload.description].filter(Boolean).join("\n"),currentTeamId)))return;\n  const {error}=await sb.from("teams").update(payload).eq("id",currentTeamId).eq("captain_id",currentUser.id);if(error)throw error;
+  if(!(await moderateUserText("team_description",[payload.name,payload.tag,payload.description].filter(Boolean).join("\n"),currentTeamId)))return;
+  const {error}=await sb.from("teams").update(payload).eq("id",currentTeamId).eq("captain_id",currentUser.id);if(error)throw error;
   $("teamSettingsMessage").textContent="تنظیمات تیم ذخیره شد.";await loadMyTeam();toast("تنظیمات تیم به‌روزرسانی شد.");
  }catch(err){$("teamSettingsMessage").textContent=err.message||"ذخیره تنظیمات انجام نشد.";}
  finally{button.disabled=false;}
@@ -842,7 +843,8 @@ $("createTeamForm").addEventListener("submit",async e=>{
  const name=$("newTeamName").value.trim(),tag=$("newTeamTag").value.trim().toUpperCase()||null,description=$("newTeamDescription").value.trim()||null;
  const button=e.submitter||$("createTeamForm").querySelector('button[type="submit"]');button.disabled=true;button.textContent="در حال ساخت...";
  try{
-  if(!(await moderateUserText("team_description",[name,tag,description].filter(Boolean).join("\n"))))return;\n  const {data:teamId,error}=await sb.rpc("team_create",{p_name:name,p_tag:tag,p_description:description});if(error)throw error;
+  if(!(await moderateUserText("team_description",[name,tag,description].filter(Boolean).join("\n"))))return;
+  const {data:teamId,error}=await sb.rpc("team_create",{p_name:name,p_tag:tag,p_description:description});if(error)throw error;
   if(!teamId)throw new Error("شناسه تیم از سرور دریافت نشد.");
   $("createTeamForm").reset();await loadMyTeam();toast("تیم و عضویت کاپیتان با موفقیت و به‌صورت یکپارچه ساخته شد.");
  }catch(err){console.error("EX1 team create:",err);toast(err?.message||"ساخت تیم انجام نشد.");}
