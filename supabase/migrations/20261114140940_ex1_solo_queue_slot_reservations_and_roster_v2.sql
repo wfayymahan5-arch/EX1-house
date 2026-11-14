@@ -31,7 +31,7 @@ $backfill$;
 CREATE OR REPLACE FUNCTION private.get_my_room_solo_status(p_room_id uuid)
  RETURNS jsonb
  LANGUAGE plpgsql
- STABLE SECURITY DEFINER
+ VOLATILE SECURITY DEFINER
  SET search_path TO ''
 AS $function$
 DECLARE
