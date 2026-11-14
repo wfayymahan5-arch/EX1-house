@@ -533,16 +533,16 @@ $("roomsTable").addEventListener("click",async e=>{
     const people=players.map(p=>{
      let url=p.avatar_url||"";
      if(url&&!/^https?:\/\//i.test(url))url=sb.storage.from("ex1-avatars").getPublicUrl(url).data.publicUrl;
-     const avatar=url?'<img src="'+esc(url)+'" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover">':'<span style="display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#e9e2f8">'+esc((p.display_name||p.game_name||"؟").slice(0,1))+'</span>';
-     return '<div style="display:flex;align-items:center;gap:9px;margin:6px 0">'+avatar+'<span><b>'+esc(p.game_name||p.display_name||"بازیکن")+'</b><br><small>آیدی بازی: '+esc(p.game_uid||"ثبت نشده")+'</small></span></div>';
+     const avatar=url?'<img src="'+esc(url)+'" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover">':'<span style="display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#e9e2f8">'+esc((p.game_name||"؟").slice(0,1))+'</span>';
+     return '<div style="display:flex;align-items:center;gap:9px;margin:6px 0">'+avatar+'<span><b>'+esc(p.game_name||"نام کالاف ثبت نشده")+'</b><br><small>آیدی بازی: '+esc(p.game_uid||"ثبت نشده")+'</small></span></div>';
     }).join("");
     return '<tr><td>'+Number(slot.slot_number)+'</td><td>'+esc(slot.team_name||"تیم")+'</td><td>'+(people||"—")+'</td><td>'+esc(slot.status||"—")+'</td></tr>';
    });
     const queueRows=(waitingPlayers||[]).map(p=>{
      let url=p.avatar_url||"";
      if(url&&!/^https?:\/\//i.test(url))url=sb.storage.from("ex1-avatars").getPublicUrl(url).data.publicUrl;
-     const avatar=url?'<img src="'+esc(url)+'" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover">' : '<span style="display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#e9e2f8">'+esc((p.display_name||p.game_name||"؟").slice(0,1))+'</span>';
-     const person='<div style="display:flex;align-items:center;gap:9px;margin:6px 0">'+avatar+'<span><b>'+esc(p.game_name||p.display_name||"بازیکن")+'</b><br><small>آیدی بازی: '+esc(p.game_uid||"ثبت نشده")+'</small></span></div>';
+     const avatar=url?'<img src="'+esc(url)+'" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover">' : '<span style="display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#e9e2f8">'+esc((p.game_name||"؟").slice(0,1))+'</span>';
+     const person='<div style="display:flex;align-items:center;gap:9px;margin:6px 0">'+avatar+'<span><b>'+esc(p.game_name||"نام کالاف ثبت نشده")+'</b><br><small>آیدی بازی: '+esc(p.game_uid||"ثبت نشده")+'</small></span></div>';
      return '<tr><td>—</td><td>صف تشکیل تیم</td><td>'+person+'</td><td>در انتظار تکمیل تیم</td></tr>';
     });
    $("roomParticipantsTitle").textContent="شرکت‌کنندگان · "+(room.title||"روم");
