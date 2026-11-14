@@ -116,7 +116,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <label>وضعیت<select id="tf_status"><option value="draft">پیش‌نویس</option><option value="published">منتشرشده</option><option value="registration_open">ثبت‌نام باز</option><option value="ongoing">در حال برگزاری</option><option value="completed">پایان‌یافته</option><option value="cancelled">لغوشده</option></select></label>
 <label>حداکثر تعداد تیم‌ها<input id="tf_max_teams" type="number" min="1" max="1000" value="25" required></label>
 <label>زمان شروع<input id="tf_starts_at" type="datetime-local"></label>
-<label>تصویر مسابقه (نشانی یا انتخاب فایل)<input id="tf_cover_image_url" type="url" placeholder="https://..."><input id="tf_cover_image_file" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label>
+<label>تصویر مسابقه (بارگذاری فایل یا نشانی تصویر)<input id="tf_cover_image_url" type="url" placeholder="https://..."><input id="tf_cover_image_file" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label><div class="wide" id="tf_cover_preview" style="min-height:8px"></div>
 
 <label>پاداش امتیازی غیرقابل‌برداشت<input id="tf_prize_demo_points" type="number" min="0" max="1000000000" value="0"></label>
 <label class="wide">توضیحات و قوانین مسابقه<textarea id="tf_rules" maxlength="5000"></textarea></label>
@@ -568,7 +568,7 @@ async function uploadTournamentAsset(file,folder){
  return sb.storage.from("tournament-assets").getPublicUrl(path).data.publicUrl;
 }
 function resetTournamentForm(){
- $("tournamentForm").reset();$("tf_id").value="";$("tf_game").value="Call of Duty Mobile";$("tf_status").value="draft";
+ $("tournamentForm").reset();$("tf_id").value="";$("tf_game").value="Call of Duty Mobile";$("tf_status").value="draft";setTournamentCoverPreview("");
  $("tf_max_teams").value=25;$("tf_prize_demo_points").value=0;
  $("tournamentForm").classList.add("hidden");
 }
@@ -588,9 +588,9 @@ async function loadTournaments(){
   const actions=[];
   if(canEdit)actions.push('<button class="action-btn" data-edit-tournament="'+esc(t.id)+'">ویرایش</button>');
   if(canDelete)actions.push('<button class="action-btn danger" data-delete-tournament="'+esc(t.id)+'">حذف</button>');
-  return row([esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—"),esc(t.prize_demo_points||0),actions.join(" ")||"—"]);
+  return row([t.cover_image_url?'<img src="'+esc(t.cover_image_url)+'" alt="" style="width:64px;height:42px;object-fit:cover;border-radius:8px">':"—",esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—"),esc(t.prize_demo_points||0),actions.join(" ")||"—"]);
  });
- $("tournamentsTable").innerHTML=tournamentCache.length?table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع","پاداش امتیازی","عملیات"],rows):'<div class="empty">هنوز مسابقه‌ای ثبت نشده است.</div>';
+ $("tournamentsTable").innerHTML=tournamentCache.length?table(["تصویر","عنوان","بازی","حالت","نقشه","وضعیت","شروع","پاداش امتیازی","عملیات"],rows):'<div class="empty">هنوز مسابقه‌ای ثبت نشده است.</div>';
  $("addTournamentButton").hidden=!permissions["tournaments.create"];
  $("tournamentForm").classList.add("hidden");
 }
@@ -615,6 +615,17 @@ $("addTournamentButton").onclick=()=>{
  resetTournamentForm();$("tournamentForm").classList.remove("hidden");$("tf_title").focus();
 };
 $("cancelTournamentButton").onclick=resetTournamentForm;
+function setTournamentCoverPreview(url){
+ const box=$("tf_cover_preview");if(!box)return;
+ box.innerHTML=url?'<img src="'+esc(url)+'" alt="پیش‌نمایش تصویر مسابقه" style="display:block;width:100%;max-width:260px;max-height:150px;object-fit:cover;border-radius:12px;border:1px solid var(--line)">':'';
+}
+$("tf_cover_image_file").addEventListener("change",e=>{
+ const file=e.target.files?.[0];if(!file){setTournamentCoverPreview($("tf_cover_image_url").value.trim());return;}
+ if(!["image/jpeg","image/png","image/webp","image/gif"].includes(file.type)||file.size>5*1024*1024){toast("تصویر باید JPG، PNG، WEBP یا GIF و حداکثر ۵ مگابایت باشد.");e.target.value="";return;}
+ setTournamentCoverPreview(URL.createObjectURL(file));
+});
+$("tf_cover_image_url").addEventListener("input",()=>{if(!$("tf_cover_image_file").files.length)setTournamentCoverPreview($("tf_cover_image_url").value.trim());});
+
 $("tournamentForm").addEventListener("submit",async e=>{
  e.preventDefault();
  const id=$("tf_id").value;
@@ -644,7 +655,7 @@ $("tournamentsTable").addEventListener("click",async e=>{
   $("tf_id").value=t.id;$("tf_title").value=t.title||"";$("tf_game").value=t.game||"Call of Duty Mobile";
   $("tf_mode").value=t.mode||"";$("tf_map").value=t.map||"";$("tf_status").value=t.status||"draft";
   $("tf_max_teams").value=t.max_teams||25;$("tf_starts_at").value=localDateTime(t.starts_at);
-  $("tf_cover_image_url").value=t.cover_image_url||"";$("tf_rules").value=t.rules||"";
+  $("tf_cover_image_url").value=t.cover_image_url||"";setTournamentCoverPreview(t.cover_image_url||"");$("tf_rules").value=t.rules||"";
   $("tf_prize_demo_points").value=t.prize_demo_points||0;
   $("tournamentForm").classList.remove("hidden");$("tf_title").focus();
  }
