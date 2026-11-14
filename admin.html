@@ -155,18 +155,22 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <section class="section tab hidden" id="registrations"><h2>ثبت‌نام‌های تیمی</h2><div id="registrationsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="results">
 <div class="row"><h2>ثبت نتایج مسابقات</h2><span class="muted">امتیاز، کیل و جایگاه تیم‌ها</span></div>
-<form id="resultForm" class="manager-form hidden">
-<input id="result_id" type="hidden">
-<div class="formgrid">
-<label>مسابقه<select id="result_tournament_id" required></select></label>
-<label>تیم<select id="result_team_id" required></select></label>
-<label>جایگاه<input id="result_placement" type="number" min="1" max="1000" value="1" required></label>
-<label>کیل<input id="result_kills" type="number" min="0" max="1000" value="0" required></label>
-<label>امتیاز مسابقه<input id="result_points" type="number" min="0" max="1000000" value="0" required></label>
-</div>
-<div class="actions"><button class="btn primary" id="saveResultButton" type="submit">ذخیره نتیجه</button><button class="btn" id="cancelResultButton" type="button">انصراف</button></div>
-</form>
-<div id="resultsTable" class="empty">در حال بارگذاری...</div>
+<div class="actions" style="margin:12px 0"><button class="btn primary" type="button" id="showTeamResultForm">ثبت نتیجه تیم</button><button class="btn" type="button" id="showPlayerResultForm">ثبت نتیجه بازیکن</button></div>
+<form id="resultForm" class="manager-form hidden"><input id="result_id" type="hidden"><div class="formgrid">
+<label>مسابقه<select id="result_tournament_id" required></select></label><label>تیم<select id="result_team_id" required></select></label>
+<label>جایگاه نهایی تیم<input id="result_placement" type="number" min="1" max="1000" value="1" required></label>
+<label>مجموع کیل تیم<input id="result_kills" type="number" min="0" max="1000" value="0" required></label>
+<label>امتیاز مسابقه<input id="result_points" type="number" min="0" max="1000000" value="0" required></label></div>
+<div class="actions"><button class="btn primary" id="saveResultButton" type="submit">ذخیره نتیجه تیم</button><button class="btn" id="cancelResultButton" type="button">انصراف</button></div></form>
+<form id="playerResultForm" class="manager-form hidden"><input id="player_result_id" type="hidden"><div class="formgrid">
+<label>مسابقه<select id="player_result_tournament_id" required></select></label><label>روم<select id="player_result_room_id" required></select></label>
+<label class="wide">جست‌وجوی بازیکن با آیدی کالاف، نام بازی یا نام کاربری<input id="player_result_search" type="search" autocomplete="off" placeholder="آیدی یا نام بازیکن را وارد کن"></label>
+<label class="wide">بازیکن<select id="player_result_user_id" required></select></label>
+<label>تعداد کیل<input id="player_result_kills" type="number" min="0" max="1000" value="0" required></label>
+<label>جایگاه انفرادی (اختیاری)<input id="player_result_placement" type="number" min="1" max="1000" placeholder="مثلاً ۵"></label>
+<label>امتیاز<input id="player_result_points" type="number" min="0" max="1000000" value="0" required></label></div>
+<div class="actions"><button class="btn primary" id="savePlayerResultButton" type="submit">ذخیره نتیجه بازیکن</button><button class="btn" id="cancelPlayerResultButton" type="button">انصراف</button></div></form>
+<div id="resultsTable" class="empty">در حال بارگذاری...</div><div id="playerResultsTable" class="empty" style="margin-top:14px">نتایج انفرادی...</div>
 </section>
 <section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="users"><h2>کاربران و پروفایل‌ها</h2><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
@@ -283,48 +287,68 @@ async function loadAuditLogs(){
  $("auditTable").innerHTML=rows.length?table(["عملیات","بخش","شناسه","مدیر","زمان"],rows):'<div class="empty">هنوز گزارشی ثبت نشده است.</div>';
 }
 async function loadResults(){
- const [{data:tournaments,error:te},{data:teams,error:te2},{data:results,error:re}]=await Promise.all([
-  sb.from("tournaments").select("id,title").order("created_at",{ascending:false}),
-  sb.from("teams").select("id,name,tag").order("created_at",{ascending:false}),
-  sb.from("tournament_results").select("id,tournament_id,team_id,placement,kills,points,created_at,teams(name,tag),tournaments(title)").order("points",{ascending:false}).order("placement",{ascending:true})
+ const [{data:tournaments,error:te},{data:teams,error:te2},{data:results,error:re},{data:rooms,error:ro},{data:players,error:pe},{data:playerResults,error:pre}]=await Promise.all([
+ sb.from("tournaments").select("id,title").order("created_at",{ascending:false}),
+ sb.from("teams").select("id,name,tag").order("created_at",{ascending:false}),
+ sb.from("tournament_results").select("id,tournament_id,team_id,placement,kills,points,created_at,teams(name,tag),tournaments(title)").order("points",{ascending:false}).order("placement",{ascending:true}),
+ sb.from("tournament_rooms").select("id,tournament_id,title").order("starts_at",{ascending:false}),
+ sb.from("profiles").select("id,display_name,username,game_name,game_uid").order("created_at",{ascending:false}).limit(500),
+ sb.from("tournament_player_results").select("id,tournament_id,room_id,user_id,placement,kills,points,created_at,tournament_rooms(title),tournaments(title),profiles(display_name,username,game_name,game_uid)").order("points",{ascending:false})
  ]);
- if(te)throw te;if(te2)throw te2;if(re)throw re;
- $("result_tournament_id").innerHTML=(tournaments||[]).map(x=>'<option value="'+esc(x.id)+'">'+esc(x.title)+'</option>').join("");
+ if(te)throw te;if(te2)throw te2;if(re)throw re;if(ro)throw ro;if(pe)throw pe;if(pre)throw pre;
+ const opts=xs=>xs.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.title)+'</option>').join("");
+ $("result_tournament_id").innerHTML=opts(tournaments||[]);$("player_result_tournament_id").innerHTML=opts(tournaments||[]);
  $("result_team_id").innerHTML=(teams||[]).map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+(x.tag?' ['+esc(x.tag)+']':'')+'</option>').join("");
- const canEdit=permissions["results.manage"];
- const rows=(results||[]).map(x=>row([esc(x.tournaments?.title||"مسابقه"),esc(x.teams?.name||"تیم"),esc(x.placement),esc(x.kills),esc(x.points),esc(x.created_at?new Date(x.created_at).toLocaleString("fa-IR"):"—"),canEdit?'<button class="action-btn" data-edit-result="'+esc(x.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-result="'+esc(x.id)+'">حذف</button>':"—"]));
- $("resultsTable").innerHTML=rows.length?table(["مسابقه","تیم","جایگاه","کیل","امتیاز","زمان ثبت","عملیات"],rows):'<div class="empty">هنوز نتیجه‌ای ثبت نشده است.</div>';
- $("resultForm").classList.toggle("hidden",!canEdit);
+ window.ex1AdminRooms=rooms||[];window.ex1AdminPlayers=players||[];
+ $("player_result_room_id").innerHTML=opts(rooms||[]);
+ $("player_result_room_id").innerHTML=(rooms||[]).map(x=>'<option value="'+esc(x.id)+'" data-tournament="'+esc(x.tournament_id)+'">'+esc(x.title)+'</option>').join("");
+ const plabel=x=>(x.game_name||x.display_name||x.username||"بازیکن")+" · "+(x.game_uid||x.username||x.id.slice(0,8));
+ $("player_result_user_id").innerHTML=(players||[]).map(x=>'<option value="'+esc(x.id)+'">'+esc(plabel(x))+'</option>').join("");
+ const can=permissions["results.manage"];
+ const rows=(results||[]).map(x=>row([esc(x.tournaments?.title||"مسابقه"),esc(x.teams?.name||"تیم"),esc(x.placement),esc(x.kills),esc(x.points),esc(x.created_at?new Date(x.created_at).toLocaleString("fa-IR"):"—"),can?'<button class="action-btn" data-edit-result="'+esc(x.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-result="'+esc(x.id)+'">حذف</button>':"—"]));
+ $("resultsTable").innerHTML=rows.length?'<h3>نتایج تیمی</h3>'+table(["مسابقه","تیم","جایگاه","مجموع کیل","امتیاز","زمان ثبت","عملیات"],rows):'<div class="empty">هنوز نتیجه تیمی ثبت نشده است.</div>';
+ const prs=(playerResults||[]).map(x=>row([esc(x.tournaments?.title||"مسابقه"),esc(x.tournament_rooms?.title||"روم"),esc(x.profiles?.game_name||x.profiles?.display_name||x.profiles?.username||"بازیکن"),esc(x.profiles?.game_uid||"—"),esc(x.kills),esc(x.placement||"—"),esc(x.points),can?'<button class="action-btn" data-edit-player-result="'+esc(x.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-player-result="'+esc(x.id)+'">حذف</button>':"—"]));
+ $("playerResultsTable").innerHTML=prs.length?'<h3>نتایج انفرادی بازیکنان</h3>'+table(["مسابقه","روم","بازیکن","آیدی کالاف","کیل","جایگاه","امتیاز","عملیات"],prs):'<div class="empty">هنوز نتیجه انفرادی ثبت نشده است.</div>';
+ $("resultForm").classList.add("hidden");$("playerResultForm").classList.toggle("hidden",!can);$("showTeamResultForm").hidden=!can;$("showPlayerResultForm").hidden=!can;
 }
-function resetResultForm(){
- $("resultForm").reset();$("result_id").value="";$("result_placement").value=1;$("result_kills").value=0;$("result_points").value=0;
-}
-$("cancelResultButton").onclick=resetResultForm;
+function resetResultForm(){$("resultForm").reset();$("result_id").value="";$("result_placement").value=1;$("result_kills").value=0;$("result_points").value=0;}
+function resetPlayerResultForm(){$("playerResultForm").reset();$("player_result_id").value="";$("player_result_kills").value=0;$("player_result_points").value=0;}
+$("showTeamResultForm").onclick=()=>{if(!permissions["results.manage"])return;$("playerResultForm").classList.add("hidden");$("resultForm").classList.remove("hidden");};
+$("showPlayerResultForm").onclick=()=>{if(!permissions["results.manage"])return;$("resultForm").classList.add("hidden");$("playerResultForm").classList.remove("hidden");};
+$("cancelResultButton").onclick=resetResultForm;$("cancelPlayerResultButton").onclick=resetPlayerResultForm;
 $("resultForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!permissions["results.manage"])return;
  const id=$("result_id").value,payload={tournament_id:$("result_tournament_id").value,team_id:$("result_team_id").value,placement:Number($("result_placement").value),kills:Number($("result_kills").value),points:Number($("result_points").value)};
  if(!payload.tournament_id||!payload.team_id)return toast("مسابقه و تیم را انتخاب کن.");
- const button=$("saveResultButton");button.disabled=true;
- try{
-  const result=id?await sb.from("tournament_results").update(payload).eq("id",id):await sb.from("tournament_results").upsert(payload,{onConflict:"tournament_id,team_id"});
-  if(result.error)throw result.error;
-  resetResultForm();await loadResults();toast("نتیجه در دیتابیس ذخیره شد.");
- }catch(err){toast(err.message||"ذخیره نتیجه انجام نشد.");}
- finally{button.disabled=false;}
+ const b=$("saveResultButton");b.disabled=true;
+ try{const r=id?await sb.from("tournament_results").update(payload).eq("id",id):await sb.from("tournament_results").insert(payload);if(r.error)throw r.error;resetResultForm();await loadResults();toast("نتیجه تیم ذخیره شد.");}catch(err){toast(err.message||"ذخیره نتیجه انجام نشد.");}finally{b.disabled=false;}
+});
+$("player_result_tournament_id").addEventListener("change",()=>{
+ const tid=$("player_result_tournament_id").value,rooms=(window.ex1AdminRooms||[]).filter(x=>x.tournament_id===tid);
+ $("player_result_room_id").innerHTML=rooms.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.title)+'</option>').join("");
+});
+$("player_result_search").addEventListener("input",()=>{
+ const q=$("player_result_search").value.trim().toLocaleLowerCase(),players=window.ex1AdminPlayers||[];
+ const filtered=!q?players:players.filter(x=>[x.game_uid,x.game_name,x.display_name,x.username].some(v=>String(v||"").toLocaleLowerCase().includes(q)));
+ $("player_result_user_id").innerHTML=filtered.map(x=>'<option value="'+esc(x.id)+'">'+esc((x.game_name||x.display_name||x.username||"بازیکن")+" · "+(x.game_uid||x.username||x.id.slice(0,8)))+'</option>').join("")||'<option value="">بازیکنی پیدا نشد</option>';
+});
+$("playerResultForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!permissions["results.manage"])return;
+ const id=$("player_result_id").value,roomId=$("player_result_room_id").value,room=(window.ex1AdminRooms||[]).find(x=>x.id===roomId);
+ const payload={tournament_id:$("player_result_tournament_id").value,room_id:roomId,user_id:$("player_result_user_id").value,kills:Number($("player_result_kills").value),placement:$("player_result_placement").value?Number($("player_result_placement").value):null,points:Number($("player_result_points").value)};
+ if(!room||room.tournament_id!==payload.tournament_id)return toast("روم انتخاب‌شده متعلق به این مسابقه نیست.");if(!payload.user_id)return toast("بازیکن را انتخاب کن.");
+ const b=$("savePlayerResultButton");b.disabled=true;
+ try{const r=id?await sb.from("tournament_player_results").update(payload).eq("id",id):await sb.from("tournament_player_results").upsert(payload,{onConflict:"room_id,user_id"});if(r.error)throw r.error;resetPlayerResultForm();await loadResults();toast("نتیجه انفرادی ذخیره شد.");}catch(err){toast(err.message||"ذخیره نتیجه بازیکن انجام نشد.");}finally{b.disabled=false;}
 });
 $("resultsTable").addEventListener("click",async e=>{
  const edit=e.target.closest("[data-edit-result]"),del=e.target.closest("[data-delete-result]");
- if(edit&&permissions["results.manage"]){
-  const {data,error}=await sb.from("tournament_results").select("*").eq("id",edit.dataset.editResult).single();
-  if(error||!data)return toast("نتیجه دریافت نشد.");
-  $("result_id").value=data.id;$("result_tournament_id").value=data.tournament_id;$("result_team_id").value=data.team_id;
-  $("result_placement").value=data.placement;$("result_kills").value=data.kills;$("result_points").value=data.points;$("resultForm").classList.remove("hidden");
- }
- if(del&&permissions["results.manage"]){
-  if(!confirm("این نتیجه حذف شود؟"))return;
-  const {error}=await sb.from("tournament_results").delete().eq("id",del.dataset.deleteResult);
-  if(error)toast("حذف نتیجه انجام نشد.");else{await loadResults();toast("نتیجه حذف شد.");}
- }
+ if(edit&&permissions["results.manage"]){const {data,error}=await sb.from("tournament_results").select("*").eq("id",edit.dataset.editResult).single();if(error||!data)return toast("نتیجه دریافت نشد.");$("result_id").value=data.id;$("result_tournament_id").value=data.tournament_id;$("result_team_id").value=data.team_id;$("result_placement").value=data.placement;$("result_kills").value=data.kills;$("result_points").value=data.points;$("resultForm").classList.remove("hidden");$("playerResultForm").classList.add("hidden");}
+ if(del&&permissions["results.manage"]){if(!confirm("این نتیجه تیمی حذف شود؟"))return;const {error}=await sb.from("tournament_results").delete().eq("id",del.dataset.deleteResult);if(error)toast("حذف نتیجه انجام نشد.");else{await loadResults();toast("نتیجه حذف شد.");}}
+});
+$("playerResultsTable").addEventListener("click",async e=>{
+ const edit=e.target.closest("[data-edit-player-result]"),del=e.target.closest("[data-delete-player-result]");
+ if(edit&&permissions["results.manage"]){const {data,error}=await sb.from("tournament_player_results").select("*").eq("id",edit.dataset.editPlayerResult).single();if(error||!data)return toast("نتیجه بازیکن دریافت نشد.");$("player_result_id").value=data.id;$("player_result_tournament_id").value=data.tournament_id;$("player_result_tournament_id").dispatchEvent(new Event("change"));$("player_result_room_id").value=data.room_id;$("player_result_user_id").value=data.user_id;$("player_result_kills").value=data.kills;$("player_result_placement").value=data.placement||"";$("player_result_points").value=data.points;$("playerResultForm").classList.remove("hidden");$("resultForm").classList.add("hidden");}
+ if(del&&permissions["results.manage"]){if(!confirm("نتیجه انفرادی حذف شود؟"))return;const {error}=await sb.from("tournament_player_results").delete().eq("id",del.dataset.deletePlayerResult);if(error)toast("حذف نتیجه بازیکن انجام نشد.");else{await loadResults();toast("نتیجه بازیکن حذف شد.");}}
 });
 async function loadWalletAdmin(){
  if(!permissions["wallet.view_all"]){$("walletTable").innerHTML='<div class="empty">مجوز مشاهده امتیازهای کاربران را نداری.</div>';return;}
