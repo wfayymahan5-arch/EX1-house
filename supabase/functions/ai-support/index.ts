@@ -33,13 +33,11 @@ Deno.serve(async (req: Request) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-  const openAiKey = Deno.env.get("OPENAI_API_KEY") ?? "";
   const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
 
   if (!token || !supabaseUrl || !anonKey || !serviceRoleKey) {
     return reply(401, { error: "برای استفاده از پشتیبانی ابتدا وارد حساب شو." });
   }
-  if (!openAiKey) return reply(503, { error: "سرویس هوش مصنوعی هنوز پیکربندی نشده است." });
 
   const caller = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: `Bearer ${token}` } },
@@ -119,30 +117,32 @@ Deno.serve(async (req: Request) => {
 
   let answer = "";
   let handoff = false;
-  try {
-    const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${openAiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        temperature: 0.2,
-        max_tokens: 500,
-        messages: [{ role: "system", content: systemPrompt }, ...chatMessages],
-      }),
-    });
-    if (!aiResponse.ok) {
-      console.error("OpenAI support request failed:", aiResponse.status);
-      return reply(502, { error: "پاسخ‌گویی هوشمند موقتاً در دسترس نیست. بعداً دوباره تلاش کن." });
-    }
-    const result = await aiResponse.json();
-    answer = String(result?.choices?.[0]?.message?.content ?? "").trim();
-    if (!answer) throw new Error("Empty assistant response");
-    const explicitHumanRequest = /(?:وصل|ارتباط|ارجاع|صحبت).{0,24}(?:پشتیبان|انسان|اپراتور|مدیر)|(?:پشتیبان|اپراتور|مدیر).{0,24}(?:می.?خوام|می.?خواهم|وصل|صحبت)/i.test(message);
-    handoff = /اطلاعات کافی برای پاسخ قطعی ندارم/.test(answer) || explicitHumanRequest;
-    if (explicitHumanRequest && !/اطلاعات کافی برای پاسخ قطعی ندارم/.test(answer)) answer = "درخواستت برای پیگیری به پشتیبان انسانی ارجاع شد. پاسخ پشتیبان در همین گفت‌وگو نمایش داده می‌شود.";
-  } catch (error) {
-    console.error("AI support error:", error);
-    return reply(502, { error: "پاسخ‌گویی هوشمند با خطا روبه‌رو شد." });
+  const normalized = message.replace(/[\u200c\s]+/g, " ").trim().toLowerCase();
+  const explicitHumanRequest = /(?:وصل|ارتباط|ارجاع|صحبت).{0,24}(?:پشتیبان|انسان|اپراتور|مدیر)|(?:پشتیبان|اپراتور|مدیر).{0,24}(?:می.?خوام|می.?خواهم|وصل|صحبت)/i.test(message);
+
+  // Free, deterministic FAQ mode: no paid AI API is called.
+  if (explicitHumanRequest) {
+    answer = "درخواستت برای پیگیری به پشتیبان انسانی ارجاع شد. پاسخ پشتیبان در همین گفت‌وگو نمایش داده می‌شود.";
+    handoff = true;
+  } else if (/^(سلام|درود|hi|hello|hey|سلام خوبی|سلام خوبی؟|خوبی؟?|وقت بخیر|صبح بخیر|شب بخیر)[!.؟\s]*$/i.test(normalized)) {
+    answer = "سلام! 👋 خوش اومدی به پشتیبانی EX1 LEGEND. درباره ورود، ثبت‌نام، روم‌ها، قوانین یا پروفایلت سؤالی داری؟";
+  } else if (/(ثبت.?نام|شرکت در مسابقه|ورود به مسابقه)/i.test(message)) {
+    answer = "برای ثبت‌نام، وارد بخش مسابقات یا روم‌ها شو، مسابقهٔ موردنظرت رو باز کن و شرایط و قوانین همون مسابقه رو بخون. اگر گزینهٔ ثبت‌نام فعال بود، مراحل داخل اپ رو انجام بده. اگر ثبت‌نام انجام نشد، نام مسابقه و متن خطا رو برای پشتیبان انسانی بفرست.";
+  } else if (/(قانون|قوانین|شرایط مسابقه)/i.test(message)) {
+    answer = "قوانین هر مسابقه ممکنه متفاوت باشه؛ قبل از ثبت‌نام، بخش توضیحات و قوانین همان روم رو بررسی کن. اگر بندی نامشخصه، متنش رو بفرست تا راهنمایی‌ات کنم.";
+  } else if (/(پروفایل|عکس.? پروفایل|نام کاربری)/i.test(message)) {
+    answer = "برای اطلاعات پروفایل، از بخش پروفایل داخل اپ استفاده کن. اگر تغییرات ذخیره نمی‌شن یا خطا می‌بینی، متن خطا رو بفرست؛ برای بررسی حساب مشخص، باید پشتیبان انسانی پیگیری کنه.";
+  } else if (/(روم|اتاق|کد روم|رمز روم)/i.test(message)) {
+    answer = "اطلاعات زندهٔ روم و کد یا رمز آن در دسترس پاسخ‌گوی خودکار نیست. این مورد رو به پشتیبان انسانی ارجاع می‌دم تا وضعیتش بررسی بشه.";
+    handoff = true;
+  } else if (/(کیف پول|موجودی|پرداخت|برداشت|واریز|جایزه|پول)/i.test(message)) {
+    answer = "برای امنیت حساب، اطلاعات کیف پول و پرداخت فقط باید توسط پشتیبان مجاز بررسی بشه. درخواستت رو به پشتیبان انسانی ارجاع می‌دم؛ لطفاً رمز یا اطلاعات بانکی نفرست.";
+    handoff = true;
+  } else if (/(ورود|لاگین|رمز عبور|کد ورود|ایمیل)/i.test(message)) {
+    answer = "اگر برای ورود مشکل داری، ایمیل حساب و اتصال اینترنت رو بررسی کن و از گزینهٔ بازیابی یا ارسال دوبارهٔ کد در خود اپ استفاده کن. کد ورود یا رمزت رو برای هیچ‌کس نفرست. اگر مشکل ادامه داشت، پشتیبان انسانی باید بررسی کنه.";
+  } else {
+    answer = "پیامت ثبت شد، اما برای این سؤال پاسخ مطمئن و تأییدشده‌ای در راهنمای رایگان من ندارم. درخواستت به صف پشتیبانی انسانی فرستاده شد و پاسخ پشتیبان در همین گفت‌وگو نمایش داده می‌شه.";
+    handoff = true;
   }
 
   const { error: saveError } = await admin.from("support_messages").insert({
