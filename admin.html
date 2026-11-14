@@ -655,8 +655,11 @@ async function loadAIModerationCases(){
   const who=p?[p.display_name||p.game_name||"کاربر",p.username?"@"+p.username:""].filter(Boolean).join(" · "):item.user_id;
   const categories=item.moderation_categories||{};
   const sensitive=categories["sexual/minors"]===true||item.severity==="critical";
+  const imageCase=["profile_avatar","team_logo","social_post_image","social_story"].includes(item.content_type);
   let imageHtml="";
-  if(item.evidence_bucket&&item.evidence_path&&!sensitive){
+  if(imageCase&&item.evidence_path){
+   imageHtml='<p class="notice">تصویر در فضای خصوصی قرنطینه شده است. چون هنوز طبقه‌بندی ایمن و مستقل تصویر انجام نشده، پیش‌نمایش آن در این پنل نمایش داده نمی‌شود.</p>';
+  }else if(item.evidence_bucket&&item.evidence_path&&!sensitive){
    const {data:signed}=await sb.storage.from(item.evidence_bucket).createSignedUrl(item.evidence_path,90);
    if(signed?.signedUrl)imageHtml='<img src="'+esc(signed.signedUrl)+'" alt="شواهد پرونده" style="display:block;max-width:100%;max-height:300px;object-fit:contain;border-radius:12px;margin:12px 0">';
   }else if(sensitive&&item.evidence_path){
