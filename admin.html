@@ -354,7 +354,7 @@ $("walletAdjustForm").addEventListener("submit",async e=>{
  finally{button.disabled=false;}
 });
 
-let adminManagementUsers=[],adminPermissionCatalog=[];
+let adminManagementUsers=[],adminPermissionCatalog=[],adminSearchMatches=[];
 const adminGroupLabels={access:"دسترسی و مدیریت",audit:"گزارش‌ها",profiles:"پروفایل‌ها",registrations:"ثبت‌نام‌ها",results:"نتایج",rooms:"روم‌ها",settings:"تنظیمات",social:"بخش اجتماعی",support:"پشتیبانی",teams:"تیم‌ها",tournaments:"مسابقات",users:"کاربران",wallet:"امتیازها"};
 const adminPermissionLabels={
  "admins.manage":"افزودن، ویرایش و حذف مدیران","permissions.manage":"تغییر دسترسی مدیران",
@@ -396,26 +396,33 @@ async function loadAdminManagement(){
  $("adminUsersTable").innerHTML=table(["نام","نام کاربری","نوع مدیر","دسترسی‌های فعال","عملیات"],rows);
  renderAdminPermissionGrid([]);
 }
-function findAdminUserById(){
+async function findAdminUserById(){
  const query=$("adminUserIdSearch").value.trim().toLowerCase();
- $("adminTargetUser").value="";
+ $("adminTargetUser").value="";adminSearchMatches=[];
  if(!query){$("adminUserSearchResults").textContent="ابتدا شناسه کاربری را وارد کن.";return;}
- const matches=adminManagementUsers.filter(u=>String(u.user_id||"").toLowerCase().includes(query));
- if(!matches.length){$("adminUserSearchResults").textContent="کاربری با این شناسه پیدا نشد. شناسه را بررسی کن.";return;}
- $("adminUserSearchResults").innerHTML=matches.map(u=>
-  '<div class="manager-form" style="margin:8px 0;padding:10px"><strong>'+esc(u.display_name||"کاربر بدون نام")+'</strong><div class="muted">'+esc(u.username||"بدون نام کاربری")+'</div><div class="muted" dir="ltr" style="overflow-wrap:anywhere">'+esc(u.user_id)+'</div><button class="action-btn" type="button" data-admin-pick-user="'+esc(u.user_id)+'" style="margin-top:8px">انتخاب این حساب</button></div>'
- ).join("");
+ if(query.length<4){$("adminUserSearchResults").textContent="حداقل ۴ نویسه از ابتدای شناسه را وارد کن.";return;}
+ const button=$("adminUserSearchButton");button.disabled=true;button.textContent="در حال جست‌وجو...";
+ $("adminUserSearchResults").textContent="در حال جست‌وجوی مستقیم در حساب‌های EX1...";
+ try{
+  const matches=await rpc("admin_manage_search_users",{p_user_id_prefix:query});
+  adminSearchMatches=matches||[];
+  if(!adminSearchMatches.length){$("adminUserSearchResults").textContent="کاربری با این ابتدای شناسه پیدا نشد. شناسه را بررسی کن.";return;}
+  $("adminUserSearchResults").innerHTML=adminSearchMatches.map(u=>
+   '<div class="manager-form" style="margin:8px 0;padding:10px"><strong>'+esc(u.display_name||"کاربر بدون نام")+'</strong><div class="muted">'+esc(u.username||"بدون نام کاربری")+'</div><div class="muted" dir="ltr" style="overflow-wrap:anywhere">'+esc(u.user_id)+'</div><button class="action-btn" type="button" data-admin-pick-user="'+esc(u.user_id)+'" style="margin-top:8px">انتخاب این حساب</button></div>'
+  ).join("");
+ }catch(err){$("adminUserSearchResults").textContent=err.message||"جست‌وجوی کاربر انجام نشد.";}
+ finally{button.disabled=false;button.textContent="جست‌وجو";}
 }
 $("adminUserSearchButton").addEventListener("click",findAdminUserById);
 $("adminUserIdSearch").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();findAdminUserById();}});
 $("adminUserSearchResults").addEventListener("click",e=>{
  const pick=e.target.closest("[data-admin-pick-user]");if(!pick)return;
- const user=adminManagementUsers.find(u=>u.user_id===pick.dataset.adminPickUser);if(!user)return;
+ const user=adminSearchMatches.find(u=>u.user_id===pick.dataset.adminPickUser);if(!user)return;
  $("adminTargetUser").value=user.user_id;
  $("adminUserSearchResults").innerHTML='<div class="notice">حساب انتخاب‌شده: <strong>'+esc(user.display_name||user.username||"کاربر")+'</strong><div dir="ltr" style="overflow-wrap:anywhere">'+esc(user.user_id)+'</div></div>';
 });
 $("adminAddButton").addEventListener("click",()=>{
- $("adminPermissionForm").reset();$("adminTargetUser").value="";$("adminUserIdSearch").disabled=false;
+ $("adminPermissionForm").reset();$("adminTargetUser").value="";adminSearchMatches=[];$("adminUserIdSearch").disabled=false;
  $("adminUserSearchResults").textContent="برای پیدا کردن حساب، شناسه کاربری EX1 را جست‌وجو کن.";
  $("adminPermissionMessage").textContent="";
  renderAdminPermissionGrid([]);$("adminPermissionForm").classList.remove("hidden");
