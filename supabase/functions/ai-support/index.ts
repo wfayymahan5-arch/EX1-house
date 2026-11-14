@@ -74,9 +74,11 @@ Deno.serve(async (req: Request) => {
     if (error || !conversation) return reply(404, { error: "گفت‌وگوی پشتیبانی پیدا نشد." });
     conversationWasWaitingForHuman = conversation.status === "waiting_for_human";
     if (conversation.status === "closed" || conversation.status === "resolved") {
-      return reply(409, { error: "این گفت‌وگو بسته شده است. یک گفت‌وگوی تازه ایجاد کن." });
+      // Keep the resolved thread as history and start a fresh conversation for the next user message.
+      conversationId = "";
     }
-  } else {
+  }
+  if (!conversationId) {
     const { data: conversation, error } = await admin
       .from("support_conversations")
       .insert({ user_id: authData.user.id })
