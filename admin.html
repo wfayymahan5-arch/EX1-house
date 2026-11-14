@@ -443,21 +443,35 @@ function renderAdminPermissionGrid(selected=[]){
  ).join("");
 }
 async function loadAdminManagement(){
- if(!permissions["admins.manage"]||!permissions["permissions.manage"])return;
- const [users,catalog]=await Promise.all([rpc("admin_manage_list_users"),rpc("admin_list_permissions")]);
- adminManagementUsers=users||[];adminPermissionCatalog=catalog||[];
- $("adminTargetUser").value="";
- $("adminUserIdSearch").value="";
- $("adminUserIdSearch").disabled=false;
- $("adminUserSearchResults").textContent="برای پیدا کردن حساب، شناسه کاربری EX1 را جست‌وجو کن.";
- const admins=adminManagementUsers.filter(u=>u.is_admin);
- const rows=admins.map(u=>row([
-  esc(u.display_name||"—"),esc(u.username||"—"),esc((u.role_codes||[]).join("، ")),
-  esc((u.effective_permissions||[]).length+" مجوز فعال"),
-  '<button class="action-btn" data-admin-edit="'+esc(u.user_id)+'">ویرایش دسترسی</button> <button class="action-btn danger" data-admin-remove="'+esc(u.user_id)+'">حذف دسترسی مدیریت</button>'
- ]));
- $("adminUsersTable").innerHTML=table(["نام","نام کاربری","نوع مدیر","دسترسی‌های فعال","عملیات"],rows);
- renderAdminPermissionGrid([]);
+ const box=$("adminUsersTable");
+ if(!permissions["admins.manage"]||!permissions["permissions.manage"]){
+  box.innerHTML='<div class="empty">برای مدیریت مدیران، هر دو مجوز «افزودن و حذف مدیران» و «مدیریت دسترسی‌ها» لازم است.</div>';
+  $("adminAddButton").hidden=true;return;
+ }
+ $("adminAddButton").hidden=false;
+ box.textContent="در حال دریافت فهرست مدیران...";
+ try{
+  const users=await rpc("admin_manage_list_users");
+  const catalog=await rpc("admin_list_permissions");
+  adminManagementUsers=users||[];adminPermissionCatalog=catalog||[];
+  if(!adminPermissionCatalog.length)throw new Error("فهرست مجوزها از دیتابیس خالی برگشت.");
+  $("adminTargetUser").value="";
+  $("adminUserIdSearch").value="";
+  $("adminUserIdSearch").disabled=false;
+  $("adminUserSearchResults").textContent="برای پیدا کردن حساب، شناسه کاربری EX1 را جست‌وجو کن.";
+  const admins=adminManagementUsers.filter(u=>u.is_admin);
+  const rows=admins.map(u=>row([
+   esc(u.display_name||"—"),esc(u.username||"—"),esc((u.role_codes||[]).join("، ")),
+   esc((u.effective_permissions||[]).length+" مجوز فعال"),
+   '<button class="action-btn" data-admin-edit="'+esc(u.user_id)+'">ویرایش دسترسی</button> <button class="action-btn danger" data-admin-remove="'+esc(u.user_id)+'">حذف دسترسی مدیریت</button>'
+  ]));
+  box.innerHTML=table(["نام","نام کاربری","نوع مدیر","دسترسی‌های فعال","عملیات"],rows);
+  renderAdminPermissionGrid([]);
+ }catch(err){
+  box.innerHTML='<div class="empty">بارگذاری مدیران ناموفق بود: '+esc(err.message||"خطای نامشخص")+'</div>';
+  $("adminPermissionMessage").textContent=err.message||"خطای دریافت اطلاعات مدیران";
+  $("adminAddButton").disabled=true;
+ }
 }
 async function findAdminUserById(){
  const query=$("adminUserIdSearch").value.trim().toLowerCase();
@@ -621,7 +635,7 @@ function tournamentOptions(selected){
 }
 async function loadTournaments(){
  const {data,error}=await sb.from("tournaments").select("id,title,game,mode,map,status,max_teams,starts_at,cover_image_url,rules,entry_demo_points,prize_demo_points").order("created_at",{ascending:false});
- if(error)throw error;
+ if(error){$("tournamentsTable").innerHTML='<div class="empty">مسابقات بارگذاری نشدند: '+esc(error.message)+'</div>';$("addTournamentButton").hidden=!permissions["tournaments.create"];throw error;}
  tournamentCache=data||[];$("statTournaments").textContent=tournamentCache.length;
  const canEdit=permissions["tournaments.update"],canDelete=permissions["tournaments.delete"];
  const rows=tournamentCache.map(t=>{
@@ -636,7 +650,7 @@ async function loadTournaments(){
 }
 async function loadRooms(){
  const {data,error}=await sb.from("tournament_rooms").select("*").order("starts_at",{ascending:true});
- if(error)throw error;
+ if(error){$("roomsTable").innerHTML='<div class="empty">روم‌ها بارگذاری نشدند: '+esc(error.message)+'</div>';$("addRoomButton").hidden=!permissions["rooms.manage"];throw error;}
  const rooms=data||[];
  tournamentOptions(rooms[0]?.tournament_id);
  const canManage=permissions["rooms.manage"];
