@@ -684,11 +684,18 @@ function renderSupportMessages(rows){
  box.scrollTop=box.scrollHeight;
 }
 async function loadSupportConversation(){
- if(!currentUser){$("supportMessages").innerHTML='<div class="empty">برای استفاده از پشتیبانی وارد حساب شو.</div>';return;}
- supportConversationId=sessionStorage.getItem(supportStorageKey())||null;
- if(!supportConversationId){renderSupportMessages([]);return;}
- const {data:messages,error}=await sb.from("support_messages").select("sender_role,body,created_at").eq("conversation_id",supportConversationId).order("created_at",{ascending:true}).limit(40);
- if(error){sessionStorage.removeItem(supportStorageKey());supportConversationId=null;renderSupportMessages([]);return;}
+ if(!currentUser){supportConversationId=null;$("supportMessages").innerHTML='<div class="empty">برای استفاده از پشتیبانی وارد حساب شو.</div>';return;}
+ const storageKey=supportStorageKey();
+ supportConversationId=sessionStorage.getItem(storageKey)||null;
+ if(!supportConversationId){
+  const {data:latest,error:latestError}=await sb.from("support_conversations").select("id,status,updated_at").eq("user_id",currentUser.id).order("updated_at",{ascending:false}).limit(1).maybeSingle();
+  if(latestError){$("supportMessages").innerHTML='<div class="empty">تاریخچهٔ پشتیبانی فعلاً دریافت نشد؛ دوباره تلاش کن.</div>';return;}
+  if(!latest){renderSupportMessages([]);return;}
+  supportConversationId=latest.id;
+  sessionStorage.setItem(storageKey,supportConversationId);
+ }
+ const {data:messages,error}=await sb.from("support_messages").select("sender_role,body,created_at").eq("conversation_id",supportConversationId).order("created_at",{ascending:true}).limit(100);
+ if(error){$("supportMessages").innerHTML='<div class="empty">پیام‌های این گفت‌وگو دریافت نشدند؛ تاریخچه حذف نشده است. دوباره تلاش کن.</div>';return;}
  renderSupportMessages(messages||[]);
 }
 $("supportNew").addEventListener("click",()=>{
@@ -707,7 +714,7 @@ $("supportForm").addEventListener("submit",async e=>{
   supportConversationId=data.conversation_id;sessionStorage.setItem(supportStorageKey(),supportConversationId);
   $("supportText").value="";
   await loadSupportConversation();
-  $("supportHint").textContent=data.handoff?"این پرسش برای پیگیری انسانی علامت‌گذاری شد.":"پاسخ دستیار هوشمند";
+  $("supportHint").textContent=data.handoff?"این گفت‌وگو در صف پشتیبان انسانی است؛ پیام‌های بعدی هم در همین چت می‌مانند.":"پاسخ دستیار هوشمند";
  }catch(err){$("supportHint").textContent=err?.message||"پشتیبانی موقتاً در دسترس نیست.";}
  finally{$("supportSend").disabled=false;}
 });
