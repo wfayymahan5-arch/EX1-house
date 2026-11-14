@@ -218,7 +218,7 @@ if(!window.EX1_CONFIG||!EX1_CONFIG.url||!EX1_CONFIG.publishableKey){showStartupE
 const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",registrations:"ثبت‌نام‌ها",results:"نتایج",teams:"تیم‌ها",users:"کاربران",audit:"گزارش فعالیت",socialReports:"گزارش‌های کاربران",wallet:"امتیازها",settings:"تنظیمات",admins:"مدیران و دسترسی‌ها"};
-let permissions={};
+let permissions={},ownerCanBanUsers=false;
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200);}
 function table(headers,rows){if(!rows.length)return '<div class="empty">هنوز داده‌ای ثبت نشده است.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';}
 function row(cells){return '<tr>'+cells.map(x=>'<td>'+x+'</td>').join("")+'</tr>';}
@@ -230,6 +230,15 @@ async function loadAdminUsers(){
  const {data,error}=await sb.rpc("admin_dashboard_users");
  if(error)throw error;
  adminUserCache=data||[];$("statUsers").textContent=adminUserCache.length;
+ const ownerCheck=await sb.rpc("is_current_user_owner");
+ ownerCanBanUsers=!ownerCheck.error&&ownerCheck.data===true;
+ let bannedUsers=[];
+ if(ownerCanBanUsers){
+  const bannedResult=await sb.rpc("admin_list_user_bans");
+  if(bannedResult.error)throw bannedResult.error;
+  bannedUsers=bannedResult.data||[];
+ }
+ const bannedMap=new Map(bannedUsers.map(x=>[x.user_id,x]));
  let flags=[];
  if(permissions["profiles.view_all"]||permissions["profiles.manage"]){
   const result=await sb.from("profile_moderation").select("user_id,moderation_status,note,updated_at");
@@ -242,11 +251,33 @@ async function loadAdminUsers(){
   const action=permissions["profiles.manage"]?(flag
    ?'<button class="action-btn" data-clear-user-flag="'+esc(x.user_id)+'">رفع علامت بررسی</button>'
    :'<button class="action-btn" data-flag-user="'+esc(x.user_id)+'">ارجاع برای بررسی</button>'):"—";
-  return row([esc(x.display_name||"—"),esc(x.username||"—"),'<small>'+esc(x.user_id)+'</small>',esc(x.created_at?new Date(x.created_at).toLocaleDateString("fa-IR"):"—"),flag?"نیازمند بررسی":"عادی",action]);
+  const banned=bannedMap.get(x.user_id);
+  const banAction=ownerCanBanUsers?(banned
+   ?'<button class="action-btn" data-unban-user="'+esc(x.user_id)+'">رفع مسدودیت</button>'
+   :'<button class="action-btn danger" data-ban-user="'+esc(x.user_id)+'">مسدودسازی</button>'):"—";
+  return row([esc(x.display_name||"—"),esc(x.username||"—"),'<small>'+esc(x.user_id)+'</small>',esc(x.created_at?new Date(x.created_at).toLocaleDateString("fa-IR"):"—"),flag?"نیازمند بررسی":"عادی",banned?"مسدود":"فعال",action,banAction]);
  });
- $("usersTable").innerHTML='<p class="muted">علامت بررسی فقط برای پیگیری مدیران است؛ ورود کاربر را مسدود نمی‌کند و حسابی را حذف نمی‌کند.</p>'+table(["نام نمایشی","نام کاربری","شناسه","ایجاد","وضعیت بررسی","عملیات"],rows);
+ $("usersTable").innerHTML='<p class="muted">علامت بررسی برای پیگیری مدیران است. فقط مالک اصلی می‌تواند حساب کاربر را به‌طور دائمی مسدود یا آزاد کند.</p>'+table(["نام نمایشی","نام کاربری","شناسه","ایجاد","وضعیت بررسی","وضعیت حساب","پیگیری","مدیریت مسدودیت"],rows);
 }
 $("usersTable").addEventListener("click",async e=>{
+ const ban=e.target.closest("[data-ban-user]"),unban=e.target.closest("[data-unban-user]");
+ if(ban||unban){
+  if(!ownerCanBanUsers)return toast("فقط مالک اصلی می‌تواند مسدودسازی را مدیریت کند.");
+  const target=(ban||unban).dataset.banUser||(ban||unban).dataset.unbanUser;
+  let reason="";
+  if(ban){
+   if(!confirm("حساب این کاربر مسدود شود؟ ورود او به EX1 متوقف می‌شود."))return;
+   reason=prompt("دلیل مسدودسازی (اختیاری):","")||"";
+  }else if(!confirm("مسدودیت این حساب برداشته شود؟"))return;
+  try{
+   const {data,error}=await sb.functions.invoke("manage-user-ban",{body:{action:ban?"ban":"unban",user_id:target,reason}});
+   if(error)throw error;
+   if(data?.error)throw new Error(data.error);
+   await loadAdminUsers();
+   toast(ban?"حساب کاربر مسدود شد.":"مسدودیت حساب برداشته شد.");
+  }catch(err){toast(err.message||"تغییر وضعیت حساب انجام نشد.");}
+  return;
+ }
  const flag=e.target.closest("[data-flag-user]"),clear=e.target.closest("[data-clear-user-flag]");
  const target=flag?.dataset.flagUser||clear?.dataset.clearUserFlag;
  if(!target||!permissions["profiles.manage"])return;
@@ -665,7 +696,7 @@ async function uploadTournamentAsset(file,folder){
  return sb.storage.from("tournament-assets").getPublicUrl(path).data.publicUrl;
 }
 function resetTournamentForm(){
- $("tournamentForm").reset();$("tf_id").value="";$("tf_game").value="Call of Duty Mobile";$("tf_status").value="draft";setTournamentCoverPreview("");
+ $("tournamentForm").reset();$("tf_id").value="";$("tf_game").value="Call of Duty Mobile";$("tf_status").value="registration_open";setTournamentCoverPreview("");
  $("tf_max_teams").value=25;$("tf_prize_demo_points").value=0;
  $("tournamentForm").classList.add("hidden");
 }
