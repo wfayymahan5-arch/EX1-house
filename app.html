@@ -45,6 +45,10 @@ main.wrap,.page,.home-panel{min-width:0;max-width:100%}
 img,video{max-width:100%}
 .avatar{display:block;width:40px;height:40px;min-width:40px;max-width:40px;flex:0 0 40px;object-fit:cover;border-radius:50%;overflow:hidden}
 .user-row>.avatar{width:40px;height:40px;min-width:40px;max-width:40px;flex-basis:40px}
+/* Force every profile portrait into the exact circular avatar frame */
+#profileAvatar{width:112px!important;height:112px!important;min-width:112px!important;max-width:112px!important;aspect-ratio:1/1!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;border-radius:50%!important;position:relative!important;flex:0 0 112px!important;isolation:isolate}
+#profileAvatar>img,.profile-avatar-image{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-width:0!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center!important;border-radius:50%!important;overflow:hidden!important}
+#profileAvatar>.profile-avatar-fallback{width:100%;height:100%;display:grid;place-items:center;border-radius:50%;overflow:hidden}
 </style></head>
 </head>
 <body>
