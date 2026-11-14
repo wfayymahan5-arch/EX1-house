@@ -140,6 +140,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <div id="roomAccessAdminPanel" class="panel hidden" style="margin-top:14px"><h3>انتشار اطلاعات ورود کالاف</h3><p class="muted">پس از ساخت روم خصوصی در بازی، کد و رمز را وارد کن. این اطلاعات فقط برای ثبت‌نام‌کنندگان همان روم قابل مشاهده خواهد بود.</p><label>کد روم کالاف<input id="rf_room_code" maxlength="80" autocomplete="off"></label><label>رمز روم کالاف<input id="rf_room_password" maxlength="80" autocomplete="off"></label><button class="btn primary" id="publishRoomAccessButton" type="button">انتشار برای شرکت‌کنندگان</button><p id="roomAccessPublishMessage" class="muted" aria-live="polite"></p></div>
 </form>
 <div id="roomsTable" class="empty">در حال بارگذاری...</div>
+<div id="roomParticipantsPanel" class="card hidden" style="margin-top:14px"><div class="row"><h3 id="roomParticipantsTitle">شرکت‌کنندگان روم</h3><button type="button" class="btn" id="closeRoomParticipants">بستن</button></div><div id="roomParticipantsContent" class="empty">یک روم را انتخاب کن.</div></div>
 </section>
 <section class="section tab hidden" id="registrations"><h2>ثبت‌نام‌های تیمی</h2><div id="registrationsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="results">
@@ -432,7 +433,7 @@ async function loadRooms(){
  $("addRoomButton").hidden=!canManage;
  const rows=rooms.map(r=>{
   const t=tournamentCache.find(x=>x.id===r.tournament_id);
-  const actions=canManage?'<button class="action-btn" data-edit-room="'+esc(r.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-room="'+esc(r.id)+'">حذف</button>':"—";
+  const actions=(canManage?'<button class="action-btn" data-edit-room="'+esc(r.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-room="'+esc(r.id)+'">حذف</button> ':"")+'<button class="action-btn" data-view-room-players="'+esc(r.id)+'">شرکت‌کنندگان</button>';
   return row([esc(r.title),esc(t?.title||"—"),esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.team_size===2?"دو نفره":"چهارنفره"),esc(r.max_teams||25),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
  });
  $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","نقشه","نوع تیم","جایگاه تیم","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
@@ -512,7 +513,35 @@ $("roomForm").addEventListener("submit",async e=>{
  finally{$("saveRoomButton").disabled=false;}
 });
 $("publishRoomAccessButton").addEventListener("click",async()=>{const roomId=$("rf_id").value;if(!roomId)return toast("ابتدا روم را ذخیره کن.");if(!permissions["rooms.manage"])return toast("مجوز انتشار اطلاعات روم را نداری.");const btn=$("publishRoomAccessButton");btn.disabled=true;btn.textContent="در حال انتشار...";try{const {error}=await sb.rpc("admin_publish_tournament_room_access",{p_room_id:roomId,p_room_code:$("rf_room_code").value.trim(),p_room_password:$("rf_room_password").value.trim()});if(error)throw error;$("roomAccessPublishMessage").textContent="اطلاعات برای شرکت‌کنندگان ثبت‌نام‌شده منتشر شد.";$("rf_room_password").value="";toast("اطلاعات روم منتشر شد.");}catch(err){$("roomAccessPublishMessage").textContent=err.message||"انتشار انجام نشد.";}finally{btn.disabled=false;btn.textContent="انتشار برای شرکت‌کنندگان";}});
+$("closeRoomParticipants").onclick=()=> $("roomParticipantsPanel").classList.add("hidden");
 $("roomsTable").addEventListener("click",async e=>{
+ const view=e.target.closest("[data-view-room-players]");
+ if(view){
+  view.disabled=true;
+  try{
+   const {data:room,error:roomError}=await sb.from("tournament_rooms").select("id,title").eq("id",view.dataset.viewRoomPlayers).single();
+   if(roomError)throw roomError;
+   const {data,error}=await sb.rpc("get_tournament_room_slots",{p_room_id:view.dataset.viewRoomPlayers});
+   if(error)throw error;
+   const rows=(data||[]).map(slot=>{
+    const players=Array.isArray(slot.players)?slot.players:[];
+    const people=players.map(p=>{
+     let url=p.avatar_url||"";
+     if(url&&!/^https?:\/\//i.test(url))url=sb.storage.from("ex1-avatars").getPublicUrl(url).data.publicUrl;
+     const avatar=url?'<img src="'+esc(url)+'" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover">':'<span style="display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#e9e2f8">'+esc((p.display_name||p.game_name||"؟").slice(0,1))+'</span>';
+     return '<div style="display:flex;align-items:center;gap:9px;margin:6px 0">'+avatar+'<span><b>'+esc(p.game_name||p.display_name||"بازیکن")+'</b><br><small>آیدی بازی: '+esc(p.game_uid||"ثبت نشده")+'</small></span></div>';
+    }).join("");
+    return '<tr><td>'+Number(slot.slot_number)+'</td><td>'+esc(slot.team_name||"تیم")+'</td><td>'+(people||"—")+'</td><td>'+esc(slot.status||"—")+'</td></tr>';
+   });
+   $("roomParticipantsTitle").textContent="شرکت‌کنندگان · "+(room.title||"روم");
+   $("roomParticipantsContent").innerHTML=rows.length?'<div class="tablewrap"><table><thead><tr><th>جایگاه</th><th>تیم</th><th>بازیکنان</th><th>وضعیت</th></tr></thead><tbody>'+rows.join("")+'</tbody></table></div>':'<div class="empty">برای این روم هنوز ثبت‌نامی ثبت نشده است.</div>';
+   $("roomParticipantsPanel").classList.remove("hidden");
+   $("roomParticipantsPanel").scrollIntoView({behavior:"smooth",block:"start"});
+  }catch(err){toast(err.message||"فهرست شرکت‌کنندگان دریافت نشد.");}
+  finally{view.disabled=false;}
+  return;
+ }
+
  const edit=e.target.closest("[data-edit-room]"),del=e.target.closest("[data-delete-room]");
  if(edit&&permissions["rooms.manage"]){
   const {data,error}=await sb.from("tournament_rooms").select("*").eq("id",edit.dataset.editRoom).single();
