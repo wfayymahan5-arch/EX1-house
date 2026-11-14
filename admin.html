@@ -448,7 +448,7 @@ async function loadAdminManagement(){
   box.innerHTML='<div class="empty">برای مدیریت مدیران، هر دو مجوز «افزودن و حذف مدیران» و «مدیریت دسترسی‌ها» لازم است.</div>';
   $("adminAddButton").hidden=true;return;
  }
- $("adminAddButton").hidden=false;
+ $("adminAddButton").hidden=false;$("adminAddButton").disabled=false;
  box.textContent="در حال دریافت فهرست مدیران...";
  try{
   const users=await rpc("admin_manage_list_users");
