@@ -45,10 +45,10 @@ class MainActivity : Activity() {
                     return true
                 }
                 override fun onPageFinished(view: WebView?, url: String?) {
-                    progress.visibility = View.GONE
+                    progress.setVisibility(View.GONE)
                 }
                 override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: android.webkit.WebResourceError?) {
-                    if (request?.isForMainFrame == true) progress.visibility = View.GONE
+                    if (request?.isForMainFrame == true) progress.setVisibility(View.GONE)
                 }
             }
         }
