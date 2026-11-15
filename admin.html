@@ -103,7 +103,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <section class="hero"><div class="row"><div><h1>پنل مدیریت EX1 LEGEND</h1><div class="muted" id="identity">در حال بررسی دسترسی...</div></div><button class="btn" id="logoutButton">خروج امن</button></div><div class="notice">پنل به دیتابیس زنده متصل است. ساخت و ویرایش مسابقه و روم بر اساس مجوزهای حساب انجام می‌شود؛ امتیازها فقط آزمایشی و بدون ارزش نقدی هستند.</div></section>
 <div class="stats"><div class="card stat"><small>مسابقات</small><strong id="statTournaments">—</strong></div><div class="card stat"><small>ثبت‌نام‌ها</small><strong id="statRegistrations">—</strong></div><div class="card stat"><small>تیم‌ها</small><strong id="statTeams">—</strong></div><div class="card stat"><small>پروفایل‌ها</small><strong id="statUsers">—</strong></div></div>
 <div class="layout"><nav class="card nav" id="nav"></nav><main>
-<section class="section tab" id="overview"><h2>نمای کلی زنده</h2><div class="muted" id="overviewText">آمار از دیتابیس خوانده می‌شود.</div><div class="empty" id="overviewEmpty">در حال دریافت اطلاعات...</div><div class="notice">امتیازهای EX1 فقط امتیاز داخلی و غیرقابل‌خرید، فروش یا برداشت هستند. هیچ پرداخت یا جایزهٔ نقدی در سامانه فعال نیست.</div></section>
+<section class="section tab" id="overview"><div class="row"><h2>نمای کلی زنده</h2><button class="btn" id="refreshOverviewButton" type="button">به‌روزرسانی آمار</button></div><div class="muted" id="overviewText">آمار از دیتابیس خوانده می‌شود.</div><div id="overviewMetrics" class="stats" style="margin:14px 0"></div><div class="empty" id="overviewEmpty">در حال دریافت اطلاعات...</div><div id="overviewErrors" class="notice" hidden aria-live="polite"></div><div class="notice">امتیازهای EX1 فقط امتیاز داخلی و غیرقابل‌خرید، فروش یا برداشت هستند. هیچ پرداخت یا جایزهٔ نقدی در سامانه فعال نیست.</div></section>
 <section class="section tab hidden" id="tournaments">
 <div class="row"><h2>مدیریت مسابقات</h2><button class="btn primary" id="addTournamentButton">افزودن مسابقه</button></div>
 <form id="tournamentForm" class="manager-form hidden">
@@ -124,6 +124,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <p class="muted">ثبت‌نام مسابقه رایگان است. پاداش‌ها فقط امتیاز داخلی و غیرقابل‌برداشت‌اند؛ هیچ پرداخت نقدی وجود ندارد. تصویر مسابقه را می‌توانی با فایل یا نشانی ثبت کنی.</p>
 <div class="actions"><button class="btn primary" type="submit" id="saveTournamentButton">ذخیره مسابقه</button><button class="btn" type="button" id="cancelTournamentButton">انصراف</button></div>
 </form>
+<label class="wide" style="display:block;margin:12px 0">جست‌وجوی مسابقات<input id="tournamentsSearch" type="search" autocomplete="off" placeholder="عنوان، بازی، نقشه یا وضعیت"></label>
 <div id="tournamentsTable" class="empty">در حال بارگذاری...</div>
 </section>
 <section class="section tab hidden" id="rooms">
@@ -158,7 +159,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <div id="roomsTable" class="empty">در حال بارگذاری...</div>
 <div id="roomParticipantsPanel" class="card hidden" style="margin-top:14px"><div class="row"><h3 id="roomParticipantsTitle">شرکت‌کنندگان روم</h3><button type="button" class="btn" id="closeRoomParticipants">بستن</button></div><div id="roomParticipantsContent" class="empty">یک روم را انتخاب کن.</div></div>
 </section>
-<section class="section tab hidden" id="registrations"><h2>ثبت‌نام‌های تیمی</h2><div id="registrationsTable" class="empty">در حال بارگذاری...</div></section>
+<section class="section tab hidden" id="registrations"><h2>ثبت‌نام‌های تیمی</h2><label class="wide" style="display:block;margin:12px 0">جست‌وجوی ثبت‌نام‌ها<input id="registrationsSearch" type="search" autocomplete="off" placeholder="مسابقه، تیم یا وضعیت"></label><div id="registrationsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="results">
 <div class="row"><h2>ثبت نتایج مسابقات</h2><span class="muted">امتیاز، کیل و جایگاه تیم‌ها</span></div>
 <div class="actions" style="margin:12px 0"><button class="btn primary" type="button" id="showTeamResultForm">ثبت نتیجه تیم</button><button class="btn" type="button" id="showPlayerResultForm">ثبت نتیجه بازیکن</button></div>
@@ -178,12 +179,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <label>امتیاز<input id="player_result_points" type="number" min="0" max="1000000" value="0" required></label>
 <label class="wide">عکس مدرک نتیجه (اختیاری)<input id="player_result_evidence_file" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><input id="player_result_evidence_url" type="hidden"><span id="player_result_evidence_preview" class="muted"></span></label></div>
 <div class="actions"><button class="btn primary" id="savePlayerResultButton" type="submit">ذخیره نتیجه بازیکن</button><button class="btn" id="cancelPlayerResultButton" type="button">انصراف</button></div></form>
-<div id="resultsTable" class="empty">در حال بارگذاری...</div><div id="playerResultsTable" class="empty" style="margin-top:14px">نتایج انفرادی...</div>
+<label class="wide" style="display:block;margin:12px 0">جست‌وجوی نتایج تیمی<input id="resultsSearch" type="search" autocomplete="off" placeholder="مسابقه، تیم، جایگاه یا امتیاز"></label><div id="resultsTable" class="empty">در حال بارگذاری...</div><label class="wide" style="display:block;margin:12px 0">جست‌وجوی نتایج بازیکنان<input id="playerResultsSearch" type="search" autocomplete="off" placeholder="نام بازیکن، روم، جایگاه یا امتیاز"></label><div id="playerResultsTable" class="empty" style="margin-top:14px">نتایج انفرادی...</div>
 </section>
-<section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
+<section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><label class="wide" style="display:block;margin:12px 0">جست‌وجوی تیم‌ها<input id="teamsSearch" type="search" autocomplete="off" placeholder="نام تیم، برچسب یا توضیحات"></label><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="users"><div class="row"><h2>کاربران و پروفایل‌ها</h2><button class="btn" id="refreshUsersButton" type="button">به‌روزرسانی فهرست</button></div><label class="wide" style="display:block;margin:12px 0">جست‌وجوی کاربر<input id="usersSearch" type="search" autocomplete="off" placeholder="نام نمایشی، نام کاربری یا شناسه کاربر"></label><p class="muted">فهرست کاربران به‌صورت دوره‌ای تازه‌سازی می‌شود؛ برای دریافت فوری حساب‌های تازه‌ساخته‌شده از دکمهٔ به‌روزرسانی استفاده کن.</p><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
-<section class="section tab hidden" id="audit"><h2>گزارش فعالیت مدیران</h2><p class="muted">تغییرات ایجاد، ویرایش و حذف مسابقه‌ها و روم‌ها به‌صورت خودکار ثبت می‌شوند.</p><div id="auditTable" class="empty">در حال بارگذاری...</div></section>
-<section class="section tab hidden" id="socialReports"><h2>گزارش‌های کاربران</h2><p class="muted">گزارش پیام‌ها و پروفایل‌ها. رسیدگی فقط برای مدیر دارای مجوز social.moderate فعال است.</p><div id="socialReportsTable" class="empty">در حال بارگذاری...</div><hr style="margin:24px 0;border-color:#ffffff20"><h2>بررسی هوشمند محتوا</h2><p class="muted">این پرونده‌ها فقط برای مالک اصلی نمایش داده می‌شوند. هیچ کاربری بدون تأیید مالک مسدود نمی‌شود.</p><div id="aiModerationCases" class="empty">در انتظار بررسی مالک...</div><hr style="margin:24px 0;border-color:#ffffff20"><h2>درخواست‌های پشتیبانی انسانی</h2><p class="muted">گفت‌وگوهایی که دستیار هوشمند برای پاسخ دقیق‌تر به پشتیبان ارجاع داده است.</p><div id="supportInbox" class="empty">در حال بارگذاری...</div></section>
+<section class="section tab hidden" id="audit"><h2>گزارش فعالیت مدیران</h2><p class="muted">تغییرات ایجاد، ویرایش و حذف مسابقه‌ها و روم‌ها به‌صورت خودکار ثبت می‌شوند.</p><label class="wide" style="display:block;margin:12px 0">جست‌وجوی گزارش فعالیت<input id="auditSearch" type="search" autocomplete="off" placeholder="مدیر، کاربر، عملیات یا بخش"></label><div id="auditTable" class="empty">در حال بارگذاری...</div></section>
+<section class="section tab hidden" id="socialReports"><h2>گزارش‌های کاربران</h2><p class="muted">گزارش پیام‌ها و پروفایل‌ها. رسیدگی فقط برای مدیر دارای مجوز social.moderate فعال است.</p><label class="wide" style="display:block;margin:12px 0">جست‌وجوی گزارش‌ها<input id="socialReportsSearch" type="search" autocomplete="off" placeholder="کاربر، دلیل، توضیحات یا وضعیت"></label><div id="socialReportsTable" class="empty">در حال بارگذاری...</div><hr style="margin:24px 0;border-color:#ffffff20"><h2>بررسی هوشمند محتوا</h2><p class="muted">این پرونده‌ها فقط برای مالک اصلی نمایش داده می‌شوند. هیچ کاربری بدون تأیید مالک مسدود نمی‌شود.</p><label class="wide" style="display:block;margin:12px 0">جست‌وجوی پرونده‌های هوشمند<input id="aiModerationSearch" type="search" autocomplete="off" placeholder="کاربر، نوع محتوا یا دسته‌بندی"></label><div id="aiModerationCases" class="empty">در انتظار بررسی مالک...</div><hr style="margin:24px 0;border-color:#ffffff20"><h2>درخواست‌های پشتیبانی انسانی</h2><p class="muted">گفت‌وگوهایی که دستیار هوشمند برای پاسخ دقیق‌تر به پشتیبان ارجاع داده است.</p><label class="wide" style="display:block;margin:12px 0">جست‌وجوی درخواست‌های پشتیبانی<input id="supportSearch" type="search" autocomplete="off" placeholder="کاربر، موضوع یا متن پیام"></label><div id="supportInbox" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="wallet"><h2>مدیریت امتیازهای EX1</h2><div class="notice">این امتیازها فقط داخل EX1 کاربرد دارند؛ قابل خرید، فروش، انتقال یا برداشت نیستند و هیچ ارزش پولی ندارند.</div><label class="wide" style="display:block;margin:12px 0">جست‌وجوی کیف پول مستقل<input id="walletSearch" type="search" autocomplete="off" placeholder="شناسه کاربر یا نوع امتیاز"></label><div id="walletTable" class="empty">در انتظار دسترسی مجاز...</div><div id="walletAdjustPanel" class="panel hidden" style="margin-top:16px"><h3 id="walletAdjustTitle">اصلاح امتیاز کاربر</h3><form id="walletAdjustForm" class="manager-form"><input id="wallet_user_id" type="hidden"><div class="formgrid"><label>نوع عملیات<select id="wallet_entry_type"><option value="credit">افزایش امتیاز</option><option value="debit">کاهش امتیاز</option></select></label><label>مقدار امتیاز<input id="wallet_amount" type="number" min="1" max="1000000" required></label><label class="wide">دلیل ثبت<input id="wallet_reason" maxlength="300" minlength="2" required placeholder="مثلاً پاداش عملکرد تأییدشده"></label></div><div class="actions"><button class="btn primary" type="submit" id="walletAdjustSubmit">ثبت تغییر امتیاز</button><button class="btn" type="button" id="walletAdjustCancel">انصراف</button></div></form></div><div id="walletHistory" class="empty" style="margin-top:16px"></div></section>
 <section class="section tab hidden" id="settings"><h2>تنظیمات ظاهری سایت</h2><p class="muted">رنگ‌ها فقط با مجوز settings.manage ذخیره می‌شوند.</p><form id="themeForm"><div class="colorgrid">
 <label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
@@ -204,7 +205,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   <div class="actions"><button class="btn primary" id="adminSaveButton" type="submit">ذخیره دسترسی‌های مدیر</button><button class="btn" id="adminCancelButton" type="button">انصراف</button></div>
   <div id="adminPermissionMessage" class="muted" aria-live="polite"></div>
  </form>
- <div id="adminUsersTable" class="empty">در حال بارگذاری مدیران...</div>
+ <label class="wide" style="display:block;margin:12px 0">جست‌وجوی مدیران<input id="adminsSearch" type="search" autocomplete="off" placeholder="نام، نام کاربری یا نقش"></label><div id="adminUsersTable" class="empty">در حال بارگذاری مدیران...</div>
 </section>
 
 </main></div></div><footer>EX1 LEGEND · پنل مدیریت متصل به Supabase</footer></div><div class="toast" id="toast"></div>
@@ -234,6 +235,11 @@ function addNav(id){const b=document.createElement("button");b.type="button";b.d
 async function rpc(name,args){const {data,error}=await sb.rpc(name,args||{});if(error)throw error;return data||[];}
 let adminUserCache=[];
 bindAdminTableSearch("usersSearch","usersTable");
+["tournaments","registrations","results","playerResults","teams","audit","socialReports","aiModeration","support","admins","wallet"].forEach(key=>{
+ const map={tournaments:"tournamentsTable",registrations:"registrationsTable",results:"resultsTable",playerResults:"playerResultsTable",teams:"teamsTable",audit:"auditTable",socialReports:"socialReportsTable",aiModeration:"aiModerationCases",support:"supportInbox",admins:"adminUsersTable",wallet:"walletTable"};
+ bindAdminTableSearch(key+"Search",map[key]);
+});
+$("refreshOverviewButton").addEventListener("click",async()=>{const b=$("refreshOverviewButton");b.disabled=true;$("overviewEmpty").textContent="در حال دریافت دوباره آمار...";try{await loadTableData();}finally{b.disabled=false;}});
 $("refreshUsersButton").addEventListener("click",async()=>{const b=$("refreshUsersButton");b.disabled=true;try{await loadAdminUsers();toast("فهرست کاربران به‌روزرسانی شد.");}catch(err){toast(err.message||"به‌روزرسانی کاربران انجام نشد.");}finally{b.disabled=false;}});
 async function loadAdminUsers(){
  const {data,error}=await sb.rpc("admin_dashboard_users");
@@ -644,8 +650,20 @@ async function loadTableData(){
  if(failed.length)toast("بعضی بخش‌ها به‌دلیل محدودیت دسترسی یا خطای ارتباط بارگذاری نشدند.");
  if(ownerCanBanUsers){try{await loadAIModerationCases();}catch(e){failed.push({status:"rejected"});}}
  if(ownerCanBanUsers){try{await loadSupportInbox();}catch(e){failed.push({status:"rejected"});}}
- const counts=["statTournaments","statRegistrations","statTeams","statUsers"].map(id=>$(id).textContent).filter(x=>x!=="—");
- $("overviewEmpty").textContent=counts.length?"داده‌های مجاز از دیتابیس بارگذاری شدند. برای جزئیات، بخش مربوطه را باز کن.":"برای این حساب، مجوز مشاهده داده‌های مدیریتی ثبت نشده است.";
+ const metrics=[
+  ["مسابقات","statTournaments","tournaments.view","tournaments.create","tournaments.update","tournaments.delete","rooms.view","rooms.manage"],
+  ["ثبت‌نام‌ها","statRegistrations","registrations.view_all"],
+  ["تیم‌ها","statTeams","teams.view"],
+  ["پروفایل‌ها","statUsers","users.view","profiles.view_all","profiles.manage"]
+ ];
+ const visibleMetrics=metrics.filter(([,id,...perms])=>perms.some(p=>permissions[p]));
+ $("overviewMetrics").innerHTML=visibleMetrics.map(([label,id])=>'<div class="card stat"><small>'+label+'</small><strong>'+esc($(id).textContent)+'</strong></div>').join("");
+ const counts=visibleMetrics.map(([,id])=>$(id).textContent).filter(x=>x!=="—");
+ $("overviewText").textContent="نمای کلی از اطلاعات مجاز حساب مدیر تهیه شده است؛ برای مشاهده و مدیریت جزئیات، تب مربوطه را باز کن.";
+ $("overviewEmpty").textContent=counts.length?"آمار زنده با موفقیت دریافت شد. آخرین به‌روزرسانی: "+new Date().toLocaleString("fa-IR"):"برای این حساب، مجوز مشاهده آمار مدیریتی ثبت نشده است.";
+ const errorBox=$("overviewErrors");
+ errorBox.hidden=failed.length===0;
+ errorBox.textContent=failed.length?"برخی بخش‌ها بارگذاری نشدند ("+failed.length+"). دسترسی دیتابیس و مجوزهای مدیر را بررسی کن؛ جزئیات خطا در تب همان بخش نمایش داده می‌شود.":"همه بخش‌های مجاز در این نوبت با موفقیت بارگذاری شدند.";
 }
 async function loadAIModerationCases(){
  const ownerResult=await sb.rpc("is_current_user_owner");
