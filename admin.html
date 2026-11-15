@@ -140,7 +140,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
  <label>حداکثر جایگاه تیم‌ها<input id="rf_max_teams" type="number" min="1" max="25" value="25" required></label>
 <label>استارز ورودی هر بازیکن<input id="rf_entry_demo_points" type="number" min="0" max="1000000" value="0" required></label>
 <label>استارز جایزه روم<input id="rf_prize_demo_points" type="number" min="0" max="1000000000" value="0" required></label>
-<p class="muted">استارز ورودی از کیف پول هر بازیکن هنگام ثبت‌نام کسر می‌شود؛ در صورت کمبود موجودی، ثبت‌نام رد می‌شود. استارز جایزه در مشخصات روم نمایش داده می‌شود و پرداخت آن پس از ثبت نتیجه، در مرحلهٔ جداگانه انجام خواهد شد.</p>
+<p class="muted">استارز ورودی از کیف پول هر بازیکن هنگام ثبت‌نام کسر می‌شود؛ در صورت کمبود موجودی، ثبت‌نام رد می‌شود. استارز جایزه در مشخصات روم نمایش داده می‌شود و پرداخت خودکار جایزه هنوز فعال نیست و باید جداگانه پیاده‌سازی شود.</p>
  
 <label>زمان شروع<input id="rf_starts_at" type="datetime-local"></label>
 <label>وضعیت<select id="rf_status"><option value="draft">پیش‌نویس</option><option value="open" selected>باز</option><option value="full">تکمیل ظرفیت</option><option value="closed">بسته</option><option value="completed">پایان‌یافته</option><option value="cancelled">لغوشده</option></select></label>
@@ -699,10 +699,10 @@ async function loadSupportInbox(){
  const people=new Map((profiles||[]).map(p=>[p.id,p]));
  const cards=[];
  for(const item of conversations){
-  const {data:messages,error:messageError}=await sb.from("support_messages").select("sender_role,body,created_at").eq("conversation_id",item.id).order("created_at",{ascending:true}).limit(20);
+  const {data:messages,error:messageError}=await sb.from("support_messages").select("sender_role,body,created_at").eq("conversation_id",item.id).order("created_at",{ascending:false}).limit(30);
   if(messageError)throw messageError;
   const p=people.get(item.user_id),name=p?[p.display_name||p.game_name||"کاربر",p.username?"@"+p.username:""].filter(Boolean).join(" · "):item.user_id;
-  const transcript=(messages||[]).map(m=>'<div class="bubble '+(m.sender_role==="user"?"":"mine")+'"><b>'+esc(m.sender_role==="assistant"?"هوش مصنوعی":m.sender_role==="human_support"?"پشتیبان":"کاربر")+'</b><p>'+esc(m.body)+'</p></div>').join("");
+  const transcript=(messages||[]).slice().reverse().map(m=>'<div class="bubble '+(m.sender_role==="user"?"":"mine")+'"><b>'+esc(m.sender_role==="assistant"?"هوش مصنوعی":m.sender_role==="human_support"?"پشتیبان":"کاربر")+'</b><p>'+esc(m.body)+'</p></div>').join("");
   cards.push('<article class="panel" style="margin:12px 0;padding:16px"><b>'+esc(name)+'</b><small class="muted"> · '+new Date(item.updated_at).toLocaleString("fa-IR")+'</small><div style="max-height:260px;overflow:auto;padding:8px">'+transcript+'</div><textarea class="field" rows="3" maxlength="4000" data-support-reply="'+esc(item.id)+'" placeholder="پاسخ پشتیبان..."></textarea><div class="actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn primary" data-support-send="'+esc(item.id)+'">ارسال پاسخ</button><button class="btn secondary" data-support-resolve="'+esc(item.id)+'">ارسال و بستن درخواست</button></div></article>');
  }
  box.innerHTML=cards.join("");
