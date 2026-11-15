@@ -776,7 +776,7 @@ async function applyAccess(user){
  if(permissions["users.view"]||permissions["profiles.view_all"])allowedTabs.push("users");
  if(permissions["audit.view"])allowedTabs.push("audit");
  if(permissions["social.moderate"])allowedTabs.push("socialReports");
- if(permissions["wallet.view_all"]||permissions["wallet.demo_adjust"])allowedTabs.push("wallet");
+ if(permissions["wallet.view_all"])allowedTabs.push("wallet");
  if(permissions["settings.view"]||permissions["settings.manage"])allowedTabs.push("settings");
   if(permissions["admins.manage"]&&permissions["permissions.manage"])allowedTabs.push("admins");
  [...new Set(allowedTabs)].forEach(addNav);showTab("overview");
