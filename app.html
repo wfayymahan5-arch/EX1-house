@@ -261,7 +261,7 @@ let roomStartReleaseTimer=null;
 function openRoomJoin(room,slot){
  if(!currentUser){toast("برای ثبت‌نام ابتدا وارد حساب EX1 شو.");openAuth();return;}
  activeRoomForJoin={room,slot};
- $("joinRoomSummary").textContent="روم "+room.title+" · "+(room.team_size===2?"تیم دونفره":"تیم چهارنفره")+" · جایگاه انتخابی "+Number(slot).toLocaleString("fa-IR")+" · ثبت‌نام رایگان · هیچ استارزی کسر نمی‌شود;
+ $("joinRoomSummary").textContent="روم "+room.title+" · "+(room.team_size===2?"تیم دونفره":"تیم چهارنفره")+" · جایگاه انتخابی "+Number(slot).toLocaleString("fa-IR")+" · ثبت‌نام رایگان · هیچ استارزی کسر نمی‌شود";
  $("soloJoinProgress").textContent="ثبت‌نام انفرادی وارد صف تشکیل تیم می‌شود؛ جایگاه پس از تکمیل گروه به‌صورت خودکار تعیین خواهد شد. جایگاه انتخابی فقط برای ثبت‌نام با تیم کامل است."
  $("joinRoomModal").classList.add("show");
 }
