@@ -261,7 +261,8 @@ let roomStartReleaseTimer=null;
 function openRoomJoin(room,slot){
  if(!currentUser){toast("برای ثبت‌نام ابتدا وارد حساب EX1 شو.");openAuth();return;}
  activeRoomForJoin={room,slot};
- $("joinRoomSummary").textContent="روم "+room.title+" · "+(room.team_size===2?"تیم دونفره":"تیم چهارنفره")+" · جایگاه انتخابی "+Number(slot).toLocaleString("fa-IR")+" · ثبت‌نام رایگان · هیچ استارزی کسر نمی‌شود";
+ const entryCost=Math.max(0,Number(room.entry_demo_points)||0);
+ $("joinRoomSummary").textContent="روم "+room.title+" · "+(room.team_size===2?"تیم دونفره":"تیم چهارنفره")+" · جایگاه "+Number(slot).toLocaleString("fa-IR")+" · ورودی هر بازیکن: "+entryCost.toLocaleString("fa-IR")+" استارز نمادین"+(entryCost>0?" · برای تیم، از کیف پول همه اعضا کسر می‌شود.":" · ثبت‌نام رایگان است.");
  $("soloJoinProgress").textContent="ثبت‌نام انفرادی وارد صف تشکیل تیم می‌شود؛ جایگاه پس از تکمیل گروه به‌صورت خودکار تعیین خواهد شد. جایگاه انتخابی فقط برای ثبت‌نام با تیم کامل است."
  $("joinRoomModal").classList.add("show");
 }
@@ -273,7 +274,7 @@ $("confirmRoomSoloJoin").onclick=async()=>{
  const btn=$("confirmRoomSoloJoin");
  btn.disabled=true;btn.textContent="در حال ثبت‌نام انفرادی...";
  try{
-  const {data,error}=await sb.rpc("register_for_tournament_room_solo",{p_room_id:room.id,p_slot_number:Number(activeRoomForJoin.slot)});
+  const {data,error}=await sb.rpc("register_for_tournament_room_solo_with_stars",{p_room_id:room.id,p_slot_number:Number(activeRoomForJoin.slot)});
   if(error)throw error;
   $("joinRoomModal").classList.remove("show");
   if(data.status==="matched"){
@@ -282,6 +283,7 @@ $("confirmRoomSoloJoin").onclick=async()=>{
    toast("ثبت‌نامت در صف جایگاه "+Number(data.slot_number).toLocaleString("fa-IR")+" ثبت شد؛ "+Number(data.players_waiting).toLocaleString("fa-IR")+" نفر از "+Number(data.team_size).toLocaleString("fa-IR")+" نفر.");
   }
   activeRoomForJoin=null;
+  await loadWallet();
   await showRoomDetail(room);
  }catch(err){toast(err.message||"ثبت‌نام انفرادی انجام نشد.");}
  finally{btn.disabled=false;btn.textContent="ثبت‌نام انفرادی و تشکیل خودکار تیم";}
@@ -293,11 +295,12 @@ $("confirmRoomJoin").onclick=async()=>{
  try{if(!(await ensureCodmProfile()))return;}catch(err){toast(err.message||"بررسی پروفایل انجام نشد.");return;}
  const btn=$("confirmRoomJoin");btn.disabled=true;btn.textContent="در حال ثبت‌نام...";
  try{
-  const {data,error}=await sb.rpc("register_for_tournament_room",{p_room_id:room.id,p_slot_number:Number(activeRoomForJoin.slot)});
+  const {data,error}=await sb.rpc("register_for_tournament_room_with_stars",{p_room_id:room.id,p_slot_number:Number(activeRoomForJoin.slot)});
   if(error)throw error;
   $("joinRoomModal").classList.remove("show");
   toast("ثبت‌نامت با موفقیت ثبت شد. جایگاه "+Number(data.slot_number).toLocaleString("fa-IR"));
   activeRoomForJoin=null;
+  await loadWallet();
   await showRoomDetail(room);
  }catch(err){toast(err.message||"ثبت‌نام انجام نشد.");}
  finally{btn.disabled=false;btn.textContent="تأیید و ثبت‌نام";}
@@ -376,7 +379,7 @@ async function showRoomDetail(room){
  const media=room.room_media_type==="video"&&room.room_video_url?'<video class="room-cover" controls playsinline preload="metadata" src="'+esc(room.room_video_url)+'"></video>':(room.room_image_url?'<img class="room-cover" src="'+esc(room.room_image_url)+'" alt="تصویر روم">':'<div class="room-cover room-cover-fallback"><img src="/room-arena-art.svg" alt="تصویر میدان رقابت EX1"><span>LEGEND ARENA</span></div>');
  const n=Math.max(1,Math.min(25,Number(room.max_teams)||25));
  const teamSize=Math.max(1,Math.min(4,Number(room.team_size)||4));
- $("roomDetail").innerHTML='<div class="room-detail-hero">'+media+'<div class="room-hero-shade"></div><div class="room-hero-title"><span class="room-live-tag">'+(room.status==="open"?"● ثبت‌نام فعال":"● ظرفیت تکمیل")+'</span><h2>'+esc(room.title)+'</h2><small>EX1 LEGEND · BATTLE ARENA</small></div><button class="room-back-btn" type="button" id="roomBackToList">بازگشت به روم‌ها</button></div><div class="room-summary-grid"><div><small>فرمت</small><strong>'+(room.team_size===2?"دو نفره":"چهار نفره")+'</strong></div><div><small>زمان شروع</small><strong>'+formatRoomStart(room.starts_at)+'</strong></div><div><small>هزینه ورود</small><strong>رایگان</strong></div><div><small>استارز جایزه</small><strong>'+ (Number(room.max_teams||25)>5?"اول: "+Number(room.prize_demo_points||0).toLocaleString("fa-IR")+" · دوم: "+Number(room.prize_second_demo_points||0).toLocaleString("fa-IR")+" · سوم: "+Number(room.prize_third_demo_points||0).toLocaleString("fa-IR"):"تیم برنده: "+Number(room.prize_demo_points||0).toLocaleString("fa-IR")) +' استارز</strong></div><div><small>ظرفیت</small><strong>'+n+' تیم</strong></div></div><div class="room-tabs"><button class="active" type="button" data-room-tab="teams">تیم‌ها</button><button type="button" data-room-tab="rules">قوانین</button></div><div id="roomAccessInline" class="panel" style="margin:12px 14px" hidden></div><div id="roomTeamsPanel"><div class="room-section-title"><span></span><div><h3>لیست تیم‌ها</h3><small>وضعیت جایگاه‌ها از دیتابیس به‌روز می‌شود</small></div></div><div class="muted" id="roomSlotsMessage">در حال دریافت جایگاه‌ها...</div><div class="team-slots" id="roomSlotsList"></div><section id="roomWaitingPanel" hidden><div class="room-section-title"><span></span><div><h3>بازیکنان در انتظار تشکیل تیم</h3><small>ثبت‌نام انفرادی تا تکمیل تعداد اعضا</small></div></div><div id="roomWaitingPlayers" class="user-list" style="padding:0 14px 12px"></div></section><div id="soloQueueStatus" class="muted" style="margin:12px 14px;padding:12px;border:1px solid #ffffff20;border-radius:12px;background:#ffffff08" hidden></div></div><div id="roomRulesPanel" class="room-rules" hidden><div class="room-section-title"><span></span><div><h3>قوانین و توضیحات</h3><small>قبل از ثبت‌نام قوانین روم را بخوان</small></div></div><div class="room-rules-copy">'+esc(room.rules||"قوانین اختصاصی برای این روم ثبت نشده است.")+'</div></div><div class="room-register-bar"><div><small>هزینه ورود</small><strong>رایگان</strong></div><button type="button" id="roomMainJoin" '+(room.status!=="open"?"disabled":"")+'>ثبت‌نام در روم <b>⚡</b></button></div>';
+ $("roomDetail").innerHTML='<div class="room-detail-hero">'+media+'<div class="room-hero-shade"></div><div class="room-hero-title"><span class="room-live-tag">'+(room.status==="open"?"● ثبت‌نام فعال":"● ظرفیت تکمیل")+'</span><h2>'+esc(room.title)+'</h2><small>EX1 LEGEND · BATTLE ARENA</small></div><button class="room-back-btn" type="button" id="roomBackToList">بازگشت به روم‌ها</button></div><div class="room-summary-grid"><div><small>فرمت</small><strong>'+(room.team_size===2?"دو نفره":"چهار نفره")+'</strong></div><div><small>زمان شروع</small><strong>'+formatRoomStart(room.starts_at)+'</strong></div><div><small>ورودی هر بازیکن</small><strong>'+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div><div><small>استارز جایزه</small><strong>'+ (Number(room.max_teams||25)>5?"اول: "+Number(room.prize_demo_points||0).toLocaleString("fa-IR")+" · دوم: "+Number(room.prize_second_demo_points||0).toLocaleString("fa-IR")+" · سوم: "+Number(room.prize_third_demo_points||0).toLocaleString("fa-IR"):"تیم برنده: "+Number(room.prize_demo_points||0).toLocaleString("fa-IR")) +' استارز</strong></div><div><small>ظرفیت</small><strong>'+n+' تیم</strong></div></div><div class="room-tabs"><button class="active" type="button" data-room-tab="teams">تیم‌ها</button><button type="button" data-room-tab="rules">قوانین</button></div><div id="roomAccessInline" class="panel" style="margin:12px 14px" hidden></div><div id="roomTeamsPanel"><div class="room-section-title"><span></span><div><h3>لیست تیم‌ها</h3><small>وضعیت جایگاه‌ها از دیتابیس به‌روز می‌شود</small></div></div><div class="muted" id="roomSlotsMessage">در حال دریافت جایگاه‌ها...</div><div class="team-slots" id="roomSlotsList"></div><section id="roomWaitingPanel" hidden><div class="room-section-title"><span></span><div><h3>بازیکنان در انتظار تشکیل تیم</h3><small>ثبت‌نام انفرادی تا تکمیل تعداد اعضا</small></div></div><div id="roomWaitingPlayers" class="user-list" style="padding:0 14px 12px"></div></section><div id="soloQueueStatus" class="muted" style="margin:12px 14px;padding:12px;border:1px solid #ffffff20;border-radius:12px;background:#ffffff08" hidden></div></div><div id="roomRulesPanel" class="room-rules" hidden><div class="room-section-title"><span></span><div><h3>قوانین و توضیحات</h3><small>قبل از ثبت‌نام قوانین روم را بخوان</small></div></div><div class="room-rules-copy">'+esc(room.rules||"قوانین اختصاصی برای این روم ثبت نشده است.")+'</div></div><div class="room-register-bar"><div><small>ورودی هر بازیکن</small><strong>'+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div><button type="button" id="roomMainJoin" '+(room.status!=="open"?"disabled":"")+'>ثبت‌نام در روم <b>⚡</b></button></div>';
  $("roomDetail").hidden=false;
  $("roomBackToList").onclick=()=>{if(window.ex1RoomAccessTimer){clearInterval(window.ex1RoomAccessTimer);window.ex1RoomAccessTimer=null;}if(roomStartReleaseTimer){clearTimeout(roomStartReleaseTimer);roomStartReleaseTimer=null;}activeRoomDetail=null;$("roomDetail").hidden=true;document.getElementById("roomCards").scrollIntoView({behavior:"smooth",block:"start"});};
  $("roomDetail").querySelectorAll("[data-room-tab]").forEach(b=>b.onclick=()=>{const rules=b.dataset.roomTab==="rules";$("roomTeamsPanel").hidden=rules;$("roomRulesPanel").hidden=!rules;$("roomDetail").querySelectorAll("[data-room-tab]").forEach(x=>x.classList.toggle("active",x===b));});
@@ -515,11 +518,8 @@ $("profileAvatarFile").addEventListener("change",async()=>{
   const path=currentUser.id+"/avatar-"+crypto.randomUUID()+"."+ext;
   const {error:uploadError}=await sb.storage.from("ex1-avatars").upload(path,file,{upsert:false,contentType:file.type,cacheControl:"3600"});
   if(uploadError)throw uploadError;
-  const {data:publicData}=sb.storage.from("ex1-avatars").getPublicUrl(path);
-  const publicUrl=publicData.publicUrl+(publicData.publicUrl.includes("?")?"&":"?")+"v="+Date.now();
-  await new Promise((resolve,reject)=>{const probe=new Image();probe.onload=resolve;probe.onerror=()=>reject(new Error("تصویر بارگذاری شد اما لینک عمومی آن باز نمی‌شود؛ مسیر و مجوز فایل را بررسی می‌کنیم."));probe.src=publicUrl;});
-  const {data:savedProfile,error:profileError}=await sb.from("profiles").update({avatar_url:publicUrl}).eq("id",currentUser.id).select("avatar_url").single();
-  if(profileError)throw profileError;if(!savedProfile?.avatar_url)throw new Error("لینک عکس در پروفایل ذخیره نشد.");
+  const {data:savedProfile,error:profileError}=await sb.rpc("set_my_profile_avatar",{p_avatar_path:path});
+  if(profileError)throw profileError;if(!savedProfile?.success)throw new Error("مسیر عکس در پروفایل ذخیره نشد.");
   await loadProfile();toast("عکس پروفایل ذخیره شد و دسترسی تصویر بررسی شد.");
  }catch(err){console.error("EX1 avatar upload:",err);toast(err?.message||"بارگذاری عکس انجام نشد؛ اتصال و مجوز ذخیره‌سازی را بررسی کن.");}
  finally{button.disabled=false;button.textContent="＋ انتخاب عکس پروفایل";input.value="";}
@@ -561,7 +561,11 @@ $("profileForm").addEventListener("submit",async e=>{
   if(gameUid.includes("@")){toast("UID کالاف نباید ایمیل باشد؛ شناسه داخل بازی را وارد کن.");$("profileGameUid").focus();return;}
   const payload={display_name:$("profileName").value.trim(),username:$("profileHandle").value.trim()||null,game_uid:gameUid||null,game_name:$("profileGameName").value.trim()||null};
  const {data:updateData,error:updateError}=await sb.functions.invoke("update-profile",{body:payload});
- if(updateError){toast(profileDuplicateMessage(updateError)||"ذخیره پروفایل انجام نشد.");return;}
+ if(updateError){
+  let message=profileDuplicateMessage(updateError)||"ذخیره پروفایل انجام نشد.";
+  try{const body=await updateError.context?.clone?.().json();if(body?.error)message=body.error;}catch(_){}
+  toast(message);return;
+}
  if(updateData?.pending_review){toast(updateData.message||"پروفایل برای بررسی مالک ارسال شد.");return;}
  if(!updateData?.success){toast(updateData?.error||"ذخیره پروفایل انجام نشد.");return;}
  toast("پروفایل ذخیره شد.");$("profileEditorModal").classList.remove("show");loadProfile();
