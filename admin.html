@@ -140,11 +140,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <label>ظرفیت بازیکن<input id="rf_capacity" type="number" min="1" max="1000" value="100" required></label>
  <label>تعداد نفرات هر تیم<select id="rf_team_size"><option value="2">دو نفره</option><option value="4" selected>چهار نفره</option></select></label>
  <label>حداکثر جایگاه تیم‌ها<input id="rf_max_teams" type="number" min="1" max="25" value="25" required></label>
-<input id="rf_entry_demo_points" type="hidden" value="0"><div class="notice wide">ثبت‌نام روم‌ها رایگان است. Stars فقط امتیاز نمادین داخلی است و برای ورود به روم از کیف پول کسر یا شرط نمی‌شود؛ جوایز ثابت و مستقل از ثبت‌نام‌ها هستند.</div>
+<label>هزینه ورودی هر بازیکن (استارز نمادین)<input id="rf_entry_demo_points" type="number" min="0" max="1000000" value="0" required></label><div class="notice wide">هزینه از موجودی نمادین هر بازیکن، فقط یک‌بار هنگام ثبت‌نام موفق کسر می‌شود. در ثبت‌نام تیمی از موجودی هر عضو جداگانه کسر خواهد شد؛ هیچ ارزش پولی یا قابلیت برداشت ندارد.</div>
 <label><span id="rf_prize_label">استارز جایزه روم (تیم برنده)</span><input id="rf_prize_demo_points" type="number" min="0" max="1000000000" value="0" required></label>
 <label id="rf_prize_second_wrap" hidden>استارز جایزه تیم دوم<input id="rf_prize_second_demo_points" type="number" min="0" max="1000000000" value="0" required></label>
 <label id="rf_prize_third_wrap" hidden>استارز جایزه تیم سوم<input id="rf_prize_third_demo_points" type="number" min="0" max="1000000000" value="0" required></label>
-<p class="muted">حداقل موجودی فقط شرط احراز ورود است و از کیف پول بازیکن کم نمی‌شود.</p><p class="muted" id="rf_prize_help">در روم‌های ۵ جایگاه یا کمتر، یک جایزه برای تیم برنده تعیین می‌شود و بین اعضای آن تقسیم خواهد شد. در روم‌های بیشتر از ۵ جایگاه، جایزهٔ تیم‌های اول، دوم و سوم جداگانه تعیین می‌شود.</p>
+<p class="muted">اگر ثبت‌نام به خطا بخورد، کسر استارز هم در همان تراکنش لغو می‌شود.</p><p class="muted" id="rf_prize_help">در روم‌های ۵ جایگاه یا کمتر، یک جایزه برای تیم برنده تعیین می‌شود و بین اعضای آن تقسیم خواهد شد. در روم‌های بیشتر از ۵ جایگاه، جایزهٔ تیم‌های اول، دوم و سوم جداگانه تعیین می‌شود.</p>
  
 <label>زمان شروع<input id="rf_starts_at" type="datetime-local"></label>
 <label>وضعیت<select id="rf_status"><option value="draft">پیش‌نویس</option><option value="open" selected>باز</option><option value="full">تکمیل ظرفیت</option><option value="closed">بسته</option><option value="completed">پایان‌یافته</option><option value="cancelled">لغوشده</option></select></label>
@@ -154,7 +154,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <label class="wide">قوانین اختصاصی این روم<textarea id="rf_rules" maxlength="5000"></textarea></label>
 </div>
 <div class="actions"><button class="btn primary" type="submit" id="saveRoomButton">ذخیره روم</button><button class="btn" type="button" id="cancelRoomButton">انصراف</button></div>
-<div id="roomAccessAdminPanel" class="panel hidden" style="margin-top:14px"><h3>انتشار اطلاعات ورود کالاف</h3><p class="muted">کد و رمز را همین‌جا قبل از زمان شروع ثبت کن. تا قبل از زمان شروع مخفی می‌مانند و پس از رسیدن زمان شروع، به‌صورت خودکار فقط برای شرکت‌کنندگان ثبت‌نام‌شدهٔ همان روم در اپ نمایش داده می‌شوند.</p><div id="roomAccessAdminStatus" class="notice" aria-live="polite">پس از ذخیره روم، وضعیت زمان‌بندی اینجا نمایش داده می‌شود.</div><label>کد روم کالاف<input id="rf_room_code" maxlength="80" autocomplete="off" placeholder="کد روم خصوصی کالاف"></label><label>رمز روم کالاف<input id="rf_room_password" type="password" maxlength="80" autocomplete="new-password" placeholder="رمز روم خصوصی کالاف"></label><button class="btn primary" id="publishRoomAccessButton" type="button">ذخیره کد و رمز روم</button><p id="roomAccessPublishMessage" class="muted" aria-live="polite"></p></div>
+<div id="roomAccessAdminPanel" class="panel hidden" style="margin-top:14px"><h3>انتشار اطلاعات ورود کالاف</h3><p class="muted">کد و رمز را پیش از زمان شروع ثبت کن. پس از رسیدن زمان، فقط برای ثبت‌نام‌کنندگان همان روم داخل اپ نمایش داده می‌شوند؛ پیامک یا اعلان جداگانه ارسال نمی‌شود.</p><div id="roomAccessAdminStatus" class="notice" aria-live="polite">پس از ذخیره روم، وضعیت زمان‌بندی اینجا نمایش داده می‌شود.</div><label>کد روم کالاف<input id="rf_room_code" maxlength="80" autocomplete="off" placeholder="کد روم خصوصی کالاف"></label><label>رمز روم کالاف<input id="rf_room_password" type="password" maxlength="80" autocomplete="new-password" placeholder="رمز روم خصوصی کالاف"></label><button class="btn primary" id="publishRoomAccessButton" type="button">ذخیره کد و رمز روم</button><p id="roomAccessPublishMessage" class="muted" aria-live="polite"></p></div>
 </form>
 <div id="roomsTable" class="empty">در حال بارگذاری...</div>
 <div id="roomParticipantsPanel" class="card hidden" style="margin-top:14px"><div class="row"><h3 id="roomParticipantsTitle">شرکت‌کنندگان روم</h3><button type="button" class="btn" id="closeRoomParticipants">بستن</button></div><div id="roomParticipantsContent" class="empty">یک روم را انتخاب کن.</div></div>
@@ -852,9 +852,9 @@ async function loadRooms(){
  const rows=rooms.map(r=>{
   const t=tournamentCache.find(x=>x.id===r.tournament_id);
   const actions=(canManage?'<button class="action-btn" data-edit-room="'+esc(r.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-room="'+esc(r.id)+'">حذف</button> ':"")+'<button class="action-btn" data-view-room-players="'+esc(r.id)+'">شرکت‌کنندگان</button>';
-  return row([esc(r.title),esc(t?.title||"—"),esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.team_size===2?"دو نفره":"چهارنفره"),esc(r.max_teams||25),esc("رایگان"),esc(Number(r.prize_demo_points||0).toLocaleString("fa-IR")+" استارز"),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
+  return row([esc(r.title),esc(t?.title||"—"),esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.team_size===2?"دو نفره":"چهارنفره"),esc(r.max_teams||25),esc(Number(r.entry_demo_points||0).toLocaleString("fa-IR")+" استارز"),esc(Number(r.prize_demo_points||0).toLocaleString("fa-IR")+" استارز"),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
  });
- $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","نقشه","نوع تیم","جایگاه تیم","استارز ورودی","استارز جایزه","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
+ $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","نقشه","نوع تیم","جایگاه تیم","ورودی هر بازیکن","استارز جایزه","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
 }
 $("addTournamentButton").onclick=()=>{
  if(!permissions["tournaments.create"])return;
@@ -925,7 +925,7 @@ $("roomForm").addEventListener("submit",async e=>{
  const payload={
   tournament_id:$("rf_tournament_id").value,title:$("rf_title").value.trim(),
   game_mode:$("rf_game_mode").value.trim()||null,map:$("rf_map").value.trim()||null,
-  capacity:Number($("rf_capacity").value),team_size:Number($("rf_team_size").value),max_teams:Number($("rf_max_teams").value),entry_demo_points:0,prize_demo_points:Number($("rf_prize_demo_points").value||0),prize_second_demo_points:Number($("rf_max_teams").value)>5?Number($("rf_prize_second_demo_points").value||0):0,prize_third_demo_points:Number($("rf_max_teams").value)>5?Number($("rf_prize_third_demo_points").value||0):0,starts_at:isoDate($("rf_starts_at").value),
+  capacity:Number($("rf_capacity").value),team_size:Number($("rf_team_size").value),max_teams:Number($("rf_max_teams").value),entry_demo_points:Number($("rf_entry_demo_points").value||0),prize_demo_points:Number($("rf_prize_demo_points").value||0),prize_second_demo_points:Number($("rf_max_teams").value)>5?Number($("rf_prize_second_demo_points").value||0):0,prize_third_demo_points:Number($("rf_max_teams").value)>5?Number($("rf_prize_third_demo_points").value||0):0,starts_at:isoDate($("rf_starts_at").value),
    status:$("rf_status").value,room_image_url:$("rf_room_image_url").value.trim()||null,room_media_type:$("rf_room_media_type").value,room_video_url:$("rf_room_video_url").value.trim()||null,
    rules:$("rf_rules").value.trim()
  };
@@ -951,7 +951,14 @@ async function refreshRoomAccessAdminStatus(roomId){
   if(!data.has_credentials){box.textContent="کد و رمز هنوز ذخیره نشده‌اند. آن‌ها را وارد و ذخیره کن.";return;}
   if(!data.starts_at){box.textContent="کد و رمز ذخیره شده‌اند، اما زمان شروع روم تعیین نشده است. زمان شروع را مشخص و روم را ذخیره کن.";return;}
   const startText=new Date(data.starts_at).toLocaleString("fa-IR");
-  if(data.release_due){box.textContent="زمان شروع ("+startText+") فرا رسیده است. نمایش خودکار اطلاعات برای شرکت‌کنندگان ثبت‌نام‌شده فعال است.";}
+  if(data.release_due){
+   const active=Number(data.active_registration_count||0),waiting=Number(data.waiting_solo_player_count||0);
+   let audience=active+" ثبت‌نام/تیم فعال";
+   if(active===0&&waiting===0)audience="هنوز هیچ شرکت‌کننده‌ای ثبت‌نام نکرده است";
+   else if(active===0)audience="هنوز تیمی کامل نشده؛ "+waiting+" بازیکن در صف تشکیل تیم است";
+   else if(waiting>0)audience+=" و "+waiting+" بازیکن در صف تشکیل تیم";
+   box.textContent="زمان شروع ("+startText+") فرا رسیده است. کد و رمز داخل اپ برای افراد واجد شرایط نمایش داده می‌شود؛ "+audience+".";
+  }
   else{const total=Math.max(0,Math.floor((new Date(data.starts_at).getTime()-Date.now())/1000));const days=Math.floor(total/86400),hours=Math.floor((total%86400)/3600),mins=Math.floor((total%3600)/60),secs=total%60;const remaining=(days?days.toLocaleString("fa-IR")+" روز و ":"")+hours.toLocaleString("fa-IR")+" ساعت، "+mins.toLocaleString("fa-IR")+" دقیقه و "+secs.toLocaleString("fa-IR")+" ثانیه";box.textContent="کد و رمز با موفقیت ذخیره شده‌اند. نمایش خودکار در زمان شروع "+startText+" فعال می‌شود؛ زمان باقی‌مانده: "+remaining+". تا آن زمان اطلاعات در اپ مخفی می‌مانند.";}
  }catch(err){box.textContent=err.message||"وضعیت انتشار خودکار دریافت نشد.";}
 }
@@ -1018,7 +1025,7 @@ $("roomsTable").addEventListener("click",async e=>{
   if(error||!data)return toast("اطلاعات روم دریافت نشد.");
   $("rf_id").value=data.id;tournamentOptions(data.tournament_id);$("rf_title").value=data.title||"";
   $("rf_game_mode").value=data.game_mode||"";$("rf_map").value=data.map||"";
-  $("rf_capacity").value=data.capacity||100;$("rf_team_size").value=String(data.team_size||4);$("rf_max_teams").value=data.max_teams||25;$("rf_entry_demo_points").value=0;$("rf_prize_demo_points").value=data.prize_demo_points||0;$("rf_prize_second_demo_points").value=data.prize_second_demo_points||0;$("rf_prize_third_demo_points").value=data.prize_third_demo_points||0;updateRoomPrizeFields();$("rf_starts_at").value=localDateTime(data.starts_at);
+  $("rf_capacity").value=data.capacity||100;$("rf_team_size").value=String(data.team_size||4);$("rf_max_teams").value=data.max_teams||25;$("rf_entry_demo_points").value=data.entry_demo_points||0;$("rf_prize_demo_points").value=data.prize_demo_points||0;$("rf_prize_second_demo_points").value=data.prize_second_demo_points||0;$("rf_prize_third_demo_points").value=data.prize_third_demo_points||0;updateRoomPrizeFields();$("rf_starts_at").value=localDateTime(data.starts_at);
   $("rf_status").value=data.status||"draft";$("rf_room_image_url").value=data.room_image_url||"";$("rf_room_media_type").value=data.room_media_type||"image";$("rf_room_video_url").value=data.room_video_url||"";
   $("rf_rules").value=data.rules||"";$("rf_room_code").value="";$("rf_room_password").value="";$("rf_room_code").disabled=false;$("rf_room_password").disabled=false;$("publishRoomAccessButton").disabled=false;$("roomAccessPublishMessage").textContent="برای تغییر اطلاعات دسترسی، کد و رمز جدید را وارد و ذخیره کن.";$("roomAccessAdminPanel").classList.remove("hidden");$("roomForm").classList.remove("hidden");await refreshRoomAccessAdminStatus(data.id);$("rf_title").focus();
  }
