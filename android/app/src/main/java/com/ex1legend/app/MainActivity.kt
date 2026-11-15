@@ -3,7 +3,6 @@ package com.ex1legend.app
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
-import android.view.View
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -18,6 +17,7 @@ import android.net.Uri
 class MainActivity : Activity() {
     private lateinit var webView: WebView
     private lateinit var progress: ProgressBar
+    private lateinit var rootContainer: FrameLayout
     private val appUrl = BuildConfig.START_URL
     private val appHost = Uri.parse(appUrl).host
 
@@ -26,7 +26,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         window.statusBarColor = Color.rgb(9, 7, 15)
         window.navigationBarColor = Color.rgb(9, 7, 15)
-        val root = FrameLayout(this).apply { setBackgroundColor(Color.rgb(9, 7, 15)) }
+        rootContainer = FrameLayout(this).apply { setBackgroundColor(Color.rgb(9, 7, 15)) }
         progress = ProgressBar(this).apply { isIndeterminate = true }
         webView = WebView(this).apply {
             setBackgroundColor(Color.rgb(9, 7, 15))
@@ -45,16 +45,16 @@ class MainActivity : Activity() {
                     return true
                 }
                 override fun onPageFinished(view: WebView?, url: String?) {
-                    progress.setVisibility(View.GONE)
+                    rootContainer.removeView(progress)
                 }
                 override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: android.webkit.WebResourceError?) {
-                    if (request?.isForMainFrame == true) progress.setVisibility(View.GONE)
+                    if (request?.isForMainFrame == true) rootContainer.removeView(progress)
                 }
             }
         }
-        root.addView(webView, FrameLayout.LayoutParams(-1, -1))
-        root.addView(progress, FrameLayout.LayoutParams(64, 64, Gravity.CENTER))
-        setContentView(root)
+        rootContainer.addView(webView, FrameLayout.LayoutParams(-1, -1))
+        rootContainer.addView(progress, FrameLayout.LayoutParams(64, 64, Gravity.CENTER))
+        setContentView(rootContainer)
         if (savedInstanceState == null) webView.loadUrl(appUrl)
         else webView.restoreState(savedInstanceState)
     }
