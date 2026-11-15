@@ -710,7 +710,7 @@ async function loadSupportConversation(){
   if(latestError){$("supportMessages").innerHTML='<div class="empty">تاریخچهٔ پشتیبانی فعلاً دریافت نشد؛ دوباره تلاش کن.</div>';return;}
   if(!latest){renderSupportMessages([]);return;}
   supportConversationId=latest.id;
-  sessionStorage.setItem(storageKey,supportConversationId);
+  localStorage.setItem(storageKey,supportConversationId);
  }
  const {data:messages,error}=await sb.from("support_messages").select("sender_role,body,created_at").eq("conversation_id",supportConversationId).order("created_at",{ascending:true}).limit(100);
  if(error){$("supportMessages").innerHTML='<div class="empty">پیام‌های این گفت‌وگو دریافت نشدند؛ تاریخچه حذف نشده است. دوباره تلاش کن.</div>';return;}
