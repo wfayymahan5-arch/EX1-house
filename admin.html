@@ -1009,7 +1009,8 @@ $("roomsTable").addEventListener("click",async e=>{
  }
 });
 
-setInterval(()=>{if(document.hidden)return;if(permissions["rooms.view"]||permissions["rooms.manage"])loadRooms().catch(()=>{});if(permissions["profiles.view_all"]||permissions["profiles.manage"]){if(!$("users").classList.contains("hidden"))loadAdminUsers().catch(()=>{});}if(window.ex1AdminAccessRoomId&&!$("roomForm").classList.contains("hidden"))refreshRoomAccessAdminStatus(window.ex1AdminAccessRoomId).catch(()=>{});},10000);
+setInterval(()=>{if(document.hidden)return;if(permissions["rooms.view"]||permissions["rooms.manage"])loadRooms().catch(()=>{});if(window.ex1AdminAccessRoomId&&!$("roomForm").classList.contains("hidden"))refreshRoomAccessAdminStatus(window.ex1AdminAccessRoomId).catch(()=>{});},10000);
+setInterval(()=>{if(document.hidden||$("users").classList.contains("hidden"))return;if(permissions["profiles.view_all"]||permissions["profiles.manage"])loadAdminUsers().catch(()=>{});},30000);
 async function refreshSession(){
  const {data,error}=await sb.auth.getUser();
  if(error||!data.user){$("appView").classList.add("hidden");$("authView").classList.remove("hidden");return;}
