@@ -62,7 +62,7 @@ img,video{max-width:100%}
  <div id="home-messages" class="home-panel" hidden><div class="section-head"><div><h2>گفت‌وگوها</h2><p>پیام فقط بین بازیکن‌هایی که دوطرفه همدیگر را دنبال می‌کنند فعال است.</p></div></div><div class="chat-layout"><div id="chatContacts" class="chat-list"><div class="empty">برای شروع چت وارد حساب شو.</div></div><div class="panel chat-window"><div id="chatTitle" class="muted">یک بازیکن را انتخاب کن.</div><div id="chatMessages" class="chat-messages"></div><form id="chatForm" class="chat-send"><input id="chatText" class="field" maxlength="2000" placeholder="پیام..." disabled><button class="btn small" type="submit" disabled id="chatSend">ارسال</button></form></div></div></div>
 </section>
 <section class="page" id="page-profile">
- <div class="profile-cover"><button class="profile-menu" type="button" id="profileMenuEdit" aria-label="ویرایش پروفایل">☰</button><div id="profileAvatar" class="profile-big">EX</div><button class="avatar-upload-btn" id="chooseAvatarButton" type="button" disabled>بارگذاری عکس موقتاً غیرفعال است</button><input id="profileAvatarFile" type="file" accept="image/jpeg,image/png,image/webp" hidden disabled><small class="muted">تا آماده‌شدن بررسی امن تصاویر، امکان بارگذاری عکس جدید موقتاً متوقف است.</small><div class="profile-level">◆</div><h1 id="profileDisplayName">بازیکن EX1</h1><div id="profileUsername" class="profile-handle">EX1 PLAYER</div><p>پروفایل بازیکن و فعالیت‌های جامعه</p></div>
+ <div class="profile-cover"><button class="profile-menu" type="button" id="profileMenuEdit" aria-label="ویرایش پروفایل">☰</button><div id="profileAvatar" class="profile-big">EX</div><button class="avatar-upload-btn" id="chooseAvatarButton" type="button">＋ انتخاب عکس پروفایل</button><input id="profileAvatarFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><small class="muted">عکس ابتدا به‌صورت خصوصی بررسی می‌شود؛ تصاویر مشکوک تا تصمیم مالک عمومی نمی‌شوند.</small><div class="profile-level">◆</div><h1 id="profileDisplayName">بازیکن EX1</h1><div id="profileUsername" class="profile-handle">EX1 PLAYER</div><p>پروفایل بازیکن و فعالیت‌های جامعه</p></div>
  <div class="profile-stats"><div><strong id="profileFollowersCount">۰</strong><small>دنبال‌کننده</small></div><div><strong id="profileFollowingCount">۰</strong><small>دنبال‌شونده</small></div><div><strong>EX1</strong><small>عضویت</small></div></div>
  <div class="profile-bio panel"><p>پروفایل عمومی فقط اطلاعات پایه‌ی بازیکن را نمایش می‌دهد.</p><button class="btn small" type="button" id="openProfileEditor">ویرایش پروفایل　✎</button></div>
  <div class="wallet-card" role="button" tabindex="0" id="walletOpen"><div><span class="wallet-kicker">استار هدیه EX1 · غیرنقدی</span><strong id="walletCardBalance" class="wallet-balance">۰ <small>امتیاز</small></strong><span class="wallet-note">مشاهده موجودی و تاریخچه استار</span></div><span class="wallet-icon">✦</span></div>
@@ -506,22 +506,34 @@ $("profileMenuEdit").onclick=()=>$("openProfileEditor").click();
 $("chooseAvatarButton").onclick=()=>{if(!currentUser){openAuth();return;}$("profileAvatarFile").click();};
 $("profileAvatar").onclick=()=>{if(!currentUser){openAuth();return;}$("profileAvatarFile").click();};
 $("profileAvatarFile").addEventListener("change",async()=>{
- const input=$("profileAvatarFile"),file=input.files?.[0];if(!file)return;
+ const input=$("profileAvatarFile"),file=input.files?.[0];
+ if(!file)return;
  if(!currentUser){input.value="";openAuth();return;}
  const button=$("chooseAvatarButton");
  try{
   if(!["image/jpeg","image/png","image/webp"].includes(file.type))throw new Error("فقط تصویر JPG، PNG یا WebP مجاز است.");
-  if(file.size>5*1024*1024)throw new Error("حجم تصویر باید حداکثر ۵ مگابایت باشد.");
-  button.disabled=true;button.textContent="در حال بارگذاری عکس...";
+  if(file.size<1||file.size>5*1024*1024)throw new Error("حجم تصویر باید حداکثر ۵ مگابایت باشد.");
+  if(!crypto?.randomUUID)throw new Error("مرورگر این دستگاه برای انتخاب امن نام فایل به‌روزرسانی لازم دارد.");
+  button.disabled=true;button.textContent="در حال بررسی و ذخیره عکس...";
   const ext=file.type==="image/jpeg"?"jpg":file.type.split("/")[1];
-  const path=currentUser.id+"/avatar-"+crypto.randomUUID()+"."+ext;
-  const {error:uploadError}=await sb.storage.from("ex1-avatars").upload(path,file,{upsert:false,contentType:file.type,cacheControl:"3600"});
+  const uploadedPath=currentUser.id+"/avatar-"+crypto.randomUUID()+"."+ext;
+  const {error:uploadError}=await sb.storage.from("ex1-avatar-review").upload(uploadedPath,file,{upsert:false,contentType:file.type,cacheControl:"3600"});
   if(uploadError)throw uploadError;
-  const {data:savedProfile,error:profileError}=await sb.rpc("set_my_profile_avatar",{p_avatar_path:path});
-  if(profileError)throw profileError;if(!savedProfile?.success)throw new Error("مسیر عکس در پروفایل ذخیره نشد.");
-  await loadProfile();toast("عکس پروفایل ذخیره شد و دسترسی تصویر بررسی شد.");
- }catch(err){console.error("EX1 avatar upload:",err);toast(err?.message||"بارگذاری عکس انجام نشد؛ اتصال و مجوز ذخیره‌سازی را بررسی کن.");}
- finally{button.disabled=false;button.textContent="＋ انتخاب عکس پروفایل";input.value="";}
+  const {data:moderation,error:moderationError}=await sb.functions.invoke("moderate-avatar",{body:{p_avatar_path:uploadedPath}});
+  if(moderationError)throw moderationError;
+  if(moderation?.pending_review){
+   toast("عکس برای بررسی مالک ثبت شد؛ تا پایان بررسی در پروفایل عمومی نمایش داده نمی‌شود.");
+   return;
+  }
+  if(!moderation?.success)throw new Error(moderation?.error||"بررسی و ذخیره عکس انجام نشد؛ تصویر عمومی نشده است.");
+  await loadProfile();
+  toast("عکس پروفایل پس از بررسی ایمنی با موفقیت ذخیره شد.");
+ }catch(err){
+  console.error("EX1 avatar upload:",err);
+  toast(err?.message||"بارگذاری عکس انجام نشد؛ اتصال و مجوزها را بررسی کن.");
+ }finally{
+  button.disabled=false;button.textContent="＋ انتخاب عکس پروفایل";input.value="";
+ }
 });
 document.querySelectorAll("[data-profile-tab]").forEach(b=>b.onclick=()=>{const nav=document.querySelector(".profile-tabs");const navTop=nav.getBoundingClientRect().top;document.querySelectorAll("[data-profile-tab]").forEach(x=>x.classList.toggle("active",x===b));["matches","team"].forEach(k=>{$("profile"+k[0].toUpperCase()+k.slice(1)).hidden=k!==b.dataset.profileTab;});const restore=()=>{const delta=nav.getBoundingClientRect().top-navTop;if(Math.abs(delta)>1){const root=document.documentElement,old=root.style.scrollBehavior;root.style.scrollBehavior="auto";window.scrollBy(0,delta);root.style.scrollBehavior=old;}};requestAnimationFrame(()=>{restore();requestAnimationFrame(restore);});if(b.dataset.profileTab==="team")loadMyTeam().finally(()=>setTimeout(restore,80));});
 $("openSettings").onclick=()=>{$("settingsModal").classList.add("show");$("appearanceSettings").hidden=false;$("blockedSettings").hidden=true;$("userSettingsMessage").textContent=currentUser?"در حال دریافت تنظیمات ذخیره‌شده...":"برای ذخیره بین دستگاه‌ها وارد حساب شو." ;loadUserSettings();};
