@@ -8,7 +8,7 @@ Deno.serve(async(req:Request)=>{
  const url=Deno.env.get("SUPABASE_URL")??"",anon=Deno.env.get("SUPABASE_ANON_KEY")??"",service=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")??"",key=Deno.env.get("OPENAI_API_KEY")??"";
  const token=(req.headers.get("Authorization")??"").replace(/^Bearer\s+/i,"");
  if(!url||!anon||!service||!token)return reply(401,{error:"ابتدا وارد حساب شو."});
- if(!key)return reply(503,{error:"سرویس بررسی متن آماده نیست."});
+ if(!key)return reply(503,{error:"کلید OPENAI_API_KEY برای بررسی ایمنی پروفایل در تنظیمات امن Supabase ثبت نشده است؛ پروفایل بدون بررسی ذخیره نمی‌شود."});
  const caller=createClient(url,anon,{global:{headers:{Authorization:`Bearer ${token}`}},auth:{persistSession:false,autoRefreshToken:false}});
  const {data:auth,error:authErr}=await caller.auth.getUser(token);
  if(authErr||!auth.user)return reply(401,{error:"نشست ورود معتبر نیست."});
@@ -42,9 +42,9 @@ Deno.serve(async(req:Request)=>{
   if(caseErr||!caseRow){console.error("Profile moderation case:",caseErr);return reply(500,{error:"ثبت پرونده بررسی انجام نشد؛ پروفایل ذخیره نشد."});}
   return reply(200,{success:false,pending_review:true,case_id:caseRow.id,message:"اطلاعات پروفایل برای بررسی مالک ارسال شد و ذخیره نشد."});
  }
- const {error:updateErr}=await admin.from("profiles").update({
-  display_name:displayName,username:username||null,game_uid:gameUid||null,game_name:gameName||null
- }).eq("id",auth.user.id);
+ const {error:updateErr}=await admin.from("profiles").upsert({
+  id:auth.user.id,display_name:displayName,username:username||null,game_uid:gameUid||null,game_name:gameName||null
+ },{onConflict:"id"});
  if(updateErr){console.error("Profile update:",updateErr);return reply(400,{error:updateErr.message||"ذخیره پروفایل انجام نشد."});}
  return reply(200,{success:true});
 });
