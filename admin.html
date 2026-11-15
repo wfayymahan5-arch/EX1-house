@@ -128,6 +128,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 </section>
 <section class="section tab hidden" id="rooms">
 <div class="row"><h2>مدیریت روم‌ها</h2><button class="btn primary" id="addRoomButton">افزودن روم جدید</button></div><div id="roomStartAlerts" class="notice" hidden aria-live="polite"></div>
+<label class="wide" style="display:block;margin:12px 0">جست‌وجو و فیلتر روم‌ها<input id="roomsSearch" type="search" autocomplete="off" placeholder="نام روم، مسابقه، نقشه یا وضعیت را بنویس"></label>
 <form id="roomForm" class="manager-form hidden">
 <input id="rf_id" type="hidden">
 <div class="formgrid">
@@ -180,10 +181,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <div id="resultsTable" class="empty">در حال بارگذاری...</div><div id="playerResultsTable" class="empty" style="margin-top:14px">نتایج انفرادی...</div>
 </section>
 <section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
-<section class="section tab hidden" id="users"><h2>کاربران و پروفایل‌ها</h2><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
+<section class="section tab hidden" id="users"><div class="row"><h2>کاربران و پروفایل‌ها</h2><button class="btn" id="refreshUsersButton" type="button">به‌روزرسانی فهرست</button></div><label class="wide" style="display:block;margin:12px 0">جست‌وجوی کاربر<input id="usersSearch" type="search" autocomplete="off" placeholder="نام نمایشی، نام کاربری یا شناسه کاربر"></label><p class="muted">فهرست کاربران به‌صورت دوره‌ای تازه‌سازی می‌شود؛ برای دریافت فوری حساب‌های تازه‌ساخته‌شده از دکمهٔ به‌روزرسانی استفاده کن.</p><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="audit"><h2>گزارش فعالیت مدیران</h2><p class="muted">تغییرات ایجاد، ویرایش و حذف مسابقه‌ها و روم‌ها به‌صورت خودکار ثبت می‌شوند.</p><div id="auditTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="socialReports"><h2>گزارش‌های کاربران</h2><p class="muted">گزارش پیام‌ها و پروفایل‌ها. رسیدگی فقط برای مدیر دارای مجوز social.moderate فعال است.</p><div id="socialReportsTable" class="empty">در حال بارگذاری...</div><hr style="margin:24px 0;border-color:#ffffff20"><h2>بررسی هوشمند محتوا</h2><p class="muted">این پرونده‌ها فقط برای مالک اصلی نمایش داده می‌شوند. هیچ کاربری بدون تأیید مالک مسدود نمی‌شود.</p><div id="aiModerationCases" class="empty">در انتظار بررسی مالک...</div><hr style="margin:24px 0;border-color:#ffffff20"><h2>درخواست‌های پشتیبانی انسانی</h2><p class="muted">گفت‌وگوهایی که دستیار هوشمند برای پاسخ دقیق‌تر به پشتیبان ارجاع داده است.</p><div id="supportInbox" class="empty">در حال بارگذاری...</div></section>
-<section class="section tab hidden" id="wallet"><h2>مدیریت امتیازهای EX1</h2><div class="notice">این امتیازها فقط داخل EX1 کاربرد دارند؛ قابل خرید، فروش، انتقال یا برداشت نیستند و هیچ ارزش پولی ندارند.</div><div id="walletTable" class="empty">در انتظار دسترسی مجاز...</div><div id="walletAdjustPanel" class="panel hidden" style="margin-top:16px"><h3 id="walletAdjustTitle">اصلاح امتیاز کاربر</h3><form id="walletAdjustForm" class="manager-form"><input id="wallet_user_id" type="hidden"><div class="formgrid"><label>نوع عملیات<select id="wallet_entry_type"><option value="credit">افزایش امتیاز</option><option value="debit">کاهش امتیاز</option></select></label><label>مقدار امتیاز<input id="wallet_amount" type="number" min="1" max="1000000" required></label><label class="wide">دلیل ثبت<input id="wallet_reason" maxlength="300" minlength="2" required placeholder="مثلاً پاداش عملکرد تأییدشده"></label></div><div class="actions"><button class="btn primary" type="submit" id="walletAdjustSubmit">ثبت تغییر امتیاز</button><button class="btn" type="button" id="walletAdjustCancel">انصراف</button></div></form></div><div id="walletHistory" class="empty" style="margin-top:16px"></div></section>
+<section class="section tab hidden" id="wallet"><h2>مدیریت امتیازهای EX1</h2><div class="notice">این امتیازها فقط داخل EX1 کاربرد دارند؛ قابل خرید، فروش، انتقال یا برداشت نیستند و هیچ ارزش پولی ندارند.</div><label class="wide" style="display:block;margin:12px 0">جست‌وجوی کیف پول مستقل<input id="walletSearch" type="search" autocomplete="off" placeholder="شناسه کاربر یا نوع امتیاز"></label><div id="walletTable" class="empty">در انتظار دسترسی مجاز...</div><div id="walletAdjustPanel" class="panel hidden" style="margin-top:16px"><h3 id="walletAdjustTitle">اصلاح امتیاز کاربر</h3><form id="walletAdjustForm" class="manager-form"><input id="wallet_user_id" type="hidden"><div class="formgrid"><label>نوع عملیات<select id="wallet_entry_type"><option value="credit">افزایش امتیاز</option><option value="debit">کاهش امتیاز</option></select></label><label>مقدار امتیاز<input id="wallet_amount" type="number" min="1" max="1000000" required></label><label class="wide">دلیل ثبت<input id="wallet_reason" maxlength="300" minlength="2" required placeholder="مثلاً پاداش عملکرد تأییدشده"></label></div><div class="actions"><button class="btn primary" type="submit" id="walletAdjustSubmit">ثبت تغییر امتیاز</button><button class="btn" type="button" id="walletAdjustCancel">انصراف</button></div></form></div><div id="walletHistory" class="empty" style="margin-top:16px"></div></section>
 <section class="section tab hidden" id="settings"><h2>تنظیمات ظاهری سایت</h2><p class="muted">رنگ‌ها فقط با مجوز settings.manage ذخیره می‌شوند.</p><form id="themeForm"><div class="colorgrid">
 <label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
 </div><button class="btn primary" id="saveTheme" type="submit" style="margin-top:14px">ذخیره تنظیمات</button></form><div id="themeMessage" class="muted" style="margin-top:10px"></div></section>
@@ -227,10 +228,13 @@ let permissions={},ownerCanBanUsers=false;
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200);}
 function table(headers,rows){if(!rows.length)return '<div class="empty">هنوز داده‌ای ثبت نشده است.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';}
 function row(cells){return '<tr>'+cells.map(x=>'<td>'+x+'</td>').join("")+'</tr>';}
+function bindAdminTableSearch(inputId,containerId){const input=$(inputId),container=$(containerId);if(!input||!container)return;input.addEventListener("input",()=>{const q=input.value.trim().toLocaleLowerCase();container.querySelectorAll("tbody tr").forEach(tr=>{tr.hidden=!!q&&!tr.textContent.toLocaleLowerCase().includes(q);});});}
 function showTab(id){const y=window.scrollY;document.querySelectorAll(".tab").forEach(s=>s.classList.toggle("hidden",s.id!==id));document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));requestAnimationFrame(()=>window.scrollTo(0,y));}
 function addNav(id){const b=document.createElement("button");b.type="button";b.dataset.tab=id;b.textContent=labels[id];b.onclick=()=>showTab(id);$("nav").appendChild(b);}
 async function rpc(name,args){const {data,error}=await sb.rpc(name,args||{});if(error)throw error;return data||[];}
 let adminUserCache=[];
+bindAdminTableSearch("usersSearch","usersTable");
+$("refreshUsersButton").addEventListener("click",async()=>{const b=$("refreshUsersButton");b.disabled=true;try{await loadAdminUsers();toast("فهرست کاربران به‌روزرسانی شد.");}catch(err){toast(err.message||"به‌روزرسانی کاربران انجام نشد.");}finally{b.disabled=false;}});
 async function loadAdminUsers(){
  const {data,error}=await sb.rpc("admin_dashboard_users");
  if(error)throw error;
@@ -462,6 +466,7 @@ $("playerResultsTable").addEventListener("click",async e=>{
  if(edit&&permissions["results.manage"]){const {data,error}=await sb.from("tournament_player_results").select("*").eq("id",edit.dataset.editPlayerResult).single();if(error||!data)return toast("نتیجه بازیکن دریافت نشد.");$("player_result_id").value=data.id;$("player_result_tournament_id").value=data.tournament_id;$("player_result_tournament_id").dispatchEvent(new Event("change"));$("player_result_room_id").value=data.room_id;$("player_result_user_id").value=data.user_id;$("player_result_kills").value=data.kills;$("player_result_placement").value=data.placement||"";$("player_result_points").value=data.points;$("player_result_evidence_url").value=data.evidence_image_url||"";setResultEvidencePreview("player_result",data.evidence_image_url||"");$("playerResultForm").classList.remove("hidden");$("resultForm").classList.add("hidden");}
  if(del&&permissions["results.manage"]){if(!confirm("نتیجه انفرادی حذف شود؟"))return;const {error}=await sb.from("tournament_player_results").delete().eq("id",del.dataset.deletePlayerResult);if(error)toast("حذف نتیجه بازیکن انجام نشد.");else{await loadResults();toast("نتیجه بازیکن حذف شد.");}}
 });
+bindAdminTableSearch("walletSearch","walletTable");
 async function loadWalletAdmin(){
  if(!permissions["wallet.view_all"]){$("walletTable").innerHTML='<div class="empty">مجوز مشاهده امتیازهای کاربران را نداری.</div>';return;}
  const data=await rpc("admin_wallet_demo_overview",{p_limit:200});
@@ -814,6 +819,7 @@ async function loadTournaments(){
  $("addTournamentButton").hidden=!permissions["tournaments.create"];
  $("tournamentForm").classList.add("hidden");
 }
+bindAdminTableSearch("roomsSearch","roomsTable");
 async function loadRooms(){
  const {data,error}=await sb.from("tournament_rooms").select("*").order("starts_at",{ascending:true});
  if(error){$("roomsTable").innerHTML='<div class="empty">روم‌ها بارگذاری نشدند: '+esc(error.message)+'</div>';$("addRoomButton").hidden=!permissions["rooms.manage"];throw error;}
@@ -962,8 +968,23 @@ $("roomsTable").addEventListener("click",async e=>{
      const person='<div style="display:flex;align-items:center;gap:9px;margin:6px 0">'+avatar+'<span><b>'+esc(p.game_name||"نام کالاف ثبت نشده")+'</b><br><small>آیدی بازی: '+esc(p.game_uid||"ثبت نشده")+'</small></span></div>';
      return '<tr><td>'+(Number(p.slot_number)||"—")+'</td><td>صف تشکیل تیم</td><td>'+person+'</td><td>در انتظار تکمیل تیم</td></tr>';
     });
+   const rosterMap=new Map();
+   (data||[]).forEach(slot=>(Array.isArray(slot.players)?slot.players:[]).forEach(p=>{const uid=p.user_id||p.profile_id||p.id;if(uid)rosterMap.set(String(uid),{id:String(uid),name:p.game_name||p.display_name||p.username||"بازیکن",gameUid:p.game_uid||""});}));
+   (waitingPlayers||[]).forEach(p=>{const uid=p.user_id||p.profile_id||p.id;if(uid)rosterMap.set(String(uid),{id:String(uid),name:p.game_name||p.display_name||p.username||"بازیکن",gameUid:p.game_uid||""});});
+   const roster=[...rosterMap.values()];
+   const storageKey="ex1-room-review-selection:"+view.dataset.viewRoomPlayers;
+   let savedSelection=[];try{savedSelection=JSON.parse(localStorage.getItem(storageKey)||"[]");if(!Array.isArray(savedSelection))savedSelection=[];}catch(_){savedSelection=[];}
+   const selected=new Set(savedSelection.filter(id=>rosterMap.has(String(id))).map(String));
+   const checklist=roster.length?'<div class="panel" style="margin:12px 0"><div class="row"><strong>انتخاب شرکت‌کنندگان برای پیگیری همین روم</strong><label><input id="roomRosterSelectAll" type="checkbox"> همه کاربران این روم</label></div><p class="muted">این انتخاب فقط برای علامت‌گذاری و پیگیری فهرست است و هیچ تغییری در امتیاز یا کیف پول ایجاد نمی‌کند.</p><input id="roomRosterSearch" type="search" autocomplete="off" placeholder="جست‌وجوی نام، آیدی بازی یا شناسه کاربر"><div id="roomRosterList" style="display:grid;gap:8px;margin-top:10px">'+roster.map(p=>'<label data-roster-row data-roster-text="'+esc((p.name+" "+p.gameUid+" "+p.id).toLocaleLowerCase())+'" style="display:flex;align-items:center;gap:9px"><input type="checkbox" data-roster-user="'+esc(p.id)+'" '+(selected.has(p.id)?"checked":"")+'><span>'+esc(p.name)+' · '+esc(p.gameUid||p.id)+'</span></label>').join("")+'</div><p id="roomRosterCount" class="muted">انتخاب‌شده: '+selected.size+' از '+roster.length+'</p></div>':'<div class="empty">شناسهٔ قابل‌نمایش برای انتخاب شرکت‌کنندگان دریافت نشد.</div>';
    $("roomParticipantsTitle").textContent="شرکت‌کنندگان · "+(room.title||"روم");
-   $("roomParticipantsContent").innerHTML=(rows.length||queueRows.length)?'<div class="tablewrap"><table><thead><tr><th>جایگاه</th><th>تیم</th><th>بازیکنان</th><th>وضعیت</th></tr></thead><tbody>'+rows.concat(queueRows).join("")+'</tbody></table></div>':'<div class="empty">برای این روم هنوز ثبت‌نامی ثبت نشده است.</div>';
+   $("roomParticipantsContent").innerHTML=checklist+((rows.length||queueRows.length)?'<div class="tablewrap"><table><thead><tr><th>جایگاه</th><th>تیم</th><th>بازیکنان</th><th>وضعیت</th></tr></thead><tbody>'+rows.concat(queueRows).join("")+'</tbody></table></div>':'<div class="empty">برای این روم هنوز ثبت‌نامی ثبت نشده است.</div>');
+   const persistRosterSelection=()=>{const ids=[...$("roomRosterList").querySelectorAll("[data-roster-user]:checked")].map(el=>el.dataset.rosterUser);localStorage.setItem(storageKey,JSON.stringify(ids));$("roomRosterCount").textContent="انتخاب‌شده: "+ids.length+" از "+roster.length;$("roomRosterSelectAll").checked=ids.length===roster.length;};
+   if(roster.length){
+    $("roomRosterSelectAll").checked=selected.size===roster.length;
+    $("roomRosterSelectAll").addEventListener("change",()=>{$("roomRosterList").querySelectorAll("[data-roster-user]").forEach(el=>{el.checked=$("roomRosterSelectAll").checked;});persistRosterSelection();});
+    $("roomRosterList").addEventListener("change",persistRosterSelection);
+    $("roomRosterSearch").addEventListener("input",()=>{const q=$("roomRosterSearch").value.trim().toLocaleLowerCase();$("roomRosterList").querySelectorAll("[data-roster-row]").forEach(el=>{el.hidden=!!q&&!el.dataset.rosterText.includes(q);});});
+   }
    $("roomParticipantsPanel").classList.remove("hidden");
    $("roomParticipantsPanel").scrollIntoView({behavior:"smooth",block:"start"});
   }catch(err){toast(err.message||"فهرست شرکت‌کنندگان دریافت نشد.");}
@@ -988,7 +1009,7 @@ $("roomsTable").addEventListener("click",async e=>{
  }
 });
 
-setInterval(()=>{if(document.hidden)return;if(permissions["rooms.view"]||permissions["rooms.manage"])loadRooms().catch(()=>{});if(window.ex1AdminAccessRoomId&&!$("roomForm").classList.contains("hidden"))refreshRoomAccessAdminStatus(window.ex1AdminAccessRoomId).catch(()=>{});},10000);
+setInterval(()=>{if(document.hidden)return;if(permissions["rooms.view"]||permissions["rooms.manage"])loadRooms().catch(()=>{});if(permissions["profiles.view_all"]||permissions["profiles.manage"]){if(!$("users").classList.contains("hidden"))loadAdminUsers().catch(()=>{});}if(window.ex1AdminAccessRoomId&&!$("roomForm").classList.contains("hidden"))refreshRoomAccessAdminStatus(window.ex1AdminAccessRoomId).catch(()=>{});},10000);
 async function refreshSession(){
  const {data,error}=await sb.auth.getUser();
  if(error||!data.user){$("appView").classList.add("hidden");$("authView").classList.remove("hidden");return;}
