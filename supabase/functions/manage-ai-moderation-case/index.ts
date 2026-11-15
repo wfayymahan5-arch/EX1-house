@@ -18,15 +18,30 @@ Deno.serve(async(req:Request)=>{
  try{body=await req.json();}catch{return reply(400,{error:"درخواست معتبر نیست."});}
  const id=String(body.case_id??""),decision=String(body.decision??""),note=String(body.note??"").trim().slice(0,500);
  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)||!["warn_only","warn_and_ban","dismiss"].includes(decision))return reply(400,{error:"پرونده یا تصمیم معتبر نیست."});
- const {data:record,error:caseErr}=await admin.from("ai_moderation_cases").select("id,user_id,status,content_type").eq("id",id).maybeSingle();
+ const {data:record,error:caseErr}=await admin.from("ai_moderation_cases").select("id,user_id,status,content_type,original_storage_bucket,original_storage_path").eq("id",id).maybeSingle();
  if(caseErr||!record)return reply(404,{error:"پرونده پیدا نشد."});
  if(record.status!=="pending_review")return reply(409,{error:"این پرونده قبلاً بررسی شده است."});
+ const removeQuarantinedAvatar=async()=>{
+  if(record.content_type!=="profile_avatar")return true;
+  const bucket=String(record.original_storage_bucket??"");
+  const path=String(record.original_storage_path??"");
+  if(!bucket&&!path)return true;
+  if(bucket!=="ex1-avatar-review"||!path.startsWith(record.user_id+"/avatar-"))return false;
+  const {error}=await admin.storage.from("ex1-avatar-review").remove([path]);
+  if(error){console.error("Could not remove quarantined avatar:",error);return false;}
+  return true;
+ };
+
  if(decision==="dismiss"){
+  if(!(await removeQuarantinedAvatar()))return reply(500,{error:"پاک‌سازی تصویر قرنطینه‌شده انجام نشد؛ پرونده باز ماند."});
+
   const {error}=await admin.from("ai_moderation_cases").update({status:"rejected",owner_decision_by:auth.user.id,owner_decision_at:new Date().toISOString(),owner_note:note}).eq("id",id).eq("status","pending_review");
   if(error)return reply(500,{error:"ثبت رد پرونده انجام نشد."});
   return reply(200,{success:true,decision:"dismissed"});
  }
  if(decision==="warn_only"){
+  if(!(await removeQuarantinedAvatar()))return reply(500,{error:"پاک‌سازی تصویر قرنطینه‌شده انجام نشد؛ اخطار ثبت نشد."});
+
   const {error:noticeErr}=await admin.from("user_notifications").insert({
    user_id:record.user_id,notification_type:"moderation_warning",title:"اخطار رعایت قوانین EX1",
    body:"محتوای ارسالی شما با قوانین ایمنی EX1 سازگار تشخیص داده شد. این اخطار برای آگاه‌سازی است؛ اگر بررسی اشتباه بوده، از پشتیبانی درخواست بازبینی کنید.",
@@ -48,6 +63,8 @@ Deno.serve(async(req:Request)=>{
  if(targetErr||!target.user)return reply(404,{error:"حساب کاربر پیدا نشد."});
 
  // Persist and deliver the warning first. Only then attempt the ban.
+ if(!(await removeQuarantinedAvatar()))return reply(500,{error:"پاک‌سازی تصویر قرنطینه‌شده انجام نشد؛ مسدودسازی انجام نشد."});
+
  const {error:noticeErr}=await admin.from("user_notifications").insert({
   user_id:record.user_id,notification_type:"moderation_warning",title:"اخطار رعایت قوانین EX1",
   body:"محتوای ارسالی شما با قوانین ایمنی EX1 سازگار تشخیص داده شد. با تأیید مالک، دسترسی حساب شما مسدود می‌شود. در صورت اشتباه بودن بررسی، از پشتیبانی درخواست بازبینی کنید.",
