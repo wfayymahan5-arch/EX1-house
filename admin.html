@@ -138,11 +138,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <label>ظرفیت بازیکن<input id="rf_capacity" type="number" min="1" max="1000" value="100" required></label>
  <label>تعداد نفرات هر تیم<select id="rf_team_size"><option value="2">دو نفره</option><option value="4" selected>چهار نفره</option></select></label>
  <label>حداکثر جایگاه تیم‌ها<input id="rf_max_teams" type="number" min="1" max="25" value="25" required></label>
-<label>استارز ورودی هر بازیکن<input id="rf_entry_demo_points" type="number" min="0" max="1000000" value="0" required></label>
+<label>حداقل موجودی استارز لازم برای هر بازیکن (کسر نمی‌شود)<input id="rf_entry_demo_points" type="number" min="0" max="1000000" value="0" required></label>
 <label><span id="rf_prize_label">استارز جایزه روم (تیم برنده)</span><input id="rf_prize_demo_points" type="number" min="0" max="1000000000" value="0" required></label>
 <label id="rf_prize_second_wrap" hidden>استارز جایزه تیم دوم<input id="rf_prize_second_demo_points" type="number" min="0" max="1000000000" value="0" required></label>
 <label id="rf_prize_third_wrap" hidden>استارز جایزه تیم سوم<input id="rf_prize_third_demo_points" type="number" min="0" max="1000000000" value="0" required></label>
-<p class="muted" id="rf_prize_help">در روم‌های ۵ جایگاه یا کمتر، یک جایزه برای تیم برنده تعیین می‌شود و بین اعضای آن تقسیم خواهد شد. در روم‌های بیشتر از ۵ جایگاه، جایزهٔ تیم‌های اول، دوم و سوم جداگانه تعیین می‌شود.</p>
+<p class="muted">حداقل موجودی فقط شرط احراز ورود است و از کیف پول بازیکن کم نمی‌شود.</p><p class="muted" id="rf_prize_help">در روم‌های ۵ جایگاه یا کمتر، یک جایزه برای تیم برنده تعیین می‌شود و بین اعضای آن تقسیم خواهد شد. در روم‌های بیشتر از ۵ جایگاه، جایزهٔ تیم‌های اول، دوم و سوم جداگانه تعیین می‌شود.</p>
  
 <label>زمان شروع<input id="rf_starts_at" type="datetime-local"></label>
 <label>وضعیت<select id="rf_status"><option value="draft">پیش‌نویس</option><option value="open" selected>باز</option><option value="full">تکمیل ظرفیت</option><option value="closed">بسته</option><option value="completed">پایان‌یافته</option><option value="cancelled">لغوشده</option></select></label>
