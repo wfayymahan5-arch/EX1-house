@@ -45,10 +45,10 @@ class MainActivity : Activity() {
                     return true
                 }
                 override fun onPageFinished(view: WebView?, url: String?) {
-                    rootContainer.removeView(progress)
+                    rootContainer.removeView(this@MainActivity.progress)
                 }
                 override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: android.webkit.WebResourceError?) {
-                    if (request?.isForMainFrame == true) rootContainer.removeView(progress)
+                    if (request?.isForMainFrame == true) rootContainer.removeView(this@MainActivity.progress)
                 }
             }
         }
