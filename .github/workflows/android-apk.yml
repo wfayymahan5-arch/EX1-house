@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - feature/ex1-android-app-redesign
+      - audit/ex1-pre-release-remediation
 
 permissions:
   contents: read
