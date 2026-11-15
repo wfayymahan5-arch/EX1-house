@@ -7,6 +7,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.webkit.ValueCallback
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.graphics.Color
@@ -18,6 +19,8 @@ class MainActivity : Activity() {
     private lateinit var webView: WebView
     private lateinit var progress: ProgressBar
     private lateinit var rootContainer: FrameLayout
+    private var fileUploadCallback: ValueCallback<Array<Uri>>? = null
+    private val fileChooserRequestCode = 1024
     private val appUrl = BuildConfig.START_URL
     private val appHost = Uri.parse(appUrl).host
 
@@ -36,7 +39,34 @@ class MainActivity : Activity() {
             settings.loadsImagesAutomatically = true
             settings.allowFileAccess = false
             settings.javaScriptCanOpenWindowsAutomatically = false
-            webChromeClient = WebChromeClient()
+            webChromeClient = object : WebChromeClient() {
+                override fun onShowFileChooser(
+                    webView: WebView?,
+                    filePathCallback: ValueCallback<Array<Uri>>?,
+                    fileChooserParams: FileChooserParams?
+                ): Boolean {
+                    this@MainActivity.fileUploadCallback?.onReceiveValue(null)
+                    this@MainActivity.fileUploadCallback = filePathCallback
+                    val intent = try {
+                        fileChooserParams?.createIntent() ?: Intent(Intent.ACTION_GET_CONTENT).apply {
+                            type = "image/*"
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                        }
+                    } catch (_: Exception) {
+                        this@MainActivity.fileUploadCallback?.onReceiveValue(null)
+                        this@MainActivity.fileUploadCallback = null
+                        return false
+                    }
+                    return try {
+                        startActivityForResult(intent, fileChooserRequestCode)
+                        true
+                    } catch (_: Exception) {
+                        this@MainActivity.fileUploadCallback?.onReceiveValue(null)
+                        this@MainActivity.fileUploadCallback = null
+                        false
+                    }
+                }
+            }
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                     val uri = request?.url ?: return false
@@ -59,6 +89,19 @@ class MainActivity : Activity() {
         else webView.restoreState(savedInstanceState)
     }
 
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == fileChooserRequestCode) {
+            val callback = fileUploadCallback
+            fileUploadCallback = null
+            callback?.onReceiveValue(
+                if (resultCode == RESULT_OK) WebChromeClient.FileChooserParams.parseResult(resultCode, data)
+                else null
+            )
+        }
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         if (::webView.isInitialized) webView.saveState(outState)
         super.onSaveInstanceState(outState)
@@ -70,6 +113,8 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
+        fileUploadCallback?.onReceiveValue(null)
+        fileUploadCallback = null
         if (::webView.isInitialized) webView.destroy()
         super.onDestroy()
     }
