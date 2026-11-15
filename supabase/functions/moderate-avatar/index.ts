@@ -119,11 +119,19 @@ Deno.serve(async (req: Request) => {
     return reply(500, { error: "ذخیره تصویر پس از بررسی انجام نشد؛ تصویر خصوصی باقی ماند." });
   }
 
-  const { data: savedProfile, error: profileError } = await caller.rpc("set_my_profile_avatar", { p_avatar_path: publicPath });
-  if (profileError || !savedProfile?.success) {
+  const { data: oldProfile } = await admin.from("profiles").select("avatar_url").eq("id", auth.user.id).maybeSingle();
+  const { error: profileError } = await admin.from("profiles").upsert(
+    { id: auth.user.id, avatar_url: publicPath },
+    { onConflict: "id" },
+  );
+  if (profileError) {
     await admin.storage.from("ex1-avatars").remove([publicPath]);
     console.error("Avatar profile update failed:", profileError);
-    return reply(500, { error: profileError?.message ?? "ثبت تصویر در پروفایل انجام نشد." });
+    return reply(500, { error: "ثبت تصویر در پروفایل انجام نشد." });
+  }
+  const oldPath = String(oldProfile?.avatar_url ?? "");
+  if (oldPath && oldPath !== publicPath && oldPath.startsWith(auth.user.id + "/avatar-")) {
+    await admin.storage.from("ex1-avatars").remove([oldPath]);
   }
 
   await admin.storage.from("ex1-avatar-review").remove([path]);
