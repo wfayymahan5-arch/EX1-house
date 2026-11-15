@@ -13,12 +13,13 @@ import android.widget.ProgressBar
 import android.graphics.Color
 import android.view.Gravity
 import android.content.Intent
+import android.net.Uri
 
 class MainActivity : Activity() {
     private lateinit var webView: WebView
     private lateinit var progress: ProgressBar
-    private val appHost = "ex1-house-git-feature-ex1-android-app-redesign-wfayymahan5-arch.vercel.app"
-    private val appUrl = "https://$appHost/app.html"
+    private val appUrl = BuildConfig.START_URL
+    private val appHost = Uri.parse(appUrl).host
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +40,7 @@ class MainActivity : Activity() {
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                     val uri = request?.url ?: return false
-                    if (uri.host == appHost) return false
+                    if (uri.scheme == "https" && uri.host == appHost) return false
                     startActivity(Intent(Intent.ACTION_VIEW, uri))
                     return true
                 }
@@ -54,7 +55,13 @@ class MainActivity : Activity() {
         root.addView(webView, FrameLayout.LayoutParams(-1, -1))
         root.addView(progress, FrameLayout.LayoutParams(64, 64, Gravity.CENTER))
         setContentView(root)
-        webView.loadUrl(appUrl)
+        if (savedInstanceState == null) webView.loadUrl(appUrl)
+        else webView.restoreState(savedInstanceState)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        if (::webView.isInitialized) webView.saveState(outState)
+        super.onSaveInstanceState(outState)
     }
 
     @Deprecated("Deprecated in Java")
