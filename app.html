@@ -407,7 +407,7 @@ async function showRoomDetail(room){
  await refreshSoloQueueStatus(room.id);
   await refreshRoomAccess(room.id);
  if(currentUser)window.ex1RoomAccessTimer=setInterval(()=>{if(activeRoomDetail?.id===room.id&&!document.hidden)refreshRoomAccess(room.id).catch(()=>{});},10000);
- scheduleRoomAccessRelease(room);
+ if(currentUser)scheduleRoomAccessRelease(room);
  $("roomDetail").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
