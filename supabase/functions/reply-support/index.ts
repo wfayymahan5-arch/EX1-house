@@ -12,8 +12,9 @@ Deno.serve(async(req:Request)=>{
  const {data:auth,error:authErr}=await caller.auth.getUser(token);
  if(authErr||!auth.user)return reply(401,{error:"ورود معتبر نیست."});
  const admin=createClient(url,service,{auth:{persistSession:false,autoRefreshToken:false}});
- const {data:owner,error:ownerErr}=await admin.rpc("is_system_owner",{p_user_id:auth.user.id});
- if(ownerErr||owner!==true)return reply(403,{error:"فقط مالک اصلی می‌تواند به پشتیبانی انسانی پاسخ دهد."});
+ const {data:permissionRows,error:permissionError}=await caller.rpc("admin_my_permissions");
+ const canManageSupport=!permissionError&&(permissionRows??[]).some((p:{permission_code:string;is_allowed:boolean})=>p.permission_code==="support.manage"&&p.is_allowed===true);
+ if(!canManageSupport)return reply(403,{error:"مجوز رسیدگی به پشتیبانی انسانی را نداری."});
  let body:{conversation_id?:string;message?:string;resolve?:boolean};
  try{body=await req.json();}catch{return reply(400,{error:"درخواست معتبر نیست."});}
  const id=String(body.conversation_id??""),message=String(body.message??"").trim();
