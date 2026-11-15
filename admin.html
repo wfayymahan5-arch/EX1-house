@@ -140,7 +140,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <label>ظرفیت بازیکن<input id="rf_capacity" type="number" min="1" max="1000" value="100" required></label>
  <label>تعداد نفرات هر تیم<select id="rf_team_size"><option value="2">دو نفره</option><option value="4" selected>چهار نفره</option></select></label>
  <label>حداکثر جایگاه تیم‌ها<input id="rf_max_teams" type="number" min="1" max="25" value="25" required></label>
-<label>حداقل موجودی استارز لازم برای هر بازیکن (کسر نمی‌شود)<input id="rf_entry_demo_points" type="number" min="0" max="1000000" value="0" required></label>
+<label>امتیاز نمادین ورودی (نمایشی؛ از کیف پول کم نمی‌شود)<input id="rf_entry_demo_points" type="number" min="0" max="1000000" value="0" required></label>
 <label><span id="rf_prize_label">استارز جایزه روم (تیم برنده)</span><input id="rf_prize_demo_points" type="number" min="0" max="1000000000" value="0" required></label>
 <label id="rf_prize_second_wrap" hidden>استارز جایزه تیم دوم<input id="rf_prize_second_demo_points" type="number" min="0" max="1000000000" value="0" required></label>
 <label id="rf_prize_third_wrap" hidden>استارز جایزه تیم سوم<input id="rf_prize_third_demo_points" type="number" min="0" max="1000000000" value="0" required></label>
@@ -229,7 +229,7 @@ let permissions={},ownerCanBanUsers=false;
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200);}
 function table(headers,rows){if(!rows.length)return '<div class="empty">هنوز داده‌ای ثبت نشده است.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';}
 function row(cells){return '<tr>'+cells.map(x=>'<td>'+x+'</td>').join("")+'</tr>';}
-function bindAdminTableSearch(inputId,containerId){const input=$(inputId),container=$(containerId);if(!input||!container)return;input.addEventListener("input",()=>{const q=input.value.trim().toLocaleLowerCase();container.querySelectorAll("tbody tr").forEach(tr=>{tr.hidden=!!q&&!tr.textContent.toLocaleLowerCase().includes(q);});});}
+function bindAdminTableSearch(inputId,containerId){const input=$(inputId),container=$(containerId);if(!input||!container)return;input.addEventListener("input",()=>{const q=input.value.trim().toLocaleLowerCase();const rows=container.querySelectorAll("tbody tr");if(rows.length){rows.forEach(tr=>{tr.hidden=!!q&&!tr.textContent.toLocaleLowerCase().includes(q);});return;}Array.from(container.children).forEach(item=>{if(item.classList.contains("empty"))return;item.hidden=!!q&&!item.textContent.toLocaleLowerCase().includes(q);});});}
 function showTab(id){const y=window.scrollY;document.querySelectorAll(".tab").forEach(s=>s.classList.toggle("hidden",s.id!==id));document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));requestAnimationFrame(()=>window.scrollTo(0,y));}
 function addNav(id){const b=document.createElement("button");b.type="button";b.dataset.tab=id;b.textContent=labels[id];b.onclick=()=>showTab(id);$("nav").appendChild(b);}
 async function rpc(name,args){const {data,error}=await sb.rpc(name,args||{});if(error)throw error;return data||[];}
