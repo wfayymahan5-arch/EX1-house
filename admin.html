@@ -687,7 +687,7 @@ async function loadAIModerationCases(){
   const imageCase=["profile_avatar","team_logo","social_post_image","social_story"].includes(item.content_type);
   let imageHtml="";
   if(imageCase&&item.evidence_path){
-   imageHtml='<p class="notice">تصویر در فضای خصوصی قرنطینه شده است. چون هنوز طبقه‌بندی ایمن و مستقل تصویر انجام نشده، پیش‌نمایش آن در این پنل نمایش داده نمی‌شود.</p>';
+   imageHtml='<p class="notice">تصویر به‌صورت خصوصی قرنطینه شده و بررسی خودکار اولیه انجام شده است. برای محافظت از کاربران، پیش‌نمایش مستقیم تصویر در پنل نمایش داده نمی‌شود؛ با تعیین تکلیف پرونده، فایل قرنطینه پاک می‌شود.</p>';
   }else if(item.evidence_bucket&&item.evidence_path&&!sensitive){
    const {data:signed}=await sb.storage.from(item.evidence_bucket).createSignedUrl(item.evidence_path,90);
    if(signed?.signedUrl)imageHtml='<img src="'+esc(signed.signedUrl)+'" alt="شواهد پرونده" style="display:block;max-width:100%;max-height:300px;object-fit:contain;border-radius:12px;margin:12px 0">';
