@@ -86,7 +86,6 @@ begin
   if found then
     if v_existing.account_id = v_account_id
        and v_existing.entry_type = 'debit'
-       and v_existing.amount_units = v_room.entry_demo_points
        and v_existing.reference_type = 'tournament_room'
        and v_existing.reference_id = p_room_id::text then
       return;
@@ -133,9 +132,10 @@ begin
   if exists (
     select 1
     from private.tournament_room_solo_queue q
+    join public.team_members tm on tm.user_id = q.user_id
     where q.room_id = new.room_id
-      and q.team_id = new.team_id
-      and q.status = 'matched'
+      and tm.team_id = new.team_id
+      and q.status in ('waiting', 'matched')
   ) then
     return new;
   end if;
