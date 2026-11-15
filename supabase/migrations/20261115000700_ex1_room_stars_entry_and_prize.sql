@@ -127,29 +127,33 @@ set search_path = ''
 as $$
 declare
   v_member record;
+  v_member_count integer := 0;
 begin
-  -- Solo registrations have already been charged at queue insertion.
-  if exists (
-    select 1
-    from private.tournament_room_solo_queue q
-    join public.team_members tm on tm.user_id = q.user_id
-    where q.room_id = new.room_id
-      and tm.team_id = new.team_id
-      and q.status in ('waiting', 'matched')
-  ) then
-    return new;
-  end if;
+  -- Charge each regular team member. A member already charged by the
+  -- solo-queue insert trigger is skipped individually, never for the
+  -- entire team.
+  select count(*) into v_member_count
+  from public.team_members tm
+  where tm.team_id = new.team_id;
 
-  for v_member in
-    select tm.user_id
-    from public.team_members tm
-    where tm.team_id = new.team_id
-    order by tm.user_id
-  loop
-    perform private.charge_room_entry_stars(new.room_id, v_member.user_id);
-  end loop;
-
-  if not found and new.user_id is not null then
+  if v_member_count > 0 then
+    for v_member in
+      select tm.user_id
+      from public.team_members tm
+      where tm.team_id = new.team_id
+      order by tm.user_id
+    loop
+      if not exists (
+        select 1
+        from private.tournament_room_solo_queue q
+        where q.room_id = new.room_id
+          and q.user_id = v_member.user_id
+          and q.status in ('waiting', 'matched')
+      ) then
+        perform private.charge_room_entry_stars(new.room_id, v_member.user_id);
+      end if;
+    end loop;
+  elsif new.user_id is not null then
     perform private.charge_room_entry_stars(new.room_id, new.user_id);
   end if;
 
