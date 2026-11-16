@@ -100,7 +100,7 @@ object Ex1Api {
                 val message = try {
                     val error = JSONObject(raw)
                     error.optString("msg").ifBlank { error.optString("message").ifBlank {
-                        error.optString("error_description").ifBlank { error.optString("details", "درخواست ناموفق بود.") }
+                        error.optString("error_description").ifBlank { error.optString("error").ifBlank { error.optString("details", "درخواست ناموفق بود.") } }
                     } }
                 } catch (_: Exception) { "ارتباط با سرور ناموفق بود." }
                 throw Ex1ApiException(response.code, message)
@@ -179,6 +179,25 @@ object Ex1Api {
             val row = rows.optJSONObject(i) ?: return@mapNotNull null
             if (row.optBoolean("is_allowed")) row.optString("permission_code").takeIf { it.isNotBlank() } else null
         }
+    }
+
+    suspend fun updateProfile(
+        session: Ex1Session,
+        displayName: String,
+        username: String,
+        gameUid: String,
+        gameName: String
+    ): JSONObject = withContext(Dispatchers.IO) {
+        request(
+            "POST",
+            "/functions/v1/update-profile",
+            session,
+            JSONObject()
+                .put("display_name", displayName)
+                .put("username", username.ifBlank { JSONObject.NULL })
+                .put("game_uid", gameUid.ifBlank { JSONObject.NULL })
+                .put("game_name", gameName.ifBlank { JSONObject.NULL })
+        ) as? JSONObject ?: throw IllegalStateException("پاسخ ذخیره پروفایل معتبر نیست.")
     }
 
     suspend fun signOut(session: Ex1Session) = withContext(Dispatchers.IO) {
