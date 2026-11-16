@@ -124,15 +124,21 @@ private fun PlayerApp() {
         when (selected) {
             0 -> RoomsScreen(Modifier.padding(padding), active)
             1 -> WalletScreen(Modifier.padding(padding), active)
-            else -> ProfileScreen(Modifier.padding(padding), active, profile) {
-                scope.launch {
-                    Ex1Api.signOut(active)
-                    clearSession(context)
-                    session = null
-                    profile = null
-                    selected = 0
+            else -> ProfileScreen(
+                Modifier.padding(padding),
+                active,
+                profile,
+                onProfileUpdated = { scope.launch { profile = Ex1Api.profile(active) } },
+                onLogout = {
+                    scope.launch {
+                        Ex1Api.signOut(active)
+                        clearSession(context)
+                        session = null
+                        profile = null
+                        selected = 0
+                    }
                 }
-            }
+            )
         }
     }
 }
@@ -338,15 +344,77 @@ private fun WalletScreen(modifier: Modifier, session: Ex1Session) {
 }
 
 @Composable
-private fun ProfileScreen(modifier: Modifier, session: Ex1Session, profile: Ex1Profile?, onLogout: () -> Unit) {
-    Column(modifier.fillMaxSize().padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+private fun ProfileScreen(
+    modifier: Modifier,
+    session: Ex1Session,
+    profile: Ex1Profile?,
+    onProfileUpdated: () -> Unit,
+    onLogout: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    var displayName by remember { mutableStateOf(profile?.displayName.orEmpty()) }
+    var username by remember { mutableStateOf(profile?.username.orEmpty()) }
+    var gameName by remember { mutableStateOf(profile?.gameName.orEmpty()) }
+    var gameUid by remember { mutableStateOf(profile?.gameUid.orEmpty()) }
+    var saving by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf("") }
+    var confirmLogout by remember { mutableStateOf(false) }
+
+    LaunchedEffect(profile?.id) {
+        displayName = profile?.displayName.orEmpty()
+        username = profile?.username.orEmpty()
+        gameName = profile?.gameName.orEmpty()
+        gameUid = profile?.gameUid.orEmpty()
+    }
+
+    Column(modifier.fillMaxSize().padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Heading("پروفایل بازیکن", "اطلاعات حساب EX1")
-        InfoCard("ایمیل", session.email)
-        InfoCard("نام نمایشی", profile?.displayName ?: "هنوز ثبت نشده")
-        InfoCard("نام کاربری", profile?.username ?: "هنوز ثبت نشده")
-        InfoCard("نام داخل بازی", profile?.gameName ?: "تکمیل نشده")
-        InfoCard("UID بازی", profile?.gameUid ?: "تکمیل نشده")
-        OutlinedButton(onClick = onLogout, modifier = Modifier.fillMaxWidth()) { Text("خروج از حساب") }
+        InfoCard("ایمیل حساب", session.email)
+        Field(displayName, { displayName = it }, "نام نمایشی")
+        Field(username, { username = it }, "نام کاربری")
+        Field(gameName, { gameName = it }, "نام داخل بازی")
+        Field(gameUid, { gameUid = it }, "UID بازی")
+        Button(
+            onClick = {
+                scope.launch {
+                    saving = true
+                    message = ""
+                    try {
+                        val result = Ex1Api.updateProfile(session, displayName.trim(), username.trim(), gameUid.trim(), gameName.trim())
+                        if (result.optBoolean("success")) {
+                            message = "پروفایل با موفقیت ذخیره شد."
+                            onProfileUpdated()
+                        } else {
+                            message = result.optString("message").ifBlank { "اطلاعات برای بررسی ارسال شد و هنوز ذخیره نشده است." }
+                        }
+                    } catch (e: Exception) {
+                        message = e.message ?: "ذخیره پروفایل انجام نشد."
+                    } finally { saving = false }
+                }
+            },
+            enabled = !saving && displayName.trim().length >= 2 && !gameUid.contains("@"),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(if (saving) "در حال ذخیره..." else "ذخیره تغییرات")
+        }
+        if (message.isNotBlank()) Text(message, color = Violet, fontSize = 12.sp)
+        OutlinedButton(onClick = { confirmLogout = true }, modifier = Modifier.fillMaxWidth()) {
+            Text("خروج از حساب")
+        }
+    }
+
+    if (confirmLogout) {
+        AlertDialog(
+            onDismissRequest = { confirmLogout = false },
+            title = { Text("خروج از حساب") },
+            text = { Text("آیا می‌خواهی از حساب کاربری خود خارج شوی؟") },
+            confirmButton = {
+                TextButton(onClick = { confirmLogout = false; onLogout() }) { Text("خروج") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmLogout = false }) { Text("انصراف") }
+            }
+        )
     }
 }
 
