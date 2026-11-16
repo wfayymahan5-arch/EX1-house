@@ -10,8 +10,8 @@ android {
         applicationId = "com.ex1legend.app"
         minSdk = 23
         targetSdk = 35
-        versionCode = 4
-        versionName = "2.1.0-native-preview"
+        versionCode = 5
+        versionName = "2.2.0-native-preview"
         buildConfigField("String", "SUPABASE_URL", "\"https://wkyzhqygmppdppvfqtgf.supabase.co\"")
         buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"sb_publishable_j19HMoltMIILTNK3U1GL1A_RZzyv4zg\"")
     }
