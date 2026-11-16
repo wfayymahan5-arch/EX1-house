@@ -32,6 +32,12 @@ data class WalletEntry(val type: String, val amount: Long, val balanceAfter: Lon
 data class Ex1Wallet(val balance: Long, val history: List<WalletEntry>)
 data class Ex1RoomSlot(val number: Int, val teamName: String, val status: String, val players: List<String>)
 data class Ex1SoloStatus(val registered: Boolean, val status: String?, val slotNumber: Int?, val waiting: Int?, val needed: Int?)
+data class Ex1RoomAccessStatus(
+    val hasCredentials: Boolean,
+    val state: String,
+    val activeRegistrations: Int,
+    val waitingSoloPlayers: Int
+)
 class Ex1ApiException(val statusCode: Int, message: String) : Exception(message)
 
 private object SessionVault {
@@ -185,6 +191,23 @@ object Ex1Api {
             result.optInt("slot_number").takeIf { result.has("slot_number") && !result.isNull("slot_number") },
             result.optInt("players_waiting").takeIf { result.has("players_waiting") },
             result.optInt("players_needed").takeIf { result.has("players_needed") })
+    }
+
+    suspend fun roomAccessStatus(session: Ex1Session, roomId: String): Ex1RoomAccessStatus = withContext(Dispatchers.IO) {
+        val result = request("POST", "/rest/v1/rpc/admin_get_tournament_room_access_status", session,
+            JSONObject().put("p_room_id", roomId)) as? JSONObject ?: JSONObject()
+        Ex1RoomAccessStatus(
+            result.optBoolean("has_credentials"),
+            result.optString("state", "unknown"),
+            result.optInt("active_registration_count"),
+            result.optInt("waiting_solo_player_count")
+        )
+    }
+
+    suspend fun publishRoomAccess(session: Ex1Session, roomId: String, roomCode: String, roomPassword: String): JSONObject = withContext(Dispatchers.IO) {
+        request("POST", "/rest/v1/rpc/admin_publish_tournament_room_access", session,
+            JSONObject().put("p_room_id", roomId).put("p_room_code", roomCode).put("p_room_password", roomPassword)) as? JSONObject
+            ?: throw IllegalStateException("پاسخ ذخیره اطلاعات روم معتبر نیست.")
     }
 
     suspend fun registerSolo(session: Ex1Session, roomId: String): JSONObject = withContext(Dispatchers.IO) {
