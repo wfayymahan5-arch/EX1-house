@@ -303,7 +303,7 @@ $("confirmRoomSoloJoin").onclick=async()=>{
   activeRoomForJoin=null;
   await loadWallet();
   await showRoomDetail(room);
- }catch(err){toast(err.message||"ثبت‌نام انفرادی انجام نشد.");}
+ }catch(err){if(err?.code==="23505"||/uq_solo_queue_one_waiting_per_user/.test(err?.message||"")){toast("این حساب در حال حاضر در صف انفرادی یک روم دیگر است. ابتدا وضعیت ثبت‌نام قبلی را بررسی کن؛ ثبت‌نام هم‌زمان در چند صف انفرادی مجاز نیست.");}else{toast(err.message||"ثبت‌نام انفرادی انجام نشد.");}}
  finally{btn.disabled=false;btn.textContent="ثبت‌نام انفرادی و تشکیل خودکار تیم";}
 };
 $("confirmRoomJoin").onclick=async()=>{
