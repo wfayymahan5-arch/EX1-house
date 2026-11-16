@@ -202,20 +202,112 @@ private fun AdminApp() {
         }
         return
     }
-    Column(Modifier.fillMaxSize().background(Night).padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Heading("پنل مدیریت EX1", "دسترسی‌ها از سرور بررسی شده‌اند")
-        InfoCard("وضعیت دسترسی", "این حساب ${permissions.size} مجوز فعال دارد. مجوزها از سرور خوانده شده‌اند.")
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(permissions) { permission -> InfoCard(permission, "مجوز تأییدشده توسط سرور") }
-        }
-        OutlinedButton(onClick = {
+    if ("rooms.manage" in permissions) {
+        AdminRoomsScreen(active, permissions) {
             scope.launch {
                 Ex1Api.signOut(active)
                 clearSession(context)
                 session = null
                 permissions = emptyList()
             }
-        }, modifier = Modifier.fillMaxWidth()) { Text("خروج از پنل مدیریت") }
+        }
+    } else {
+        Column(Modifier.fillMaxSize().background(Night).padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Heading("پنل مدیریت EX1", "دسترسی‌ها از سرور بررسی شده‌اند")
+            InfoCard("وضعیت دسترسی", "این حساب ${permissions.size} مجوز فعال دارد. برای مدیریت روم‌ها مجوز rooms.manage لازم است.")
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(permissions) { permission -> InfoCard(permission, "مجوز تأییدشده توسط سرور") }
+            }
+            OutlinedButton(onClick = {
+                scope.launch {
+                    Ex1Api.signOut(active)
+                    clearSession(context)
+                    session = null
+                    permissions = emptyList()
+                }
+            }, modifier = Modifier.fillMaxWidth()) { Text("خروج از پنل مدیریت") }
+        }
+    }
+}
+
+
+@Composable
+private fun AdminRoomsScreen(session: Ex1Session, permissions: List<String>, onLogout: () -> Unit) {
+    val scope = rememberCoroutineScope()
+    var rooms by remember { mutableStateOf<List<Ex1Room>>(emptyList()) }
+    var selectedRoom by remember { mutableStateOf<Ex1Room?>(null) }
+    var roomCode by remember { mutableStateOf("") }
+    var roomPassword by remember { mutableStateOf("") }
+    var accessStatus by remember { mutableStateOf<Ex1RoomAccessStatus?>(null) }
+    var loading by remember { mutableStateOf(true) }
+    var saving by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf("") }
+
+    LaunchedEffect(session.userId) {
+        loading = true
+        try { rooms = Ex1Api.rooms(session); message = "" }
+        catch (e: Exception) { message = e.message ?: "دریافت روم‌ها ناموفق بود." }
+        finally { loading = false }
+    }
+
+    Column(Modifier.fillMaxSize().background(Night).padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Heading("مدیریت روم‌ها", "انتشار امن کد و رمز برای شرکت‌کنندگان مجاز")
+        if (selectedRoom == null) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("روم‌های ثبت‌شده", Modifier.weight(1f), color = Color.White, fontWeight = FontWeight.Bold)
+                TextButton(onClick = onLogout) { Text("خروج") }
+            }
+            if (loading) InfoCard("در حال دریافت...", "فهرست روم‌ها از سرور خوانده می‌شود.")
+            if (message.isNotBlank()) InfoCard("پیام", message)
+            if (!loading && rooms.isEmpty()) InfoCard("رومی پیدا نشد", "روم‌های قابل مدیریت اینجا نمایش داده می‌شوند.")
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                items(rooms, key = { it.id }) { room ->
+                    RoomCard(room) {
+                        selectedRoom = room
+                        roomCode = ""
+                        roomPassword = ""
+                        message = ""
+                        scope.launch {
+                            try { accessStatus = Ex1Api.roomAccessStatus(session, room.id) }
+                            catch (e: Exception) { message = e.message ?: "وضعیت انتشار خوانده نشد." }
+                        }
+                    }
+                }
+            }
+        } else {
+            val room = selectedRoom!!
+            Text("‹ بازگشت به فهرست", Modifier.clickable {
+                selectedRoom = null
+                accessStatus = null
+                message = ""
+            }.padding(vertical = 5.dp), color = Violet)
+            Heading(room.title, "ثبت یا به‌روزرسانی اطلاعات دسترسی روم")
+            accessStatus?.let { status ->
+                InfoCard("وضعیت انتشار", "وضعیت: ${status.state}\nثبت اطلاعات: ${if (status.hasCredentials) "انجام شده" else "ثبت نشده"}\nشرکت‌کنندگان فعال: ${status.activeRegistrations}\nبازیکنان در صف انفرادی: ${status.waitingSoloPlayers}\nزمان شروع: ${room.startsAt?.let { formatDate(it) } ?: "اعلام نشده"}")
+            }
+            InfoCard("محدودیت دسترسی", "کد و رمز فقط پس از زمان شروع، از طریق تابع امن سرور برای بازیکنان ثبت‌نام‌شده همان روم قابل دریافت است.")
+            Field(roomCode, { roomCode = it }, "کد روم")
+            Field(roomPassword, { roomPassword = it }, "رمز روم", password = true)
+            if (message.isNotBlank()) InfoCard("پیام", message)
+            Button(
+                onClick = {
+                    scope.launch {
+                        saving = true
+                        message = ""
+                        try {
+                            Ex1Api.publishRoomAccess(session, room.id, roomCode.trim(), roomPassword.trim())
+                            message = "اطلاعات روم با موفقیت ذخیره شد. انتشار برای بازیکنان طبق زمان شروع و ثبت‌نام مجاز انجام می‌شود."
+                            accessStatus = Ex1Api.roomAccessStatus(session, room.id)
+                            roomCode = ""
+                            roomPassword = ""
+                        } catch (e: Exception) { message = e.message ?: "ذخیره اطلاعات انجام نشد." }
+                        finally { saving = false }
+                    }
+                },
+                enabled = !saving && roomCode.isNotBlank() && roomPassword.isNotBlank() && "rooms.manage" in permissions,
+                modifier = Modifier.fillMaxWidth()
+            ) { Text(if (saving) "در حال ذخیره..." else "ذخیره و انتشار طبق زمان‌بندی") }
+        }
     }
 }
 
