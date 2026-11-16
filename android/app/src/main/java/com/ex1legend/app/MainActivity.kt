@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,12 +21,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 
 private val Night = Color(0xFF090711)
 private val Panel = Color(0xFF171323)
@@ -46,35 +50,87 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun PlayerApp() {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var session by remember { mutableStateOf<Ex1Session?>(null) }
+    var profile by remember { mutableStateOf<Ex1Profile?>(null) }
+    var loading by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf("") }
+    var booting by remember { mutableStateOf(true) }
     var selected by remember { mutableIntStateOf(0) }
-    var authenticated by remember { mutableStateOf(false) }
-    if (!authenticated) {
-        AuthScreen(onSubmit = { /* Supabase Auth is intentionally not simulated; integration is next. */ })
-        return
-    }
-    Scaffold(
-        containerColor = Night,
-        bottomBar = {
-            NavigationBar(containerColor = Panel) {
-                listOf("روم‌ها", "استارها", "پروفایل").forEachIndexed { i, label ->
-                    NavigationBarItem(
-                        selected = selected == i,
-                        onClick = { selected = i },
-                        icon = { Icon(if (i == 0) Icons.Default.Home else if (i == 1) Icons.Default.Star else Icons.Default.Person, label) },
-                        label = { Text(label) }
-                    )
+
+    LaunchedEffect(Unit) {
+        val saved = loadSession(context)
+        if (saved != null) {
+            try {
+                profile = Ex1Api.profile(saved)
+                session = saved
+            } catch (e: Ex1ApiException) {
+                if (e.statusCode == 401) {
+                    try {
+                        val renewed = Ex1Api.refresh(saved)
+                        saveSession(context, renewed)
+                        profile = Ex1Api.profile(renewed)
+                        session = renewed
+                    } catch (_: Exception) { clearSession(context) }
+                } else {
+                    message = "اتصال به سرور برقرار نشد؛ اینترنت را بررسی کن."
+                    session = saved
                 }
+            } catch (_: Exception) {
+                message = "فعلاً دریافت اطلاعات حساب ممکن نیست."
+                session = saved
             }
         }
-    ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            when (selected) {
-                0 -> { Heading("روم‌های مسابقه", "روم‌های فعال و برنامه‌ریزی‌شده"); InfoCard("فهرست روم‌ها", "پس از اتصال امن به سرور، روم‌ها و وضعیت هرکدام اینجا نمایش داده می‌شوند.") }
-                1 -> { Heading("کیف استار", "امتیازهای داخلی و غیرنقدی EX1"); InfoCard("موجودی استار", "موجودی و تاریخچه پس از دریافت اطلاعات حساب نمایش داده می‌شود.") }
-                else -> {
-                    Heading("پروفایل بازیکن", "حساب و فعالیت‌های شما")
-                    InfoCard("پروفایل EX1", "نام نمایشی، شناسه، سوابق روم‌ها و اطلاعات تیم در این بخش قرار می‌گیرد.")
-                    OutlinedButton(onClick = { authenticated = false }, modifier = Modifier.fillMaxWidth()) { Text("خروج از حساب") }
+        booting = false
+    }
+
+    if (booting) { LoadingScreen("در حال آماده‌سازی EX1..."); return }
+    val active = session
+    if (active == null) {
+        AuthScreen(loading, message) { email, password, displayName, register ->
+            scope.launch {
+                loading = true
+                message = ""
+                try {
+                    val signed = if (register) Ex1Api.signUp(email, password, displayName)
+                        else Ex1Api.signIn(email, password)
+                    if (signed == null) {
+                        message = "حساب ساخته شد. ایمیل تأیید را بررسی کن و سپس وارد شو."
+                    } else {
+                        saveSession(context, signed)
+                        profile = Ex1Api.profile(signed)
+                        session = signed
+                    }
+                } catch (e: Exception) { message = e.message ?: "ورود یا ثبت‌نام انجام نشد." }
+                finally { loading = false }
+            }
+        }
+        return
+    }
+
+    Scaffold(containerColor = Night, bottomBar = {
+        NavigationBar(containerColor = Panel) {
+            listOf("روم‌ها", "استارها", "پروفایل").forEachIndexed { i, label ->
+                NavigationBarItem(
+                    selected = selected == i,
+                    onClick = { selected = i },
+                    icon = { Icon(if (i == 0) Icons.Default.Home else if (i == 1) Icons.Default.Star else Icons.Default.Person, label) },
+                    label = { Text(label) }
+                )
+            }
+        }
+    }) { padding ->
+        when (selected) {
+            0 -> RoomsScreen(Modifier.padding(padding), active)
+            1 -> WalletScreen(Modifier.padding(padding), active)
+            else -> ProfileScreen(Modifier.padding(padding), active, profile) {
+                scope.launch {
+                    Ex1Api.signOut(active)
+                    clearSession(context)
+                    session = null
+                    profile = null
+                    selected = 0
                 }
             }
         }
@@ -82,7 +138,85 @@ private fun PlayerApp() {
 }
 
 @Composable
-private fun AuthScreen(onSubmit: () -> Unit) {
+private fun AdminApp() {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var session by remember { mutableStateOf<Ex1Session?>(null) }
+    var permissions by remember { mutableStateOf<List<String>>(emptyList()) }
+    var loading by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf("") }
+    var booting by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        val saved = loadSession(context)
+        if (saved != null) {
+            try {
+                permissions = Ex1Api.adminPermissions(saved)
+                if (permissions.isNotEmpty()) session = saved else clearSession(context)
+            } catch (e: Ex1ApiException) {
+                if (e.statusCode == 401) {
+                    try {
+                        val renewed = Ex1Api.refresh(saved)
+                        saveSession(context, renewed)
+                        permissions = Ex1Api.adminPermissions(renewed)
+                        if (permissions.isNotEmpty()) session = renewed else clearSession(context)
+                    } catch (_: Exception) { clearSession(context) }
+                } else { message = "اتصال به سرور برقرار نشد." }
+            } catch (_: Exception) { message = "دریافت مجوزهای مدیریت ممکن نشد." }
+        }
+        booting = false
+    }
+    if (booting) { LoadingScreen("در حال بررسی دسترسی..."); return }
+    val active = session
+    if (active == null) {
+        AuthScreen(loading, message) { email, password, _, register ->
+            scope.launch {
+                loading = true
+                message = ""
+                try {
+                    if (register) {
+                        message = "برای پنل مدیریت ابتدا باید حساب بازیکن بسازی و مالک به آن حساب مجوز بدهد."
+                    } else {
+                        val signed = Ex1Api.signIn(email, password)
+                        val allowed = Ex1Api.adminPermissions(signed)
+                        if (allowed.isEmpty()) {
+                            Ex1Api.signOut(signed)
+                            message = "این حساب مجوز ورود به پنل مدیریت را ندارد."
+                        } else {
+                            saveSession(context, signed)
+                            session = signed
+                            permissions = allowed
+                        }
+                    }
+                } catch (e: Exception) { message = e.message ?: "ورود انجام نشد." }
+                finally { loading = false }
+            }
+        }
+        return
+    }
+    Column(Modifier.fillMaxSize().background(Night).padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Heading("پنل مدیریت EX1", "دسترسی‌ها از سرور بررسی شده‌اند")
+        InfoCard("وضعیت دسترسی", "این حساب ${permissions.size} مجوز فعال دارد. مجوزها از سرور خوانده شده‌اند.")
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(permissions) { permission -> InfoCard(permission, "مجوز تأییدشده توسط سرور") }
+        }
+        OutlinedButton(onClick = {
+            scope.launch {
+                Ex1Api.signOut(active)
+                clearSession(context)
+                session = null
+                permissions = emptyList()
+            }
+        }, modifier = Modifier.fillMaxWidth()) { Text("خروج از پنل مدیریت") }
+    }
+}
+
+@Composable
+private fun AuthScreen(
+    loading: Boolean,
+    message: String,
+    onSubmit: (String, String, String, Boolean) -> Unit
+) {
     var register by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -102,12 +236,18 @@ private fun AuthScreen(onSubmit: () -> Unit) {
                     if (register) Field(displayName, { displayName = it }, "نام نمایشی")
                     Field(email, { email = it }, "ایمیل", KeyboardType.Email)
                     Field(password, { password = it }, "رمز عبور", password = true)
-                    Button(onClick = onSubmit, enabled = false, modifier = Modifier.fillMaxWidth().height(50.dp)) {
-                        Text(if (register) "ثبت‌نام (در دست پیاده‌سازی)" else "ورود (در دست پیاده‌سازی)")
-                    }
-                    Text(if (register) "حساب داری؟ ورود" else "حساب نداری؟ ثبت‌نام",
-                        Modifier.fillMaxWidth().clickable { register = !register }.padding(8.dp),
-                        color = Violet, textAlign = TextAlign.Center)
+                    Button(
+                        onClick = { onSubmit(email.trim(), password, displayName.trim(), register) },
+                        enabled = !loading && email.contains("@") && password.length >= 8 && (!register || displayName.trim().length >= 2),
+                        modifier = Modifier.fillMaxWidth().height(50.dp)
+                    ) { Text(if (loading) "در حال ارتباط..." else if (register) "ثبت‌نام" else "ورود") }
+                    Text(
+                        if (register) "حساب داری؟ ورود" else "حساب نداری؟ ثبت‌نام",
+                        Modifier.fillMaxWidth().clickable(enabled = !loading) { register = !register }.padding(8.dp),
+                        color = Violet,
+                        textAlign = TextAlign.Center
+                    )
+                    if (message.isNotBlank()) Text(message, color = Color(0xFFFFB6C1), fontSize = 12.sp)
                 }
             }
             Spacer(Modifier.height(12.dp))
@@ -117,29 +257,116 @@ private fun AuthScreen(onSubmit: () -> Unit) {
 }
 
 @Composable
-private fun Field(value: String, change: (String) -> Unit, label: String, keyboard: KeyboardType = KeyboardType.Text, password: Boolean = false) {
+private fun RoomsScreen(modifier: Modifier, session: Ex1Session) {
+    var rooms by remember { mutableStateOf<List<Ex1Room>>(emptyList()) }
+    var loading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf("") }
+    LaunchedEffect(session.userId) {
+        loading = true
+        try { rooms = Ex1Api.rooms(session); error = "" }
+        catch (e: Exception) { error = e.message ?: "دریافت روم‌ها ممکن نشد." }
+        finally { loading = false }
+    }
+    LazyColumn(
+        Modifier.fillMaxSize().padding(horizontal = 18.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(top = 24.dp, bottom = 24.dp)
+    ) {
+        item { Heading("روم‌های مسابقه", "فهرست روم‌های قابل مشاهده در EX1") }
+        if (loading) item { InfoCard("در حال دریافت روم‌ها...", "اطلاعات مستقیم از Supabase دریافت می‌شود.") }
+        if (error.isNotBlank()) item { InfoCard("خطا در دریافت اطلاعات", error) }
+        if (!loading && error.isBlank() && rooms.isEmpty()) item { InfoCard("روم فعالی پیدا نشد", "وقتی روم قابل مشاهده منتشر شود، اینجا نمایش داده می‌شود.") }
+        items(rooms, key = { it.id }) { RoomCard(it) }
+    }
+}
+
+@Composable
+private fun RoomCard(room: Ex1Room) {
+    val phase = roomPhase(room)
+    Card(colors = CardDefaults.cardColors(containerColor = if (phase == "completed") Color(0xFF22212A) else Panel),
+        shape = RoundedCornerShape(18.dp)) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(room.title, Modifier.weight(1f), fontWeight = FontWeight.Bold, color = Color.White)
+                Text(roomPhaseLabel(room), color = if (phase == "completed") Muted else Violet, fontSize = 11.sp)
+            }
+            Text(listOfNotNull(room.gameMode, room.map).joinToString(" · ").ifBlank { "Call of Duty Mobile" }, color = Muted, fontSize = 12.sp)
+            Text("تیم ${room.teamSize} نفره · ظرفیت ${room.maxTeams} تیم", color = Muted, fontSize = 12.sp)
+            Text("هزینه ورود: ${room.entryPoints} استار", color = Color(0xFFC8A8FF), fontSize = 12.sp)
+            if (room.firstPrize + room.secondPrize + room.thirdPrize > 0) {
+                Text("امتیازهای نمایشی: اول ${room.firstPrize} · دوم ${room.secondPrize} · سوم ${room.thirdPrize}", color = Muted, fontSize = 11.sp)
+            }
+            room.startsAt?.let { Text("شروع: ${formatDate(it)}", color = Muted, fontSize = 11.sp) }
+            room.endsAt?.let { Text("پایان: ${formatDate(it)}", color = Muted, fontSize = 11.sp) }
+        }
+    }
+}
+
+@Composable
+private fun WalletScreen(modifier: Modifier, session: Ex1Session) {
+    var wallet by remember { mutableStateOf<Ex1Wallet?>(null) }
+    var loading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf("") }
+    LaunchedEffect(session.userId) {
+        loading = true
+        try { wallet = Ex1Api.wallet(session); error = "" }
+        catch (e: Exception) { error = e.message ?: "دریافت کیف استار ممکن نشد." }
+        finally { loading = false }
+    }
+    LazyColumn(Modifier.fillMaxSize().padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(bottom = 24.dp)) {
+        item { Heading("کیف استار", "امتیازهای داخلی و غیرنقدی EX1") }
+        item {
+            Card(colors = CardDefaults.cardColors(containerColor = Panel), shape = RoundedCornerShape(20.dp)) {
+                Column(Modifier.fillMaxWidth().padding(22.dp)) {
+                    Text("موجودی استار", color = Muted)
+                    Text(if (loading) "..." else wallet?.balance?.toString() ?: "—", fontSize = 36.sp, fontWeight = FontWeight.Black)
+                    Text("استارها قابل خرید یا تبدیل به پول نیستند.", color = Muted, fontSize = 11.sp)
+                }
+            }
+        }
+        if (error.isNotBlank()) item { InfoCard("خطا", error) }
+        item { Text("تاریخچه", color = Color.White, fontWeight = FontWeight.Bold) }
+        if (!loading && wallet?.history.isNullOrEmpty()) item { InfoCard("تاریخچه خالی است", "هنوز رویدادی در دفترکل استار ثبت نشده است.") }
+        items(wallet?.history ?: emptyList()) { entry ->
+            InfoCard(
+                if (entry.type == "credit") "دریافت استار" else "مصرف استار",
+                "${entry.reason} · ${if (entry.type == "credit") "+" else "−"}${entry.amount} استار · مانده: ${entry.balanceAfter}"
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProfileScreen(modifier: Modifier, session: Ex1Session, profile: Ex1Profile?, onLogout: () -> Unit) {
+    Column(modifier.fillMaxSize().padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Heading("پروفایل بازیکن", "اطلاعات حساب EX1")
+        InfoCard("ایمیل", session.email)
+        InfoCard("نام نمایشی", profile?.displayName ?: "هنوز ثبت نشده")
+        InfoCard("نام کاربری", profile?.username ?: "هنوز ثبت نشده")
+        InfoCard("نام داخل بازی", profile?.gameName ?: "تکمیل نشده")
+        InfoCard("UID بازی", profile?.gameUid ?: "تکمیل نشده")
+        OutlinedButton(onClick = onLogout, modifier = Modifier.fillMaxWidth()) { Text("خروج از حساب") }
+    }
+}
+
+@Composable
+private fun Field(value: String, change: (String) -> Unit, label: String,
+    keyboard: KeyboardType = KeyboardType.Text, password: Boolean = false) {
     OutlinedTextField(
-        value = value, onValueChange = change, label = { Text(label) },
-        modifier = Modifier.fillMaxWidth(), singleLine = true,
+        value, change, label = { Text(label) }, modifier = Modifier.fillMaxWidth(), singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = keyboard),
         visualTransformation = if (password) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None
     )
 }
 
 @Composable
-private fun AdminApp() {
-    var tab by remember { mutableIntStateOf(0) }
-    Scaffold(containerColor = Night, bottomBar = {
-        NavigationBar(containerColor = Panel) {
-            listOf("روم‌ها", "بازیکنان", "مالک").forEachIndexed { i, label ->
-                NavigationBarItem(tab == i, { tab = i }, icon = { Icon(if (i == 0) Icons.Default.Home else Icons.Default.Person, label) }, label = { Text(label) })
-            }
-        }
-    }) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            Heading("پنل مدیریت EX1", "نسخهٔ بومی مدیریت")
-            InfoCard(listOf("مدیریت روم‌ها", "مدیریت بازیکنان", "بخش مالک")[tab],
-                "این بخش فقط پس از احراز هویت و بررسی مجوزهای سرور فعال می‌شود. در این پیش‌نمایش هیچ عملیات مدیریتی اجرا نمی‌شود.")
+private fun LoadingScreen(text: String) {
+    Box(Modifier.fillMaxSize().background(Night), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            CircularProgressIndicator(color = Violet)
+            Spacer(Modifier.height(16.dp))
+            Text(text, color = Muted)
         }
     }
 }
@@ -147,7 +374,7 @@ private fun AdminApp() {
 @Composable
 private fun Heading(title: String, subtitle: String) {
     Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Text(title, fontSize = 24.sp, fontWeight = FontWeight.Black)
+        Text(title, fontSize = 24.sp, fontWeight = FontWeight.Black, color = Color.White)
         Text(subtitle, color = Muted, fontSize = 13.sp)
     }
 }
@@ -155,9 +382,39 @@ private fun Heading(title: String, subtitle: String) {
 @Composable
 private fun InfoCard(title: String, body: String) {
     Card(colors = CardDefaults.cardColors(containerColor = Panel), shape = RoundedCornerShape(18.dp)) {
-        Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(title, fontWeight = FontWeight.Bold)
-            Text(body, color = Muted, fontSize = 13.sp, lineHeight = 20.sp)
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+            Text(title, fontWeight = FontWeight.Bold, color = Color.White)
+            Text(body, color = Muted, fontSize = 12.sp, lineHeight = 19.sp)
         }
     }
 }
+
+private fun roomPhase(room: Ex1Room): String {
+    val end = room.endsAt?.let { parseIso(it) } ?: return if (room.status == "completed") "completed" else "scheduled"
+    val now = System.currentTimeMillis()
+    return when {
+        now < end -> "scheduled"
+        now < end + 3_600_000L -> "running"
+        now < end + 7_200_000L -> "pending"
+        else -> "completed"
+    }
+}
+
+private fun roomPhaseLabel(room: Ex1Room): String = when (roomPhase(room)) {
+    "running" -> "در حال برگزاری"
+    "pending" -> "در انتظار ثبت نتایج"
+    "completed" -> "تمام شده"
+    else -> when (room.status) {
+        "open" -> "ثبت‌نام فعال"
+        "full" -> "ظرفیت تکمیل"
+        else -> "برنامه‌ریزی‌شده"
+    }
+}
+
+private fun parseIso(value: String): Long? = try {
+    val normalized = value.replace("Z", "+0000").replace(Regex("([+-][0-9]{2}):([0-9]{2})$"), "$1$2")
+    java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", java.util.Locale.US).parse(normalized)?.time
+        ?: java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", java.util.Locale.US).parse(normalized)?.time
+} catch (_: Exception) { null }
+
+private fun formatDate(value: String): String = value.replace("T", " ").replace("Z", "").take(16)
