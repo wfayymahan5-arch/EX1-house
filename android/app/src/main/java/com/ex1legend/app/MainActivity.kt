@@ -58,6 +58,7 @@ private fun PlayerApp() {
     var message by remember { mutableStateOf("") }
     var booting by remember { mutableStateOf(true) }
     var selected by remember { mutableIntStateOf(0) }
+    var openedRoom by remember { mutableStateOf<Ex1Room?>(null) }
 
     LaunchedEffect(Unit) {
         val saved = loadSession(context)
@@ -122,7 +123,8 @@ private fun PlayerApp() {
         }
     }) { padding ->
         when (selected) {
-            0 -> RoomsScreen(Modifier.padding(padding), active)
+            0 -> if (openedRoom == null) RoomsScreen(Modifier.padding(padding), active) { openedRoom = it }
+                 else RoomDetailsScreen(Modifier.padding(padding), active, openedRoom!!, onBack = { openedRoom = null })
             1 -> WalletScreen(Modifier.padding(padding), active)
             else -> ProfileScreen(
                 Modifier.padding(padding),
@@ -263,7 +265,7 @@ private fun AuthScreen(
 }
 
 @Composable
-private fun RoomsScreen(modifier: Modifier, session: Ex1Session) {
+private fun RoomsScreen(modifier: Modifier, session: Ex1Session, onRoomClick: (Ex1Room) -> Unit) {
     var rooms by remember { mutableStateOf<List<Ex1Room>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf("") }
@@ -282,15 +284,15 @@ private fun RoomsScreen(modifier: Modifier, session: Ex1Session) {
         if (loading) item { InfoCard("در حال دریافت روم‌ها...", "اطلاعات مستقیم از Supabase دریافت می‌شود.") }
         if (error.isNotBlank()) item { InfoCard("خطا در دریافت اطلاعات", error) }
         if (!loading && error.isBlank() && rooms.isEmpty()) item { InfoCard("روم فعالی پیدا نشد", "وقتی روم قابل مشاهده منتشر شود، اینجا نمایش داده می‌شود.") }
-        items(rooms, key = { it.id }) { RoomCard(it) }
+        items(rooms, key = { it.id }) { RoomCard(it) { onRoomClick(it) } }
     }
 }
 
 @Composable
-private fun RoomCard(room: Ex1Room) {
+private fun RoomCard(room: Ex1Room, onClick: () -> Unit) {
     val phase = roomPhase(room)
     Card(colors = CardDefaults.cardColors(containerColor = if (phase == "completed") Color(0xFF22212A) else Panel),
-        shape = RoundedCornerShape(18.dp)) {
+        shape = RoundedCornerShape(18.dp), modifier = Modifier.clickable(onClick = onClick)) {
         Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(room.title, Modifier.weight(1f), fontWeight = FontWeight.Bold, color = Color.White)
@@ -305,6 +307,116 @@ private fun RoomCard(room: Ex1Room) {
             room.startsAt?.let { Text("شروع: ${formatDate(it)}", color = Muted, fontSize = 11.sp) }
             room.endsAt?.let { Text("پایان: ${formatDate(it)}", color = Muted, fontSize = 11.sp) }
         }
+    }
+}
+
+@Composable
+private fun RoomDetailsScreen(
+    modifier: Modifier,
+    session: Ex1Session,
+    room: Ex1Room,
+    onBack: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    var slots by remember { mutableStateOf<List<Ex1RoomSlot>>(emptyList()) }
+    var soloStatus by remember { mutableStateOf<Ex1SoloStatus?>(null) }
+    var loading by remember { mutableStateOf(true) }
+    var registering by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf("") }
+
+    suspend fun refresh() {
+        loading = true
+        try {
+            slots = Ex1Api.roomSlots(session, room.id)
+            soloStatus = Ex1Api.mySoloStatus(session, room.id)
+            error = ""
+        } catch (e: Exception) {
+            error = e.message ?: "دریافت جزئیات روم ممکن نشد."
+        } finally { loading = false }
+    }
+
+    LaunchedEffect(room.id) { refresh() }
+
+    LazyColumn(
+        modifier.fillMaxSize().padding(horizontal = 18.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(top = 20.dp, bottom = 28.dp)
+    ) {
+        item {
+            Text("‹ بازگشت به روم‌ها", Modifier.clickable(onClick = onBack).padding(vertical = 8.dp), color = Violet)
+        }
+        item { Heading(room.title, "جزئیات و وضعیت ثبت‌نام") }
+        item { InfoCard("وضعیت روم", roomPhaseLabel(room)) }
+        item { InfoCard("اطلاعات مسابقه", "حالت: ${room.gameMode ?: "نامشخص"} · نقشه: ${room.map ?: "نامشخص"}\nتیم ${room.teamSize} نفره · ظرفیت ${room.maxTeams} تیم\nشروع: ${room.startsAt?.let { formatDate(it) } ?: "اعلام نشده"}\nپایان: ${room.endsAt?.let { formatDate(it) } ?: "اعلام نشده"}") }
+        item { InfoCard("هزینه ورود", "${room.entryPoints} استار داخلی و غیرنقدی") }
+        item { Text("جایگاه‌ها و بازیکنان", color = Color.White, fontWeight = FontWeight.Bold) }
+        if (loading) item { InfoCard("در حال دریافت...", "وضعیت جایگاه‌ها از سرور خوانده می‌شود.") }
+        if (error.isNotBlank()) item { InfoCard("خطا", error) }
+        if (!loading && slots.isEmpty() && error.isBlank()) item { InfoCard("هنوز جایگاهی ثبت نشده", "با ثبت‌نام بازیکنان، وضعیت جایگاه‌ها اینجا نمایش داده می‌شود.") }
+        items(slots, key = { it.number }) { slot ->
+            InfoCard(
+                "جایگاه ${slot.number} · ${slot.teamName}",
+                "${if (slot.status == "waiting") "در حال تشکیل تیم" else "ثبت‌نام شده"}\n${slot.players.joinToString("، ").ifBlank { "اطلاعات بازیکنان موجود نیست" }}"
+            )
+        }
+        soloStatus?.takeIf { it.registered }?.let { status ->
+            item {
+                InfoCard(
+                    "ثبت‌نام انفرادی شما",
+                    when (status.status) {
+                        "waiting" -> "در صف جایگاه ${status.slotNumber} هستی. ${status.waiting ?: 0} نفر از ${room.teamSize} نفر ثبت‌نام کرده‌اند؛ ${status.needed ?: 0} نفر دیگر نیاز است."
+                        "matched" -> "تیمت در جایگاه ${status.slotNumber} تشکیل شده است."
+                        else -> "وضعیت: ${status.status ?: "نامشخص"}"
+                    }
+                )
+            }
+        }
+        item {
+            Text("ثبت‌نام در مسابقه", color = Color.White, fontWeight = FontWeight.Bold)
+        }
+        item {
+            Button(
+                onClick = {
+                    scope.launch {
+                        registering = true
+                        message = ""
+                        try {
+                            val result = Ex1Api.registerSolo(session, room.id)
+                            message = when (result.optString("status")) {
+                                "matched" -> "ثبت‌نام انجام شد و تیم انفرادی تشکیل شد."
+                                "waiting" -> "ثبت‌نام انجام شد؛ در انتظار تکمیل تیم هستی."
+                                else -> "درخواست ثبت‌نام ثبت شد."
+                            }
+                            refresh()
+                        } catch (e: Exception) { message = e.message ?: "ثبت‌نام انفرادی انجام نشد." }
+                        finally { registering = false }
+                    }
+                },
+                enabled = !registering && room.status == "open" && roomPhase(room) !in listOf("pending", "completed"),
+                modifier = Modifier.fillMaxWidth()
+            ) { Text(if (registering) "در حال ثبت‌نام..." else "ثبت‌نام انفرادی و تشکیل خودکار تیم") }
+        }
+        item {
+            OutlinedButton(
+                onClick = {
+                    scope.launch {
+                        registering = true
+                        message = ""
+                        try {
+                            val result = Ex1Api.registerTeam(session, room.id)
+                            message = "درخواست ثبت‌نام تیمی برای جایگاه ${result.optInt("slot_number")} ارسال شد."
+                            refresh()
+                        } catch (e: Exception) { message = e.message ?: "ثبت‌نام تیمی انجام نشد." }
+                        finally { registering = false }
+                    }
+                },
+                enabled = !registering && room.status == "open" && roomPhase(room) !in listOf("pending", "completed"),
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("ثبت‌نام با تیم کامل (ویژه کاپیتان)") }
+        }
+        if (message.isNotBlank()) item { InfoCard("نتیجه درخواست", message) }
+        item { Text("استارها امتیاز داخلی‌اند و ارزش نقدی یا جایزه واقعی ندارند.", color = Muted, fontSize = 11.sp) }
     }
 }
 
