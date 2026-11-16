@@ -22,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -412,6 +414,8 @@ private fun RoomDetailsScreen(
     val scope = rememberCoroutineScope()
     var slots by remember { mutableStateOf<List<Ex1RoomSlot>>(emptyList()) }
     var soloStatus by remember { mutableStateOf<Ex1SoloStatus?>(null) }
+    var myAccess by remember { mutableStateOf<Ex1MyRoomAccess?>(null) }
+    var results by remember { mutableStateOf<List<Ex1PlayerResult>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var registering by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf("") }
@@ -422,6 +426,8 @@ private fun RoomDetailsScreen(
         try {
             slots = Ex1Api.roomSlots(session, room.id)
             soloStatus = Ex1Api.mySoloStatus(session, room.id)
+            myAccess = try { Ex1Api.myRoomAccess(session, room.id) } catch (_: Exception) { null }
+            results = try { Ex1Api.roomResults(session, room.id) } catch (_: Exception) { emptyList() }
             error = ""
         } catch (e: Exception) {
             error = e.message ?: "دریافت جزئیات روم ممکن نشد."
@@ -463,6 +469,42 @@ private fun RoomDetailsScreen(
                     }
                 )
             }
+        }
+
+        myAccess?.let { access ->
+            item {
+                if (access.accessReady) {
+                    val clipboard = LocalClipboardManager.current
+                    Card(colors = CardDefaults.cardColors(containerColor = Panel), shape = RoundedCornerShape(18.dp)) {
+                        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("اطلاعات ورود به روم", color = Color.White, fontWeight = FontWeight.Bold)
+                            Text("کد روم: ${access.roomCode ?: "—"}", color = Color.White)
+                            Text("رمز روم: ${access.roomPassword ?: "—"}", color = Color.White)
+                            Text("جایگاه: ${access.slotNumber ?: "—"} · ${access.teamName ?: ""}", color = Muted)
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                TextButton(onClick = { access.roomCode?.let { clipboard.setText(AnnotatedString(it)) } }) { Text("کپی کد") }
+                                TextButton(onClick = { access.roomPassword?.let { clipboard.setText(AnnotatedString(it)) } }) { Text("کپی رمز") }
+                            }
+                            access.rules?.takeIf { it.isNotBlank() }?.let { Text("قوانین: $it", color = Muted, fontSize = 12.sp) }
+                        }
+                    }
+                } else {
+                    val statusText = when {
+                        access.waitingForStart -> "اطلاعات روم پس از رسیدن زمان شروع فعال می‌شود."
+                        access.waitingForAdmin -> "هنوز مدیر اطلاعات ورود روم را منتشر نکرده است."
+                        else -> "اطلاعات ورود هنوز آماده نیست."
+                    }
+                    InfoCard("وضعیت دسترسی روم", statusText)
+                }
+            }
+        }
+        item { Text("نتایج مسابقه", color = Color.White, fontWeight = FontWeight.Bold) }
+        if (results.isEmpty()) item { InfoCard("نتایج هنوز ثبت نشده", "پس از ثبت و انتشار نتایج، رتبه و امتیاز بازیکنان اینجا نمایش داده می‌شود.") }
+        items(results) { result ->
+            InfoCard(
+                "${result.placement?.let { "رتبه $it" } ?: "بدون رتبه"} · ${result.playerName}",
+                "کیل: ${result.kills} · امتیاز: ${result.points}"
+            )
         }
         item {
             Text("ثبت‌نام در مسابقه", color = Color.White, fontWeight = FontWeight.Bold)
