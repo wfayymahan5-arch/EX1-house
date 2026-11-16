@@ -30,6 +30,8 @@ data class Ex1Room(
 )
 data class WalletEntry(val type: String, val amount: Long, val balanceAfter: Long, val reason: String, val createdAt: String)
 data class Ex1Wallet(val balance: Long, val history: List<WalletEntry>)
+data class Ex1RoomSlot(val number: Int, val teamName: String, val status: String, val players: List<String>)
+data class Ex1SoloStatus(val registered: Boolean, val status: String?, val slotNumber: Int?, val waiting: Int?, val needed: Int?)
 class Ex1ApiException(val statusCode: Int, message: String) : Exception(message)
 
 private object SessionVault {
@@ -159,6 +161,42 @@ object Ex1Api {
                 opt("starts_at"), opt("ends_at"), r.optString("status"), r.optInt("team_size", 4), r.optInt("max_teams"),
                 r.optLong("entry_demo_points"), r.optLong("prize_demo_points"), r.optLong("prize_second_demo_points"), r.optLong("prize_third_demo_points"))
         }
+    }
+
+    suspend fun roomSlots(session: Ex1Session, roomId: String): List<Ex1RoomSlot> = withContext(Dispatchers.IO) {
+        val rows = request("POST", "/rest/v1/rpc/get_tournament_room_slots", session,
+            JSONObject().put("p_room_id", roomId)) as? JSONArray ?: JSONArray()
+        (0 until rows.length()).mapNotNull { i ->
+            val row = rows.optJSONObject(i) ?: return@mapNotNull null
+            val playersJson = row.optJSONArray("players") ?: JSONArray()
+            val players = (0 until playersJson.length()).mapNotNull { j ->
+                val p = playersJson.optJSONObject(j) ?: return@mapNotNull null
+                p.optString("display_name").takeIf { it.isNotBlank() && it != "null" }
+                    ?: p.optString("game_name").takeIf { it.isNotBlank() && it != "null" }
+            }
+            Ex1RoomSlot(row.optInt("slot_number"), row.optString("team_name"), row.optString("status"), players)
+        }
+    }
+
+    suspend fun mySoloStatus(session: Ex1Session, roomId: String): Ex1SoloStatus = withContext(Dispatchers.IO) {
+        val result = request("POST", "/rest/v1/rpc/get_my_room_solo_status", session,
+            JSONObject().put("p_room_id", roomId)) as? JSONObject ?: JSONObject()
+        Ex1SoloStatus(result.optBoolean("registered"), result.optString("status").takeIf { it.isNotBlank() },
+            result.optInt("slot_number").takeIf { result.has("slot_number") && !result.isNull("slot_number") },
+            result.optInt("players_waiting").takeIf { result.has("players_waiting") },
+            result.optInt("players_needed").takeIf { result.has("players_needed") })
+    }
+
+    suspend fun registerSolo(session: Ex1Session, roomId: String, slot: Int): JSONObject = withContext(Dispatchers.IO) {
+        request("POST", "/rest/v1/rpc/register_for_tournament_room_solo", session,
+            JSONObject().put("p_room_id", roomId).put("p_slot_number", slot)) as? JSONObject
+            ?: throw IllegalStateException("پاسخ ثبت‌نام معتبر نیست.")
+    }
+
+    suspend fun registerTeam(session: Ex1Session, roomId: String, slot: Int): JSONObject = withContext(Dispatchers.IO) {
+        request("POST", "/rest/v1/rpc/register_for_tournament_room", session,
+            JSONObject().put("p_room_id", roomId).put("p_slot_number", slot)) as? JSONObject
+            ?: throw IllegalStateException("پاسخ ثبت‌نام معتبر نیست.")
     }
 
     suspend fun wallet(session: Ex1Session): Ex1Wallet = withContext(Dispatchers.IO) {
