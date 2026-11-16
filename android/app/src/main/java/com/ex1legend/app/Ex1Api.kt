@@ -187,15 +187,15 @@ object Ex1Api {
             result.optInt("players_needed").takeIf { result.has("players_needed") })
     }
 
-    suspend fun registerSolo(session: Ex1Session, roomId: String, slot: Int): JSONObject = withContext(Dispatchers.IO) {
+    suspend fun registerSolo(session: Ex1Session, roomId: String): JSONObject = withContext(Dispatchers.IO) {
         request("POST", "/rest/v1/rpc/register_for_tournament_room_solo", session,
-            JSONObject().put("p_room_id", roomId).put("p_slot_number", slot)) as? JSONObject
+            JSONObject().put("p_room_id", roomId)) as? JSONObject
             ?: throw IllegalStateException("پاسخ ثبت‌نام معتبر نیست.")
     }
 
-    suspend fun registerTeam(session: Ex1Session, roomId: String, slot: Int): JSONObject = withContext(Dispatchers.IO) {
+    suspend fun registerTeam(session: Ex1Session, roomId: String): JSONObject = withContext(Dispatchers.IO) {
         request("POST", "/rest/v1/rpc/register_for_tournament_room", session,
-            JSONObject().put("p_room_id", roomId).put("p_slot_number", slot)) as? JSONObject
+            JSONObject().put("p_room_id", roomId)) as? JSONObject
             ?: throw IllegalStateException("پاسخ ثبت‌نام معتبر نیست.")
     }
 
