@@ -32,6 +32,18 @@ data class WalletEntry(val type: String, val amount: Long, val balanceAfter: Lon
 data class Ex1Wallet(val balance: Long, val history: List<WalletEntry>)
 data class Ex1RoomSlot(val number: Int, val teamName: String, val status: String, val players: List<String>)
 data class Ex1SoloStatus(val registered: Boolean, val status: String?, val slotNumber: Int?, val waiting: Int?, val needed: Int?)
+data class Ex1MyRoomAccess(
+    val accessReady: Boolean,
+    val waitingForStart: Boolean,
+    val waitingForAdmin: Boolean,
+    val roomCode: String?,
+    val roomPassword: String?,
+    val slotNumber: Int?,
+    val teamName: String?,
+    val startsAt: String?,
+    val rules: String?
+)
+data class Ex1PlayerResult(val playerName: String, val placement: Int?, val kills: Int, val points: Int)
 data class Ex1RoomAccessStatus(
     val hasCredentials: Boolean,
     val state: String,
@@ -191,6 +203,35 @@ object Ex1Api {
             result.optInt("slot_number").takeIf { result.has("slot_number") && !result.isNull("slot_number") },
             result.optInt("players_waiting").takeIf { result.has("players_waiting") },
             result.optInt("players_needed").takeIf { result.has("players_needed") })
+    }
+
+    suspend fun myRoomAccess(session: Ex1Session, roomId: String): Ex1MyRoomAccess = withContext(Dispatchers.IO) {
+        val result = request("POST", "/rest/v1/rpc/get_my_tournament_room_access", session,
+            JSONObject().put("p_room_id", roomId)) as? JSONObject ?: JSONObject()
+        Ex1MyRoomAccess(
+            result.optBoolean("access_ready"),
+            result.optBoolean("waiting_for_start"),
+            result.optBoolean("waiting_for_admin"),
+            result.optString("room_code").takeIf { it.isNotBlank() && it != "null" },
+            result.optString("room_password").takeIf { it.isNotBlank() && it != "null" },
+            result.optInt("slot_number").takeIf { result.has("slot_number") && !result.isNull("slot_number") },
+            result.optString("team_name").takeIf { it.isNotBlank() && it != "null" },
+            result.optString("starts_at").takeIf { it.isNotBlank() && it != "null" },
+            result.optString("rules").takeIf { it.isNotBlank() && it != "null" }
+        )
+    }
+
+    suspend fun roomResults(session: Ex1Session, roomId: String): List<Ex1PlayerResult> = withContext(Dispatchers.IO) {
+        val path = "/rest/v1/tournament_player_results?select=placement,kills,points,profiles!tournament_player_results_user_id_fkey(display_name,game_name)&room_id=eq.$roomId&order=placement.asc,kills.desc"
+        val rows = request("GET", path, session) as? JSONArray ?: JSONArray()
+        (0 until rows.length()).mapNotNull { i ->
+            val row = rows.optJSONObject(i) ?: return@mapNotNull null
+            val profile = row.optJSONObject("profiles") ?: JSONObject()
+            val name = profile.optString("display_name").takeIf { it.isNotBlank() && it != "null" }
+                ?: profile.optString("game_name").takeIf { it.isNotBlank() && it != "null" }
+                ?: "بازیکن"
+            Ex1PlayerResult(name, row.optInt("placement").takeIf { !row.isNull("placement") }, row.optInt("kills"), row.optInt("points"))
+        }
     }
 
     suspend fun roomAccessStatus(session: Ex1Session, roomId: String): Ex1RoomAccessStatus = withContext(Dispatchers.IO) {
