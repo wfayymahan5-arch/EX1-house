@@ -49,7 +49,7 @@ img,video{max-width:100%}
 #profileAvatar{width:112px!important;height:112px!important;min-width:112px!important;max-width:112px!important;aspect-ratio:1/1!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;border-radius:50%!important;position:relative!important;flex:0 0 112px!important;isolation:isolate}
 #profileAvatar>img,.profile-avatar-image{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-width:0!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center!important;border-radius:50%!important;overflow:hidden!important}
 #profileAvatar>.profile-avatar-fallback{width:100%;height:100%;display:grid;place-items:center;border-radius:50%;overflow:hidden}
-</style><style>.room-card-completed{filter:grayscale(1);opacity:.72}.room-card-completed .room-open-btn{background:#343434!important;box-shadow:none!important}.room-phase-tag{display:inline-flex;padding:5px 9px;border-radius:20px;background:#ffffff18;font-size:9px;font-weight:900}.room-phase-tag.completed{background:#343434;color:#ddd}.room-phase-tag.running{background:#174c3a;color:#9ff2c9}.room-phase-tag.pending{background:#51401d;color:#ffe1a0}.room-results{margin:12px 14px;padding:14px;border:1px solid #ffffff20;border-radius:16px;background:#ffffff08}.room-results-row{display:grid;grid-template-columns:42px 1fr auto auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid #ffffff14;font-size:10px}.room-results-row:last-child{border-bottom:0}</style></head>
+</style><style>.notification-card{position:relative;touch-action:pan-y}.notification-card .notification-delete{display:none;margin-top:8px}.notification-card.notification-delete-visible .notification-delete{display:inline-flex}.notification-card.notification-delete-visible{outline:1px solid #a44b62}.room-card-completed{filter:grayscale(1);opacity:.72}.room-card-completed .room-open-btn{background:#343434!important;box-shadow:none!important}.room-phase-tag{display:inline-flex;padding:5px 9px;border-radius:20px;background:#ffffff18;font-size:9px;font-weight:900}.room-phase-tag.completed{background:#343434;color:#ddd}.room-phase-tag.running{background:#174c3a;color:#9ff2c9}.room-phase-tag.pending{background:#51401d;color:#ffe1a0}.room-results{margin:12px 14px;padding:14px;border:1px solid #ffffff20;border-radius:16px;background:#ffffff08}.room-results-row{display:grid;grid-template-columns:42px 1fr auto auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid #ffffff14;font-size:10px}.room-results-row:last-child{border-bottom:0}</style></head>
 </head>
 <body>
 <header><div class="topbar"><div class="header-actions"><button class="btn ghost small" type="button" aria-label="جست‌وجو" onclick="switchPage('tournaments')">⌕</button><button class="btn ghost small" type="button" aria-label="وضعیت اتصال"><span id="connectionStatus" class="connection-status"><i></i></span> ◉</button></div><a class="brand" href="#home" aria-label="EX1 LEGEND"><span><b>EX1</b> LEGEND</span></a><div class="header-actions"><button class="btn ghost small" id="openSettings" type="button" aria-label="تنظیمات">⚙</button><span id="headerUser" class="muted"></span><button class="btn secondary small" id="headerAuth" type="button">ورود</button></div></div></header>
@@ -724,9 +724,33 @@ async function loadUserNotifications(){
  const {data,error}=await sb.from("user_notifications").select("id,title,body,notification_type,read_at,created_at").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(20);
  if(error){box.innerHTML='<div class="empty">اعلان‌ها دریافت نشدند.</div>';return;}
  if(!data?.length){box.innerHTML='<div class="empty">اعلان تازه‌ای وجود ندارد.</div>';return;}
- box.innerHTML=data.map(n=>'<article class="panel" style="padding:12px;margin:8px 0;opacity:'+(n.read_at?"0.72":"1")+'"><b>'+esc(n.title)+'</b><p>'+esc(n.body)+'</p><small class="muted">'+new Date(n.created_at).toLocaleString("fa-IR")+'</small>'+(n.read_at?"":' <button class="btn small secondary" data-notification-read="'+esc(n.id)+'" type="button">خواندم</button>')+'</article>').join("");
+ box.innerHTML=data.map(n=>'<article class="panel notification-card" tabindex="0" aria-label="اعلان؛ برای نمایش گزینه حذف چند لحظه نگه دارید" data-notification-card="'+esc(n.id)+'" style="padding:12px;margin:8px 0;opacity:'+(n.read_at?"0.72":"1")+'"><b>'+esc(n.title)+'</b><p>'+esc(n.body)+'</p><small class="muted">'+new Date(n.created_at).toLocaleString("fa-IR")+'</small><div class="notification-actions">'+(n.read_at?"":' <button class="btn small secondary" data-notification-read="'+esc(n.id)+'" type="button">خواندم</button>')+' <button class="btn small secondary notification-delete" data-notification-delete="'+esc(n.id)+'" type="button">حذف اعلان</button></div></article>').join("");
 }
-$("userNotifications").addEventListener("click",async e=>{
+const userNotificationsBox=$("userNotifications");
+let notificationLongPressTimer=null;
+let notificationLongPressTarget=null;
+function clearNotificationLongPress(){if(notificationLongPressTimer)clearTimeout(notificationLongPressTimer);notificationLongPressTimer=null;notificationLongPressTarget=null;}
+function revealNotificationDelete(card){if(!card)return;userNotificationsBox.querySelectorAll(".notification-delete-visible").forEach(x=>{if(x!==card)x.classList.remove("notification-delete-visible");});card.classList.add("notification-delete-visible");}
+userNotificationsBox.addEventListener("pointerdown",e=>{
+ const card=e.target.closest("[data-notification-card]");if(!card||e.target.closest("button"))return;
+ clearNotificationLongPress();notificationLongPressTarget=card;
+ notificationLongPressTimer=setTimeout(()=>{revealNotificationDelete(notificationLongPressTarget);clearNotificationLongPress();},600);
+});
+["pointerup","pointercancel","pointerleave"].forEach(name=>userNotificationsBox.addEventListener(name,clearNotificationLongPress));
+userNotificationsBox.addEventListener("contextmenu",e=>{const card=e.target.closest("[data-notification-card]");if(!card)return;e.preventDefault();revealNotificationDelete(card);});
+userNotificationsBox.addEventListener("keydown",e=>{if(e.key==="ContextMenu"||(e.shiftKey&&e.key==="F10")){const card=e.target.closest("[data-notification-card]");if(card){e.preventDefault();revealNotificationDelete(card);}}});
+userNotificationsBox.addEventListener("click",async e=>{
+ const del=e.target.closest("[data-notification-delete]");
+ if(del){
+  if(!currentUser)return;
+  const card=del.closest("[data-notification-card]");
+  if(!card||!window.confirm("این اعلان فقط از فهرست حساب خودت حذف شود؟"))return;
+  del.disabled=true;
+  const {data,error}=await sb.from("user_notifications").delete().eq("id",del.dataset.notificationDelete).eq("user_id",currentUser.id).select("id");
+  if(error){toast("حذف اعلان انجام نشد؛ دسترسی دیتابیس هنوز آماده نیست.");del.disabled=false;return;}
+  if(!data?.length){toast("اعلان پیدا نشد یا اجازه حذف آن وجود ندارد.");return;}
+  toast("اعلان حذف شد.");await loadUserNotifications();return;
+ }
  const b=e.target.closest("[data-notification-read]");if(!b||!currentUser)return;
  b.disabled=true;
  const {error}=await sb.from("user_notifications").update({read_at:new Date().toISOString()}).eq("id",b.dataset.notificationRead).eq("user_id",currentUser.id);
