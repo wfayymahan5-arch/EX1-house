@@ -180,14 +180,17 @@ function profileDuplicateMessage(error){
 function closeAuth(){$("authModal").classList.remove("show");}
 function openAuth(){$("authModal").classList.add("show");}
 function showPasswordRecovery(){authMode="recovery";$("authTitle").textContent="تعیین رمز جدید";$("authHint").textContent="یک رمز جدید با حداقل ۸ نویسه انتخاب کن.";$("authName").hidden=true;$("authName").required=false;$("authEmail").hidden=true;$("authEmail").required=false;$("authPassword").hidden=false;$("authPassword").required=true;$("authPassword").value="";$("authPassword").placeholder="رمز جدید (حداقل ۸ نویسه)";$("authPassword").autocomplete="new-password";$("authSubmit").textContent="ذخیره رمز جدید";$("authSwitch").hidden=true;$("forgotPasswordButton").hidden=true;openAuth();}
-const userThemes={soft:{accent:"#b9d9cf",button:"#9278c7"},blue:{accent:"#9bc9f5",button:"#3e78ae"},green:{accent:"#a9dfbd",button:"#4d9270"},amber:{accent:"#f1d19a",button:"#a77a37"}};
+const userThemes={soft:{accent:"#b9d9cf",accent2:"#9278c7",button:"#9278c7"},blue:{accent:"#9bc9f5",accent2:"#3e78ae",button:"#3e78ae"},green:{accent:"#a9dfbd",accent2:"#4d9270",button:"#4d9270"},amber:{accent:"#f1d19a",accent2:"#a77a37",button:"#a77a37"}};
 function applyUserSettings(){
  const t=localStorage.getItem("ex1-theme")||"soft",f=localStorage.getItem("ex1-font")||"tahoma";
  const selected=userThemes[t]||userThemes.soft;
  document.documentElement.dataset.ex1Theme=t;
  document.documentElement.dataset.ex1Font=f;
+ document.documentElement.style.setProperty("--accent",selected.accent);
+ document.documentElement.style.setProperty("--accent2",selected.accent2);
  document.documentElement.style.setProperty("--ex1-ui-accent",selected.accent);
  document.documentElement.style.setProperty("--ex1-ui-button",selected.button);
+ document.documentElement.style.setProperty("color-scheme","dark");
  document.body.style.fontFamily=({tahoma:"Tahoma,Arial,sans-serif",system:"system-ui,sans-serif",arial:"Arial,sans-serif",mono:"monospace"})[f]||"Tahoma,Arial,sans-serif";
  if($("userTheme"))$("userTheme").value=t;
  if($("userFont"))$("userFont").value=f;
