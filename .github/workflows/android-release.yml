@@ -60,6 +60,7 @@ jobs:
           [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::Invalid release tag"; exit 1; }
           [[ "$VERSION_CODE" =~ ^[1-9][0-9]*$ ]] || { echo "::error::Invalid versionCode"; exit 1; }
           [[ "$VERSION_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::Invalid versionName"; exit 1; }
+          [[ "$RELEASE_TAG" == "v$VERSION_NAME" ]] || { echo "::error::Release tag must match versionName"; exit 1; }
           for key in ANDROID_KEYSTORE_BASE64 ANDROID_STORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
             [[ -n "${!key:-}" ]] || { echo "::error::Missing GitHub secret: $key"; exit 1; }
           done
@@ -73,10 +74,13 @@ jobs:
           ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          VERSION_CODE: ${{ inputs.version_code }}
+          VERSION_NAME: ${{ inputs.version_name }}
         run: |
+          set -euo pipefail
           gradle assemblePlayerRelease assembleAdminRelease \
-            -Pex1VersionCode="${{ inputs.version_code }}" \
-            -Pex1VersionName="${{ inputs.version_name }}"
+            -Pex1VersionCode="$VERSION_CODE" \
+            -Pex1VersionName="$VERSION_NAME"
 
       - name: Verify APK signatures
         shell: bash
