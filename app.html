@@ -49,7 +49,32 @@ img,video{max-width:100%}
 #profileAvatar{width:112px!important;height:112px!important;min-width:112px!important;max-width:112px!important;aspect-ratio:1/1!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;border-radius:50%!important;position:relative!important;flex:0 0 112px!important;isolation:isolate}
 #profileAvatar>img,.profile-avatar-image{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-width:0!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center!important;border-radius:50%!important;overflow:hidden!important}
 #profileAvatar>.profile-avatar-fallback{width:100%;height:100%;display:grid;place-items:center;border-radius:50%;overflow:hidden}
-</style><style>.notification-card{position:relative;touch-action:pan-y}.notification-card .notification-delete{display:none;margin-top:8px}.notification-card.notification-delete-visible .notification-delete{display:inline-flex}.notification-card.notification-delete-visible{outline:1px solid #a44b62}.room-card-completed{filter:grayscale(1);opacity:.72}.room-card-completed .room-open-btn{background:#343434!important;box-shadow:none!important}.room-phase-tag{display:inline-flex;padding:5px 9px;border-radius:20px;background:#ffffff18;font-size:9px;font-weight:900}.room-phase-tag.completed{background:#343434;color:#ddd}.room-phase-tag.running{background:#174c3a;color:#9ff2c9}.room-phase-tag.pending{background:#51401d;color:#ffe1a0}.room-results{margin:12px 14px;padding:14px;border:1px solid #ffffff20;border-radius:16px;background:#ffffff08}.room-results-row{display:grid;grid-template-columns:42px 1fr auto auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid #ffffff14;font-size:10px}.room-results-row:last-child{border-bottom:0}</style></head>
+</style><style>.notification-card{position:relative;touch-action:pan-y}.notification-card .notification-delete{display:none;margin-top:8px}.notification-card.notification-delete-visible .notification-delete{display:inline-flex}.notification-card.notification-delete-visible{outline:1px solid #a44b62}.room-card-completed{filter:grayscale(1);opacity:.72}.room-card-completed .room-open-btn{background:#343434!important;box-shadow:none!important}.room-phase-tag{display:inline-flex;padding:5px 9px;border-radius:20px;background:#ffffff18;font-size:9px;font-weight:900}.room-phase-tag.completed{background:#343434;color:#ddd}.room-phase-tag.running{background:#174c3a;color:#9ff2c9}.room-phase-tag.pending{background:#51401d;color:#ffe1a0}.room-results{margin:12px 14px;padding:14px;border:1px solid #ffffff20;border-radius:16px;background:#ffffff08}.room-results-row{display:grid;grid-template-columns:42px 1fr auto auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid #ffffff14;font-size:10px}.room-results-row:last-child{border-bottom:0}
+/* Site-wide appearance: consume the admin panel's saved theme across the player UI. */
+body{
+ color:var(--text)!important;
+ background:
+  radial-gradient(ellipse at 12% 12%,var(--theme-accent-soft),transparent 36%),
+  radial-gradient(ellipse at 90% 35%,var(--theme-accent-mid),transparent 35%),
+  radial-gradient(ellipse at 50% 100%,var(--theme-accent-soft),transparent 38%),
+  var(--bg)!important;
+}
+header{background:var(--bg)!important;border-bottom:1px solid var(--theme-border)!important}
+.hero{background:linear-gradient(110deg,var(--theme-accent-mid),var(--surface) 72%)!important;border-color:var(--theme-border)!important}
+.panel,.dialog,.tournament,.tournament-content,.user-row,.chat-contact,.room-card,.room-card-body,.settings-panel,.empty,.meta div,.home-shortcuts button{
+ background:var(--surface)!important;color:var(--text)!important;border-color:var(--theme-border)!important;
+}
+.panel,.dialog,.tournament,.room-card{box-shadow:0 12px 30px var(--theme-accent-soft)!important}
+.btn:not(.secondary):not(.ghost),.room-open-btn,.room-detail .room-tabs button.active{
+ background:linear-gradient(115deg,var(--violet),var(--violet2))!important;
+}
+.btn.secondary,.btn.ghost,.subnav,.room-detail .room-tabs{
+ background:var(--surface2)!important;border-color:var(--theme-border)!important;color:var(--text)!important;
+}
+.section-head h2,.home-section-label b,.room-section-title h3,.profile-card h2{color:var(--text)!important}
+.muted,.section-head p,.profile-form label,.settings-panel label{color:var(--muted)!important}
+
+</style></head>
 </head>
 <body>
 <header><div class="topbar"><div class="header-actions"><button class="btn ghost small" type="button" aria-label="جست‌وجو" onclick="switchPage('tournaments')">⌕</button><button class="btn ghost small" type="button" aria-label="وضعیت اتصال"><span id="connectionStatus" class="connection-status"><i></i></span> ◉</button></div><a class="brand" href="#home" aria-label="EX1 LEGEND"><span><b>EX1</b> LEGEND</span></a><div class="header-actions"><button class="btn ghost small" id="openSettings" type="button" aria-label="تنظیمات">⚙</button><span id="headerUser" class="muted"></span><button class="btn secondary small" id="headerAuth" type="button">ورود</button></div></div></header>
@@ -136,16 +161,32 @@ const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey,{
 });
 
 // رنگ‌بندی عمومی سایت از تنظیمات ذخیره‌شده در Supabase
+function safeThemeHex(value,fallback){
+ return typeof value==="string"&&/^#[0-9a-f]{6}$/i.test(value)?value:fallback;
+}
+function themeRgba(hex,alpha){
+ const value=hex.slice(1);
+ const r=parseInt(value.slice(0,2),16),g=parseInt(value.slice(2,4),16),b=parseInt(value.slice(4,6),16);
+ return "rgba("+r+","+g+","+b+","+alpha+")";
+}
 function applySiteTheme(theme){
  if(!theme)return;
  const root=document.documentElement;
- root.style.setProperty("--bg",theme.background_color);
- root.style.setProperty("--surface",theme.surface_color);
- root.style.setProperty("--surface2",theme.surface_color);
- root.style.setProperty("--text",theme.primary_text_color);
- root.style.setProperty("--muted",theme.secondary_text_color);
- root.style.setProperty("--violet",theme.accent_color);
- root.style.setProperty("--violet2",theme.accent_color);
+ const bg=safeThemeHex(theme.background_color,"#090817");
+ const surface=safeThemeHex(theme.surface_color,"#17152a");
+ const primary=safeThemeHex(theme.primary_text_color,"#f8f6ff");
+ const secondary=safeThemeHex(theme.secondary_text_color,"#aaa4c1");
+ const accent=safeThemeHex(theme.accent_color,"#9a4de8");
+ root.style.setProperty("--bg",bg);
+ root.style.setProperty("--surface",surface);
+ root.style.setProperty("--surface2",surface);
+ root.style.setProperty("--text",primary);
+ root.style.setProperty("--muted",secondary);
+ root.style.setProperty("--violet",accent);
+ root.style.setProperty("--violet2",accent);
+ root.style.setProperty("--theme-accent-soft",themeRgba(accent,.22));
+ root.style.setProperty("--theme-accent-mid",themeRgba(accent,.42));
+ root.style.setProperty("--theme-border",themeRgba(accent,.34));
 }
 async function loadSiteTheme(){
  const {data,error}=await sb.from("site_theme_settings")
