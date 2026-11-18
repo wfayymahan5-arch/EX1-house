@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - audit/ex1-pre-release-remediation
+      - release/ex1-minimal-publication-prep
 
 permissions:
   contents: read
