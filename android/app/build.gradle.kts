@@ -7,6 +7,8 @@ android {
     namespace = "com.ex1legend.app"
     compileSdk = 35
     defaultConfig {
+        val ex1BaseUrl = providers.gradleProperty("ex1BaseUrl").orNull ?: "https://ex1-house.vercel.app"
+        buildConfigField("String", "EX1_BASE_URL", "\"${ex1BaseUrl.trimEnd('/')}\"")
         applicationId = "com.ex1legend.app"
         minSdk = 23
         targetSdk = 35
