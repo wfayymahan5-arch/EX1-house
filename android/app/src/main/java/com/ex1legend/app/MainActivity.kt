@@ -122,8 +122,9 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        private const val EX1_HOST = "ex1-house.vercel.app"
-        private const val PLAYER_URL = "https://ex1-house.vercel.app/app.html"
-        private const val ADMIN_URL = "https://ex1-house.vercel.app/admin.html"
+        private val EX1_BASE_URL = BuildConfig.EX1_BASE_URL.trimEnd('/')
+        private val EX1_HOST = Uri.parse(EX1_BASE_URL).host
+        private val PLAYER_URL = "$EX1_BASE_URL/app.html"
+        private val ADMIN_URL = "$EX1_BASE_URL/admin.html"
     }
 }
