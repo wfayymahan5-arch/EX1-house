@@ -22,4 +22,59 @@ header{border-bottom:1px solid #dfe6f0!important;background:#ffffffed!important}
 .note{background:#fff!important;border-color:#dfe6f0!important;color:#68758c!important}
 footer{border-color:#dfe6f0!important;color:#78859a!important}
 
-</style><script>(()=>{const u=new URL(location.href),h=new URLSearchParams(u.hash.slice(1));const authKeys=["access_token","refresh_token","error","error_code","token_hash","type","code"];const authReturn=authKeys.some(k=>u.searchParams.has(k)||h.has(k))&&(u.searchParams.has("code")||u.searchParams.has("token_hash")||u.searchParams.get("type")==="recovery"||h.has("access_token")||h.has("refresh_token")||h.has("error_code")||h.get("type")==="recovery");if(authReturn&&!u.pathname.endsWith("/app.html"))location.replace(u.origin+"/app.html"+u.search+u.hash);})();</script></head><body><header><div class="wrap bar"><a class="brand" href="/"><b>EX1</b> LEGEND</a><span class="pill">جامعه بازیکنان · رقابت سالم</span></div></header><main class="wrap"><section class="hero"><div><div class="eyebrow">EX1 LEGEND · ANDROID APP</div><h1>وارد میدان شو،<br><span>افسانه شو.</span></h1><p>خانه‌ی بازیکنان EX1 برای مدیریت پروفایل، پیوستن به تیم‌ها، شرکت در رقابت‌های رایگان و پیشرفت در جدول برترین‌ها. تجربه‌ی اصلی EX1 در اپلیکیشن اندروید ارائه می‌شود.</p><div class="actions"><a class="button disabled" href="#download" aria-disabled="true">دانلود اپلیکیشن اندروید · به‌زودی</a></div><div class="note" id="download">نسخهٔ نصب عمومی هنوز تأیید و منتشر نشده است. پس از آماده‌شدن APK نهایی، دکمهٔ دانلود مستقیم از همین بخش فعال می‌شود.</div></div><div class="phone"><div class="screen"><div class="screen-head"><span><b>EX1</b> LEGEND</span><span>☰</span></div><div class="feature"><small>EX1 COMMUNITY</small><strong>بازی کن، ارتباط بساز</strong><small>بازیکنان، تیم‌ها و روم‌های فعال</small></div><div class="feature"><strong>🏆 مسابقات رایگان</strong><small>قوانین روشن و نتایج تأییدشده</small></div><div class="feature"><strong>👤 پروفایل بازیکن</strong><small>هویت گیمینگ و ارتباط با جامعه</small></div><div class="feature"><strong>★ جدول برترین‌ها</strong><small>پیشرفت بر پایه عملکرد</small></div><div class="mini"><i></i><i></i><i></i><i></i></div></div></div></section><section class="grid"><article class="card"><strong>👥 جامعه و ارتباط</strong><p>پروفایل بازیکنان، جست‌وجو، ارتباط و تیم‌سازی.</p></article><article class="card"><strong>🎮 رقابت رایگان</strong><p>مسابقات، روم‌ها، قوانین اختصاصی و ثبت نتایج تأییدشده.</p></article><article class="card"><strong>🛡️ مدیریت و امنیت</strong><p>گزارش پیام‌ها و پروفایل‌ها، مسدودسازی و کنترل دسترسی مدیران.</p></article></section></main><footer>EX1 LEGEND · امتیازها صرفاً نمایشی و فاقد ارزش نقدی هستند.</footer></body></html>
+
+/* Shared admin theme for the public landing page. */
+:root{--theme-accent-soft:rgba(118,88,201,.18);--theme-accent-mid:rgba(118,88,201,.34);--theme-border:rgba(118,88,201,.28)}
+body{background:radial-gradient(ellipse at 12% 0%,var(--theme-accent-soft),transparent 38%),radial-gradient(ellipse at 90% 12%,var(--theme-accent-mid),transparent 40%),var(--bg)!important;color:var(--text)!important}
+header{background:var(--surface)!important;border-color:var(--theme-border)!important}
+.brand,.hero h1,.screen-head,.feature,.card,.note{color:var(--text)!important}
+.brand b,.hero h1 span,.screen-head b{color:var(--purple)!important}
+.pill,.phone,.screen,.feature,.card,.note{background:var(--surface)!important;border-color:var(--theme-border)!important}
+.hero p,.feature small,.card p,.note,footer{color:var(--muted)!important}
+.button{background:linear-gradient(120deg,var(--purple),var(--violet2))!important}
+.button.secondary{background:var(--surface2)!important;border-color:var(--theme-border)!important;color:var(--text)!important}
+.mini i{background:var(--theme-border)!important}.mini i:first-child{background:var(--purple)!important}
+
+</style><script>(()=>{const u=new URL(location.href),h=new URLSearchParams(u.hash.slice(1));const authKeys=["access_token","refresh_token","error","error_code","token_hash","type","code"];const authReturn=authKeys.some(k=>u.searchParams.has(k)||h.has(k))&&(u.searchParams.has("code")||u.searchParams.has("token_hash")||u.searchParams.get("type")==="recovery"||h.has("access_token")||h.has("refresh_token")||h.has("error_code")||h.get("type")==="recovery");if(authReturn&&!u.pathname.endsWith("/app.html"))location.replace(u.origin+"/app.html"+u.search+u.hash);})();</script>
+<script src="/supabase-config.js"></script>
+<script>
+(()=> {
+ const cfg=window.EX1_CONFIG;
+ if(!cfg?.url||!cfg?.publishableKey)return;
+ const valid=(v,fallback)=>typeof v==="string"&&/^#[0-9a-f]{6}$/i.test(v)?v:fallback;
+ const rgba=(hex,a)=>{const h=hex.slice(1);return "rgba("+parseInt(h.slice(0,2),16)+","+parseInt(h.slice(2,4),16)+","+parseInt(h.slice(4,6),16)+","+a+")";};
+ async function loadSiteTheme(){
+  try{
+   const response=await fetch(cfg.url.replace(/\/$/,"")+"/rest/v1/site_theme_settings?select=background_color,surface_color,primary_text_color,secondary_text_color,accent_color&singleton=eq.true",{
+    headers:{apikey:cfg.publishableKey,Authorization:"Bearer "+cfg.publishableKey},
+    cache:"no-store"
+   });
+   if(!response.ok)return;
+   const rows=await response.json(),theme=rows?.[0];
+   if(!theme)return;
+   const root=document.documentElement;
+   const bg=valid(theme.background_color,"#f4f6fb");
+   const surface=valid(theme.surface_color,"#ffffff");
+   const primary=valid(theme.primary_text_color,"#253149");
+   const secondary=valid(theme.secondary_text_color,"#68758c");
+   const accent=valid(theme.accent_color,"#7658c9");
+   root.style.setProperty("--bg",bg);
+   root.style.setProperty("--surface",surface);
+   root.style.setProperty("--surface2",surface);
+   root.style.setProperty("--text",primary);
+   root.style.setProperty("--muted",secondary);
+   root.style.setProperty("--purple",accent);
+   root.style.setProperty("--violet2",accent);
+   root.style.setProperty("--theme-accent-soft",rgba(accent,.18));
+   root.style.setProperty("--theme-accent-mid",rgba(accent,.34));
+   root.style.setProperty("--theme-border",rgba(accent,.28));
+  }catch(error){console.warn("EX1 landing theme unavailable:",error);}
+ }
+ loadSiteTheme();
+ window.addEventListener("focus",loadSiteTheme);
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden)loadSiteTheme();});
+ window.setInterval(loadSiteTheme,30000);
+})();
+</script>
+
+</head><body><header><div class="wrap bar"><a class="brand" href="/"><b>EX1</b> LEGEND</a><span class="pill">جامعه بازیکنان · رقابت سالم</span></div></header><main class="wrap"><section class="hero"><div><div class="eyebrow">EX1 LEGEND · ANDROID APP</div><h1>وارد میدان شو،<br><span>افسانه شو.</span></h1><p>خانه‌ی بازیکنان EX1 برای مدیریت پروفایل، پیوستن به تیم‌ها، شرکت در رقابت‌های رایگان و پیشرفت در جدول برترین‌ها. تجربه‌ی اصلی EX1 در اپلیکیشن اندروید ارائه می‌شود.</p><div class="actions"><a class="button disabled" href="#download" aria-disabled="true">دانلود اپلیکیشن اندروید · به‌زودی</a></div><div class="note" id="download">نسخهٔ نصب عمومی هنوز تأیید و منتشر نشده است. پس از آماده‌شدن APK نهایی، دکمهٔ دانلود مستقیم از همین بخش فعال می‌شود.</div></div><div class="phone"><div class="screen"><div class="screen-head"><span><b>EX1</b> LEGEND</span><span>☰</span></div><div class="feature"><small>EX1 COMMUNITY</small><strong>بازی کن، ارتباط بساز</strong><small>بازیکنان، تیم‌ها و روم‌های فعال</small></div><div class="feature"><strong>🏆 مسابقات رایگان</strong><small>قوانین روشن و نتایج تأییدشده</small></div><div class="feature"><strong>👤 پروفایل بازیکن</strong><small>هویت گیمینگ و ارتباط با جامعه</small></div><div class="feature"><strong>★ جدول برترین‌ها</strong><small>پیشرفت بر پایه عملکرد</small></div><div class="mini"><i></i><i></i><i></i><i></i></div></div></div></section><section class="grid"><article class="card"><strong>👥 جامعه و ارتباط</strong><p>پروفایل بازیکنان، جست‌وجو، ارتباط و تیم‌سازی.</p></article><article class="card"><strong>🎮 رقابت رایگان</strong><p>مسابقات، روم‌ها، قوانین اختصاصی و ثبت نتایج تأییدشده.</p></article><article class="card"><strong>🛡️ مدیریت و امنیت</strong><p>گزارش پیام‌ها و پروفایل‌ها، مسدودسازی و کنترل دسترسی مدیران.</p></article></section></main><footer>EX1 LEGEND · امتیازها صرفاً نمایشی و فاقد ارزش نقدی هستند.</footer></body></html>
