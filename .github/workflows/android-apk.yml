@@ -27,7 +27,7 @@ jobs:
           gradle-version: 8.9
       - name: Build player and admin APKs
         working-directory: android
-        run: gradle assemblePlayerDebug assembleAdminDebug
+        run: gradle -Pex1BaseUrl=https://ex1-house-git-release-ex1-minimal-publi-204852-wfayymahan5-arch.vercel.app assemblePlayerDebug assembleAdminDebug
       - name: Collect APKs
         run: |
           mkdir -p release-apks
