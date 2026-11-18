@@ -10,8 +10,8 @@ android {
         applicationId = "com.ex1legend.app"
         minSdk = 23
         targetSdk = 35
-        versionCode = 5
-        versionName = "2.2.0-native-preview"
+        versionCode = providers.gradleProperty("ex1VersionCode").orNull?.toIntOrNull() ?: 5
+        versionName = providers.gradleProperty("ex1VersionName").orNull ?: "2.2.0-native-preview"
         buildConfigField("String", "SUPABASE_URL", "\"https://wkyzhqygmppdppvfqtgf.supabase.co\"")
         buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"sb_publishable_j19HMoltMIILTNK3U1GL1A_RZzyv4zg\"")
     }
@@ -31,7 +31,22 @@ android {
             buildConfigField("boolean", "IS_ADMIN", "true")
         }
     }
-    buildTypes { debug { }; release { isMinifyEnabled = false } }
+    signingConfigs {
+        create("release") {
+            val keystorePath = providers.environmentVariable("ANDROID_KEYSTORE_FILE").orNull
+            storeFile = keystorePath?.let { file(it) }
+            storePassword = providers.environmentVariable("ANDROID_STORE_PASSWORD").orNull
+            keyAlias = providers.environmentVariable("ANDROID_KEY_ALIAS").orNull
+            keyPassword = providers.environmentVariable("ANDROID_KEY_PASSWORD").orNull
+        }
+    }
+    buildTypes {
+        debug { }
+        release {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
