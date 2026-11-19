@@ -23,8 +23,8 @@ Deno.serve(async(req:Request)=>{
  if(record.status!=="pending_review")return reply(409,{error:"این پرونده قبلاً بررسی شده است."});
  const isAvatar=record.content_type==="profile_avatar";
  const isCover=record.content_type==="profile_cover";
- const validCoverPath=path.startsWith(record.user_id+"/cover-")&&/^cover-[0-9a-f-]{36}\.(jpg|png|webp)$/i.test(path.slice((record.user_id+"/").length));
  const bucket=String(record.original_storage_bucket??""),path=String(record.original_storage_path??"");
+ const validCoverPath=path.startsWith(record.user_id+"/cover-")&&/^cover-[0-9a-f-]{36}\.(jpg|png|webp)$/i.test(path.slice((record.user_id+"/").length));
  const validAvatarPath=path.startsWith(record.user_id+"/avatar-");
  const publishPrivateAvatar=async()=>{
   if(!isAvatar||bucket!=="ex1-avatar-review")return true;
@@ -65,7 +65,7 @@ Deno.serve(async(req:Request)=>{
    const {error}=await admin.storage.from(bucket).remove([path]);if(error)return false;
   }else if(bucket==="ex1-avatars"){
    const {data:profile}=await admin.from("profiles").select("cover_url").eq("id",record.user_id).maybeSingle();
-   if(profile?.cover_url===path){const {error:profileErr}=await admin.from("profiles").update({cover_url:null}).eq("id",record.user_id);if(error)return false;}
+   if(profile?.cover_url===path){const {error:profileErr}=await admin.from("profiles").update({cover_url:null}).eq("id",record.user_id);if(profileErr)return false;}
    const {error}=await admin.storage.from(bucket).remove([path]);if(error)return false;
   }else if(bucket||path)return false;
   return true;
