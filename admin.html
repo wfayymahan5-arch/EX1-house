@@ -195,6 +195,22 @@ function resetRoomForm(){
  $("rf_status").value="open";resetRoomImage();updateRoomCapacity();
  $("roomForm").classList.add("hidden");
 }
+async function autoRoomImagePosition(file,img){
+ const w=img.naturalWidth,h=img.naturalHeight,boxRatio=16/9;
+ let fx=.5,fy=h>w*1.12?.65:.5,faceFound=false;
+ if("FaceDetector" in window&&window.createImageBitmap){
+  try{
+   const bitmap=await createImageBitmap(file),detector=new FaceDetector({fastMode:true,maxDetectedFaces:8});
+   const faces=await detector.detect(bitmap);bitmap.close?.();
+   if(faces.length){const face=faces.sort((a,b)=>b.boundingBox.width*b.boundingBox.height-a.boundingBox.width*a.boundingBox.height)[0].boundingBox;fx=(face.x+face.width/2)/w;fy=(face.y+face.height/2)/h;faceFound=true;}
+  }catch(detectError){console.info("EX1 local face focus fallback:",detectError);}
+ }
+ let x=50,y=50;
+ if(w/h>boxRatio)x=Math.max(0,Math.min(100,Math.round((fx*w-(h*boxRatio)/2)/(w-h*boxRatio)*100)));
+ else y=Math.max(0,Math.min(100,Math.round((fy*h-(w/boxRatio)/2)/(h-w/boxRatio)*100)));
+ if(!faceFound&&h>w*1.12)y=65;
+ setRoomImagePreview(roomImageObjectUrl,x,y);
+}
 function updateRoomFocusFromPoint(event){
  const box=$("roomImagePreview").getBoundingClientRect();
  const x=Math.max(0,Math.min(100,Math.round((event.clientX-box.left)/box.width*100)));
@@ -216,10 +232,7 @@ $("rf_room_image_file").addEventListener("change",e=>{
  if(roomImageObjectUrl)URL.revokeObjectURL(roomImageObjectUrl);
  roomImageObjectUrl=URL.createObjectURL(file);pendingRoomImageFile=file;
  $("rf_room_image_url").value="";$("roomImageUploadStatus").textContent="تصویر انتخاب شد؛ پس از ذخیره روم بارگذاری می‌شود.";
- const img=$("roomImagePreviewImg");img.onload=()=>{
-  const portrait=img.naturalHeight>img.naturalWidth*1.12;
-  const y=portrait?65:50;setRoomImagePreview(roomImageObjectUrl,50,y);
- };
+ const img=$("roomImagePreviewImg");img.onload=()=>{autoRoomImagePosition(file,img);};
  img.src=roomImageObjectUrl;$("roomImagePreviewWrap").classList.remove("hidden");
 });
 async function uploadPendingRoomImage(){
