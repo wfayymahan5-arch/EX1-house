@@ -1251,5 +1251,43 @@ if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.se
    <button type="button" class="btn ex1-confirm-accept" id="ex1ConfirmAccept">تأیید</button>
   </div>
  </div>
-</div></body>
+</div>
+<style id="ex1-bottom-nav-gaming-background-v1">
+/* EX1 LEGEND — animated gaming atmosphere for the bottom bar */
+.bottom-nav{
+  isolation:isolate!important;overflow:hidden!important;
+  background:linear-gradient(110deg,rgba(17,16,32,.97),rgba(19,14,39,.96) 48%,rgba(10,24,39,.97))!important;
+  border-top:1px solid rgba(174,116,255,.48)!important;
+  box-shadow:0 -7px 28px rgba(114,61,190,.17),0 -1px 12px rgba(42,211,235,.10)!important
+}
+.bottom-nav:before{
+  content:""!important;display:block!important;position:absolute!important;inset:-55% -20%!important;z-index:0!important;pointer-events:none!important;
+  background:
+    radial-gradient(ellipse at 18% 55%,rgba(151,69,255,.25),transparent 34%),
+    radial-gradient(ellipse at 82% 48%,rgba(32,205,231,.19),transparent 35%),
+    radial-gradient(ellipse at 50% 120%,rgba(222,70,255,.13),transparent 44%);
+  animation:ex1NavAmbient 9s ease-in-out infinite alternate!important
+}
+.bottom-nav:after{
+  content:""!important;display:block!important;position:absolute!important;z-index:0!important;pointer-events:none!important;
+  top:0!important;bottom:0!important;left:-45%!important;width:38%!important;
+  background:linear-gradient(90deg,transparent,rgba(183,133,255,.12),rgba(67,222,242,.20),transparent);
+  transform:skewX(-18deg);animation:ex1NavSweep 7.5s ease-in-out infinite!important
+}
+.bottom-nav button,.bottom-nav button.active{
+  z-index:1!important;position:relative!important
+}
+.bottom-nav button{transition:color .25s ease,transform .22s ease!important}
+.bottom-nav button.active svg,.bottom-nav button.active .rank-icon{
+  filter:drop-shadow(0 0 5px rgba(39,230,242,.9)) drop-shadow(0 0 11px rgba(155,92,255,.95)) drop-shadow(0 0 18px rgba(236,79,255,.48))!important
+}
+@keyframes ex1NavAmbient{0%{transform:translate3d(-2%,0,0) scale(.98)}100%{transform:translate3d(2%,-5%,0) scale(1.05)}}
+@keyframes ex1NavSweep{0%,62%,100%{left:-45%;opacity:0}70%{opacity:1}88%{left:115%;opacity:.8}}
+@media(prefers-reduced-motion:reduce){
+ .bottom-nav:before,.bottom-nav:after{animation:none!important}
+ .bottom-nav button{transition:none!important}
+}
+</style>
+
+</body>
 </html>
