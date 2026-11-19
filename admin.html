@@ -133,7 +133,24 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 .manager-form .actions{justify-content:flex-start}
 @media(min-width:1100px){.manager-form{width:min(100%,700px)}}
 @media(max-width:620px){.manager-form{width:100%;margin:12px auto!important}.manager-form .formgrid{grid-template-columns:minmax(0,1fr)}}
-</style></head>
+</style>
+<style id="ex1-admin-prevent-accidental-text-selection">
+/* Prevent Android's accidental text-selection toolbar (Google Search / Copy)
+   while keeping form fields and explicitly editable content selectable. */
+#appView, #appView * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+#appView input, #appView textarea, #appView select,
+#appView [contenteditable="true"], #appView .selectable-text {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+</style>
+
+</head>
 <body><div class="wrap">
 <header class="top"><div class="brand"><img src="/ex1-legend-mark.svg" alt="" width="30" height="30" style="vertical-align:middle;margin-inline-end:7px">EX1 <span>LEGEND</span> <small style="color:#9998b2;font-size:12px">/ مدیریت</small></div><a class="btn" href="/">بازگشت به سایت ↗</a></header>
 <section id="authView" class="authbox"><h2>ورود مدیران EX1 LEGEND</h2><p class="muted">با حساب کاربری تأییدشده وارد شو. ساخت حساب یا اعطای دسترسی مدیریتی از این صفحه ممکن نیست.</p><form id="loginForm"><label class="muted" for="email">ایمیل</label><input class="field" id="email" type="email" autocomplete="username" required maxlength="254"><label class="muted" for="password">رمز عبور</label><input class="field" id="password" type="password" autocomplete="current-password" required maxlength="72"><button class="btn primary" id="loginButton" type="submit">ورود امن</button></form><p id="authMessage" class="muted" aria-live="polite"></p></section>
