@@ -83,6 +83,8 @@ Deno.serve(async (req: Request) => {
     categories[category] === true && (!Array.isArray(applied[category]) || applied[category].includes("image"))
   );
   const flagged = result.flagged === true || flaggedCategories.length > 0;
+  const confidenceValues = flaggedCategories.map((category) => Number(scores[category] ?? 0));
+  const confidence = confidenceValues.length ? Math.max(...confidenceValues) : null;
   const criticalSet = new Set(["sexual", "sexual/minors", "self-harm", "self-harm/intent", "self-harm/instructions", "violence/graphic"]);
   const critical = flaggedCategories.some((category) => criticalSet.has(category));
 
@@ -92,7 +94,7 @@ Deno.serve(async (req: Request) => {
       original_storage_bucket: "ex1-avatar-review", original_storage_path: path,
       evidence_bucket: "ex1-avatar-review", evidence_path: path,
       moderation_categories: categories, moderation_scores: scores, severity: "critical",
-      confidence: Math.max(...flaggedCategories.map((category) => Number(scores[category] ?? 0))),
+      confidence,
       model_name: "omni-moderation-latest", status: "pending_review",
     }).select("id").single();
     if (caseError || !caseRow) return reply(500, { error: "ثبت گزارش بررسی انجام نشد؛ تصویر عمومی نشد." });
@@ -118,8 +120,8 @@ Deno.serve(async (req: Request) => {
       original_storage_bucket: "ex1-avatars", original_storage_path: publicPath,
       evidence_bucket: "ex1-avatars", evidence_path: publicPath,
       moderation_categories: categories, moderation_scores: scores,
-      severity: Math.max(...flaggedCategories.map((category) => Number(scores[category] ?? 0))) >= 0.85 ? "high" : "medium",
-      confidence: Math.max(...flaggedCategories.map((category) => Number(scores[category] ?? 0))),
+      severity: (confidence ?? 0) >= 0.85 ? "high" : "medium",
+      confidence,
       model_name: "omni-moderation-latest", status: "pending_review",
     }).select("id").single();
     if (caseError || !caseRow) {
