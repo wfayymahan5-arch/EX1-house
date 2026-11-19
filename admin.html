@@ -376,7 +376,7 @@ async function loadRooms(){
  fillRoomTournamentOptions(rooms[0]?.tournament_id||roomTournamentCache[0]?.id);
  const canManage=permissions["rooms.manage"]===true;
  $("addRoomButton").hidden=!canManage;
- $("roomForm").classList.add("hidden");
+ // Keep the inline room editor open while refreshing the room list.
  const rows=rooms.map(r=>{
   const t=roomTournamentCache.find(x=>x.id===r.tournament_id);
   const actions=canManage?'<button class="action-btn" data-edit-room="'+esc(r.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-room="'+esc(r.id)+'">حذف</button>':"—";
