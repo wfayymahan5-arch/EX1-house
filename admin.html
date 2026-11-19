@@ -467,12 +467,82 @@ async function loadModerationCases(){
  });
  host.innerHTML=cases?.length?table(["کاربر","نوع محتوا","شواهد تصویر","منبع","شدت","اطمینان","دسته‌بندی","محتوای بررسی‌شده","وضعیت","زمان","یادداشت مالک","تصمیم"],rows):'<div class="empty">هنوز پرونده‌ای برای بررسی ثبت نشده است.</div>';
 }
+let ownerCanBanUsers=false;
+async function loadAdminUsers(){
+ const {data,error}=await sb.rpc("admin_dashboard_users");
+ if(error)throw error;
+ adminUserCache=data||[];$("statUsers").textContent=adminUserCache.length;
+ const ownerCheck=await sb.rpc("is_current_user_owner");
+ ownerCanBanUsers=!ownerCheck.error&&ownerCheck.data===true;
+ let bannedUsers=[];
+ if(ownerCanBanUsers){
+  const bannedResult=await sb.rpc("admin_list_user_bans");
+  if(bannedResult.error)throw bannedResult.error;
+  bannedUsers=bannedResult.data||[];
+ }
+ const bannedMap=new Map(bannedUsers.map(x=>[x.user_id,x]));
+ let flags=[];
+ if(permissions["profiles.view_all"]||permissions["profiles.manage"]){
+  const result=await sb.from("profile_moderation").select("user_id,moderation_status,note,updated_at");
+  if(result.error)throw result.error;
+  flags=result.data||[];
+ }
+ const flagMap=new Map(flags.map(x=>[x.user_id,x]));
+ const rows=adminUserCache.map(x=>{
+  const flag=flagMap.get(x.user_id);
+  const action=permissions["profiles.manage"]?(flag
+   ?'<button class="action-btn" data-clear-user-flag="'+esc(x.user_id)+'">رفع علامت بررسی</button>'
+   :'<button class="action-btn" data-flag-user="'+esc(x.user_id)+'">ارجاع برای بررسی</button>'):"—";
+  const banned=bannedMap.get(x.user_id);
+  const banAction=ownerCanBanUsers?(banned
+   ?'<button class="action-btn" data-unban-user="'+esc(x.user_id)+'">رفع مسدودیت</button>'
+   :'<button class="action-btn danger" data-ban-user="'+esc(x.user_id)+'">مسدودسازی</button>'):"—";
+  return row([esc(x.display_name||"—"),esc(x.username||"—"),'<small>'+esc(x.user_id)+'</small>',esc(x.created_at?new Date(x.created_at).toLocaleDateString("fa-IR"):"—"),flag?"نیازمند بررسی":"عادی",banned?"مسدود":"فعال",action,banAction]);
+ });
+ $("usersTable").innerHTML='<p class="muted">علامت بررسی برای پیگیری مدیران است. فقط مالک اصلی می‌تواند حساب کاربر را به‌طور دائمی مسدود یا آزاد کند.</p>'+table(["نام نمایشی","نام کاربری","شناسه","ایجاد","وضعیت بررسی","وضعیت حساب","پیگیری","مدیریت مسدودیت"],rows);
+}
+$("usersTable").addEventListener("click",async e=>{
+ const ban=e.target.closest("[data-ban-user]"),unban=e.target.closest("[data-unban-user]");
+ if(ban||unban){
+  if(!ownerCanBanUsers)return toast("فقط مالک اصلی می‌تواند مسدودسازی را مدیریت کند.");
+  const target=(ban||unban).dataset.banUser||(ban||unban).dataset.unbanUser;
+  let reason="";
+  if(ban){
+   if(!confirm("حساب این کاربر مسدود شود؟ ورود او به EX1 متوقف می‌شود."))return;
+   reason=prompt("دلیل مسدودسازی (اختیاری):","")||"";
+  }else if(!confirm("مسدودیت این حساب برداشته شود؟"))return;
+  try{
+   const {data,error}=await sb.functions.invoke("manage-user-ban",{body:{action:ban?"ban":"unban",user_id:target,reason}});
+   if(error)throw error;
+   if(data?.error)throw new Error(data.error);
+   await loadAdminUsers();
+   toast(ban?"حساب کاربر مسدود شد.":"مسدودیت حساب برداشته شد.");
+  }catch(err){toast(err.message||"تغییر وضعیت حساب انجام نشد.");}
+  return;
+ }
+ const flag=e.target.closest("[data-flag-user]"),clear=e.target.closest("[data-clear-user-flag]");
+ const target=flag?.dataset.flagUser||clear?.dataset.clearUserFlag;
+ if(!target||!permissions["profiles.manage"])return;
+ try{
+  if(flag){
+   const {data,error}=await sb.auth.getUser();if(error||!data.user)throw error||new Error("نشست نامعتبر");
+   const result=await sb.from("profile_moderation").insert({user_id:target,moderation_status:"review",note:"ارجاع برای بررسی توسط مدیر",updated_by:data.user.id});
+   if(result.error)throw result.error;
+  }else{
+   const result=await sb.from("profile_moderation").delete().eq("user_id",target);
+   if(result.error)throw result.error;
+  }
+  await loadAdminUsers();toast(flag?"کاربر به صف بررسی اضافه شد.":"علامت بررسی برداشته شد.");
+ }catch(err){toast("تغییر وضعیت بررسی انجام نشد؛ مجوز را بررسی کن.");}
+});
+
+
 async function loadTableData(){
  const tasks=[];
  if(permissions["tournaments.view"])tasks.push(rpc("admin_dashboard_tournaments").then(d=>{ $("statTournaments").textContent=d.length;$("tournamentsTable").innerHTML=table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع"],d.map(t=>row([esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—")])));}));
  if(permissions["registrations.view_all"])tasks.push(rpc("admin_dashboard_registrations").then(d=>{$("statRegistrations").textContent=d.length;$("registrationsTable").innerHTML=table(["مسابقه","تیم","برچسب","وضعیت","زمان"],d.map(x=>row([esc(x.tournament_title),esc(x.team_name),esc(x.team_tag||"—"),esc(x.status),esc(new Date(x.registered_at).toLocaleString("fa-IR"))])));}));
  if(permissions["teams.view"])tasks.push(rpc("admin_dashboard_teams").then(d=>{$("statTeams").textContent=d.length;$("teamsTable").innerHTML=table(["نام تیم","برچسب","تعداد اعضا","توضیحات"],d.map(x=>row([esc(x.name),esc(x.tag||"—"),esc(x.member_count),esc(x.description||"—")])));}));
- if(permissions["users.view"]||permissions["profiles.view_all"])tasks.push(rpc("admin_dashboard_users").then(d=>{$("statUsers").textContent=d.length;$("usersTable").innerHTML=table(["نام نمایشی","نام کاربری","شناسه","ایجاد"],d.map(x=>row([esc(x.display_name||"—"),esc(x.username||"—"),'<small>'+esc(x.user_id)+'</small>',esc(x.created_at?new Date(x.created_at).toLocaleDateString("fa-IR"):"—")])));}));
+ if(permissions["users.view"]||permissions["profiles.view_all"])tasks.push(loadAdminUsers());
  if(isOwner)tasks.push((async()=>{$("directNotificationPanel").classList.remove("hidden");const {data,error}=await sb.functions.invoke("admin-list-users-for-notifications");if(error)throw error;if(!data?.success)throw new Error(data?.error||"دریافت فهرست کاربران انجام نشد.");notificationUsers=(data.users||[]).filter(x=>x.user_id);renderNotificationUsers();})());
  if(permissions["wallet.view_all"])tasks.push(loadWalletOverview());
  if(permissions["social.moderate"])tasks.push(loadSocialModeration());
@@ -756,24 +826,6 @@ $("publishRoomAccessButton").addEventListener("click",async()=>{
 });
 $("roomsTable").addEventListener("click",async e=>{
  const edit=e.target.closest("[data-edit-room]"),del=e.target.closest("[data-delete-room]");
- if(access&&permissions["rooms.manage"]){
-  const roomId=access.dataset.roomAccess;
-  try{
-   const {data:status,error:statusError}=await sb.rpc("admin_get_tournament_room_access_status",{p_room_id:roomId});
-   if(statusError)throw statusError;
-   const summary=status?.has_credentials?"کد و رمز قبلاً ثبت شده است. ":"هنوز کد و رمزی ثبت نشده است. ";
-   const code=prompt(summary+"کد روم را وارد کن (حداکثر ۸۰ کاراکتر):");
-   if(code===null)return;
-   const password=prompt("رمز روم را وارد کن (حداکثر ۸۰ کاراکتر):");
-   if(password===null)return;
-   if(!code.trim()||!password.trim()||code.trim().length>80||password.trim().length>80)return toast("کد و رمز باید بین ۱ تا ۸۰ کاراکتر باشند.");
-   const due=status?.release_due===true;
-   if(!confirm("کد و رمز برای روم انتخاب‌شده ذخیره شود؟\nاطلاعات بازیکنان فقط از زمان شروع و از مسیر امن حساب شرکت‌کنندگان نمایش داده می‌شود."))return;
-   const {data,error}=await sb.rpc("admin_publish_tournament_room_access",{p_room_id:roomId,p_room_code:code.trim(),p_room_password:password.trim()});
-   if(error||!data?.success)throw error||new Error("ثبت اطلاعات روم تأیید نشد.");
-   toast(due?"کد و رمز ذخیره شد؛ بازیکنان مجاز اکنون می‌توانند اطلاعات را ببینند.":"کد و رمز ذخیره شد و در زمان شروع برای شرکت‌کنندگان نمایش داده می‌شود.");
-  }catch(err){console.error("EX1 room access publish:",err);toast("ثبت کد و رمز انجام نشد: "+(err?.message||"خطای نامشخص"));}
- }
  if(edit&&permissions["rooms.manage"]){
   const {data,error}=await sb.from("tournament_rooms").select("*").eq("id",edit.dataset.editRoom).single();
   if(error||!data)return toast("اطلاعات روم دریافت نشد.");
@@ -793,7 +845,7 @@ $("roomsTable").addEventListener("click",async e=>{
   $("rf_room_code").value="";$("rf_room_password").value="";
   $("rf_room_code").disabled=false;$("rf_room_password").disabled=false;$("publishRoomAccessButton").disabled=false;
   $("roomAccessAdminPanel").classList.remove("hidden");$("roomAccessPublishMessage").textContent="برای تغییر اطلاعات ورود، کد و رمز جدید را وارد و ذخیره کن.";
-  $("roomForm").classList.remove("hidden");await refreshRoomAccessAdminStatus(data.id);$("rf_title").focus();
+  $("roomForm").classList.remove("hidden");await refreshRoomAccessAdminStatus(data.id);$("roomForm").scrollIntoView({behavior:"smooth",block:"start"});$("rf_title").focus();
  }
  if(del&&permissions["rooms.manage"]){
   if(!confirm("این روم حذف شود؟ این عملیات قابل بازگشت نیست."))return;
