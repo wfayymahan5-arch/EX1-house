@@ -401,7 +401,7 @@ $("roomForm").addEventListener("submit",async e=>{
   game_mode:$("rf_game_mode").value.trim()||null,map:$("rf_map").value.trim()||null,
   capacity:Number($("rf_capacity").value),starts_at:isoDate($("rf_starts_at").value),
   status:$("rf_status").value,room_image_url:$("rf_room_image_url").value.trim()||null,
-  rules:$("rf_rules").value.trim()||null
+  rules:$("rf_rules").value.trim()
  };
  if(!payload.tournament_id)return toast("مسابقه مرتبط را انتخاب کن.");
  $("saveRoomButton").disabled=true;
@@ -410,8 +410,10 @@ $("roomForm").addEventListener("submit",async e=>{
   if(id)result=await sb.from("tournament_rooms").update({...payload,updated_at:new Date().toISOString()}).eq("id",id).select("id").single();
   else {const {data:userData,error:userError}=await sb.auth.getUser();if(userError)throw userError;result=await sb.from("tournament_rooms").insert({...payload,created_by:userData.user?.id||null}).select("id").single();}
   if(result.error)throw result.error;
-  resetRoomForm();await loadRooms();toast("روم با موفقیت ذخیره شد.");
- }catch(err){console.error("EX1 room save:",err);const detail=[err?.message,err?.code].filter(Boolean).join(" · ");toast("ذخیره روم انجام نشد"+(detail?": "+detail:"."));}
+  resetRoomForm();
+  toast("روم ذخیره شد.");
+  try{await loadRooms();}catch(refreshError){console.error("EX1 rooms refresh after save:",refreshError);const detail=[refreshError?.message,refreshError?.code].filter(Boolean).join(" · ");toast("روم ذخیره شد، اما فهرست به‌روزرسانی نشد"+(detail?": "+detail:"."));}
+ }catch(err){console.error("EX1 room save:",err);const detail=[err?.message,err?.code,err?.details,err?.hint].filter(Boolean).join(" · ");toast("ذخیره روم انجام نشد"+(detail?": "+detail:"."));}
  finally{$("saveRoomButton").disabled=false;}
 });
 $("roomsTable").addEventListener("click",async e=>{
