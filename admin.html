@@ -272,7 +272,7 @@ async function loadTableData(){
  
  const settled=await Promise.allSettled(tasks);
  const failed=settled.filter(x=>x.status==="rejected");
- if(permissions["rooms.view"]||permissions["rooms.manage"]){try{await loadRooms();}catch(e){failed.push({status:"rejected"});$("roomsTable").textContent="بارگذاری روم‌ها انجام نشد؛ دسترسی دیتابیس را بررسی کن.";}}
+ if(permissions["rooms.view"]||permissions["rooms.manage"]){try{await loadRooms();}catch(e){console.error("EX1 rooms load:",e);failed.push({status:"rejected"});const detail=[e?.message,e?.code].filter(Boolean).join(" · ");$("roomsTable").textContent="بارگذاری روم‌ها انجام نشد"+(detail?": "+detail:".");}}
  if(failed.length)toast("بعضی بخش‌ها به‌دلیل محدودیت دسترسی یا خطای ارتباط بارگذاری نشدند.");
  const counts=["statTournaments","statRegistrations","statTeams","statUsers"].map(id=>$(id).textContent).filter(x=>x!=="—");
  $("overviewEmpty").textContent=counts.length?"داده‌های مجاز از دیتابیس بارگذاری شدند. برای جزئیات، بخش مربوطه را باز کن.":"برای این حساب، مجوز مشاهده داده‌های مدیریتی ثبت نشده است.";
@@ -388,7 +388,7 @@ $("socialReportsTable").addEventListener("click",async e=>{
  }catch(err){console.error("EX1 social report update:",err);toast("ثبت تصمیم انجام نشد؛ مجوز و اتصال را بررسی کن.");btn.disabled=false;}
 });
 $("addRoomButton").onclick=()=>{
- if(!permissions["rooms.manage"])return;
+ if(!permissions["rooms.manage"])return toast("مجوز مدیریت روم برای این حساب فعال نیست.");
  if(!roomTournamentCache.length)return toast("برای ساخت روم، ابتدا باید مسابقه‌ای ثبت شده باشد.");
  resetRoomForm();fillRoomTournamentOptions();$("roomForm").classList.remove("hidden");$("rf_title").focus();
 };
@@ -411,7 +411,7 @@ $("roomForm").addEventListener("submit",async e=>{
   else {const {data:userData,error:userError}=await sb.auth.getUser();if(userError)throw userError;result=await sb.from("tournament_rooms").insert({...payload,created_by:userData.user?.id||null}).select("id").single();}
   if(result.error)throw result.error;
   resetRoomForm();await loadRooms();toast("روم با موفقیت ذخیره شد.");
- }catch(err){console.error("EX1 room save:",err);toast("ذخیره روم انجام نشد؛ مجوز و اطلاعات را بررسی کن.");}
+ }catch(err){console.error("EX1 room save:",err);const detail=[err?.message,err?.code].filter(Boolean).join(" · ");toast("ذخیره روم انجام نشد"+(detail?": "+detail:"."));}
  finally{$("saveRoomButton").disabled=false;}
 });
 $("roomsTable").addEventListener("click",async e=>{
