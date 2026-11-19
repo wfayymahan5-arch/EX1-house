@@ -124,6 +124,7 @@ input:focus,select:focus,textarea:focus{outline:1px solid #a78bfa;box-shadow:0 0
 <section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="users"><h2>کاربران و پروفایل‌ها</h2><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="social"><div class="row"><h2>مدیریت اجتماعی و گزارش‌ها</h2><button class="btn" id="refreshSocialReports" type="button">به‌روزرسانی</button></div><p class="muted">گزارش‌های محتوای اجتماعی فقط برای مدیر دارای مجوز social.moderate نمایش داده می‌شوند. تصمیم‌ها ثبت و قابل پیگیری هستند.</p><div id="socialReportsTable" class="empty">در حال دریافت گزارش‌ها...</div></section>
+<section class="section tab hidden" id="moderation"><div class="row"><h2>پرونده‌های بررسی هوشمند</h2><button class="btn" id="refreshModerationCases" type="button">به‌روزرسانی</button></div><p class="muted">این پرونده‌ها فقط برای مالک اصلی قابل مشاهده و تعیین تکلیف هستند. محتوای مشکوک تا زمان بررسی از نمایش عمومی پنهان می‌ماند.</p><div id="moderationCasesTable" class="empty">در حال دریافت پرونده‌ها...</div></section>
 <section class="section tab hidden" id="wallet"><h2>دفترکل استار هدیه</h2><div class="notice">این موجودی فقط امتیاز مجازی EX1 است؛ قابل خرید، انتقال، برداشت یا تبدیل به پول نیست. این صفحه فقط گزارش‌خوانی است.</div><div id="walletTable" class="empty">در حال دریافت دفترکل...</div></section>
 <section class="section tab hidden" id="settings"><h2>تنظیمات ظاهری سایت</h2><p class="muted">رنگ‌ها فقط با مجوز settings.manage ذخیره می‌شوند.</p><form id="themeForm"><div class="colorgrid">
 <label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
@@ -134,8 +135,8 @@ input:focus,select:focus,textarea:focus{outline:1px solid #a78bfa;box-shadow:0 0
 const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",social:"مدیریت اجتماعی",wallet:"کیف امتیاز",settings:"تنظیمات"};
-let permissions={};
+const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",social:"مدیریت اجتماعی",moderation:"بررسی هوشمند محتوا",wallet:"کیف امتیاز",settings:"تنظیمات"};
+let permissions={},isOwner=false;
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200);}
 function table(headers,rows){if(!rows.length)return '<div class="empty">هنوز داده‌ای ثبت نشده است.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';}
 function row(cells){return '<tr>'+cells.map(x=>'<td>'+x+'</td>').join("")+'</tr>';}
@@ -221,6 +222,35 @@ async function loadSocialModeration(){
  });
  host.innerHTML=reports?.length?table(["گزارش‌دهنده","دلیل","نوع محتوا","صاحب محتوا","پیش‌نمایش محتوای گزارش‌شده","توضیحات گزارش","وضعیت","زمان ثبت","اقدام"],rows):'<div class="empty">گزارش جدیدی ثبت نشده است.</div>';
 }
+async function loadModerationCases(){
+ const host=$("moderationCasesTable");
+ host.innerHTML='<div class="empty">در حال دریافت پرونده‌ها...</div>';
+ const {data:cases,error}=await sb.from("ai_moderation_cases")
+  .select("id,user_id,content_type,source_table,source_id,content_text,moderation_categories,severity,confidence,model_name,status,owner_note,created_at")
+  .eq("status","pending_review").order("created_at",{ascending:false}).limit(100);
+ if(error)throw error;
+ const ids=[...new Set((cases||[]).map(x=>x.user_id).filter(Boolean))];
+ let profiles={};
+ if(ids.length){
+  const p=await sb.from("profiles").select("id,display_name,username").in("id",ids);
+  if(p.error)throw p.error;
+  profiles=Object.fromEntries((p.data||[]).map(x=>[x.id,x]));
+ }
+ const rows=(cases||[]).map(x=>{
+  const profile=profiles[x.user_id];
+  const categories=Array.isArray(x.moderation_categories)?x.moderation_categories.map(v=>typeof v==="string"?v:JSON.stringify(v)).join("، "):JSON.stringify(x.moderation_categories||"—");
+  const note='<input class="moderation-note" data-case-note="'+esc(x.id)+'" maxlength="500" placeholder="یادداشت مالک (اختیاری)" value="'+esc(x.owner_note||"")+'">';
+  const actions='<button class="action-btn" data-case-decision="dismiss" data-case-id="'+esc(x.id)+'">رد پرونده</button> <button class="action-btn" data-case-decision="warn_only" data-case-id="'+esc(x.id)+'">ارسال اخطار</button> <button class="action-btn danger" data-case-decision="warn_and_ban" data-case-id="'+esc(x.id)+'">اخطار و مسدودسازی</button>';
+  return row([
+   esc(profile?.display_name||profile?.username||x.user_id),
+   esc(x.content_type||"—"),esc(x.source_table||"—"),
+   esc(x.severity||"—"),esc(x.confidence==null?"—":Math.round(Number(x.confidence)*100)+"٪"),
+   esc(categories),'<div class="moderation-content">'+esc((x.content_text||"").slice(0,700))+'</div>',
+   esc(new Date(x.created_at).toLocaleString("fa-IR")),note,actions
+  ]);
+ });
+ host.innerHTML=cases?.length?table(["کاربر","نوع محتوا","منبع","شدت","اطمینان","دسته‌بندی","محتوای بررسی‌شده","زمان","یادداشت مالک","تصمیم"],rows):'<div class="empty">پرونده معلقی برای بررسی وجود ندارد.</div>';
+}
 async function loadTableData(){
  const tasks=[];
  if(permissions["tournaments.view"])tasks.push(rpc("admin_dashboard_tournaments").then(d=>{ $("statTournaments").textContent=d.length;$("tournamentsTable").innerHTML=table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع"],d.map(t=>row([esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—")])));}));
@@ -229,6 +259,7 @@ async function loadTableData(){
  if(permissions["users.view"]||permissions["profiles.view_all"])tasks.push(rpc("admin_dashboard_users").then(d=>{$("statUsers").textContent=d.length;$("usersTable").innerHTML=table(["نام نمایشی","نام کاربری","شناسه","ایجاد"],d.map(x=>row([esc(x.display_name||"—"),esc(x.username||"—"),'<small>'+esc(x.user_id)+'</small>',esc(x.created_at?new Date(x.created_at).toLocaleDateString("fa-IR"):"—")])));}));
  if(permissions["wallet.view_all"])tasks.push(rpc("admin_wallet_demo_overview_v2",{p_limit:200}).then(d=>{$("walletTable").innerHTML=table(["نام نمایشی","نام کالاف","شناسه کاربر","موجودی استار","نوع دفترکل","وضعیت"],d.map(x=>row([esc(x.display_name||"—"),esc(x.game_name||"ثبت نشده"),'<small>'+esc(x.user_id)+'</small>',esc(Number(x.balance_units||0).toLocaleString("fa-IR"))+" ⭐",esc(x.currency_code||"POINT"),esc(x.wallet_mode||"—")])));}));
  if(permissions["social.moderate"])tasks.push(loadSocialModeration());
+ if(isOwner)tasks.push(loadModerationCases());
  
  const settled=await Promise.allSettled(tasks);
  const failed=settled.filter(x=>x.status==="rejected");
@@ -272,6 +303,7 @@ async function applyAccessInternal(user){
  let list;
  try{list=await rpc("admin_my_permissions");}catch(e){$("appView").classList.add("hidden");$("authView").classList.remove("hidden");$("authMessage").textContent="دریافت مجوزها ممکن نشد؛ دسترسی رد شد.";return;}
  list.forEach(p=>permissions[p.permission_code]=p.is_allowed===true);
+ try{isOwner=(await rpc("is_current_user_owner"))===true;}catch(e){isOwner=false;}
  const allowedTabs=["overview"];
  if(permissions["tournaments.view"]||permissions["tournaments.create"])allowedTabs.push("tournaments");
  if(permissions["rooms.view"]||permissions["rooms.manage"])allowedTabs.push("rooms");
@@ -279,6 +311,7 @@ async function applyAccessInternal(user){
  if(permissions["teams.view"])allowedTabs.push("teams");
  if(permissions["users.view"]||permissions["profiles.view_all"])allowedTabs.push("users");
  if(permissions["social.moderate"])allowedTabs.push("social");
+ if(isOwner)allowedTabs.push("moderation");
  if(permissions["wallet.view_all"])allowedTabs.push("wallet");
  if(permissions["settings.view"]||permissions["settings.manage"])allowedTabs.push("settings");
  allowedTabs.forEach(addNav);showTab("overview");
@@ -288,6 +321,27 @@ async function applyAccessInternal(user){
  if(permissions["settings.manage"]||permissions["settings.view"]){await loadTheme();$("saveTheme").hidden=!permissions["settings.manage"];}
  await loadTableData();
 }
+$("refreshModerationCases").onclick=async()=>{
+ if(!isOwner)return toast("فقط مالک اصلی به این بخش دسترسی دارد.");
+ try{await loadModerationCases();toast("پرونده‌ها به‌روزرسانی شدند.");}
+ catch(e){console.error("EX1 moderation cases:",e);toast("دریافت پرونده‌ها انجام نشد.");}
+};
+$("moderationCasesTable").addEventListener("click",async e=>{
+ const btn=e.target.closest("[data-case-decision]");
+ if(!btn||!isOwner)return;
+ const caseId=btn.dataset.caseId,decision=btn.dataset.caseDecision;
+ if(!caseId||!["dismiss","warn_only","warn_and_ban"].includes(decision))return;
+ if(decision==="warn_and_ban"&&!window.confirm("با تأیید مالک، ابتدا اخطار ارسال و سپس حساب کاربر مسدود می‌شود. ادامه می‌دهی؟"))return;
+ const noteInput=$("moderationCasesTable").querySelector('[data-case-note="'+caseId+'"]');
+ btn.disabled=true;
+ try{
+  const {data,error}=await sb.functions.invoke("manage-ai-moderation-case",{body:{case_id:caseId,decision,note:noteInput?.value||""}});
+  if(error)throw error;
+  if(data?.error)throw new Error(data.error);
+  await loadModerationCases();
+  toast(decision==="dismiss"?"پرونده رد شد.":decision==="warn_only"?"اخطار برای کاربر ارسال شد.":"اخطار ارسال و حساب مسدود شد.");
+ }catch(err){console.error("EX1 moderation decision:",err);toast(err.message||"ثبت تصمیم انجام نشد.");btn.disabled=false;}
+});
 $("refreshSocialReports").onclick=async()=>{
  if(!permissions["social.moderate"])return toast("مجوز مدیریت اجتماعی را نداری.");
  try{await loadSocialModeration();toast("گزارش‌ها به‌روزرسانی شدند.");}
