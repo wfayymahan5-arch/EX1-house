@@ -169,6 +169,31 @@ header{border-bottom:1px solid #8B5CF633;box-shadow:0 8px 28px #0004}
 .room-register-bar{position:fixed!important;left:12px!important;right:12px!important;bottom:calc(70px + env(safe-area-inset-bottom))!important;margin:0 auto!important;width:min(720px,calc(100% - 24px))!important;z-index:45!important}
 .room-rules-copy:empty{display:none}
 @media(max-width:390px){.room-prize-card{padding:10px}.room-prize-card strong{font-size:13px}}
+</style><style id="ex1-ultra-neon-motion">
+/* EX1 LEGEND ULTRA NEON MOTION LAYER */
+:root{--ex1-violet:#9b5cff;--ex1-cyan:#27e6f2;--ex1-pink:#ec4fff;--ex1-blue:#536dff;--ex1-glow:rgba(155,92,255,.5)}
+html{scroll-behavior:smooth}
+body{isolation:isolate;background-image:radial-gradient(ellipse at 8% 12%,rgba(130,55,255,.23),transparent 32%),radial-gradient(ellipse at 92% 9%,rgba(0,218,255,.16),transparent 29%),radial-gradient(ellipse at 50% 100%,rgba(213,48,255,.12),transparent 38%),linear-gradient(145deg,#080711,#0c1020 52%,#090713)!important;background-attachment:fixed!important}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.32;background-image:linear-gradient(rgba(139,92,246,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.075) 1px,transparent 1px);background-size:46px 46px;mask-image:radial-gradient(ellipse at center,#000 12%,transparent 88%);animation:ex1MatrixDrift 32s linear infinite}
+body:after{content:"";position:fixed;inset:-35%;z-index:-1;pointer-events:none;background:conic-gradient(from 0deg,transparent 0 68%,rgba(132,76,255,.055) 76%,transparent 84%);filter:blur(48px);animation:ex1AmbientSpin 42s linear infinite}
+:is(.card,.room-card,.match-card,.tournament-card,.stat,.panel,.section,.box,.modal-content,.dialog,.auth-card,.profile-card,.wallet-card,.hero,.top,.sidebar,.nav,.tab-content,.admin-card,[class*="card"],[class*="panel"],[class*="widget"]){position:relative;isolation:isolate;transition:transform .32s cubic-bezier(.2,.8,.2,1),border-color .3s ease,box-shadow .3s ease,filter .3s ease}
+:is(.card,.room-card,.match-card,.tournament-card,.stat,.panel,.section,.box,.modal-content,.dialog,.auth-card,.profile-card,.wallet-card,.hero,.admin-card,[class*="card"],[class*="panel"],[class*="widget"]):not(.modal):hover{transform:translateY(-4px);border-color:rgba(39,230,242,.65)!important;box-shadow:0 12px 38px rgba(0,0,0,.34),0 0 0 1px rgba(155,92,255,.25),0 0 24px rgba(155,92,255,.22),inset 0 0 22px rgba(39,230,242,.035)!important;filter:saturate(1.12)}
+:is(.card,.room-card,.match-card,.tournament-card,.stat,.panel,.section,.box,.modal-content,.dialog,.auth-card,.profile-card,.wallet-card,.hero,.admin-card,[class*="card"],[class*="panel"],[class*="widget"]):after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;opacity:.42;background:linear-gradient(125deg,rgba(39,230,242,.5),transparent 28%,rgba(155,92,255,.5) 66%,transparent);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:ex1BorderPulse 5s ease-in-out infinite}
+:is(button,.btn,a[role="button"],input[type="submit"],.nav-item,.tab,.action-btn){transition:transform .2s ease,box-shadow .25s ease,filter .25s ease,border-color .25s ease!important}
+:is(button,.btn,a[role="button"],input[type="submit"],.nav-item,.tab,.action-btn):hover{filter:brightness(1.17) saturate(1.2);box-shadow:0 0 14px rgba(39,230,242,.2),0 0 28px rgba(155,92,255,.2)!important}
+:is(button,.btn,a[role="button"],input[type="submit"],.nav-item,.tab,.action-btn):active{transform:scale(.97)}
+:is(input,select,textarea):focus{outline:none!important;border-color:rgba(39,230,242,.85)!important;box-shadow:0 0 0 3px rgba(39,230,242,.12),0 0 22px rgba(155,92,255,.2)!important}
+:is(h1,h2,h3,.brand,.logo,.page-title){text-shadow:0 0 12px rgba(155,92,255,.28),0 0 25px rgba(39,230,242,.12)}
+:is(.hero,.banner,.page-header){overflow:hidden}
+:is(.hero,.banner,.page-header):before{content:"";position:absolute;inset:-80% auto -80% -45%;width:36%;transform:rotate(24deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),rgba(39,230,242,.08),transparent);animation:ex1Shimmer 7s ease-in-out infinite;pointer-events:none}
+:is(.badge,.tag,.status,.pill){box-shadow:0 0 13px rgba(39,230,242,.13),inset 0 0 8px rgba(155,92,255,.08)}
+hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
+@keyframes ex1MatrixDrift{to{background-position:46px 46px,46px 46px}}
+@keyframes ex1AmbientSpin{to{transform:rotate(360deg)}}
+@keyframes ex1BorderPulse{0%,100%{opacity:.22;filter:hue-rotate(0deg)}50%{opacity:.68;filter:hue-rotate(35deg)}}
+@keyframes ex1Shimmer{0%,62%{left:-48%;opacity:0}70%{opacity:1}92%,100%{left:130%;opacity:0}}
+@media(hover:none){:is(.card,.room-card,.match-card,.tournament-card,.stat,.panel,.section,.box,.modal-content,.dialog,.auth-card,.profile-card,.wallet-card,.hero,.admin-card,[class*="card"],[class*="panel"],[class*="widget"]):active{box-shadow:0 0 0 1px rgba(155,92,255,.4),0 0 24px rgba(39,230,242,.15)!important}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style></head>
 <style id="ex1-full-project-soft-entry">
 @keyframes ex1PageSoftEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
