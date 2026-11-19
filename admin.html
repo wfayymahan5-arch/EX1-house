@@ -38,6 +38,34 @@ input:focus,select:focus,textarea:focus{outline:1px solid #a78bfa;box-shadow:0 0
 @media(hover:hover){.btn:hover,.action-btn:hover{filter:brightness(1.12);box-shadow:0 8px 24px #8B5CF644}}
 @media(prefers-reduced-motion:reduce){body:before,.hero:after{animation:none!important}.btn,.action-btn,.nav button,.colorfield{transition:none!important}.card:hover,.section:hover{transform:none!important}}
 </style>
+
+<style id="ex1-neon-motion-v2">
+
+/* EX1 Neon Motion v2 — vivid but lightweight */
+:root{--ex1-neon:#b66cff;--ex1-cyan:#45dff2}
+.hero{position:relative;overflow:hidden;isolation:isolate;box-shadow:0 12px 30px #0007,0 0 24px rgba(151,78,235,.24)}
+.hero:after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(112deg,transparent 8%,rgba(190,126,255,.2) 38%,rgba(65,220,245,.12) 52%,transparent 76%);transform:translateX(-120%);animation:ex1AdminNeonSweep 7s ease-in-out infinite}
+.hero>*{position:relative;z-index:1}
+.card,.section,.stat,.colorfield,.nav button,.btn,.action-btn{transition:transform .22s ease,border-color .25s ease,box-shadow .25s ease,filter .25s ease}
+.card,.section,.stat{box-shadow:0 9px 24px #0006,0 0 0 1px rgba(177,112,255,.08)}
+.btn.primary,.action-btn{box-shadow:0 0 0 1px rgba(211,165,255,.3),0 7px 22px rgba(143,72,220,.3),0 0 18px rgba(153,83,255,.22)}
+.btn:active,.action-btn:active,.nav button:active{transform:scale(.97)}
+.nav button.active{box-shadow:inset 3px 0 0 #b66cff,0 0 17px rgba(166,91,255,.22);filter:brightness(1.15)}
+.tag{box-shadow:0 0 12px rgba(171,105,255,.2)}
+.colorfield:focus-within{border-color:#b98aff;box-shadow:0 0 0 2px rgba(166,91,255,.18),0 0 18px rgba(166,91,255,.2)}
+@keyframes ex1AdminNeonSweep{0%,60%,100%{transform:translateX(-120%)}80%{transform:translateX(120%)}}
+@media(hover:hover){
+ .card:hover,.section:hover,.stat:hover{transform:translateY(-3px);border-color:rgba(194,133,255,.7);box-shadow:0 14px 30px #0008,0 0 22px rgba(161,91,255,.28)}
+ .btn:hover,.action-btn:hover{filter:brightness(1.16);box-shadow:0 0 24px rgba(172,103,255,.48)}
+ .nav button:hover{transform:translateX(-2px);border-color:rgba(190,130,255,.3)}
+}
+@media(prefers-reduced-motion:reduce){
+ .hero:after{animation:none!important}
+ .card,.section,.stat,.colorfield,.nav button,.btn,.action-btn{transition:none!important}
+ .card:hover,.section:hover,.stat:hover,.nav button:hover{transform:none!important}
+}
+
+</style>
 </head>
 <body><div class="wrap">
 <header class="top"><div class="brand"><img src="/ex1-legend-mark.svg" alt="" width="30" height="30" style="vertical-align:middle;margin-inline-end:7px">EX1 <span>LEGEND</span> <small style="color:#9998b2;font-size:12px">/ مدیریت</small></div><a class="btn" href="/">بازگشت به سایت ↗</a></header>
