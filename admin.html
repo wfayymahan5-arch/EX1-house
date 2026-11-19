@@ -13,7 +13,7 @@
 .authbox{max-width:430px;margin:9vh auto}.authbox h2{margin-top:0}.field{display:block;width:100%;margin:9px 0 13px;padding:13px;border-radius:10px;border:1px solid var(--line);background:#0d0d16;color:white}.authbox .btn{width:100%;margin-top:8px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.stat small{color:var(--muted)}.stat strong{display:block;font-size:27px;margin-top:7px}
 .layout{display:grid;grid-template-columns:205px 1fr;gap:14px}.nav{display:flex;flex-direction:column;gap:7px;height:max-content}.nav button{background:transparent;border:1px solid transparent;color:var(--muted);text-align:right;padding:12px;border-radius:11px;cursor:pointer}.nav button.active,.nav button:hover{background:#211a35;border-color:#49366e;color:white}
-.section h2{font-size:18px;margin:0 0 15px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.tablewrap{overflow:auto}.manager-form{margin:14px 0;padding:15px;border:1px solid #39304f;border-radius:14px;background:#0e0e18}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.manager-form label{display:block;color:var(--muted);font-size:12px}.manager-form input,.manager-form select,.manager-form textarea{display:block;width:100%;margin-top:6px;padding:11px;border:1px solid var(--line);border-radius:9px;background:#090910;color:var(--text);font:inherit}.manager-form textarea{min-height:82px;resize:vertical}.manager-form .wide{grid-column:1/-1}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.action-btn{padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:#1a1928;color:white;cursor:pointer;font-size:12px}.action-btn.danger{border-color:#713b4a;color:#ffb4c2}@media(max-width:620px){.formgrid{grid-template-columns:1fr}.manager-form .wide{grid-column:auto}}table{width:100%;border-collapse:collapse;min-width:550px}th,td{text-align:right;padding:11px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-weight:600}
+.section h2{font-size:18px;margin:0 0 15px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.tablewrap{overflow:auto}.manager-form{margin:14px 0;padding:15px;border:1px solid #39304f;border-radius:14px;background:#0e0e18}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.manager-form label{display:block;color:var(--muted);font-size:12px}.manager-form input,.manager-form select,.manager-form textarea{display:block;width:100%;margin-top:6px;padding:11px;border:1px solid var(--line);border-radius:9px;background:#090910;color:var(--text);font:inherit}.manager-form textarea{min-height:82px;resize:vertical}.manager-form .wide{grid-column:1/-1}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.action-btn{padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:#1a1928;color:white;cursor:pointer;font-size:12px}.action-btn.danger{border-color:#713b4a;color:#ffb4c2}@media(max-width:620px){.formgrid{grid-template-columns:1fr}.manager-form .wide{grid-column:auto}}.room-image-field{padding:12px;border:1px solid var(--line);border-radius:12px;background:#090910}.room-image-actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.room-image-preview-wrap{max-width:520px;margin-top:10px}.room-image-preview{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:13px;border:1px solid #7655a4;background:#111;cursor:crosshair;touch-action:pan-y}.room-image-preview img{width:100%;height:100%;display:block;object-fit:cover;pointer-events:none}.room-image-focus-control{display:block;margin-top:10px;color:var(--muted);font-size:12px}.room-image-focus-control input{width:100%;margin-top:8px;accent-color:#9b73ed}.room-image-preview-wrap.hidden{display:none}table{width:100%;border-collapse:collapse;min-width:550px}th,td{text-align:right;padding:11px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-weight:600}
 .tag{display:inline-block;padding:4px 9px;border-radius:20px;background:#1d3b34;color:#8ff0c9;font-size:11px}.empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed #38384c;border-radius:12px}.hidden{display:none}.colorgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.colorfield{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px}.colorfield input{width:48px;height:38px;border:0;background:transparent}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{position:fixed;bottom:18px;left:18px;background:#222035;border:1px solid #5c477e;padding:12px 16px;border-radius:12px;display:none;z-index:10}.toast.show{display:block}
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.nav{display:grid;grid-template-columns:repeat(3,1fr)}.nav button{text-align:center;padding:9px;font-size:12px}.wrap{padding:14px}.colorgrid{grid-template-columns:1fr}}
@@ -120,7 +120,17 @@ input:focus,select:focus,textarea:focus{outline:1px solid #a78bfa;box-shadow:0 0
 <label>زمان شروع<input id="rf_starts_at" type="datetime-local"></label>
 <label>زمان پایان<input id="rf_ends_at" type="datetime-local"></label>
 <label>وضعیت<select id="rf_status"><option value="open" selected>باز</option><option value="draft">پیش‌نویس</option><option value="full">تکمیل ظرفیت</option><option value="closed">بسته</option><option value="completed">پایان‌یافته</option><option value="cancelled">لغوشده</option></select></label>
-<label>تصویر روم<input id="rf_room_image_url" type="url" placeholder="https://..."></label>
+<div class="wide room-image-field">
+ <label>تصویر روم</label>
+ <input id="rf_room_image_url" type="hidden">
+ <input id="rf_image_focus_x" type="hidden" value="50">
+ <input id="rf_image_focus_y" type="hidden" value="55">
+ <input id="rf_room_image_file" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+ <div class="room-image-actions"><button class="btn" type="button" id="chooseRoomImage">＋ انتخاب تصویر از گالری</button><button class="action-btn danger" type="button" id="removeRoomImage">حذف تصویر</button></div>
+ <div id="roomImagePreviewWrap" class="room-image-preview-wrap hidden"><div id="roomImagePreview" class="room-image-preview" role="button" tabindex="0" aria-label="برای تعیین بخش مهم تصویر لمس کنید"><img id="roomImagePreviewImg" alt="پیش‌نمایش تصویر روم"></div><label class="room-image-focus-control">تنظیم کادر عمودی تصویر<input id="rf_image_focus_y_range" type="range" min="0" max="100" value="55"></label></div>
+ <p class="muted">عکس را از گالری انتخاب کن. برش اولیه با توجه به عمودی یا افقی بودن عکس تنظیم می‌شود؛ برای تعیین دقیق بخش مهم، همان قسمت را روی پیش‌نمایش لمس کن یا نوار تنظیم کادر را جابه‌جا کن. تصویر کشیده نمی‌شود.</p>
+ <p id="roomImageUploadStatus" class="muted" aria-live="polite"></p>
+</div>
 <label class="wide">قوانین اختصاصی این روم<textarea id="rf_rules" maxlength="5000"></textarea></label>
 <p class="muted wide">ورودی از امتیاز مجازی EX1 کسر می‌شود؛ این امتیاز ارزش نقدی ندارد و قابل خرید، انتقال یا برداشت نیست. ظرفیت کل به‌صورت خودکار از تعداد تیم‌ها × نفرات هر تیم محاسبه می‌شود.</p>
 </div>
@@ -164,15 +174,66 @@ function updateRoomCapacity(){
  const size=Number($("rf_team_size").value)===2?2:4;
  $("rf_capacity").value=teams*size;
 }
+let pendingRoomImageFile=null,roomImageObjectUrl=null;
+function setRoomImagePreview(url,x=50,y=55){
+ const wrap=$("roomImagePreviewWrap"),img=$("roomImagePreviewImg");
+ const fx=Math.max(0,Math.min(100,Number(x)||50)),fy=Math.max(0,Math.min(100,Number(y)||55));
+ $("rf_image_focus_x").value=fx;$("rf_image_focus_y").value=fy;$("rf_image_focus_y_range").value=fy;
+ if(url){img.src=url;img.style.objectPosition=fx+"% "+fy+"%";wrap.classList.remove("hidden");}
+ else{img.removeAttribute("src");wrap.classList.add("hidden");}
+}
+function resetRoomImage(){
+ pendingRoomImageFile=null;
+ if(roomImageObjectUrl){URL.revokeObjectURL(roomImageObjectUrl);roomImageObjectUrl=null;}
+ $("rf_room_image_file").value="";$("rf_room_image_url").value="";
+ $("roomImageUploadStatus").textContent="";setRoomImagePreview("");
+}
 function resetRoomForm(){
  $("roomForm").reset();$("rf_id").value="";$("rf_max_teams").value=25;$("rf_team_size").value="4";
  $("rf_capacity").value=100;$("rf_entry_demo_points").value=0;
  $("rf_prize_demo_points").value=0;$("rf_prize_second_demo_points").value=0;$("rf_prize_third_demo_points").value=0;
- $("rf_status").value="open";updateRoomCapacity();
+ $("rf_status").value="open";resetRoomImage();updateRoomCapacity();
  $("roomForm").classList.add("hidden");
+}
+function updateRoomFocusFromPoint(event){
+ const box=$("roomImagePreview").getBoundingClientRect();
+ const x=Math.max(0,Math.min(100,Math.round((event.clientX-box.left)/box.width*100)));
+ const y=Math.max(0,Math.min(100,Math.round((event.clientY-box.top)/box.height*100)));
+ $("rf_image_focus_x").value=x;$("rf_image_focus_y").value=y;$("rf_image_focus_y_range").value=y;
+ $("roomImagePreviewImg").style.objectPosition=x+"% "+y+"%";
 }
 $("rf_max_teams").addEventListener("input",updateRoomCapacity);
 $("rf_team_size").addEventListener("change",updateRoomCapacity);
+$("chooseRoomImage").onclick=()=>$("rf_room_image_file").click();
+$("removeRoomImage").onclick=resetRoomImage;
+$("roomImagePreview").addEventListener("click",updateRoomFocusFromPoint);
+$("roomImagePreview").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();const r=$("roomImagePreview").getBoundingClientRect();updateRoomFocusFromPoint({clientX:r.left+r.width/2,clientY:r.top+r.height/2});}});
+$("rf_image_focus_y_range").addEventListener("input",e=>{$("rf_image_focus_y").value=e.target.value;$("roomImagePreviewImg").style.objectPosition=$("rf_image_focus_x").value+"% "+e.target.value+"%";});
+$("rf_room_image_file").addEventListener("change",e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ if(!["image/jpeg","image/png","image/webp"].includes(file.type)){toast("فقط تصویر JPG، PNG یا WebP انتخاب کن.");e.target.value="";return;}
+ if(file.size>5*1024*1024){toast("حجم تصویر باید حداکثر ۵ مگابایت باشد.");e.target.value="";return;}
+ if(roomImageObjectUrl)URL.revokeObjectURL(roomImageObjectUrl);
+ roomImageObjectUrl=URL.createObjectURL(file);pendingRoomImageFile=file;
+ $("rf_room_image_url").value="";$("roomImageUploadStatus").textContent="تصویر انتخاب شد؛ پس از ذخیره روم بارگذاری می‌شود.";
+ const img=$("roomImagePreviewImg");img.onload=()=>{
+  const portrait=img.naturalHeight>img.naturalWidth*1.12;
+  const y=portrait?65:50;setRoomImagePreview(roomImageObjectUrl,50,y);
+ };
+ img.src=roomImageObjectUrl;$("roomImagePreviewWrap").classList.remove("hidden");
+});
+async function uploadPendingRoomImage(){
+ if(!pendingRoomImageFile)return $("rf_room_image_url").value.trim()||null;
+ const file=pendingRoomImageFile,ext=file.type==="image/png"?"png":file.type==="image/webp"?"webp":"jpg";
+ const path="rooms/"+(crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(36).slice(2))+"."+ext;
+ $("roomImageUploadStatus").textContent="در حال بارگذاری تصویر...";
+ const {data,error}=await sb.storage.from("tournament-assets").upload(path,file,{upsert:false,contentType:file.type,cacheControl:"31536000"});
+ if(error)throw error;
+ const url=sb.storage.from("tournament-assets").getPublicUrl(data.path).data.publicUrl;
+ $("rf_room_image_url").value=url;pendingRoomImageFile=null;
+ $("roomImageUploadStatus").textContent="تصویر با موفقیت بارگذاری شد.";
+ return url;
+}
 function fillRoomTournamentOptions(selected){
  $("rf_tournament_id").innerHTML=roomTournamentCache.map(t=>'<option value="'+esc(t.id)+'" '+(t.id===selected?"selected":"")+'>'+esc(t.title)+'</option>').join("");
 }
@@ -426,11 +487,14 @@ $("roomForm").addEventListener("submit",async e=>{
   prize_third_demo_points:Math.max(0,Math.floor(Number($("rf_prize_third_demo_points").value)||0)),
   starts_at:isoDate($("rf_starts_at").value),ends_at:isoDate($("rf_ends_at").value),
   status:$("rf_status").value,room_image_url:$("rf_room_image_url").value.trim()||null,
+  room_image_focus_x:Math.max(0,Math.min(100,Number($("rf_image_focus_x").value)||50)),
+  room_image_focus_y:Math.max(0,Math.min(100,Number($("rf_image_focus_y").value)||55)),
   rules:$("rf_rules").value.trim()
  };
  if(!payload.tournament_id)return toast("مسابقه مرتبط را انتخاب کن.");
  $("saveRoomButton").disabled=true;
  try{
+  payload.room_image_url=await uploadPendingRoomImage();
   let result;
   if(id)result=await sb.from("tournament_rooms").update({...payload,updated_at:new Date().toISOString()}).eq("id",id).select("id").single();
   else {const {data:userData,error:userError}=await sb.auth.getUser();if(userError)throw userError;result=await sb.from("tournament_rooms").insert({...payload,created_by:userData.user?.id||null}).select("id").single();}
@@ -456,6 +520,8 @@ $("roomsTable").addEventListener("click",async e=>{
   $("rf_prize_third_demo_points").value=data.prize_third_demo_points||0;
   $("rf_starts_at").value=localDateTime(data.starts_at);$("rf_ends_at").value=localDateTime(data.ends_at);
   $("rf_status").value=data.status||"draft";$("rf_room_image_url").value=data.room_image_url||"";
+  resetRoomImage();$("rf_room_image_url").value=data.room_image_url||"";
+  setRoomImagePreview(data.room_image_url||"",data.room_image_focus_x??50,data.room_image_focus_y??55);
   $("rf_rules").value=data.rules||"";$("roomForm").classList.remove("hidden");$("rf_title").focus();
  }
  if(del&&permissions["rooms.manage"]){
