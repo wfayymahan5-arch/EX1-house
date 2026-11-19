@@ -155,7 +155,21 @@ header{border-bottom:1px solid #8B5CF633;box-shadow:0 8px 28px #0004}
 
 </style>
 </head>
-</head>
+<style id="ex1-full-project-soft-entry">
+@keyframes ex1PageSoftEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ex1DialogSoftEnter{from{opacity:0;transform:translateY(13px) scale(.985);filter:brightness(.82)}to{opacity:1;transform:translateY(0) scale(1);filter:brightness(1)}}
+.page.active.ex1-page-enter{animation:ex1PageSoftEnter .28s ease-out both}
+.modal.show .dialog{animation:ex1DialogSoftEnter .3s cubic-bezier(.2,.75,.25,1) both;border:1px solid rgba(177,112,255,.58);box-shadow:0 18px 60px #000b,0 0 26px rgba(145,80,235,.22)}
+.ex1-confirm-modal{z-index:10050;background:rgba(4,4,12,.82);backdrop-filter:blur(9px)}
+.ex1-confirm-dialog{background:radial-gradient(ellipse at 90% 0%,#552c8c55,transparent 48%),linear-gradient(145deg,#201832,#10101b)!important;border:1px solid #9c6be8!important;box-shadow:0 0 0 1px #b98aff22,0 20px 70px #000c,0 0 32px #8b5cf644!important}
+.ex1-confirm-dialog h3{color:#f4eaff;text-shadow:0 0 14px #a76cff66}
+.ex1-confirm-dialog p{color:#d4c8e8}
+.ex1-confirm-actions{display:flex;gap:10px;margin-top:18px}
+.ex1-confirm-actions button{flex:1}
+.ex1-confirm-accept{background:linear-gradient(110deg,#8b5cf6,#54239c)!important;border:1px solid #c6a5ff!important;box-shadow:0 0 18px #8b5cf655!important;color:white!important}
+.ex1-confirm-cancel{background:#211b31!important;border:1px solid #655080!important;color:#eee!important}
+@media(prefers-reduced-motion:reduce){.page.active.ex1-page-enter,.modal.show .dialog{animation:none!important}}
+</style></head>
 <body>
 <header><div class="topbar"><div class="header-actions"><button class="btn ghost small" type="button" aria-label="جست‌وجو" onclick="switchPage('tournaments')">⌕</button><button class="btn ghost small" type="button" aria-label="وضعیت اتصال"><span id="connectionStatus" class="connection-status"><i></i></span> ◉</button></div><a class="brand" href="#home" aria-label="EX1 LEGEND"><span><b>EX1</b> LEGEND</span></a><div class="header-actions"><button class="btn ghost small" id="openSettings" type="button" aria-label="تنظیمات">⚙</button><span id="headerUser" class="muted"></span><button class="btn secondary small" id="headerAuth" type="button">ورود</button></div></div></header>
 <main class="wrap">
@@ -170,7 +184,7 @@ header{border-bottom:1px solid #8B5CF633;box-shadow:0 8px 28px #0004}
  <div class="profile-cover"><button class="profile-menu" type="button" id="profileMenuEdit" aria-label="ویرایش پروفایل">☰</button><div id="profileAvatar" class="profile-big">EX</div><button class="avatar-upload-btn" id="chooseAvatarButton" type="button">＋ انتخاب عکس پروفایل</button><input id="profileAvatarFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><small class="muted">عکس ابتدا به‌صورت خصوصی بررسی می‌شود؛ تصاویر مشکوک تا تصمیم مالک عمومی نمی‌شوند.</small><div class="profile-level">◆</div><h1 id="profileDisplayName">بازیکن EX1</h1><div id="profileUsername" class="profile-handle">EX1 PLAYER</div><p>پروفایل بازیکن و فعالیت‌های جامعه</p></div>
  <div class="profile-stats"><div><strong id="profileFollowersCount">۰</strong><small>دنبال‌کننده</small></div><div><strong id="profileFollowingCount">۰</strong><small>دنبال‌شونده</small></div><div><strong>EX1</strong><small>عضویت</small></div></div>
  <div class="profile-bio panel"><p>پروفایل عمومی فقط اطلاعات پایه‌ی بازیکن را نمایش می‌دهد.</p><button class="btn small" type="button" id="openProfileEditor">ویرایش پروفایل　✎</button></div>
- <div class="wallet-card" role="button" tabindex="0" id="walletOpen"><div><span class="wallet-kicker">استار هدیه EX1 · غیرنقدی</span><strong id="walletCardBalance" class="wallet-balance">۰ <small>امتیاز</small></strong><span class="wallet-note">مشاهده موجودی و تاریخچه استار</span></div><span class="wallet-icon">✦</span></div>
+ <div class="wallet-card" role="button" tabindex="0" id="walletOpen"><div><span class="wallet-kicker">استار مجازی EX1</span><strong id="walletCardBalance" class="wallet-balance">۰ <small>امتیاز</small></strong><span class="wallet-note">مشاهده موجودی و تاریخچه استار</span></div><span class="wallet-icon">✦</span></div>
  
  <section class="panel" id="supportPanel" style="margin:16px 0;padding:16px">
   <div class="section-head"><div><h2>پشتیبانی هوشمند EX1</h2><p>برای سؤال درباره ورود، مسابقات، روم‌ها و امکانات اپ</p></div><button class="btn small secondary" type="button" id="supportNew">گفت‌وگوی تازه</button></div>
@@ -561,10 +575,21 @@ async function showRoomDetail(room){
  $("roomDetail").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
+let profileCacheUserId=null,profileDataLoaded=false,supportDataLoaded=false,notificationsDataLoaded=false;
 function switchPage(page){
- document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+page));
+ document.querySelectorAll(".page").forEach(x=>{
+  const active=x.id==="page-"+page;
+  x.classList.toggle("active",active);
+  if(active){x.classList.remove("ex1-page-enter");void x.offsetWidth;x.classList.add("ex1-page-enter");}
+ });
  document.querySelectorAll(".bottom-nav [data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
- if(page==="profile"){loadProfile();loadSupportConversation().catch(()=>{});loadUserNotifications().catch(()=>{});}
+ if(page==="profile"){
+  const uid=currentUser?.id||null;
+  if(uid!==profileCacheUserId){profileCacheUserId=uid;profileDataLoaded=false;supportDataLoaded=false;notificationsDataLoaded=false;}
+  if(currentUser&&!profileDataLoaded){profileDataLoaded=true;loadProfile().catch(()=>profileDataLoaded=false);}
+  if(currentUser&&!supportDataLoaded){supportDataLoaded=true;loadSupportConversation().catch(()=>supportDataLoaded=false);}
+  if(currentUser&&!notificationsDataLoaded){notificationsDataLoaded=true;loadUserNotifications().catch(()=>notificationsDataLoaded=false);}
+ }
  if(page==="tournaments")loadTournaments();
  if(page==="ranking")loadRanking();
 }
@@ -578,7 +603,7 @@ function switchHome(tab){
 }
 document.querySelectorAll("[data-home-tab]").forEach(b=>b.addEventListener("click",()=>switchHome(b.dataset.homeTab)));
 $("headerAuth").onclick=()=>currentUser?switchPage("profile"):openAuth();
-async function signOutCurrentAccount(){const {error}=await sb.auth.signOut();if(error)throw error;currentUser=null;activeConversation=null;activeConversationUser=null;await authState();switchPage("home");}
+async function signOutCurrentAccount(){const {error}=await sb.auth.signOut();if(error)throw error;currentUser=null;activeConversation=null;activeConversationUser=null;profileCacheUserId=null;profileDataLoaded=false;supportDataLoaded=false;notificationsDataLoaded=false;await authState();switchPage("home");}
 async function confirmedSignOut(){
  if(!currentUser)return;
  if(!window.confirm("آیا می‌خواهید از حساب کاربری خود خارج شوید؟"))return false;
@@ -842,6 +867,28 @@ $("chatForm").addEventListener("submit",async e=>{
  finally{$("chatSend").disabled=false;}
 });
 
+function ex1Confirm(title,message,acceptLabel="تأیید"){
+ return new Promise(resolve=>{
+  const modal=$("ex1ConfirmModal");
+  $("ex1ConfirmTitle").textContent=title;
+  $("ex1ConfirmMessage").textContent=message;
+  $("ex1ConfirmAccept").textContent=acceptLabel;
+  const finish=value=>{
+   modal.classList.remove("show");
+   modal.removeEventListener("click",onBackdrop);
+   document.removeEventListener("keydown",onKey);
+   resolve(value);
+  };
+  const onBackdrop=e=>{if(e.target===modal)finish(false);};
+  const onKey=e=>{if(e.key==="Escape")finish(false);};
+  $("ex1ConfirmCancel").onclick=()=>finish(false);
+  $("ex1ConfirmAccept").onclick=()=>finish(true);
+  modal.addEventListener("click",onBackdrop);
+  document.addEventListener("keydown",onKey);
+  modal.classList.add("show");
+  $("ex1ConfirmCancel").focus();
+ });
+}
 async function loadUserNotifications(){
  const box=$("userNotifications");
  if(!currentUser){box.innerHTML='<div class="empty">برای مشاهده اعلان‌ها وارد حساب شو.</div>';return;}
@@ -868,7 +915,7 @@ userNotificationsBox.addEventListener("click",async e=>{
  if(del){
   if(!currentUser)return;
   const card=del.closest("[data-notification-card]");
-  if(!card||!window.confirm("این اعلان فقط از فهرست حساب خودت حذف شود؟"))return;
+  if(!card||!(await ex1Confirm("حذف اعلان","این اعلان فقط از فهرست حساب خودت حذف شود؟","حذف اعلان")))return;
   del.disabled=true;
   const {data,error}=await sb.from("user_notifications").delete().eq("id",del.dataset.notificationDelete).eq("user_id",currentUser.id).select("id");
   if(error){toast("حذف اعلان انجام نشد؛ دسترسی دیتابیس هنوز آماده نیست.");del.disabled=false;return;}
@@ -883,6 +930,7 @@ userNotificationsBox.addEventListener("click",async e=>{
 });
 let supportConversationId=null;
 function supportStorageKey(){return currentUser?"ex1_support_"+currentUser.id:null;}
+function supportFreshKey(){return currentUser?"ex1_support_fresh_"+currentUser.id:null;}
 function renderSupportMessages(rows){
  const box=$("supportMessages");
  box.innerHTML=(rows||[]).map(m=>'<div class="bubble '+(m.sender_role==="user"?"mine":"")+'">'+esc(m.body)+'</div>').join("")||'<div class="empty">برای شروع، پیام خودت را بنویس.</div>';
@@ -891,6 +939,13 @@ function renderSupportMessages(rows){
 async function loadSupportConversation(){
  if(!currentUser){supportConversationId=null;$("supportMessages").innerHTML='<div class="empty">برای استفاده از پشتیبانی وارد حساب شو.</div>';return;}
  const storageKey=supportStorageKey();
+ const freshKey=supportFreshKey();
+ if(localStorage.getItem(freshKey)==="1"){
+  supportConversationId=null;
+  renderSupportMessages([]);
+  $("supportHint").textContent="گفت‌وگوی تازه آماده است؛ پیام اول را بنویس.";
+  return;
+ }
  supportConversationId=localStorage.getItem(storageKey)||null;
  if(!supportConversationId){
   const {data:latest,error:latestError}=await sb.from("support_conversations").select("id,status,updated_at").eq("user_id",currentUser.id).order("updated_at",{ascending:false}).limit(1).maybeSingle();
@@ -905,8 +960,8 @@ async function loadSupportConversation(){
 }
 $("supportNew").addEventListener("click",()=>{
  if(!currentUser){toast("برای استفاده از پشتیبانی وارد حساب شو.");return;}
- supportConversationId=null;localStorage.removeItem(supportStorageKey());renderSupportMessages([]);
- $("supportHint").textContent="گفت‌وگوی تازه آماده است.";
+ supportConversationId=null;localStorage.removeItem(supportStorageKey());localStorage.setItem(supportFreshKey(),"1");renderSupportMessages([]);
+ $("supportHint").textContent="گفت‌وگوی تازه آماده است؛ پیام اول را بنویس.";
 });
 $("supportForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!currentUser){toast("ابتدا وارد حساب شو.");return;}
@@ -916,7 +971,7 @@ $("supportForm").addEventListener("submit",async e=>{
   const {data,error}=await sb.functions.invoke("ai-support",{body:{message,conversation_id:supportConversationId}});
   if(error)throw error;
   if(!data?.success)throw new Error(data?.error||"پاسخی دریافت نشد.");
-  supportConversationId=data.conversation_id;localStorage.setItem(supportStorageKey(),supportConversationId);
+  supportConversationId=data.conversation_id;localStorage.setItem(supportStorageKey(),supportConversationId);localStorage.removeItem(supportFreshKey());
   $("supportText").value="";
   await loadSupportConversation();
   $("supportHint").textContent=data.handoff?"این گفت‌وگو در صف پشتیبان انسانی است؛ پیام‌های بعدی هم در همین چت می‌مانند.":"پاسخ دستیار هوشمند";
@@ -1114,5 +1169,14 @@ if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.se
  document.addEventListener("wheel",e=>{if(e.ctrlKey)e.preventDefault();},{passive:false});
 })();
 </script>
-</body>
+<div class="modal ex1-confirm-modal" id="ex1ConfirmModal" role="dialog" aria-modal="true" aria-labelledby="ex1ConfirmTitle">
+ <div class="dialog ex1-confirm-dialog">
+  <h3 id="ex1ConfirmTitle">تأیید عملیات</h3>
+  <p id="ex1ConfirmMessage">آیا مطمئنی؟</p>
+  <div class="ex1-confirm-actions">
+   <button type="button" class="btn ex1-confirm-cancel" id="ex1ConfirmCancel">انصراف</button>
+   <button type="button" class="btn ex1-confirm-accept" id="ex1ConfirmAccept">تأیید</button>
+  </div>
+ </div>
+</div></body>
 </html>
