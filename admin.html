@@ -411,7 +411,7 @@ async function loadModerationCases(){
   if(p.error)throw p.error;
   profiles=Object.fromEntries((p.data||[]).map(x=>[x.id,x]));
  }
- const evidenceUrls=Object.fromEntries(await Promise.all((cases||[]).filter(x=>x.content_type==="profile_avatar").map(async x=>{
+ const evidenceUrls=Object.fromEntries(await Promise.all((cases||[]).filter(x=>["profile_avatar","profile_cover"].includes(x.content_type)).map(async x=>{
   try{const {data,error}=await sb.functions.invoke("get-ai-moderation-evidence",{body:{case_id:x.id}});return [x.id,error?null:data?.signed_url||null];}catch(_){return [x.id,null];}
  })));
  const rows=(cases||[]).map(x=>{
@@ -420,9 +420,11 @@ async function loadModerationCases(){
   const pending=x.status==="pending_review";
   const note=pending?'<input class="moderation-note" data-case-note="'+esc(x.id)+'" maxlength="500" placeholder="یادداشت مالک (اختیاری)" value="'+esc(x.owner_note||"")+'">':esc(x.owner_note||"—");
   const isAvatar=x.content_type==="profile_avatar";
-  const evidence=isAvatar&&evidenceUrls[x.id]?'<a href="'+esc(evidenceUrls[x.id])+'" target="_blank" rel="noopener"><img src="'+esc(evidenceUrls[x.id])+'" alt="شواهد عکس پروفایل" style="width:76px;height:76px;object-fit:cover;border-radius:12px;border:1px solid #6b568a"></a>':"—";
-  const actions=pending?(isAvatar?'<button class="action-btn danger" data-case-decision="remove_avatar" data-case-id="'+esc(x.id)+'">حذف عکس پروفایل</button> <button class="action-btn" data-case-decision="warn_only" data-case-id="'+esc(x.id)+'">ارسال اخطار و نگه‌داشتن عکس</button> <button class="action-btn" data-case-decision="dismiss" data-case-id="'+esc(x.id)+'">رد گزارش</button>':'<button class="action-btn" data-case-decision="dismiss" data-case-id="'+esc(x.id)+'">رد پرونده</button> <button class="action-btn" data-case-decision="warn_only" data-case-id="'+esc(x.id)+'">ارسال اخطار</button> <button class="action-btn danger" data-case-decision="warn_and_ban" data-case-id="'+esc(x.id)+'">اخطار و مسدودسازی</button>'):"—";
-  const statusLabel={pending_review:"در انتظار بررسی",rejected:"ردشده",warning_approved:"اخطار ارسال‌شده",ban_approved:"مسدودسازی تأییدشده",avatar_removed:"عکس حذف شد"};
+  const isCover=x.content_type==="profile_cover";
+  const isProfileImage=isAvatar||isCover;
+  const evidence=isProfileImage&&evidenceUrls[x.id]?'<a href="'+esc(evidenceUrls[x.id])+'" target="_blank" rel="noopener"><img src="'+esc(evidenceUrls[x.id])+'" alt="شواهد تصویر پروفایل" style="width:76px;height:76px;object-fit:cover;border-radius:12px;border:1px solid #6b568a"></a>':"—";
+  const actions=pending?(isAvatar?'<button class="action-btn danger" data-case-decision="remove_avatar" data-case-id="'+esc(x.id)+'">حذف عکس پروفایل</button> <button class="action-btn" data-case-decision="warn_only" data-case-id="'+esc(x.id)+'">ارسال اخطار و نگه‌داشتن عکس</button> <button class="action-btn" data-case-decision="dismiss" data-case-id="'+esc(x.id)+'">رد گزارش و انتشار عکس</button>':isCover?'<button class="action-btn danger" data-case-decision="remove_cover" data-case-id="'+esc(x.id)+'">حذف کاور</button> <button class="action-btn" data-case-decision="dismiss" data-case-id="'+esc(x.id)+'">تأیید و انتشار کاور</button> <button class="action-btn" data-case-decision="warn_only" data-case-id="'+esc(x.id)+'">اخطار و انتشار کاور</button>':'<button class="action-btn" data-case-decision="dismiss" data-case-id="'+esc(x.id)+'">رد پرونده</button> <button class="action-btn" data-case-decision="warn_only" data-case-id="'+esc(x.id)+'">ارسال اخطار</button> <button class="action-btn danger" data-case-decision="warn_and_ban" data-case-id="'+esc(x.id)+'">اخطار و مسدودسازی</button>'):"—";
+  const statusLabel={pending_review:"در انتظار بررسی",rejected:"ردشده",warning_approved:"اخطار ارسال‌شده",ban_approved:"مسدودسازی تأییدشده",avatar_removed:"عکس حذف شد",cover_removed:"کاور حذف شد"};
   return row([
    esc(profile?.display_name||profile?.username||x.user_id),
    esc(x.content_type||"—"),evidence,esc(x.source_table||"—"),
