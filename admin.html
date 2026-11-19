@@ -184,29 +184,42 @@ async function loadSocialModeration(){
   .select("id,reporter_id,target_user_id,post_id,comment_id,story_id,message_id,reason,details,status,created_at,reviewed_at")
   .order("created_at",{ascending:false}).limit(100);
  if(error)throw error;
- const ids=[...new Set((reports||[]).flatMap(x=>[x.reporter_id,x.target_user_id].filter(Boolean)))];
+ const reporterIds=[...new Set((reports||[]).map(x=>x.reporter_id).filter(Boolean))];
  let profiles={};
- if(ids.length){
-  const p=await sb.from("profiles").select("id,display_name,username").in("id",ids);
+ if(reporterIds.length){
+  const p=await sb.from("profiles").select("id,display_name,username").in("id",reporterIds);
   if(p.error)throw p.error;
   profiles=Object.fromEntries((p.data||[]).map(x=>[x.id,x]));
  }
+ let contentByReport={};
+ if(reports?.length){
+  const {data:contentRows,error:contentError}=await sb.rpc("admin_social_reported_content",{
+   p_report_ids:reports.map(x=>x.id)
+  });
+  if(contentError)throw contentError;
+  contentByReport=Object.fromEntries((contentRows||[]).map(x=>[x.report_id,x]));
+ }
  const statusLabel={open:"باز",reviewing:"در حال بررسی",resolved:"رسیدگی شد",dismissed:"رد شد"};
  const reasonLabel={spam:"هرزنامه",harassment:"آزار و اذیت",inappropriate:"محتوای نامناسب",impersonation:"جعل هویت",other:"سایر"};
+ const targetLabel={post:"پست",comment:"دیدگاه",story:"استوری",message:"پیام گزارش‌شده",user:"حساب کاربری"};
  const rows=(reports||[]).map(x=>{
   const reporter=profiles[x.reporter_id];
-  const target=x.post_id?("پست · "+x.post_id):x.comment_id?("دیدگاه · "+x.comment_id):x.story_id?("استوری · "+x.story_id):x.message_id?("پیام · "+x.message_id):x.target_user_id?("کاربر · "+x.target_user_id):"—";
+  const target=contentByReport[x.id]||{};
+  const targetName=target.display_name||target.username||target.target_user_id||"—";
+  const preview=target.target_content?String(target.target_content).slice(0,240):"محتوای متنی برای نمایش موجود نیست.";
   const actions=x.status==="open"||x.status==="reviewing"
    ?'<button class="action-btn" data-report-status="reviewing" data-report-id="'+esc(x.id)+'">بررسی</button> <button class="action-btn" data-report-status="resolved" data-report-id="'+esc(x.id)+'">رسیدگی شد</button> <button class="action-btn danger" data-report-status="dismissed" data-report-id="'+esc(x.id)+'">رد گزارش</button>'
    :"—";
   return row([
    esc(reporter?.display_name||reporter?.username||x.reporter_id),
-   esc(reasonLabel[x.reason]||x.reason),esc(target),
-   esc(x.details||"—"),esc(statusLabel[x.status]||x.status),
+   esc(reasonLabel[x.reason]||x.reason),
+   esc(targetLabel[target.target_type]||"محتوا"),
+   esc(targetName),esc(preview),esc(x.details||"—"),
+   esc(statusLabel[x.status]||x.status),
    esc(new Date(x.created_at).toLocaleString("fa-IR")),actions
   ]);
  });
- host.innerHTML=reports?.length?table(["گزارش‌دهنده","دلیل","محتوای گزارش‌شده","توضیحات","وضعیت","زمان ثبت","اقدام"],rows):'<div class="empty">گزارش جدیدی ثبت نشده است.</div>';
+ host.innerHTML=reports?.length?table(["گزارش‌دهنده","دلیل","نوع محتوا","صاحب محتوا","پیش‌نمایش محتوای گزارش‌شده","توضیحات گزارش","وضعیت","زمان ثبت","اقدام"],rows):'<div class="empty">گزارش جدیدی ثبت نشده است.</div>';
 }
 async function loadTableData(){
  const tasks=[];
