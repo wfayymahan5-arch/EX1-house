@@ -102,6 +102,58 @@ header{border-bottom:1px solid #8B5CF633;box-shadow:0 8px 28px #0004}
 @media(hover:hover){.btn:hover{filter:brightness(1.12);box-shadow:0 8px 26px #8B5CF655}}
 @media(prefers-reduced-motion:reduce){body:before,.hero,.hero:before,.tournament-banner:after{animation:none!important}.btn,.home-shortcuts button,.tournament,.room-card,.bottom-nav button,.subnav button{transition:none!important}.home-shortcuts button:hover,.tournament:hover,.room-card:hover{transform:none!important}}
 </style>
+
+<style id="ex1-neon-motion-v2">
+
+/* EX1 Neon Motion v2 — vivid but lightweight */
+:root{--ex1-neon:#b66cff;--ex1-cyan:#45dff2;--ex1-glow:rgba(166,91,255,.34)}
+.hero,.tournament-banner,.profile-cover{isolation:isolate}
+.hero:before,.tournament-banner:after,.profile-cover:after{
+ content:"";position:absolute;inset:-1px;z-index:0;pointer-events:none;
+ background:linear-gradient(112deg,transparent 8%,rgba(190,126,255,.18) 34%,rgba(65,220,245,.13) 48%,transparent 72%);
+ transform:translateX(-120%);animation:ex1NeonSweep 6.5s ease-in-out infinite
+}
+.panel,.tournament,.room-card,.wallet-card,.team-slot,.home-shortcuts button,.profile-card{
+ position:relative;isolation:isolate;transition:transform .24s ease,border-color .28s ease,box-shadow .28s ease
+}
+.panel:after,.tournament:after,.room-card:after,.wallet-card:after,.team-slot:after,.home-shortcuts button:after,.profile-card:after{
+ content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
+ background:linear-gradient(125deg,rgba(190,130,255,.12),transparent 38%,rgba(58,216,244,.07) 72%,transparent);
+ opacity:.75;transition:opacity .25s ease
+}
+.panel,.tournament,.room-card,.wallet-card{box-shadow:0 10px 28px #0006,0 0 0 1px rgba(177,112,255,.09),0 0 20px var(--ex1-glow)}
+.btn,.room-open-btn,.bottom-nav button,.subnav button,.profile-tabs button{
+ transition:transform .2s ease,box-shadow .25s ease,filter .25s ease
+}
+.btn:not(:disabled):active,.room-open-btn:active,.home-shortcuts button:active{transform:scale(.96);filter:brightness(1.22)}
+.btn:not(.secondary):not(.ghost),.room-open-btn{
+ box-shadow:0 0 0 1px rgba(211,165,255,.34),0 7px 22px rgba(143,72,220,.32),0 0 19px rgba(153,83,255,.25)
+}
+.bottom-nav button.active{filter:drop-shadow(0 0 8px rgba(190,125,255,.75))}
+.bottom-nav button.active svg{filter:drop-shadow(0 0 7px rgba(190,125,255,.8))}
+.tag,.room-live-tag,.team-slot-status{box-shadow:0 0 12px rgba(171,105,255,.18)}
+.page.active .section-head,.page.active .panel,.page.active .tournament,.page.active .room-card,.page.active .wallet-card{
+ animation:ex1SoftEnter .48s both
+}
+.page.active .tournament:nth-child(2),.page.active .room-card:nth-child(2){animation-delay:70ms}
+.page.active .tournament:nth-child(3),.page.active .room-card:nth-child(3){animation-delay:120ms}
+@keyframes ex1NeonSweep{0%,58%,100%{transform:translateX(-120%)}78%{transform:translateX(120%)}}
+@keyframes ex1SoftEnter{from{opacity:.35;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@media(hover:hover){
+ .panel:hover,.tournament:hover,.room-card:hover,.wallet-card:hover,.team-slot:hover,.home-shortcuts button:hover{
+  transform:translateY(-3px);border-color:rgba(194,133,255,.72);
+  box-shadow:0 15px 34px #0008,0 0 24px rgba(161,91,255,.3),0 0 8px rgba(65,220,245,.12)
+ }
+ .panel:hover:after,.tournament:hover:after,.room-card:hover:after,.home-shortcuts button:hover:after{opacity:1}
+ .btn:hover{filter:brightness(1.16);box-shadow:0 0 24px rgba(172,103,255,.5)}
+}
+@media(prefers-reduced-motion:reduce){
+ .hero:before,.tournament-banner:after,.profile-cover:after{animation:none!important}
+ .page.active .section-head,.page.active .panel,.page.active .tournament,.page.active .room-card,.page.active .wallet-card{animation:none!important}
+ .panel,.tournament,.room-card,.wallet-card,.team-slot,.home-shortcuts button,.btn,.room-open-btn,.bottom-nav button,.subnav button,.profile-tabs button{transition:none!important}
+}
+
+</style>
 </head>
 </head>
 <body>
