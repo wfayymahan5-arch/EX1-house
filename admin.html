@@ -192,9 +192,9 @@ async function loadRooms(){
  const rows=rooms.map(r=>{
   const t=roomTournamentCache.find(x=>x.id===r.tournament_id);
   const actions=canManage?'<button class="action-btn" data-edit-room="'+esc(r.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-room="'+esc(r.id)+'">حذف</button>':"—";
-  return row([esc(r.title),esc(t?.title||"—"),esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.max_teams||25)+" تیم",esc(r.team_size===2?"۲ نفره":"۴ نفره"),esc(r.entry_demo_points||0)+" ⭐",esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
+  return row([esc(r.title),esc(t?.title||"—"),esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.max_teams||25)+" تیم",esc(r.team_size===2?"۲ نفره":"۴ نفره"),esc(r.entry_demo_points||0)+" ⭐", "اول "+esc(r.prize_demo_points||0)+" · دوم "+esc(r.prize_second_demo_points||0)+" · سوم "+esc(r.prize_third_demo_points||0),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
  });
- $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","نقشه","جایگاه‌ها","اندازه تیم","ورودی هر نفر","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
+ $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","نقشه","جایگاه‌ها","اندازه تیم","ورودی هر نفر","جوایز رتبه‌ها","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
 }
 async function loadSocialModeration(){
  const host=$("socialReportsTable");
@@ -419,7 +419,7 @@ $("roomForm").addEventListener("submit",async e=>{
   game_mode:$("rf_game_mode").value.trim()||null,map:$("rf_map").value.trim()||null,
   team_size:Number($("rf_team_size").value)===2?2:4,
   max_teams:Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1)),
-  capacity:Number($("rf_capacity").value),
+  capacity:Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1))*(Number($("rf_team_size").value)===2?2:4),
   entry_demo_points:Math.max(0,Math.floor(Number($("rf_entry_demo_points").value)||0)),
   prize_demo_points:Math.max(0,Math.floor(Number($("rf_prize_demo_points").value)||0)),
   prize_second_demo_points:Math.max(0,Math.floor(Number($("rf_prize_second_demo_points").value)||0)),
