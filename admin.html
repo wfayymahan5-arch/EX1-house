@@ -206,8 +206,8 @@ async function autoRoomImagePosition(file,img){
   }catch(detectError){console.info("EX1 local face focus fallback:",detectError);}
  }
  let x=50,y=50;
- if(w/h>boxRatio)x=Math.max(0,Math.min(100,Math.round((fx*w-(h*boxRatio)/2)/(w-h*boxRatio)*100)));
- else y=Math.max(0,Math.min(100,Math.round((fy*h-(w/boxRatio)/2)/(h-w/boxRatio)*100)));
+ if(w/h>boxRatio+.001)x=Math.max(0,Math.min(100,Math.round((fx*w-(h*boxRatio)/2)/(w-h*boxRatio)*100)));
+ else if(w/h<boxRatio-.001)y=Math.max(0,Math.min(100,Math.round((fy*h-(w/boxRatio)/2)/(h-w/boxRatio)*100)));
  if(!faceFound&&h>w*1.12)y=65;
  setRoomImagePreview(roomImageObjectUrl,x,y);
 }
