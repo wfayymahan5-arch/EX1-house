@@ -194,6 +194,18 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 @keyframes ex1Shimmer{0%,62%{left:-48%;opacity:0}70%{opacity:1}92%,100%{left:130%;opacity:0}}
 @media(hover:none){:is(.card,.room-card,.match-card,.tournament-card,.stat,.panel,.section,.box,.modal-content,.dialog,.auth-card,.profile-card,.wallet-card,.hero,.admin-card,[class*="card"],[class*="panel"],[class*="widget"]):active{box-shadow:0 0 0 1px rgba(155,92,255,.4),0 0 24px rgba(39,230,242,.15)!important}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style><style id="ex1-floating-neon-bottom-nav">
+/* Floating icon-only neon bottom navigation */
+.bottom-nav{background:transparent!important;border:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important;padding:7px 14px calc(8px + env(safe-area-inset-bottom))!important;gap:6px}
+.bottom-nav:before,.bottom-nav:after{content:none!important;display:none!important}
+.bottom-nav button{position:relative;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;outline:0!important;overflow:visible!important;min-height:48px;padding:5px!important;color:#a59bb9;isolation:isolate}
+.bottom-nav button:before,.bottom-nav button:after{content:none!important;display:none!important}
+.bottom-nav button.active{background:transparent!important;border:0!important;box-shadow:none!important;color:#e4c7ff!important;filter:none!important}
+.bottom-nav button.active svg,.bottom-nav button.active .rank-icon{filter:drop-shadow(0 0 4px rgba(39,230,242,.9)) drop-shadow(0 0 10px rgba(155,92,255,.95)) drop-shadow(0 0 18px rgba(236,79,255,.5))!important}
+.bottom-nav button.active span:not(.rank-icon){text-shadow:0 0 8px rgba(155,92,255,.85),0 0 14px rgba(39,230,242,.45)}
+.bottom-nav button:not(.active):hover,.bottom-nav button:not(.active):focus-visible{background:transparent!important;box-shadow:none!important}
+.bottom-nav button:active{transform:scale(.94);background:transparent!important;box-shadow:none!important}
+.bottom-nav svg{overflow:visible}
 </style></head>
 <style id="ex1-full-project-soft-entry">
 @keyframes ex1PageSoftEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
