@@ -485,7 +485,7 @@ async function loadWalletOverview(){
   esc(x.display_name||"—"),esc(x.game_name||"ثبت نشده"),'<small>'+esc(x.user_id)+'</small>',
   esc(Number(x.balance_units||0).toLocaleString("fa-IR"))+" ⭐",esc(x.currency_code||"POINT"),esc(x.wallet_mode||"—"),
   canAdjust?'<button class="action-btn" data-wallet-adjust="credit" data-user-id="'+esc(x.user_id)+'">افزایش</button> <button class="action-btn danger" data-wallet-adjust="debit" data-user-id="'+esc(x.user_id)+'">کسر</button> <button class="action-btn" data-wallet-history="'+esc(x.user_id)+'">تاریخچه</button>':"—"
- ]))));
+ ])));
 }
 $("walletTable").addEventListener("click",async e=>{
  const adjust=e.target.closest("[data-wallet-adjust]"),history=e.target.closest("[data-wallet-history]");
