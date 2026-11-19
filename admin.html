@@ -353,9 +353,15 @@ $("rf_team_size").addEventListener("change",updateRoomCapacity);
 $("chooseRoomImage").onclick=()=>$("rf_room_image_file").click();
 $("removeRoomImage").onclick=resetRoomImage;
 const roomImagePreview=$("roomImagePreview");
+let roomImageSuppressClickUntil=0;
 roomImagePreview.tabIndex=-1;
 roomImagePreview.addEventListener("pointerdown",e=>{
  if(e.pointerType==="mouse"&&e.button!==0)return;
+ // A previously focused text field (notably the room title) must not regain
+ // focus when Android dispatches a synthetic click after the image gesture.
+ const active=document.activeElement;
+ if(active&&$("roomForm").contains(active)&&active.matches("input,textarea,select"))active.blur();
+ roomImageSuppressClickUntil=Date.now()+900;
  roomImagePointerActive=true;roomImagePreview.classList.add("is-dragging");
  try{roomImagePreview.setPointerCapture(e.pointerId);}catch(_){}
  updateRoomFocusFromPointer(e);
@@ -368,12 +374,19 @@ roomImagePreview.addEventListener("pointermove",e=>{
 function endRoomImagePointer(e){
  if(!roomImagePointerActive)return;
  roomImagePointerActive=false;roomImagePreview.classList.remove("is-dragging");
+ roomImageSuppressClickUntil=Date.now()+900;
  if(e?.pointerId!==undefined&&roomImagePreview.hasPointerCapture?.(e.pointerId))roomImagePreview.releasePointerCapture(e.pointerId);
 }
 roomImagePreview.addEventListener("pointerup",endRoomImagePointer);
 roomImagePreview.addEventListener("pointercancel",endRoomImagePointer);
 roomImagePreview.addEventListener("lostpointercapture",endRoomImagePointer);
 roomImagePreview.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();});
+// Android can retarget the compatibility click to the last focused input. Catch it
+// before it reaches the form so releasing the image gesture never opens the keyboard.
+document.addEventListener("click",e=>{
+ if(Date.now()>roomImageSuppressClickUntil||e.detail===0)return;
+ e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+},true);
 // Prevent the touch gesture on the preview from being interpreted as page navigation or a tap on a nearby form field.
 for(const range of [$("rf_image_focus_x_range"),$("rf_image_focus_y_range")]){
  range.addEventListener("pointerdown",e=>{e.stopPropagation();});
@@ -888,7 +901,7 @@ $("roomsTable").addEventListener("click",async e=>{
   $("rf_room_code").value="";$("rf_room_password").value="";
   $("rf_room_code").disabled=false;$("rf_room_password").disabled=false;$("publishRoomAccessButton").disabled=false;
   $("roomAccessAdminPanel").classList.remove("hidden");$("roomAccessPublishMessage").textContent="برای تغییر اطلاعات ورود، کد و رمز جدید را وارد و ذخیره کن.";
-  $("roomForm").classList.remove("hidden");await refreshRoomAccessAdminStatus(data.id);$("roomForm").scrollIntoView({behavior:"smooth",block:"start"});$("rf_title").focus();
+  $("roomForm").classList.remove("hidden");await refreshRoomAccessAdminStatus(data.id);$("roomForm").scrollIntoView({behavior:"smooth",block:"start"});
  }
  if(del&&permissions["rooms.manage"]){
   if(!confirm("این روم حذف شود؟ این عملیات قابل بازگشت نیست."))return;
