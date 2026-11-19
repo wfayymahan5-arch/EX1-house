@@ -124,6 +124,15 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 @keyframes ex1Shimmer{0%,62%{left:-48%;opacity:0}70%{opacity:1}92%,100%{left:130%;opacity:0}}
 @media(hover:none){:is(.card,.room-card,.match-card,.tournament-card,.stat,.panel,.section,.box,.modal-content,.dialog,.auth-card,.profile-card,.wallet-card,.hero,.admin-card,[class*="card"],[class*="panel"],[class*="widget"]):active{box-shadow:0 0 0 1px rgba(155,92,255,.4),0 0 24px rgba(39,230,242,.15)!important}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style><style id="ex1-compact-manager-form">
+/* Compact, centered manager forms */
+.manager-form{width:min(100%,760px);max-width:760px;margin:16px auto!important;padding:clamp(12px,2vw,20px)!important;box-sizing:border-box}
+.manager-form .formgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.manager-form label{min-width:0}
+.manager-form input,.manager-form select,.manager-form textarea{min-width:0;box-sizing:border-box}
+.manager-form .actions{justify-content:flex-start}
+@media(min-width:1100px){.manager-form{width:min(100%,700px)}}
+@media(max-width:620px){.manager-form{width:100%;margin:12px auto!important}.manager-form .formgrid{grid-template-columns:minmax(0,1fr)}}
 </style></head>
 <body><div class="wrap">
 <header class="top"><div class="brand"><img src="/ex1-legend-mark.svg" alt="" width="30" height="30" style="vertical-align:middle;margin-inline-end:7px">EX1 <span>LEGEND</span> <small style="color:#9998b2;font-size:12px">/ مدیریت</small></div><a class="btn" href="/">بازگشت به سایت ↗</a></header>
