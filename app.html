@@ -606,7 +606,7 @@ $("headerAuth").onclick=()=>currentUser?switchPage("profile"):openAuth();
 async function signOutCurrentAccount(){const {error}=await sb.auth.signOut();if(error)throw error;currentUser=null;activeConversation=null;activeConversationUser=null;profileCacheUserId=null;profileDataLoaded=false;supportDataLoaded=false;notificationsDataLoaded=false;await authState();switchPage("home");}
 async function confirmedSignOut(){
  if(!currentUser)return;
- if(!window.confirm("آیا می‌خواهید از حساب کاربری خود خارج شوید؟"))return false;
+ if(!(await ex1Confirm("خروج از حساب","آیا می‌خواهید از حساب کاربری خود خارج شوید؟","خروج")))return false;
  await signOutCurrentAccount();$("settingsModal").classList.remove("show");toast("با موفقیت از حساب خارج شدی.");return true;
 }
 $("logoutButton").onclick=async()=>{try{await confirmedSignOut();}catch(err){toast(err?.message||"خروج انجام نشد.");}};
@@ -629,7 +629,7 @@ $("changeAccountButton").onclick=async()=>{
 $("deleteAccountButton").onclick=async()=>{
  const button=$("deleteAccountButton");
  if(!currentUser)return toast("ابتدا وارد حساب شو.");
- if(!window.confirm("آیا می‌خواهید حساب کاربری خود را حذف کنید؟ این عملیات دائمی است و قابل بازگشت نیست."))return;
+ if(!(await ex1Confirm("حذف حساب کاربری","آیا می‌خواهید حساب کاربری خود را حذف کنید؟ این عملیات دائمی است و قابل بازگشت نیست.","حذف دائمی حساب")))return;
  const password=window.prompt("برای تأیید هویت، رمز عبور فعلی حساب EX1 را وارد کن:");
  if(password===null)return;
  if(!password.trim())return toast("برای حذف حساب، وارد کردن رمز عبور لازم است.");
