@@ -529,9 +529,10 @@ $("moderationCasesTable").addEventListener("click",async e=>{
  const btn=e.target.closest("[data-case-decision]");
  if(!btn||!isOwner)return;
  const caseId=btn.dataset.caseId,decision=btn.dataset.caseDecision;
- if(!caseId||!["dismiss","warn_only","warn_and_ban","remove_avatar"].includes(decision))return;
+ if(!caseId||!["dismiss","warn_only","warn_and_ban","remove_avatar","remove_cover"].includes(decision))return;
  if(decision==="warn_and_ban"&&!window.confirm("با تأیید مالک، ابتدا اخطار ارسال و سپس حساب کاربر مسدود می‌شود. ادامه می‌دهی؟"))return;
  if(decision==="remove_avatar"&&!window.confirm("عکس پروفایل این کاربر حذف شود؟ این کار عکس فعلی را از پروفایل عمومی برمی‌دارد."))return;
+ if(decision==="remove_cover"&&!window.confirm("کاور این کاربر حذف شود؟"))return;
  const noteInput=$("moderationCasesTable").querySelector('[data-case-note="'+caseId+'"]');
  btn.disabled=true;
  try{
@@ -539,7 +540,7 @@ $("moderationCasesTable").addEventListener("click",async e=>{
   if(error)throw error;
   if(data?.error)throw new Error(data.error);
   await loadModerationCases();
-  toast(decision==="dismiss"?"گزارش رد شد.":decision==="warn_only"?"اخطار ارسال شد و عکس حفظ شد.":decision==="remove_avatar"?"عکس پروفایل حذف شد.":"اخطار ارسال و حساب مسدود شد.");
+  toast(decision==="dismiss"?"تصویر پس از بررسی مالک تأیید و منتشر شد.":decision==="warn_only"?"اخطار ثبت شد و تصویر تأییدشده منتشر شد.":decision==="remove_avatar"?"عکس پروفایل حذف شد.":decision==="remove_cover"?"کاور پروفایل حذف شد.":"اخطار ارسال و حساب مسدود شد.");
  }catch(err){console.error("EX1 moderation decision:",err);toast(err.message||"ثبت تصمیم انجام نشد.");btn.disabled=false;}
 });
 $("refreshSocialReports").onclick=async()=>{
