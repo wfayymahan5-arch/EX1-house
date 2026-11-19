@@ -1,0 +1,42 @@
+name: Build EX1 LEGEND Android APKs
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - audit/ex1-pre-release-remediation
+      - release/ex1-minimal-publication-prep
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
+      - name: Build player and admin APKs
+        working-directory: android
+        run: gradle -Pex1BaseUrl=https://ex1-house-git-release-ex1-minimal-publi-204852-wfayymahan5-arch.vercel.app assemblePlayerDebug assembleAdminDebug
+      - name: Collect APKs
+        run: |
+          mkdir -p release-apks
+          cp android/app/build/outputs/apk/player/debug/app-player-debug.apk release-apks/EX1-LEGEND-Player-debug.apk
+          cp android/app/build/outputs/apk/admin/debug/app-admin-debug.apk release-apks/EX1-LEGEND-Admin-debug.apk
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: EX1-LEGEND-Android-APKs
+          path: release-apks/*.apk
+          if-no-files-found: error
+          retention-days: 30
