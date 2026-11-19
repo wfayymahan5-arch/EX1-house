@@ -246,7 +246,7 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
  <div id="home-messages" class="home-panel" hidden><div class="section-head"><div><h2>گفت‌وگوها</h2><p>پیام فقط بین بازیکن‌هایی که دوطرفه همدیگر را دنبال می‌کنند فعال است.</p></div></div><div class="chat-layout"><div id="chatContacts" class="chat-list"><div class="empty">برای شروع چت وارد حساب شو.</div></div><div class="panel chat-window"><div id="chatTitle" class="muted">یک بازیکن را انتخاب کن.</div><div id="chatMessages" class="chat-messages"></div><form id="chatForm" class="chat-send"><input id="chatText" class="field" maxlength="2000" placeholder="پیام..." disabled><button class="btn small" type="submit" disabled id="chatSend">ارسال</button></form></div></div></div>
 </section>
 <section class="page" id="page-profile">
- <div class="profile-cover"><button class="profile-menu" type="button" id="profileMenuEdit" aria-label="ویرایش پروفایل">☰</button><div id="profileAvatar" class="profile-big">EX</div><button class="avatar-upload-btn" id="chooseAvatarButton" type="button">＋ انتخاب عکس پروفایل</button><input id="profileAvatarFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><div class="profile-level">◆</div><h1 id="profileDisplayName">بازیکن EX1</h1><div id="profileUsername" class="profile-handle">EX1 PLAYER</div><p>پروفایل بازیکن و فعالیت‌های جامعه</p></div>
+ <div class="profile-cover"><button class="profile-menu" type="button" id="profileMenuEdit" aria-label="ویرایش پروفایل">☰</button><div id="profileAvatar" class="profile-big">EX</div><button class="avatar-upload-btn" id="chooseAvatarButton" type="button">＋ انتخاب عکس پروفایل</button><input id="profileAvatarFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><div class="profile-level">◆</div><h1 id="profileDisplayName">بازیکن</h1><div id="profileUsername" class="profile-handle">PLAYER</div><p>پروفایل بازیکن و فعالیت‌های جامعه</p></div>
  <div class="profile-stats"><div><strong id="profileFollowersCount">۰</strong><small>دنبال‌کننده</small></div><div><strong id="profileFollowingCount">۰</strong><small>دنبال‌شونده</small></div></div>
  <div class="profile-bio panel"><p>پروفایل عمومی فقط اطلاعات پایه‌ی بازیکن را نمایش می‌دهد.</p><button class="btn small" type="button" id="openProfileEditor">ویرایش پروفایل　✎</button></div>
  <div class="wallet-card" role="button" tabindex="0" id="walletOpen"><div><span class="wallet-kicker">استار</span><strong id="walletCardBalance" class="wallet-balance">۰ <small>امتیاز</small></strong><span class="wallet-note">مشاهده موجودی و تاریخچه استار</span></div><span class="wallet-icon">✦</span></div>
@@ -642,22 +642,33 @@ async function showRoomDetail(room){
 }
 
 let profileCacheUserId=null,profileDataLoaded=false,supportDataLoaded=false,notificationsDataLoaded=false;
+const ex1PageLoadState={tournaments:{at:0,promise:null},ranking:{at:0,promise:null}};
+function ex1LoadPageData(key,loader){
+ const state=ex1PageLoadState[key],now=Date.now();
+ if(!state||state.promise||(now-state.at<18000))return;
+ state.at=now;
+ state.promise=Promise.resolve().then(loader).catch(err=>{state.at=0;console.warn("EX1 page data:",err);}).finally(()=>{state.promise=null;});
+}
 function switchPage(page){
  document.querySelectorAll(".page").forEach(x=>{
   const active=x.id==="page-"+page;
   x.classList.toggle("active",active);
-  if(active){x.classList.remove("ex1-page-enter");void x.offsetWidth;x.classList.add("ex1-page-enter");}
+  if(active){
+   x.classList.remove("ex1-page-enter");
+   requestAnimationFrame(()=>{if(x.classList.contains("active"))x.classList.add("ex1-page-enter");});
+  }
  });
  document.querySelectorAll(".bottom-nav [data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
  if(page==="profile"){
   const uid=currentUser?.id||null;
   if(uid!==profileCacheUserId){profileCacheUserId=uid;profileDataLoaded=false;supportDataLoaded=false;notificationsDataLoaded=false;}
   if(currentUser&&!profileDataLoaded){profileDataLoaded=true;loadProfile().catch(()=>profileDataLoaded=false);}
-  if(currentUser&&!supportDataLoaded){supportDataLoaded=true;loadSupportConversation().catch(()=>supportDataLoaded=false);}
-  if(currentUser&&!notificationsDataLoaded){notificationsDataLoaded=true;loadUserNotifications().catch(()=>notificationsDataLoaded=false);}
+  // Non-critical panels load after the profile becomes visible, so they do not block navigation.
+  if(currentUser&&!supportDataLoaded){supportDataLoaded=true;setTimeout(()=>{if($("page-profile")?.classList.contains("active"))loadSupportConversation().catch(()=>supportDataLoaded=false);else supportDataLoaded=false;},180);}
+  if(currentUser&&!notificationsDataLoaded){notificationsDataLoaded=true;setTimeout(()=>{if($("page-profile")?.classList.contains("active"))loadUserNotifications().catch(()=>notificationsDataLoaded=false);else notificationsDataLoaded=false;},260);}
  }
- if(page==="tournaments")loadTournaments();
- if(page==="ranking")loadRanking();
+ if(page==="tournaments")ex1LoadPageData("tournaments",loadTournaments);
+ if(page==="ranking")ex1LoadPageData("ranking",loadRanking);
 }
 document.querySelectorAll(".bottom-nav [data-page]").forEach(b=>b.addEventListener("click",()=>switchPage(b.dataset.page)));
 function switchHome(tab){
@@ -806,8 +817,8 @@ async function loadProfile(){
  const {data,error}=await sb.from("profiles").select("id,display_name,username,avatar_url,game_uid,game_name").eq("id",currentUser.id).maybeSingle();
  if(error){console.error("EX1 profile load:",error);toast("اطلاعات پروفایل فعلاً در دسترس نیست. دوباره تلاش کن.");return;}
  if(!data){toast("پروفایل این حساب هنوز ساخته نشده است؛ دوباره وارد شو.");return;}
- $("profileDisplayName").textContent=data.display_name||"بازیکن EX1";
- $("profileUsername").textContent=data.username?"@"+data.username:"نام کاربری ثبت نشده";
+ $("profileDisplayName").textContent=data.display_name||"بازیکن";
+ $("profileUsername").textContent=data.username?"@"+data.username:"PLAYER";
  const avatarBox=$("profileAvatar");const fallbackAvatar=esc((data.display_name||"EX").slice(0,1));let avatarUrl=data.avatar_url||"";if(avatarUrl&&!/^https?:\/\//i.test(avatarUrl))avatarUrl=sb.storage.from("ex1-avatars").getPublicUrl(avatarUrl).data.publicUrl;avatarBox.innerHTML=avatarUrl?'<img class="profile-avatar-image" data-avatar-fallback="'+fallbackAvatar+'" data-avatar-class="profile-avatar-fallback" src="'+esc(avatarUrl)+'" alt="عکس پروفایل">':fallbackAvatar;
  $("profileName").value=data.display_name||"";$("profileHandle").value=data.username||"";$("profileGameUid").value=data.game_uid||"";$("profileGameName").value=data.game_name||"";loadFollowRequests();loadMyMatches();loadFollowStats();
 }
@@ -845,7 +856,7 @@ async function loadExplore(){
  $("exploreUsers").innerHTML=(data||[]).map(p=>{
   const mine=edges.find(x=>x.follower_id===currentUser.id&&x.followed_id===p.id);
   const label=mine?.status==="accepted"?"دنبال می‌کنی":mine?.status==="pending"?"درخواست ارسال شد":"دنبال‌کردن";
-  return '<div class="user-row">'+avatarHTML(p)+'<div class="user-info"><strong>'+esc(p.display_name||"بازیکن")+'</strong><small>'+(p.username?"@"+esc(p.username):"بازیکن EX1")+'</small></div><button class="btn secondary small" data-follow="'+esc(p.id)+'" '+(mine?"disabled":"")+'>'+label+'</button><button class="btn ghost small" data-block-user="'+esc(p.id)+'">مسدود</button><button class="btn ghost small" data-report-user="'+esc(p.id)+'">گزارش</button></div>';
+  return '<div class="user-row">'+avatarHTML(p)+'<div class="user-info"><strong>'+esc(p.display_name||"بازیکن")+'</strong><small>'+(p.username?"@"+esc(p.username):"بازیکن")+'</small></div><button class="btn secondary small" data-follow="'+esc(p.id)+'" '+(mine?"disabled":"")+'>'+label+'</button><button class="btn ghost small" data-block-user="'+esc(p.id)+'">مسدود</button><button class="btn ghost small" data-report-user="'+esc(p.id)+'">گزارش</button></div>';
  }).join("")||'<div class="empty">بازیکنی پیدا نشد.</div>';
  $("exploreUsers").querySelectorAll("[data-follow]").forEach(b=>b.onclick=async()=>{const {error}=await sb.from("user_follows").insert({follower_id:currentUser.id,followed_id:b.dataset.follow,status:"pending"});if(error){toast("درخواست دنبال‌کردن ارسال نشد.");return;}toast("درخواست دنبال‌کردن ارسال شد.");loadExplore();});
  $("exploreUsers").querySelectorAll("[data-block-user]").forEach(b=>b.onclick=async()=>{
@@ -1286,6 +1297,34 @@ if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.se
 @media(prefers-reduced-motion:reduce){
  .bottom-nav:before,.bottom-nav:after{animation:none!important}
  .bottom-nav button{transition:none!important}
+}
+</style>
+
+
+<style id="ex1-legend-motion-expansion-v1">
+/* Additional visual motion layer; preserves all previous EX1 effects */
+.profile-cover{overflow:hidden;isolation:isolate;border-bottom:1px solid rgba(185,120,255,.34);box-shadow:0 12px 35px rgba(110,55,180,.15)}
+.profile-cover:before,.profile-cover:after{content:"";position:absolute;pointer-events:none;z-index:0}
+.profile-cover:before{inset:-60% -35%;background:conic-gradient(from 0deg,transparent 0 22%,rgba(157,94,255,.16) 28%,transparent 36% 56%,rgba(43,215,239,.13) 63%,transparent 72%);animation:ex1ProfileOrbit 18s linear infinite}
+.profile-cover:after{left:-35%;right:-35%;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(63,224,244,.8),rgba(192,119,255,.95),transparent);box-shadow:0 0 12px rgba(166,102,255,.7);animation:ex1ProfileScan 5.8s ease-in-out infinite}
+.profile-cover>*{position:relative;z-index:1}
+.profile-big{box-shadow:0 0 0 3px rgba(177,112,255,.2),0 0 22px rgba(157,92,255,.35),0 0 38px rgba(50,210,235,.12);animation:ex1AvatarPulse 4s ease-in-out infinite}
+.profile-level{box-shadow:0 0 12px rgba(68,235,158,.28),0 0 22px rgba(68,235,158,.14);animation:ex1LevelFloat 3.5s ease-in-out infinite}
+.profile-stats>div{transition:transform .22s ease,filter .22s ease}
+.profile-stats>div:hover{transform:translateY(-3px);filter:brightness(1.18)}
+.profile-tabs button.active{box-shadow:0 0 13px rgba(169,102,255,.3),inset 0 0 10px rgba(202,154,255,.12)}
+.page.active .section-head h2{ text-shadow:0 0 14px rgba(169,105,255,.2)}
+.panel,.room-card,.tournament,.wallet-card,.home-shortcuts button{will-change:auto}
+.bottom-nav{box-shadow:0 -9px 30px rgba(117,62,190,.22),0 -1px 16px rgba(46,212,235,.1)!important}
+.bottom-nav button.active{animation:ex1NavSelected 2.8s ease-in-out infinite}
+.btn:not(:disabled):active,.bottom-nav button:active,.profile-tabs button:active{filter:brightness(1.24) saturate(1.18)}
+@keyframes ex1ProfileOrbit{to{transform:rotate(360deg)}}
+@keyframes ex1ProfileScan{0%,100%{transform:translateX(-28%);opacity:.35}50%{transform:translateX(28%);opacity:1}}
+@keyframes ex1AvatarPulse{0%,100%{box-shadow:0 0 0 3px rgba(177,112,255,.18),0 0 18px rgba(157,92,255,.28)}50%{box-shadow:0 0 0 4px rgba(177,112,255,.3),0 0 28px rgba(157,92,255,.48),0 0 34px rgba(50,210,235,.17)}}
+@keyframes ex1LevelFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes ex1NavSelected{0%,100%{filter:drop-shadow(0 0 5px rgba(190,125,255,.35))}50%{filter:drop-shadow(0 0 11px rgba(190,125,255,.78))}}
+@media(prefers-reduced-motion:reduce){
+ .profile-cover:before,.profile-cover:after,.profile-big,.profile-level,.bottom-nav button.active{animation:none!important}
 }
 </style>
 
