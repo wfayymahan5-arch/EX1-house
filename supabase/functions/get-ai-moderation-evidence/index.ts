@@ -13,7 +13,7 @@ Deno.serve(async(req:Request)=>{
  const {data:owner,error:ownerErr}=await admin.rpc("is_system_owner",{p_user_id:auth.user.id});if(ownerErr||owner!==true)return reply(403,{error:"فقط مالک اصلی به شواهد دسترسی دارد."});
  let body:{case_id?:string};try{body=await req.json();}catch{return reply(400,{error:"درخواست معتبر نیست."});}
  const id=String(body.case_id??"");if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))return reply(400,{error:"شناسه پرونده معتبر نیست."});
- const {data:record,error}=await admin.from("ai_moderation_cases").select("content_type,evidence_bucket,evidence_path,original_storage_bucket,original_storage_path").eq("id",id).maybeSingle();
+ const {data:record,error}=await admin.from("ai_moderation_cases").select("user_id,content_type,evidence_bucket,evidence_path,original_storage_bucket,original_storage_path").eq("id",id).maybeSingle();
  if(error||!record||!["profile_avatar","profile_cover"].includes(record.content_type))return reply(404,{error:"شواهد تصویر پروفایل پیدا نشد."});
  const bucket=String(record.evidence_bucket||record.original_storage_bucket||""),path=String(record.evidence_path||record.original_storage_path||"");
  if(!["ex1-avatars","ex1-avatar-review"].includes(bucket)||!path)return reply(404,{error:"مسیر شواهد معتبر نیست."});
