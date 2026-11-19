@@ -23,7 +23,7 @@ Deno.serve(async(req:Request)=>{
  if(record.status!=="pending_review")return reply(409,{error:"این پرونده قبلاً بررسی شده است."});
  const isAvatar=record.content_type==="profile_avatar";
  const isCover=record.content_type==="profile_cover";
- const validCoverPath=path.startsWith(record.user_id+"/cover-")&&/^cover-[0-9a-f-]{36}\\.(jpg|png|webp)$/i.test(path.slice((record.user_id+"/").length));
+ const validCoverPath=path.startsWith(record.user_id+"/cover-")&&/^cover-[0-9a-f-]{36}\.(jpg|png|webp)$/i.test(path.slice((record.user_id+"/").length));
  const bucket=String(record.original_storage_bucket??""),path=String(record.original_storage_path??"");
  const validAvatarPath=path.startsWith(record.user_id+"/avatar-");
  const publishPrivateAvatar=async()=>{
