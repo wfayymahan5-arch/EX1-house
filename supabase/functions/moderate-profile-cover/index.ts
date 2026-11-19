@@ -16,7 +16,7 @@ Deno.serve(async (req: Request) => {
   const url = Deno.env.get("SUPABASE_URL") ?? "";
   const anon = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
   const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-  const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\\s+/i, "");
+  const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "").trim();
   if (!url || !anon || !service || !token) return reply(401, { error: "ابتدا وارد حساب شو." });
 
   const caller = createClient(url, anon, {
@@ -49,7 +49,7 @@ Deno.serve(async (req: Request) => {
   }
 
   const path = String(body.p_cover_path ?? "");
-  const match = path.match(new RegExp("^" + auth.user.id + "/cover-([0-9a-f-]{36})\\\\.(jpg|png|webp)$", "i"));
+  const match = path.match(new RegExp("^" + auth.user.id + "/cover-[0-9a-f-]{36}\\.(jpg|png|webp)$", "i"));
   if (!match) return reply(400, { error: "مسیر تصویر معتبر نیست." });
 
   const { data: file, error: downloadError } = await admin.storage.from("ex1-avatar-review").download(path);
