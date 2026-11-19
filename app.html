@@ -816,18 +816,27 @@ $("cancelCoverButton").onclick=resetCoverPreview;
 $("saveCoverButton").onclick=async()=>{
  const input=$("profileCoverFile"),file=input.files?.[0];if(!file||!currentUser)return;
  const button=$("saveCoverButton"),cancel=$("cancelCoverButton");button.disabled=true;cancel.disabled=true;button.textContent="در حال ذخیره...";
+ let uploadedTempPath="";
  try{
   if(!crypto?.randomUUID)throw new Error("مرورگر این دستگاه برای ذخیره امن تصویر به‌روزرسانی لازم دارد.");
   const ext=file.type==="image/jpeg"?"jpg":file.type.split("/")[1];
   const tempPath=currentUser.id+"/cover-"+crypto.randomUUID()+"."+ext;
   const {error:uploadError}=await sb.storage.from("ex1-avatar-review").upload(tempPath,file,{upsert:false,contentType:file.type,cacheControl:"3600"});
   if(uploadError)throw uploadError;
+  uploadedTempPath=tempPath;
   const {data:result,error}=await sb.functions.invoke("moderate-profile-cover",{body:{p_cover_path:tempPath}});
   if(error)throw error;
-  if(result?.pending_review&&!result?.visible){resetCoverPreview();await loadProfile();toast(result.message||"تصویر تا بررسی مالک عمومی نمی‌شود.");return;}
+  if(result?.pending_review&&!result?.visible){uploadedTempPath="";resetCoverPreview();await loadProfile();toast(result.message||"درخواست بررسی ثبت شد؛ تصویر پس از تأیید مالک نمایش داده می‌شود.");return;}
   if(!result?.success)throw new Error(result?.error||"ذخیره تصویر پس‌زمینه انجام نشد.");
+  uploadedTempPath="";
   resetCoverPreview();await loadProfile();toast(result.reported?"پس‌زمینه ذخیره و برای بررسی مالک گزارش شد.":"پس‌زمینه پروفایل ذخیره شد.");
- }catch(err){console.error("EX1 cover upload:",err);toast(err?.message||"ذخیره تصویر پس‌زمینه انجام نشد.");}
+ }catch(err){
+  console.error("EX1 cover upload:",err);
+  if(uploadedTempPath){const {error:cleanupError}=await sb.storage.from("ex1-avatar-review").remove([uploadedTempPath]);if(cleanupError)console.warn("EX1 temporary cover cleanup:",cleanupError);}
+  let message=err?.message||"ذخیره تصویر پس‌زمینه انجام نشد.";
+  try{const payload=await err?.context?.clone?.().json();if(payload?.error)message=payload.error;}catch(_){}
+  toast(message);
+ }
  finally{button.disabled=false;cancel.disabled=false;button.textContent="ذخیره کاور";}
 };
 $("removeCoverButton").onclick=async()=>{
