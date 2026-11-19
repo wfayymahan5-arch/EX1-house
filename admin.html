@@ -150,7 +150,14 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 }
 </style>
 
-</head>
+<style id="ex1-notification-multiselect-style">
+.notification-users-list{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:6px;margin-top:8px}
+.notification-user-row{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--line);cursor:pointer}
+.notification-user-row:last-child{border-bottom:0}
+.notification-user-row input{width:18px;height:18px;flex:0 0 auto}
+.notification-user-row span{display:flex;flex-direction:column;min-width:0;gap:3px}
+.notification-user-row small{opacity:.72;overflow-wrap:anywhere;font-size:11px}
+</style></head>
 <body><div class="wrap">
 <header class="top"><div class="brand"><img src="/ex1-legend-mark.svg" alt="" width="30" height="30" style="vertical-align:middle;margin-inline-end:7px">EX1 <span>LEGEND</span> <small style="color:#9998b2;font-size:12px">/ مدیریت</small></div><a class="btn" href="/">بازگشت به سایت ↗</a></header>
 <section id="authView" class="authbox"><h2>ورود مدیران EX1 LEGEND</h2><p class="muted">با حساب کاربری تأییدشده وارد شو. ساخت حساب یا اعطای دسترسی مدیریتی از این صفحه ممکن نیست.</p><form id="loginForm"><label class="muted" for="email">ایمیل</label><input class="field" id="email" type="email" autocomplete="username" required maxlength="254"><label class="muted" for="password">رمز عبور</label><input class="field" id="password" type="password" autocomplete="current-password" required maxlength="72"><button class="btn primary" id="loginButton" type="submit">ورود امن</button></form><p id="authMessage" class="muted" aria-live="polite"></p></section>
@@ -218,7 +225,7 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 </section>
 <section class="section tab hidden" id="registrations"><h2>ثبت‌نام‌های تیمی</h2><div id="registrationsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
-<section class="section tab hidden" id="users"><h2>کاربران و پروفایل‌ها</h2><div id="directNotificationPanel" class="manager-form hidden"><h3 style="margin-top:0">ارسال پیام مدیریتی مستقیم به کاربر</h3><form id="directNotificationForm"><div class="formgrid"><label>انتخاب کاربر<select id="directNotificationUser" required><option value="">ابتدا فهرست کاربران بارگذاری شود</option></select></label><label>عنوان پیام<input id="directNotificationTitle" maxlength="100" required placeholder="عنوان پیام"></label><label class="wide">متن پیام<textarea id="directNotificationBody" maxlength="1000" required placeholder="متن پیام برای کاربر..."></textarea></label></div><div class="actions"><button class="btn primary" id="sendDirectNotification" type="submit">ارسال اعلان</button></div><p class="muted" id="directNotificationStatus"></p></form></div><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
+<section class="section tab hidden" id="users"><h2>کاربران و پروفایل‌ها</h2><div id="directNotificationPanel" class="manager-form hidden"><h3 style="margin-top:0">ارسال اعلان مدیریتی</h3><form id="directNotificationForm"><div class="formgrid"><div class="wide"><label for="directNotificationSearch">جست‌وجوی کاربران</label><input id="directNotificationSearch" type="search" placeholder="نام نمایشی، نام کالاف یا شناسه کاربر..." autocomplete="off"><div class="actions" style="margin:8px 0"><button class="btn" id="selectVisibleNotificationUsers" type="button">انتخاب نتایج جست‌وجو</button><button class="btn" id="selectAllNotificationUsers" type="button">انتخاب همه کاربران</button><button class="btn" id="clearNotificationUsers" type="button">پاک‌کردن انتخاب</button></div><p class="muted" id="notificationSelectionCount">۰ کاربر انتخاب شده</p><div id="notificationUsersList" class="notification-users-list" aria-label="فهرست کاربران"><p class="muted">ابتدا فهرست کاربران بارگذاری شود.</p></div></div><label>عنوان پیام<input id="directNotificationTitle" maxlength="100" required placeholder="عنوان پیام"></label><label class="wide">متن پیام<textarea id="directNotificationBody" maxlength="1000" required placeholder="متن پیام برای کاربران انتخاب‌شده..."></textarea></label></div><div class="actions"><button class="btn primary" id="sendDirectNotification" type="submit">ارسال اعلان به کاربران انتخاب‌شده</button></div><p class="muted" id="directNotificationStatus" aria-live="polite"></p></form></div><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="social"><div class="row"><h2>مدیریت اجتماعی و گزارش‌ها</h2><button class="btn" id="refreshSocialReports" type="button">به‌روزرسانی</button></div><p class="muted">گزارش‌های محتوای اجتماعی فقط برای مدیر دارای مجوز social.moderate نمایش داده می‌شوند. تصمیم‌ها ثبت و قابل پیگیری هستند.</p><div id="socialReportsTable" class="empty">در حال دریافت گزارش‌ها...</div></section>
 <section class="section tab hidden" id="moderation"><div class="row"><h2>پرونده‌های بررسی هوشمند</h2><button class="btn" id="refreshModerationCases" type="button">به‌روزرسانی</button></div><p class="muted">این پرونده‌ها فقط برای مالک اصلی قابل مشاهده و تعیین تکلیف هستند. عکس‌های حساس تا بررسی مالک پنهان می‌مانند؛ سایر موارد مشکوک فوراً نمایش داده می‌شوند و برای بررسی گزارش می‌شوند.</p><div id="moderationCasesTable" class="empty">در حال دریافت پرونده‌ها...</div></section>
 <section class="section tab hidden" id="wallet"><h2>دفترکل استار هدیه</h2><div class="notice">این موجودی فقط امتیاز مجازی EX1 است؛ قابل خرید، انتقال، برداشت یا تبدیل به پول نیست. این صفحه فقط گزارش‌خوانی است.</div><div id="walletTable" class="empty">در حال دریافت دفترکل...</div></section>
@@ -459,7 +466,7 @@ async function loadTableData(){
  if(permissions["registrations.view_all"])tasks.push(rpc("admin_dashboard_registrations").then(d=>{$("statRegistrations").textContent=d.length;$("registrationsTable").innerHTML=table(["مسابقه","تیم","برچسب","وضعیت","زمان"],d.map(x=>row([esc(x.tournament_title),esc(x.team_name),esc(x.team_tag||"—"),esc(x.status),esc(new Date(x.registered_at).toLocaleString("fa-IR"))])));}));
  if(permissions["teams.view"])tasks.push(rpc("admin_dashboard_teams").then(d=>{$("statTeams").textContent=d.length;$("teamsTable").innerHTML=table(["نام تیم","برچسب","تعداد اعضا","توضیحات"],d.map(x=>row([esc(x.name),esc(x.tag||"—"),esc(x.member_count),esc(x.description||"—")])));}));
  if(permissions["users.view"]||permissions["profiles.view_all"])tasks.push(rpc("admin_dashboard_users").then(d=>{$("statUsers").textContent=d.length;$("usersTable").innerHTML=table(["نام نمایشی","نام کاربری","شناسه","ایجاد"],d.map(x=>row([esc(x.display_name||"—"),esc(x.username||"—"),'<small>'+esc(x.user_id)+'</small>',esc(x.created_at?new Date(x.created_at).toLocaleDateString("fa-IR"):"—")])));}));
- if(isOwner)tasks.push((async()=>{$("directNotificationPanel").classList.remove("hidden");const {data,error}=await sb.functions.invoke("admin-list-users-for-notifications");if(error)throw error;if(!data?.success)throw new Error(data?.error||"دریافت فهرست کاربران انجام نشد.");$("directNotificationUser").innerHTML='<option value="">انتخاب کاربر</option>'+(data.users||[]).map(x=>'<option value="'+esc(x.user_id)+'">'+esc(x.display_name||x.username||x.user_id)+' · '+esc(x.username||"بدون نام کاربری")+'</option>').join("");})());
+ if(isOwner)tasks.push((async()=>{$("directNotificationPanel").classList.remove("hidden");const {data,error}=await sb.functions.invoke("admin-list-users-for-notifications");if(error)throw error;if(!data?.success)throw new Error(data?.error||"دریافت فهرست کاربران انجام نشد.");notificationUsers=(data.users||[]).filter(x=>x.user_id);renderNotificationUsers();})());
  if(permissions["wallet.view_all"])tasks.push(rpc("admin_wallet_demo_overview_v2",{p_limit:200}).then(d=>{$("walletTable").innerHTML=table(["نام نمایشی","نام کالاف","شناسه کاربر","موجودی استار","نوع دفترکل","وضعیت"],d.map(x=>row([esc(x.display_name||"—"),esc(x.game_name||"ثبت نشده"),'<small>'+esc(x.user_id)+'</small>',esc(Number(x.balance_units||0).toLocaleString("fa-IR"))+" ⭐",esc(x.currency_code||"POINT"),esc(x.wallet_mode||"—")])));}));
  if(permissions["social.moderate"])tasks.push(loadSocialModeration());
  if(isOwner)tasks.push(loadModerationCases());
@@ -524,18 +531,51 @@ async function applyAccessInternal(user){
  if(permissions["settings.manage"]||permissions["settings.view"]){await loadTheme();$("saveTheme").hidden=!permissions["settings.manage"];}
  await loadTableData();
 }
+let notificationUsers=[],selectedNotificationUserIds=new Set();
+const notificationNumber=n=>Number(n||0).toLocaleString("fa-IR");
+function getVisibleNotificationUsers(){
+ const q=$("directNotificationSearch").value.trim().toLocaleLowerCase();
+ if(!q)return notificationUsers;
+ return notificationUsers.filter(u=>[u.display_name,u.username,u.game_name,u.user_id].some(v=>String(v||"").toLocaleLowerCase().includes(q)));
+}
+function renderNotificationUsers(){
+ const host=$("notificationUsersList"),visible=getVisibleNotificationUsers();
+ $("notificationSelectionCount").textContent=notificationNumber(selectedNotificationUserIds.size)+" نفر از "+notificationNumber(notificationUsers.length)+" کاربر انتخاب شده";
+ host.innerHTML=visible.length?visible.map(u=>'<label class="notification-user-row"><input type="checkbox" data-notification-user="'+esc(u.user_id)+'" '+(selectedNotificationUserIds.has(u.user_id)?"checked":"")+'><span><strong>'+esc(u.display_name||u.username||"کاربر بدون نام")+'</strong><small>'+esc(u.username||u.game_name||"بدون نام کاربری")+' · '+esc(u.user_id)+'</small></span></label>').join(""):'<p class="muted">کاربری با این عبارت پیدا نشد.</p>';
+}
+$("directNotificationSearch").addEventListener("input",renderNotificationUsers);
+$("notificationUsersList").addEventListener("change",e=>{
+ const input=e.target.closest("[data-notification-user]");if(!input)return;
+ const id=input.dataset.notificationUser;
+ if(input.checked)selectedNotificationUserIds.add(id);else selectedNotificationUserIds.delete(id);
+ renderNotificationUsers();
+});
+$("selectVisibleNotificationUsers").addEventListener("click",()=>{
+ getVisibleNotificationUsers().forEach(u=>selectedNotificationUserIds.add(u.user_id));renderNotificationUsers();
+});
+$("selectAllNotificationUsers").addEventListener("click",()=>{
+ notificationUsers.forEach(u=>selectedNotificationUserIds.add(u.user_id));renderNotificationUsers();
+});
+$("clearNotificationUsers").addEventListener("click",()=>{selectedNotificationUserIds.clear();renderNotificationUsers();});
 $("directNotificationForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!isOwner)return toast("فقط مالک اصلی می‌تواند اعلان مستقیم بفرستد.");
- const userId=$("directNotificationUser").value,title=$("directNotificationTitle").value.trim(),body=$("directNotificationBody").value.trim();
- if(!userId||!title||!body)return toast("کاربر، عنوان و متن پیام را کامل کن.");
- const button=$("sendDirectNotification");button.disabled=true;$("directNotificationStatus").textContent="در حال ارسال...";
+ const userIds=[...selectedNotificationUserIds],title=$("directNotificationTitle").value.trim(),body=$("directNotificationBody").value.trim();
+ if(!userIds.length||!title||!body)return toast("حداقل یک کاربر، عنوان و متن پیام را کامل کن.");
+ if(!window.confirm("این اعلان برای "+userIds.length+" کاربر ارسال شود؟"))return;
+ const button=$("sendDirectNotification");button.disabled=true;
+ let sent=0,failed=0;$("directNotificationStatus").textContent="در حال ارسال برای "+notificationNumber(userIds.length)+" کاربر...";
  try{
-  const {data,error}=await sb.functions.invoke("admin-send-user-notification",{body:{user_id:userId,title,body}});
-  if(error)throw error;if(!data?.success)throw new Error(data?.error||"ارسال اعلان انجام نشد.");
-  $("directNotificationForm").reset();$("directNotificationStatus").textContent="اعلان با موفقیت در حساب کاربر ثبت شد.";
-  toast("اعلان برای کاربر انتخاب‌شده ارسال شد.");
- }catch(err){console.error("EX1 direct notification:",err);$("directNotificationStatus").textContent=err?.message||"ارسال اعلان انجام نشد.";}
- finally{button.disabled=false;}
+  for(const userId of userIds){
+   try{
+    const {data,error}=await sb.functions.invoke("admin-send-user-notification",{body:{user_id:userId,title,body}});
+    if(error||!data?.success)throw error||new Error(data?.error||"ارسال ناموفق");
+    sent++;
+   }catch(err){failed++;console.error("EX1 notification failed for user:",userId,err);}
+   $("directNotificationStatus").textContent="ارسال‌شده: "+notificationNumber(sent)+" · ناموفق: "+notificationNumber(failed)+" · کل: "+notificationNumber(userIds.length);
+  }
+  if(failed===0){selectedNotificationUserIds.clear();$("directNotificationForm").reset();renderNotificationUsers();toast("اعلان برای همه کاربران انتخاب‌شده ارسال شد.");}
+  else toast("ارسال تمام شد؛ "+sent+" موفق و "+failed+" ناموفق.");
+ }finally{button.disabled=false;}
 });
 $("refreshModerationCases").onclick=async()=>{
  if(!isOwner)return toast("فقط مالک اصلی به این بخش دسترسی دارد.");
