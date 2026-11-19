@@ -18,6 +18,26 @@
 footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{position:fixed;bottom:18px;left:18px;background:#222035;border:1px solid #5c477e;padding:12px 16px;border-radius:12px;display:none;z-index:10}.toast.show{display:block}
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.nav{display:grid;grid-template-columns:repeat(3,1fr)}.nav button{text-align:center;padding:9px;font-size:12px}.wrap{padding:14px}.colorgrid{grid-template-columns:1fr}}
 </style>
+<style id="ex1-admin-gaming-motion-v1">
+:root{--bg:#0B0B12;--panel:#171725;--purple:#8B5CF6;--cyan:#8B5CF6}
+body{position:relative;isolation:isolate;background:radial-gradient(ellipse at 80% 0%,#5226a044 0,transparent 42%),radial-gradient(ellipse at 10% 85%,#32144d33 0,transparent 38%),#0B0B12!important}
+body:before{content:"";position:fixed;inset:-28%;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 28% 35%,#8B5CF622,transparent 38%),radial-gradient(ellipse at 75% 65%,#28c4d411,transparent 36%);filter:blur(25px);animation:ex1AdminAmbient 30s ease-in-out infinite alternate}
+.top{border-bottom:1px solid #8B5CF633;padding-bottom:14px}
+.brand span{color:#b99aff;text-shadow:0 0 15px #8B5CF655}
+.hero,.card,.section,.authbox{background:linear-gradient(145deg,#211a34f2,#151326f5);border-color:#8B5CF644;box-shadow:0 12px 30px #0004,inset 0 1px #ffffff0a}
+.hero{position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 20%,#ffffff0b 45%,transparent 70%);transform:translateX(-110%);animation:ex1AdminSweep 10s ease-in-out infinite}
+.btn.primary{background:linear-gradient(110deg,#8B5CF6,#5525a7);box-shadow:0 7px 22px #8B5CF644}
+.btn,.action-btn,.nav button,.colorfield{transition:transform .2s ease,box-shadow .25s ease,border-color .25s ease,filter .25s ease}
+.btn:active,.action-btn:active{transform:scale(.97)}
+.card:hover,.section:hover{border-color:#a78bfa77;box-shadow:0 14px 32px #0005,0 0 18px #8B5CF622}
+.tag{background:#8B5CF622;color:#d9c7ff;border:1px solid #8B5CF655}
+input:focus,select:focus,textarea:focus{outline:1px solid #a78bfa;box-shadow:0 0 0 3px #8B5CF622}
+@keyframes ex1AdminAmbient{0%{transform:translate3d(-2%,0,0) scale(1)}100%{transform:translate3d(2%,2%,0) scale(1.06)}}
+@keyframes ex1AdminSweep{0%,68%,100%{transform:translateX(-110%)}84%{transform:translateX(110%)}}
+@media(hover:hover){.btn:hover,.action-btn:hover{filter:brightness(1.12);box-shadow:0 8px 24px #8B5CF644}}
+@media(prefers-reduced-motion:reduce){body:before,.hero:after{animation:none!important}.btn,.action-btn,.nav button,.colorfield{transition:none!important}.card:hover,.section:hover{transform:none!important}}
+</style>
 </head>
 <body><div class="wrap">
 <header class="top"><div class="brand"><img src="/ex1-legend-mark.svg" alt="" width="30" height="30" style="vertical-align:middle;margin-inline-end:7px">EX1 <span>LEGEND</span> <small style="color:#9998b2;font-size:12px">/ مدیریت</small></div><a class="btn" href="/">بازگشت به سایت ↗</a></header>
