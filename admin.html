@@ -17,6 +17,33 @@
 .tag{display:inline-block;padding:4px 9px;border-radius:20px;background:#1d3b34;color:#8ff0c9;font-size:11px}.empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed #38384c;border-radius:12px}.hidden{display:none}.colorgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.colorfield{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px}.colorfield input{width:48px;height:38px;border:0;background:transparent}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{position:fixed;bottom:18px;left:18px;background:#222035;border:1px solid #5c477e;padding:12px 16px;border-radius:12px;display:none;z-index:10}.toast.show{display:block}
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.nav{display:grid;grid-template-columns:repeat(3,1fr)}.nav button{text-align:center;padding:9px;font-size:12px}.wrap{padding:14px}.colorgrid{grid-template-columns:1fr}}
+
+/* EX1 LEGEND gaming visual restoration: neon atmosphere, motion and responsive feedback */
+:root{--ex1-glow-purple:rgba(139,92,246,.34);--ex1-glow-cyan:rgba(34,211,238,.22)}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(ellipse at 12% 8%,rgba(116,55,201,.24),transparent 34%),radial-gradient(ellipse at 88% 18%,rgba(12,145,171,.17),transparent 32%),radial-gradient(ellipse at 52% 100%,rgba(93,37,145,.16),transparent 42%),#090910;background-attachment:fixed}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.22;background-image:linear-gradient(rgba(139,92,246,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.06) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,black,transparent 88%);animation:ex1GridDrift 26s linear infinite}
+.top,.hero,.card,.section,.authbox{box-shadow:0 12px 38px rgba(0,0,0,.22),0 0 0 1px rgba(139,92,246,.035);transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease,background-color .28s ease}
+.hero{position:relative;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.28),0 0 34px var(--ex1-glow-purple);background:linear-gradient(115deg,rgba(44,25,75,.96),rgba(12,20,34,.96));}
+.hero:after{content:"";position:absolute;inset:-80% auto -80% -35%;width:28%;transform:rotate(24deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.075),transparent);animation:ex1HeroSweep 8s ease-in-out infinite;pointer-events:none}
+.card,.section{background:linear-gradient(145deg,rgba(23,21,42,.96),rgba(13,16,29,.96));border-color:rgba(113,91,157,.36)}
+.card:hover,.section:hover{border-color:rgba(139,92,246,.62);box-shadow:0 14px 38px rgba(0,0,0,.28),0 0 22px rgba(139,92,246,.11)}
+.stat{animation:ex1RiseIn .55s both}
+.stat:nth-child(2){animation-delay:.07s}.stat:nth-child(3){animation-delay:.14s}.stat:nth-child(4){animation-delay:.21s}
+.btn,.action-btn,.nav button{transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease,background .2s ease,color .2s ease}
+.btn:hover,.action-btn:hover{transform:translateY(-2px);border-color:rgba(34,211,238,.65);box-shadow:0 7px 22px rgba(34,211,238,.12),0 0 14px rgba(139,92,246,.12)}
+.btn.primary{background:linear-gradient(110deg,#7544d4,#167f98);box-shadow:0 5px 20px rgba(117,68,212,.22)}
+.btn.primary:hover{box-shadow:0 8px 28px rgba(117,68,212,.38),0 0 18px rgba(34,211,238,.2)}
+.nav button.active{box-shadow:inset 3px 0 0 var(--cyan),0 0 18px rgba(139,92,246,.13)}
+.tag{box-shadow:0 0 13px rgba(52,211,153,.09)}
+.brand span{text-shadow:0 0 16px rgba(34,211,238,.42)}
+.toast.show{animation:ex1ToastIn .24s ease-out}
+@keyframes ex1GridDrift{to{background-position:42px 42px,42px 42px}}
+@keyframes ex1HeroSweep{0%,55%{left:-38%;opacity:0}65%{opacity:1}90%,100%{left:125%;opacity:0}}
+@keyframes ex1RiseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ex1ToastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
 </style>
 <style id="ex1-admin-gaming-motion-v1">
 :root{--bg:#0B0B12;--panel:#171725;--purple:#8B5CF6;--cyan:#8B5CF6}
