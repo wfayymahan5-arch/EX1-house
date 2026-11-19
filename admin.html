@@ -157,6 +157,35 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 .notification-user-row input{width:18px;height:18px;flex:0 0 auto}
 .notification-user-row span{display:flex;flex-direction:column;min-width:0;gap:3px}
 .notification-user-row small{opacity:.72;overflow-wrap:anywhere;font-size:11px}
+</style><style id="ex1-admin-mobile-scroll-fix">
+/* Mobile-first scrolling: keep the page vertically scrollable and contain wide tables. */
+html{min-height:100%;overflow-x:clip;overflow-y:auto;scrollbar-gutter:stable}
+body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;overscroll-behavior-y:auto;-webkit-overflow-scrolling:touch}
+.wrap{width:100%;min-width:0;max-width:1200px}
+.layout,.layout>* , .section,.hero,.card,.manager-form,.formgrid,.wide{min-width:0;max-width:100%}
+.section{overflow:visible}
+.tablewrap{display:block;width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.tablewrap table{width:max-content;min-width:550px}
+.manager-form input,.manager-form select,.manager-form textarea{max-width:100%;min-width:0}
+.room-image-preview{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.room-image-preview.is-dragging{cursor:grabbing}
+.room-image-preview img{user-select:none;-webkit-user-drag:none}
+.room-image-focus-control input[type=range]{touch-action:pan-x;max-width:100%;min-width:0}
+@media(max-width:760px){
+ html,body{overflow-x:clip}
+ .wrap{padding:10px;width:100%}
+ .layout{display:block;width:100%}
+ .nav{display:flex;flex-direction:row;gap:6px;overflow-x:auto;overflow-y:hidden;max-width:100%;padding:2px 0 8px;white-space:nowrap;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+ .nav button{flex:0 0 auto;min-width:max-content}
+ .tab.section{width:100%;padding:13px;border-radius:14px}
+ .top{align-items:flex-start;flex-wrap:wrap}
+ .hero h1{font-size:20px}
+ .formgrid{grid-template-columns:minmax(0,1fr)}
+ .manager-form .wide{grid-column:1}
+ .room-image-preview-wrap{width:100%;max-width:100%}
+ .room-image-preview{width:100%;touch-action:none}
+ .actions>.btn,.room-image-actions>.btn{max-width:100%}
+}
 </style></head>
 <body><div class="wrap">
 <header class="top"><div class="brand"><img src="/ex1-legend-mark.svg" alt="" width="30" height="30" style="vertical-align:middle;margin-inline-end:7px">EX1 <span>LEGEND</span> <small style="color:#9998b2;font-size:12px">/ مدیریت</small></div><a class="btn" href="/">بازگشت به سایت ↗</a></header>
@@ -323,20 +352,34 @@ $("rf_max_teams").addEventListener("input",updateRoomCapacity);
 $("rf_team_size").addEventListener("change",updateRoomCapacity);
 $("chooseRoomImage").onclick=()=>$("rf_room_image_file").click();
 $("removeRoomImage").onclick=resetRoomImage;
-$("roomImagePreview").addEventListener("pointerdown",e=>{
- if(e.pointerType!=="mouse"||e.button!==0)return;
- roomImagePointerActive=true;$("roomImagePreview").classList.add("is-dragging");
- $("roomImagePreview").setPointerCapture?.(e.pointerId);updateRoomFocusFromPointer(e);e.preventDefault();
+const roomImagePreview=$("roomImagePreview");
+roomImagePreview.tabIndex=-1;
+roomImagePreview.addEventListener("pointerdown",e=>{
+ if(e.pointerType==="mouse"&&e.button!==0)return;
+ roomImagePointerActive=true;roomImagePreview.classList.add("is-dragging");
+ try{roomImagePreview.setPointerCapture(e.pointerId);}catch(_){}
+ updateRoomFocusFromPointer(e);
+ e.preventDefault();
 });
-$("roomImagePreview").addEventListener("pointermove",e=>{if(roomImagePointerActive&&e.pointerType==="mouse")updateRoomFocusFromPointer(e);});
-function endRoomImagePointer(){roomImagePointerActive=false;$("roomImagePreview").classList.remove("is-dragging");}
-$("roomImagePreview").addEventListener("pointerup",endRoomImagePointer);
-$("roomImagePreview").addEventListener("pointercancel",endRoomImagePointer);
-// Touch interaction is handled only by the two range controls; preview taps never activate form fields.
-$("rf_image_focus_x_range").addEventListener("pointerdown",e=>e.stopPropagation());
-$("rf_image_focus_y_range").addEventListener("pointerdown",e=>e.stopPropagation());
-$("rf_image_focus_x_range").addEventListener("click",e=>e.stopPropagation());
-$("rf_image_focus_y_range").addEventListener("click",e=>e.stopPropagation());
+roomImagePreview.addEventListener("pointermove",e=>{
+ if(!roomImagePointerActive)return;
+ updateRoomFocusFromPointer(e);e.preventDefault();
+});
+function endRoomImagePointer(e){
+ if(!roomImagePointerActive)return;
+ roomImagePointerActive=false;roomImagePreview.classList.remove("is-dragging");
+ if(e?.pointerId!==undefined&&roomImagePreview.hasPointerCapture?.(e.pointerId))roomImagePreview.releasePointerCapture(e.pointerId);
+}
+roomImagePreview.addEventListener("pointerup",endRoomImagePointer);
+roomImagePreview.addEventListener("pointercancel",endRoomImagePointer);
+roomImagePreview.addEventListener("lostpointercapture",endRoomImagePointer);
+roomImagePreview.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();});
+// Prevent the touch gesture on the preview from being interpreted as page navigation or a tap on a nearby form field.
+for(const range of [$("rf_image_focus_x_range"),$("rf_image_focus_y_range")]){
+ range.addEventListener("pointerdown",e=>{e.stopPropagation();});
+ range.addEventListener("click",e=>{e.stopPropagation();});
+ range.addEventListener("touchstart",e=>e.stopPropagation(),{passive:true});
+}
 $("rf_image_focus_x_range").addEventListener("input",e=>applyRoomImageFocus(e.target.value,$("rf_image_focus_y").value,true));
 $("rf_image_focus_y_range").addEventListener("input",e=>applyRoomImageFocus($("rf_image_focus_x").value,e.target.value,true));
 $("rf_room_image_file").addEventListener("change",e=>{
