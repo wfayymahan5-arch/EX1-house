@@ -226,8 +226,8 @@ async function loadModerationCases(){
  const host=$("moderationCasesTable");
  host.innerHTML='<div class="empty">در حال دریافت پرونده‌ها...</div>';
  const {data:cases,error}=await sb.from("ai_moderation_cases")
-  .select("id,user_id,content_type,source_table,source_id,content_text,moderation_categories,severity,confidence,model_name,status,owner_note,created_at")
-  .eq("status","pending_review").order("created_at",{ascending:false}).limit(100);
+  .select("id,user_id,content_type,source_table,source_id,content_text,moderation_categories,severity,confidence,model_name,status,owner_note,owner_decision_at,warning_sent_at,ban_applied_at,created_at")
+  .order("created_at",{ascending:false}).limit(100);
  if(error)throw error;
  const ids=[...new Set((cases||[]).map(x=>x.user_id).filter(Boolean))];
  let profiles={};
@@ -239,17 +239,20 @@ async function loadModerationCases(){
  const rows=(cases||[]).map(x=>{
   const profile=profiles[x.user_id];
   const categories=Array.isArray(x.moderation_categories)?x.moderation_categories.map(v=>typeof v==="string"?v:JSON.stringify(v)).join("، "):JSON.stringify(x.moderation_categories||"—");
-  const note='<input class="moderation-note" data-case-note="'+esc(x.id)+'" maxlength="500" placeholder="یادداشت مالک (اختیاری)" value="'+esc(x.owner_note||"")+'">';
-  const actions='<button class="action-btn" data-case-decision="dismiss" data-case-id="'+esc(x.id)+'">رد پرونده</button> <button class="action-btn" data-case-decision="warn_only" data-case-id="'+esc(x.id)+'">ارسال اخطار</button> <button class="action-btn danger" data-case-decision="warn_and_ban" data-case-id="'+esc(x.id)+'">اخطار و مسدودسازی</button>';
+  const pending=x.status==="pending_review";
+  const note=pending?'<input class="moderation-note" data-case-note="'+esc(x.id)+'" maxlength="500" placeholder="یادداشت مالک (اختیاری)" value="'+esc(x.owner_note||"")+'">':esc(x.owner_note||"—");
+  const actions=pending?'<button class="action-btn" data-case-decision="dismiss" data-case-id="'+esc(x.id)+'">رد پرونده</button> <button class="action-btn" data-case-decision="warn_only" data-case-id="'+esc(x.id)+'">ارسال اخطار</button> <button class="action-btn danger" data-case-decision="warn_and_ban" data-case-id="'+esc(x.id)+'">اخطار و مسدودسازی</button>':"—";
+  const statusLabel={pending_review:"در انتظار بررسی",rejected:"ردشده",warning_approved:"اخطار ارسال‌شده",ban_approved:"مسدودسازی تأییدشده"};
   return row([
    esc(profile?.display_name||profile?.username||x.user_id),
    esc(x.content_type||"—"),esc(x.source_table||"—"),
    esc(x.severity||"—"),esc(x.confidence==null?"—":Math.round(Number(x.confidence)*100)+"٪"),
    esc(categories),'<div class="moderation-content">'+esc((x.content_text||"").slice(0,700))+'</div>',
+   esc(statusLabel[x.status]||x.status||"—"),
    esc(new Date(x.created_at).toLocaleString("fa-IR")),note,actions
   ]);
  });
- host.innerHTML=cases?.length?table(["کاربر","نوع محتوا","منبع","شدت","اطمینان","دسته‌بندی","محتوای بررسی‌شده","زمان","یادداشت مالک","تصمیم"],rows):'<div class="empty">پرونده معلقی برای بررسی وجود ندارد.</div>';
+ host.innerHTML=cases?.length?table(["کاربر","نوع محتوا","منبع","شدت","اطمینان","دسته‌بندی","محتوای بررسی‌شده","وضعیت","زمان","یادداشت مالک","تصمیم"],rows):'<div class="empty">هنوز پرونده‌ای برای بررسی ثبت نشده است.</div>';
 }
 async function loadTableData(){
  const tasks=[];
