@@ -29,7 +29,7 @@ jobs:
           gradle-version: 8.9
       - name: Build player and admin preview APKs
         working-directory: android
-        run: gradle -Pex1BaseUrl=https://ex1-house.vercel.app assemblePlayerDebug assembleAdminDebug
+        run: gradle -Pex1BaseUrl=https://ex1-house-git-feature-android-shell-cur-9b2fe8-wfayymahan5-arch.vercel.app assemblePlayerDebug assembleAdminDebug
       - name: Collect APKs
         run: |
           mkdir -p release-apks
