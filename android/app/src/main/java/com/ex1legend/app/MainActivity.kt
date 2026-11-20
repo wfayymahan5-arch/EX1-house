@@ -303,7 +303,6 @@ class MainActivity : ComponentActivity() {
             showStartupMessage("نسخهٔ آنلاین و فایل پشتیبان در دسترس نیستند.")
         }
     }
-    }
 
     private fun showOfflineMessageIfNeeded() {
         if (pageReady || isFinishing || isDestroyed) return
