@@ -267,8 +267,59 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
 <label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
 </div><button class="btn primary" id="saveTheme" type="submit" style="margin-top:14px">ذخیره تنظیمات</button></form><div id="themeMessage" class="muted" style="margin-top:10px"></div></section>
 </main></div></div><footer>EX1 LEGEND · پنل مدیریت متصل به Supabase</footer></div><div class="toast" id="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2.119.0/dist/umd/supabase.js'"></script><script src="/supabase-config.js"></script>
-<script>
+<script src="/supabase-config.js"></script>
+<script src="/supabase-config.js"></script><script>
+(async function bootEx1Admin() {
+  const authMessage = document.getElementById("authMessage");
+  const loadSdk = (src) => new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    const timeout = setTimeout(() => {
+      script.remove();
+      reject(new Error("SDK load timeout"));
+    }, 15000);
+    script.src = src;
+    script.onload = () => { clearTimeout(timeout); resolve(); };
+    script.onerror = () => { clearTimeout(timeout); script.remove(); reject(new Error("SDK load failed")); };
+    document.head.appendChild(script);
+  });
+
+  if (!window.supabase || typeof window.supabase.createClient !== "function") {
+    const sources = [
+      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js",
+      "https://unpkg.com/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"
+    ];
+    for (const src of sources) {
+      try { await loadSdk(src); } catch (_) {}
+      if (window.supabase && typeof window.supabase.createClient === "function") break;
+    }
+  }
+
+  if (!window.supabase || typeof window.supabase.createClient !== "function") {
+    if (authMessage) {
+      authMessage.textContent = "کتابخانهٔ ورود بارگذاری نشد. اتصال اینترنت را بررسی و دوباره تلاش کن.";
+      const retry = document.createElement("button");
+      retry.type = "button";
+      retry.className = "btn";
+      retry.textContent = "تلاش دوباره";
+      retry.style.marginTop = "10px";
+      retry.addEventListener("click", () => {
+        if (window.Ex1Native && window.Ex1Native.reloadApp) window.Ex1Native.reloadApp();
+        else location.reload();
+      });
+      authMessage.appendChild(document.createElement("br"));
+      authMessage.appendChild(retry);
+    }
+    window.EX1_ADMIN_READY = true;
+    return;
+  }
+
+  if (!window.EX1_CONFIG || !window.EX1_CONFIG.url || !window.EX1_CONFIG.publishableKey) {
+    if (authMessage) authMessage.textContent = "تنظیمات اتصال EX1 بارگذاری نشد. صفحه را دوباره بارگذاری کن.";
+    window.EX1_ADMIN_READY = true;
+    return;
+  }
+
+  window.EX1_ADMIN_READY = false;
 const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
 let roomEffectsColumnAvailable=false;
 async function detectRoomEffectsColumn(){
@@ -1001,4 +1052,12 @@ sb.channel("ex1-admin-site-theme")
   if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")console.warn("EX1 admin theme realtime:",status);
  });
 refreshSession();
+
+  window.EX1_ADMIN_READY = true;
+})().catch((error) => {
+  console.error("EX1 admin startup:", error);
+  const message = document.getElementById("authMessage");
+  if (message) message.textContent = "راه‌اندازی پنل مدیریت ناموفق بود. لطفاً دوباره تلاش کن.";
+  window.EX1_ADMIN_READY = true;
+});
 </script></body></html>
