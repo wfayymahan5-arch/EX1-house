@@ -5,6 +5,10 @@ import android.animation.ObjectAnimator
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -31,10 +35,31 @@ class MainActivity : ComponentActivity() {
     private var ex1WebView: WebView? = null
     private var splashOverlay: View? = null
     private var appRoot: FrameLayout? = null
+    private var networkMessage: TextView? = null
     private var pageReady = false
+    private var loadInProgress = false
+    private var networkCallbackRegistered = false
     private val splashStartedAt = SystemClock.elapsedRealtime()
     private val mainHandler = Handler(Looper.getMainLooper())
+    private val connectivityManager by lazy { getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager }
     private var fileChooserCallback: android.webkit.ValueCallback<Array<Uri>>? = null
+
+    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) {
+            mainHandler.postDelayed({ tryLoadWhenOnline() }, 400)
+        }
+
+        override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
+            if (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+                mainHandler.post { tryLoadWhenOnline() }
+            }
+        }
+
+        override fun onLost(network: Network) {
+            mainHandler.post { showOfflineMessageIfNeeded() }
+        }
+    }
 
     private val imagePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         fileChooserCallback?.onReceiveValue(if (uri == null) null else arrayOf(uri))
@@ -72,12 +97,23 @@ class MainActivity : ComponentActivity() {
                     val uri = request.url
                     return uri.scheme != "https" || uri.host != EX1_HOST
                 }
+
                 override fun onPageFinished(view: WebView, url: String) {
                     super.onPageFinished(view, url)
+                    loadInProgress = false
+                    if (!hasValidatedInternet()) {
+                        view.stopLoading()
+                        view.visibility = View.INVISIBLE
+                        pageReady = false
+                        showOfflineMessageIfNeeded()
+                        return
+                    }
                     view.visibility = View.VISIBLE
+                    networkMessage?.visibility = View.GONE
                     pageReady = true
                     scheduleSplashExit()
                 }
+
                 override fun onReceivedError(
                     view: WebView,
                     request: WebResourceRequest,
@@ -85,9 +121,10 @@ class MainActivity : ComponentActivity() {
                 ) {
                     super.onReceivedError(view, request, error)
                     if (request.isForMainFrame) {
-                        view.visibility = View.VISIBLE
-                        pageReady = true
-                        scheduleSplashExit()
+                        loadInProgress = false
+                        pageReady = false
+                        view.visibility = View.INVISIBLE
+                        showOfflineMessageIfNeeded()
                     }
                 }
             }
@@ -120,7 +157,8 @@ class MainActivity : ComponentActivity() {
         ))
         setContentView(root)
         startSplashAnimation(splash)
-        web.loadUrl(if (BuildConfig.IS_ADMIN) ADMIN_URL else PLAYER_URL)
+        registerNetworkCallback()
+        tryLoadWhenOnline()
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -128,6 +166,50 @@ class MainActivity : ComponentActivity() {
                 if (current?.canGoBack() == true) current.goBack() else finish()
             }
         })
+    }
+
+    private fun hasValidatedInternet(): Boolean {
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+    }
+
+    private fun registerNetworkCallback() {
+        if (networkCallbackRegistered) return
+        try {
+            val request = NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .build()
+            connectivityManager.registerNetworkCallback(request, networkCallback)
+            networkCallbackRegistered = true
+        } catch (_: Exception) {
+            showOfflineMessageIfNeeded()
+        }
+    }
+
+    private fun tryLoadWhenOnline() {
+        if (isFinishing || isDestroyed) return
+        if (!hasValidatedInternet()) {
+            showOfflineMessageIfNeeded()
+            return
+        }
+        networkMessage?.visibility = View.GONE
+        if (pageReady || loadInProgress) return
+        loadInProgress = true
+        ex1WebView?.visibility = View.INVISIBLE
+        ex1WebView?.loadUrl(if (BuildConfig.IS_ADMIN) ADMIN_URL else PLAYER_URL)
+    }
+
+    private fun showOfflineMessageIfNeeded() {
+        if (pageReady || isFinishing || isDestroyed) return
+        loadInProgress = false
+        ex1WebView?.stopLoading()
+        ex1WebView?.visibility = View.INVISIBLE
+        networkMessage?.apply {
+            text = "اتصال اینترنت خود را بررسی کنید"
+            visibility = View.VISIBLE
+        }
     }
 
     private fun createSplashOverlay(): View {
@@ -190,6 +272,19 @@ class MainActivity : ComponentActivity() {
         taglineParams.topMargin = dp(12)
         content.addView(tagline, taglineParams)
 
+        networkMessage = TextView(this).apply {
+            text = "اتصال اینترنت خود را بررسی کنید"
+            textSize = 13f
+            setTextColor(Color.rgb(255, 210, 225))
+            gravity = Gravity.CENTER
+            visibility = View.GONE
+        }
+        val messageParams = android.widget.LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        messageParams.topMargin = dp(22)
+        content.addView(networkMessage, messageParams)
+
         container.addView(content, FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -250,6 +345,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         mainHandler.removeCallbacksAndMessages(null)
+        if (networkCallbackRegistered) {
+            try { connectivityManager.unregisterNetworkCallback(networkCallback) } catch (_: Exception) { }
+            networkCallbackRegistered = false
+        }
         fileChooserCallback?.onReceiveValue(null)
         fileChooserCallback = null
         ex1WebView?.apply {
@@ -261,6 +360,7 @@ class MainActivity : ComponentActivity() {
         ex1WebView = null
         splashOverlay = null
         appRoot = null
+        networkMessage = null
         super.onDestroy()
     }
 
