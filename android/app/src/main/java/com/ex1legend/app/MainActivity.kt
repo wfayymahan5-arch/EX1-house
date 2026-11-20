@@ -1,12 +1,10 @@
 package com.ex1legend.app
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Rect
-import android.graphics.RectF
 import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -18,6 +16,7 @@ import android.os.Looper
 import android.os.SystemClock
 import android.view.View
 import android.view.ViewGroup
+import android.view.Gravity
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -25,6 +24,9 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.webkit.WebSettings
 import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Button
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,6 +34,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 class MainActivity : ComponentActivity() {
     private var ex1WebView: WebView? = null
     private var splashOverlay: View? = null
+    private var startupMessageView: View? = null
+    private var startupMessageText: TextView? = null
     private var appRoot: FrameLayout? = null
     private var splashAnimationFinished = false
     private var pageReady = false
@@ -123,9 +127,12 @@ class MainActivity : ComponentActivity() {
                         showOfflineMessageIfNeeded()
                         return
                     }
-                    view.evaluateJavascript(
+                    val readyCheck = if (BuildConfig.IS_ADMIN) {
+                        "(document.readyState === 'complete' && !!document.getElementById('authView') && !!document.getElementById('appView') && !!window.supabase && !!window.EX1_CONFIG)"
+                    } else {
                         "(document.readyState === 'complete' && !!document.querySelector('.page.active'))"
-                    ) { result ->
+                    }
+                    view.evaluateJavascript(readyCheck) { result ->
                         if (isFinishing || isDestroyed || mainFrameLoadFailed) return@evaluateJavascript
                         if (result != "true") {
                             loadInProgress = false
@@ -135,6 +142,9 @@ class MainActivity : ComponentActivity() {
                             return@evaluateJavascript
                         }
                         loadInProgress = false
+                        startupMessageView?.let { appRoot?.removeView(it) }
+                        startupMessageView = null
+                        startupMessageText = null
                         view.visibility = View.VISIBLE
                         pageReady = true
                         scheduleSplashExit()
@@ -245,8 +255,7 @@ class MainActivity : ComponentActivity() {
 
     private fun tryLoadWhenOnline() {
         if (isFinishing || isDestroyed) return
-        // Keep WebView/network rendering off the UI thread budget while the player intro is animating.
-        if (!BuildConfig.IS_ADMIN && !splashAnimationFinished) return
+        // Load the page behind the lightweight native intro so it is ready when the intro ends.
         if (!hasValidatedInternet()) {
             showOfflineMessageIfNeeded()
             return
@@ -263,6 +272,7 @@ class MainActivity : ComponentActivity() {
         loadInProgress = false
         ex1WebView?.stopLoading()
         ex1WebView?.visibility = View.INVISIBLE
+        showStartupMessage("برای بازشدن EX1 LEGEND به اتصال اینترنت پایدار نیاز است.")
     }
 
     private fun showStartupMessage(message: String) {
@@ -270,64 +280,193 @@ class MainActivity : ComponentActivity() {
         loadInProgress = false
         pageReady = false
         ex1WebView?.visibility = View.INVISIBLE
+        val root = appRoot ?: return
+        if (startupMessageView == null) {
+            val box = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER
+                setPadding(dp(28), dp(28), dp(28), dp(28))
+                setBackgroundColor(Color.rgb(11, 9, 22))
+                isClickable = true
+                isFocusable = true
+            }
+            val title = TextView(this).apply {
+                text = "EX1 LEGEND"
+                textSize = 25f
+                setTextColor(Color.WHITE)
+                typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
+                gravity = Gravity.CENTER
+            }
+            val detail = TextView(this).apply {
+                textSize = 14f
+                setTextColor(Color.rgb(194, 184, 215))
+                gravity = Gravity.CENTER
+                setPadding(0, dp(16), 0, dp(18))
+            }
+            val retry = Button(this).apply {
+                text = "تلاش دوباره"
+                setOnClickListener {
+                    startupMessageView?.let { root.removeView(it) }
+                    startupMessageView = null
+                    startupMessageText = null
+                    mainFrameLoadFailed = false
+                    tryLoadWhenOnline()
+                }
+            }
+            box.addView(title, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
+            ))
+            box.addView(detail, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+            ))
+            box.addView(retry, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
+            ))
+            startupMessageView = box
+            startupMessageText = detail
+            root.addView(box, FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT
+            ))
+        }
+        startupMessageText?.text = message
     }
 
     private fun createSplashOverlay(): View {
         return FrameLayout(this).apply {
             setBackgroundColor(Color.rgb(7, 5, 17))
-            isClickable = true
-            isFocusable = true
-            addView(SplashFramesView(), FrameLayout.LayoutParams(
+            addView(SplashBackdropView(), FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
+            ))
+
+            val content = LinearLayout(this@MainActivity).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER
+                setPadding(dp(24), dp(24), dp(24), dp(24))
+                alpha = 0f
+                scaleX = 0.96f
+                scaleY = 0.96f
+            }
+
+            val eyebrow = TextView(this@MainActivity).apply {
+                text = "EX1  //  TACTICAL GAMING"
+                textSize = 10f
+                letterSpacing = 0.22f
+                setTextColor(Color.rgb(69, 211, 225))
+                gravity = Gravity.CENTER
+                typeface = Typeface.create("sans-serif", Typeface.BOLD)
+            }
+            val logo = TextView(this@MainActivity).apply {
+                text = "EX1 LEGEND"
+                textSize = 36f
+                letterSpacing = 0.015f
+                setTextColor(Color.WHITE)
+                gravity = Gravity.CENTER
+                typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
+                setShadowLayer(dp(16).toFloat(), 0f, 0f, Color.rgb(113, 67, 190))
+            }
+            val divider = View(this@MainActivity).apply {
+                background = GradientDrawable(
+                    GradientDrawable.Orientation.LEFT_RIGHT,
+                    intArrayOf(Color.TRANSPARENT, Color.rgb(139, 92, 246), Color.rgb(34, 211, 238), Color.TRANSPARENT)
+                )
+            }
+            val tagline = TextView(this@MainActivity).apply {
+                text = "وارد میدان شو، افسانه شو"
+                textSize = 15f
+                setTextColor(Color.rgb(220, 211, 239))
+                gravity = Gravity.CENTER
+                typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+                setPadding(0, dp(15), 0, dp(24))
+            }
+            val footer = TextView(this@MainActivity).apply {
+                text = "PLAYER NETWORK  /  EST. 2026"
+                textSize = 9f
+                letterSpacing = 0.18f
+                setTextColor(Color.rgb(126, 116, 153))
+                gravity = Gravity.CENTER
+            }
+
+            content.addView(eyebrow, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { bottomMargin = dp(14) })
+            content.addView(logo, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
+            ))
+            content.addView(divider, LinearLayout.LayoutParams(dp(164), dp(2)).apply {
+                topMargin = dp(17)
+            })
+            content.addView(tagline, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
+            ))
+            content.addView(footer, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
+            ))
+            addView(content, FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                Gravity.CENTER
             ))
         }
     }
 
-    private inner class SplashFramesView : View(this@MainActivity) {
-        private val bitmap: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.ex1_splash_strip)
-        private val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
-        private val source = Rect()
-        private val destination = RectF()
-        private val frameWidth = bitmap.width / 7
-        private val frameHeight = bitmap.height
-        private val frameDurationMs = 450L
-        private val startedAt = SystemClock.elapsedRealtime()
-        private var completionSent = false
+    private inner class SplashBackdropView : View(this@MainActivity) {
+        private val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.argb(18, 139, 92, 246)
+            strokeWidth = dp(1).toFloat()
+        }
+        private val accentPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.argb(90, 34, 211, 238)
+            strokeWidth = dp(2).toFloat()
+        }
+        private val framePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.argb(65, 167, 139, 250)
+            style = Paint.Style.STROKE
+            strokeWidth = dp(1).toFloat()
+        }
 
         override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)
-            val elapsed = (SystemClock.elapsedRealtime() - startedAt).coerceAtLeast(0L)
-            val totalDuration = frameDurationMs * 7L
-            val frame = (elapsed / frameDurationMs).toInt().coerceAtMost(6)
-            source.set(frame * frameWidth, 0, (frame + 1) * frameWidth, frameHeight)
-
-            // Fit the complete frame inside the screen; never crop or stretch it.
-            val scale = minOf(width.toFloat() / frameWidth, height.toFloat() / frameHeight) * 0.88f
-            val drawWidth = frameWidth * scale
-            val drawHeight = frameHeight * scale
-            val left = (width - drawWidth) / 2f
-            val top = (height - drawHeight) / 2f
-            destination.set(left, top, left + drawWidth, top + drawHeight)
-            canvas.drawBitmap(bitmap, source, destination, paint)
-
-            if (elapsed < totalDuration) {
-                // Redraw only at the next frame boundary, not 60 times per second.
-                val untilNextFrame = frameDurationMs - (elapsed % frameDurationMs)
-                postInvalidateDelayed(untilNextFrame.coerceAtLeast(1L))
-            } else if (!completionSent) {
-                completionSent = true
-                post {
-                    splashAnimationFinished = true
-                    tryLoadWhenOnline()
-                    scheduleSplashExit()
-                }
+            canvas.drawColor(Color.rgb(7, 5, 17))
+            val step = dp(44).toFloat()
+            var x = 0f
+            while (x < width) {
+                canvas.drawLine(x, 0f, x, height.toFloat(), gridPaint)
+                x += step
             }
+            var y = 0f
+            while (y < height) {
+                canvas.drawLine(0f, y, width.toFloat(), y, gridPaint)
+                y += step
+            }
+
+            val inset = dp(24).toFloat()
+            val corner = dp(34).toFloat()
+            val right = width - inset
+            val bottom = height - inset
+            canvas.drawLine(inset, inset, inset + corner, inset, accentPaint)
+            canvas.drawLine(inset, inset, inset, inset + corner, accentPaint)
+            canvas.drawLine(right - corner, inset, right, inset, accentPaint)
+            canvas.drawLine(right, inset, right, inset + corner, accentPaint)
+            canvas.drawLine(inset, bottom - corner, inset, bottom, accentPaint)
+            canvas.drawLine(inset, bottom, inset + corner, bottom, accentPaint)
+            canvas.drawLine(right - corner, bottom, right, bottom, accentPaint)
+            canvas.drawLine(right, bottom - corner, right, bottom, accentPaint)
+            canvas.drawRoundRect(
+                inset + dp(8), inset + dp(8), right - dp(8), bottom - dp(8),
+                dp(12).toFloat(), dp(12).toFloat(), framePaint
+            )
         }
     }
 
     private fun startSplashAnimation(view: View) {
-        view.invalidate()
+        val content = (view as? FrameLayout)?.getChildAt(1)
+        content?.animate()?.alpha(1f)?.scaleX(1f)?.scaleY(1f)?.setDuration(620L)?.start()
+        mainHandler.postDelayed({
+            splashAnimationFinished = true
+            tryLoadWhenOnline()
+            scheduleSplashExit()
+        }, 2100L)
     }
 
     private fun scheduleSplashExit() {
