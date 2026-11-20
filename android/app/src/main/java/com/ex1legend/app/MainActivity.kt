@@ -38,6 +38,7 @@ class MainActivity : ComponentActivity() {
     private var networkMessage: TextView? = null
     private var pageReady = false
     private var loadInProgress = false
+    private var mainFrameLoadFailed = false
     private var networkCallbackRegistered = false
     private val splashStartedAt = SystemClock.elapsedRealtime()
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -95,12 +96,29 @@ class MainActivity : ComponentActivity() {
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                     val uri = request.url
-                    return uri.scheme != "https" || uri.host != EX1_HOST
+                    if (uri.scheme != "https") return true
+                    if (uri.host != EX1_HOST) {
+                        if (request.isForMainFrame) {
+                            mainHandler.post {
+                                showStartupMessage("دسترسی به آدرس نسخهٔ آزمایشی EX1 ممکن نیست.")
+                            }
+                        }
+                        return true
+                    }
+                    return false
                 }
 
                 override fun onPageFinished(view: WebView, url: String) {
                     super.onPageFinished(view, url)
-                    loadInProgress = false
+                    val loadedUri = Uri.parse(url)
+                    val expectedPath = if (BuildConfig.IS_ADMIN) "/admin.html" else "/app.html"
+                    if (loadedUri.host != EX1_HOST || loadedUri.path != expectedPath || mainFrameLoadFailed) {
+                        loadInProgress = false
+                        view.visibility = View.INVISIBLE
+                        pageReady = false
+                        showStartupMessage("صفحهٔ اصلی EX1 بارگذاری نشد. نسخهٔ آزمایشی را بررسی می‌کنیم.")
+                        return
+                    }
                     if (!hasValidatedInternet()) {
                         view.stopLoading()
                         view.visibility = View.INVISIBLE
@@ -108,10 +126,45 @@ class MainActivity : ComponentActivity() {
                         showOfflineMessageIfNeeded()
                         return
                     }
-                    view.visibility = View.VISIBLE
-                    networkMessage?.visibility = View.GONE
-                    pageReady = true
-                    scheduleSplashExit()
+                    view.evaluateJavascript(
+                        "(document.readyState === 'complete' && !!document.querySelector('.page.active'))"
+                    ) { result ->
+                        if (isFinishing || isDestroyed || mainFrameLoadFailed) return@evaluateJavascript
+                        if (result != "true") {
+                            loadInProgress = false
+                            view.visibility = View.INVISIBLE
+                            pageReady = false
+                            showStartupMessage("صفحهٔ اصلی EX1 آماده نشد. لطفاً کمی بعد دوباره تلاش کن.")
+                            return@evaluateJavascript
+                        }
+                        loadInProgress = false
+                        view.visibility = View.VISIBLE
+                        networkMessage?.visibility = View.GONE
+                        pageReady = true
+                        scheduleSplashExit()
+                    }
+                }
+
+                override fun onReceivedHttpError(
+                    view: WebView,
+                    request: WebResourceRequest,
+                    errorResponse: android.webkit.WebResourceResponse
+                ) {
+                    super.onReceivedHttpError(view, request, errorResponse)
+                    if (request.isForMainFrame && errorResponse.statusCode >= 400) {
+                        mainFrameLoadFailed = true
+                        loadInProgress = false
+                        pageReady = false
+                        view.stopLoading()
+                        view.visibility = View.INVISIBLE
+                        showStartupMessage(
+                            if (errorResponse.statusCode == 401 || errorResponse.statusCode == 403) {
+                                "دسترسی به نسخهٔ آزمایشی EX1 مجاز نیست."
+                            } else {
+                                "بارگذاری برنامه ناموفق بود. لطفاً کمی بعد دوباره تلاش کن."
+                            }
+                        )
+                    }
                 }
 
                 override fun onReceivedError(
@@ -121,10 +174,11 @@ class MainActivity : ComponentActivity() {
                 ) {
                     super.onReceivedError(view, request, error)
                     if (request.isForMainFrame) {
+                        mainFrameLoadFailed = true
                         loadInProgress = false
                         pageReady = false
                         view.visibility = View.INVISIBLE
-                        showOfflineMessageIfNeeded()
+                        showStartupMessage("بارگذاری برنامه ناموفق بود. اتصال یا آدرس نسخه را بررسی می‌کنیم.")
                     }
                 }
             }
@@ -197,6 +251,7 @@ class MainActivity : ComponentActivity() {
         networkMessage?.visibility = View.GONE
         if (pageReady || loadInProgress) return
         loadInProgress = true
+        mainFrameLoadFailed = false
         ex1WebView?.visibility = View.INVISIBLE
         ex1WebView?.loadUrl(if (BuildConfig.IS_ADMIN) ADMIN_URL else PLAYER_URL)
     }
@@ -208,6 +263,17 @@ class MainActivity : ComponentActivity() {
         ex1WebView?.visibility = View.INVISIBLE
         networkMessage?.apply {
             text = "اتصال اینترنت خود را بررسی کنید"
+            visibility = View.VISIBLE
+        }
+    }
+
+    private fun showStartupMessage(message: String) {
+        if (isFinishing || isDestroyed) return
+        loadInProgress = false
+        pageReady = false
+        ex1WebView?.visibility = View.INVISIBLE
+        networkMessage?.apply {
+            text = message
             visibility = View.VISIBLE
         }
     }
