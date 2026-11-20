@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.Gravity
@@ -52,8 +53,7 @@ class MainActivity : ComponentActivity() {
         }
 
         override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
-            if (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+            if (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
                 mainHandler.post { tryLoadWhenOnline() }
             }
         }
@@ -99,7 +99,7 @@ class MainActivity : ComponentActivity() {
                 override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                     val uri = request.url
                     if (uri.scheme != "https") return true
-                    if (uri.host != EX1_HOST) {
+                    if (!isTrustedEx1Host(uri.host)) {
                         if (request.isForMainFrame) {
                             mainHandler.post {
                                 showStartupMessage("دسترسی به آدرس نسخهٔ آزمایشی EX1 ممکن نیست.")
@@ -112,19 +112,15 @@ class MainActivity : ComponentActivity() {
 
                 override fun onPageFinished(view: WebView, url: String) {
                     super.onPageFinished(view, url)
-                    val loadedUri = Uri.parse(url)
-                    if (loadedUri.host != EX1_HOST || mainFrameLoadFailed) {
+                    // onPageFinished can also be called for iframe navigations. Validate
+                    // the WebView's top-level URL rather than the callback URL.
+                    val loadedUri = Uri.parse(view.url ?: url)
+                    if (!isTrustedEx1Host(loadedUri.host) || mainFrameLoadFailed) {
+                        Log.e(TAG, "Rejected top-level page URL: " + loadedUri + " (configured host=" + EX1_HOST + ")")
                         loadInProgress = false
                         view.visibility = View.INVISIBLE
                         pageReady = false
                         showStartupMessage("صفحهٔ اصلی EX1 بارگذاری نشد. نسخهٔ آزمایشی را بررسی می‌کنیم.")
-                        return
-                    }
-                    if (!hasValidatedInternet()) {
-                        view.stopLoading()
-                        view.visibility = View.INVISIBLE
-                        pageReady = false
-                        showOfflineMessageIfNeeded()
                         return
                     }
                     view.evaluateJavascript("window.EX1_NATIVE_APP=true;window.EX1_UPDATE_CHANNEL='" + BuildConfig.EX1_UPDATE_CHANNEL + "';", null)
@@ -143,6 +139,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     super.onReceivedHttpError(view, request, errorResponse)
                     if (request.isForMainFrame && errorResponse.statusCode >= 400) {
+                        Log.e(TAG, "Main-frame HTTP error " + errorResponse.statusCode + ": " + request.url)
                         if (!usingBundledFallback) loadBundledFallback("نسخهٔ آنلاین در دسترس نیست؛ نسخهٔ پشتیبان اجرا می‌شود.")
                         else {
                             mainFrameLoadFailed = true; loadInProgress = false; pageReady = false
@@ -159,6 +156,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     super.onReceivedError(view, request, error)
                     if (request.isForMainFrame) {
+                        Log.e(TAG, "Main-frame load error " + error.errorCode + ": " + error.description + "; url=" + request.url)
                         if (!usingBundledFallback) loadBundledFallback("اتصال به نسخهٔ آنلاین برقرار نشد؛ نسخهٔ پشتیبان اجرا می‌شود.")
                         else {
                             mainFrameLoadFailed = true; loadInProgress = false; pageReady = false
@@ -243,16 +241,26 @@ class MainActivity : ComponentActivity() {
                 loadInProgress = false
                 view.visibility = View.INVISIBLE
                 pageReady = false
-                showStartupMessage("پنل مدیریت هنوز آماده نشده است. اتصال اینترنت و بارگذاری سرویس را بررسی کن.")
+                Log.e(TAG, "Page readiness timeout; admin=" + BuildConfig.IS_ADMIN + "; url=" + view.url)
+                showStartupMessage(if (BuildConfig.IS_ADMIN) "پنل مدیریت آماده نشد. اتصال یا بارگذاری سرویس را بررسی کن." else "صفحهٔ اصلی آماده نشد. اتصال یا بارگذاری سرویس را بررسی کن.")
             }
         }
     }
 
-    private fun hasValidatedInternet(): Boolean {
+    // NET_CAPABILITY_VALIDATED can be temporarily absent on otherwise usable
+    // connections (VPNs, OEM networking, or delayed Android validation).
+    // Let WebView make the HTTPS request and use its callbacks as the source of truth.
+    private fun hasInternetConnection(): Boolean {
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+    private fun isTrustedEx1Host(host: String?): Boolean {
+        val normalized = host?.lowercase() ?: return false
+        if (normalized == EX1_HOST || normalized == "ex1-house.vercel.app") return true
+        // Vercel can serve a project deployment through its immutable hostname.
+        return normalized.startsWith("ex1-house-") && normalized.endsWith(".vercel.app")
     }
 
     private fun registerNetworkCallback() {
@@ -271,7 +279,7 @@ class MainActivity : ComponentActivity() {
     private fun tryLoadWhenOnline() {
         if (isFinishing || isDestroyed) return
         // Load the page behind the lightweight native intro so it is ready when the intro ends.
-        if (!hasValidatedInternet()) {
+        if (!hasInternetConnection()) {
             showOfflineMessageIfNeeded()
             return
         }
@@ -435,6 +443,7 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
+        private const val TAG = "EX1WebView"
         private val EX1_BASE_URL = BuildConfig.EX1_BASE_URL.trimEnd('/')
         private val EX1_HOST = Uri.parse(EX1_BASE_URL).host
         private val PLAYER_URL = "$EX1_BASE_URL/app.html?ex1_native=1&ex1_channel=" + BuildConfig.EX1_UPDATE_CHANNEL
