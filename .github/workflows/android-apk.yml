@@ -12,10 +12,10 @@ on:
           - stable
         default: preview
       base_url:
-        description: "Vercel deployment URL for this channel"
-        required: true
+        description: "Optional Vercel URL; defaults to the matching preview/stable deployment"
+        required: false
         type: string
-        default: "https://ex1-house.vercel.app"
+        default: ""
   pull_request:
     branches:
       - main
@@ -51,7 +51,18 @@ jobs:
         shell: bash
         run: |
           CHANNEL="${{ github.event.inputs.update_channel || 'preview' }}"
-          BASE_URL="${{ github.event.inputs.base_url || 'https://ex1-house.vercel.app' }}"
+          BASE_URL="${{ github.event.inputs.base_url }}"
+          if [ -z "$BASE_URL" ]; then
+            if [ "$CHANNEL" = "preview" ]; then
+              BASE_URL="https://ex1-house-git-feature-android-shell-cur-9b2fe8-wfayymahan5-arch.vercel.app"
+            else
+              BASE_URL="https://ex1-house.vercel.app"
+            fi
+          fi
+          if [ "$CHANNEL" = "stable" ] && [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::error::Stable APKs must be built from main."
+            exit 1
+          fi
           echo "channel=$CHANNEL" >> "$GITHUB_OUTPUT"
           echo "base_url=$BASE_URL" >> "$GITHUB_OUTPUT"
       - name: Build player and admin APKs
