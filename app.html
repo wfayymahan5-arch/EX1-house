@@ -651,6 +651,28 @@ function ex1LoadPageData(key,loader){
  state.at=now;
  state.promise=Promise.resolve().then(loader).catch(err=>{state.at=0;console.warn("EX1 page data:",err);}).finally(()=>{state.promise=null;});
 }
+const ex1SyncState={};
+function ex1ScheduleRefresh(key,minInterval,loader){
+ const now=Date.now(),state=ex1SyncState[key]||(ex1SyncState[key]={last:0,running:false});
+ if(state.running||now-state.last<minInterval)return;
+ state.last=now;state.running=true;
+ Promise.resolve().then(loader).catch(error=>console.warn("EX1 auto refresh "+key+":",error)).finally(()=>{state.running=false;});
+}
+function ex1RefreshVisibleData(){
+ if(!currentUser||document.hidden)return;
+ const profileActive=$("page-profile")?.classList.contains("active");
+ const homeActive=$("page-home")?.classList.contains("active");
+ if(profileActive){
+  ex1ScheduleRefresh("notifications",20000,loadUserNotifications);
+  ex1ScheduleRefresh("wallet",20000,loadWallet);
+ }
+ if(homeActive&&!$("home-messages")?.hidden){
+  ex1ScheduleRefresh("chat-contacts",30000,loadChatContacts);
+  if(activeConversation)ex1ScheduleRefresh("chat-messages",7000,loadMessages);
+ }
+ if($("page-tournaments")?.classList.contains("active"))ex1ScheduleRefresh("tournaments",25000,loadTournaments);
+ if($("page-ranking")?.classList.contains("active"))ex1ScheduleRefresh("ranking",45000,loadRanking);
+}
 function switchPage(page){
  document.querySelectorAll(".page").forEach(x=>{
   const active=x.id==="page-"+page;
@@ -665,12 +687,11 @@ function switchPage(page){
   const uid=currentUser?.id||null;
   if(uid!==profileCacheUserId){profileCacheUserId=uid;profileDataLoaded=false;supportDataLoaded=false;notificationsDataLoaded=false;}
   if(currentUser&&!profileDataLoaded){profileDataLoaded=true;loadProfile().catch(()=>profileDataLoaded=false);}
-  // Non-critical panels load after the profile becomes visible, so they do not block navigation.
   if(currentUser&&!supportDataLoaded){supportDataLoaded=true;setTimeout(()=>{if($("page-profile")?.classList.contains("active"))loadSupportConversation().catch(()=>supportDataLoaded=false);else supportDataLoaded=false;},180);}
-  if(currentUser&&!notificationsDataLoaded){notificationsDataLoaded=true;setTimeout(()=>{if($("page-profile")?.classList.contains("active"))loadUserNotifications().catch(()=>notificationsDataLoaded=false);else notificationsDataLoaded=false;},260);}
+  if(currentUser){ex1ScheduleRefresh("notifications",15000,loadUserNotifications);ex1ScheduleRefresh("wallet",15000,loadWallet);}
  }
- if(page==="tournaments")ex1LoadPageData("tournaments",loadTournaments);
- if(page==="ranking")ex1LoadPageData("ranking",loadRanking);
+ if(page==="tournaments")ex1ScheduleRefresh("tournaments",18000,loadTournaments);
+ if(page==="ranking")ex1ScheduleRefresh("ranking",18000,loadRanking);
 }
 document.querySelectorAll(".bottom-nav [data-page]").forEach(b=>b.addEventListener("click",()=>switchPage(b.dataset.page)));
 function switchHome(tab){
@@ -678,7 +699,7 @@ function switchHome(tab){
  document.querySelectorAll("[data-home-tab]").forEach(b=>b.classList.toggle("active",b.dataset.homeTab===selected));
  ["explore","messages"].forEach(x=>{$("home-"+x).hidden=x!==selected;});
  if(selected==="explore")loadExplore();
- if(selected==="messages")loadChatContacts();
+ if(selected==="messages"){loadChatContacts();if(activeConversation)loadMessages();}
 }
 document.querySelectorAll("[data-home-tab]").forEach(b=>b.addEventListener("click",()=>switchHome(b.dataset.homeTab)));
 $("headerAuth").onclick=()=>currentUser?switchPage("profile"):openAuth();
@@ -1304,6 +1325,10 @@ if(EX1_AUTH_RETURN.recovery){sb.auth.getSession().then(({data,error})=>{if(error
 if(EX1_AUTH_RETURN.errorCode){setTimeout(()=>{openAuth();toast(EX1_AUTH_RETURN.errorCode==="otp_expired"?"لینک بازیابی منقضی شده یا قبلاً استفاده شده است. لینک تازه درخواست کن.":("خطای ورود ایمیلی: "+(EX1_AUTH_RETURN.errorDescription||EX1_AUTH_RETURN.errorCode)));},0);}
 checkConnection();
 authState();
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)setTimeout(ex1RefreshVisibleData,250);});
+window.addEventListener("focus",()=>setTimeout(ex1RefreshVisibleData,250));
+window.addEventListener("pageshow",()=>setTimeout(ex1RefreshVisibleData,250));
+setInterval(ex1RefreshVisibleData,8000);
 document.addEventListener("contextmenu",event=>{if(!event.target.closest("input,textarea,select,[contenteditable=true],.allow-select"))event.preventDefault();});
 document.addEventListener("selectstart",event=>{if(!event.target.closest("input,textarea,select,[contenteditable=true],.allow-select"))event.preventDefault();});
 setInterval(()=>{const now=Date.now();document.querySelectorAll("[data-room-start-at]").forEach(card=>{const start=new Date(card.dataset.roomStartAt).getTime();card.classList.toggle("room-card-completed",Number.isFinite(start)&&now>=start);});},15000);
