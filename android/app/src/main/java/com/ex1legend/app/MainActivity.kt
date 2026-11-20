@@ -85,6 +85,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     super.onReceivedError(view, request, error)
                     if (request.isForMainFrame) {
+                        view.visibility = View.VISIBLE
                         pageReady = true
                         scheduleSplashExit()
                     }
@@ -211,7 +212,6 @@ class MainActivity : ComponentActivity() {
             duration = 760
             interpolator = DecelerateInterpolator(1.7f)
         }
-        enter.start()
         val pulseX = ObjectAnimator.ofFloat(logo, View.SCALE_X, 1f, 1.025f, 1f).apply {
             duration = 1450
             repeatCount = ObjectAnimator.INFINITE
@@ -228,6 +228,7 @@ class MainActivity : ComponentActivity() {
                 pulseY.start()
             }
         })
+        enter.start()
     }
 
     private fun scheduleSplashExit() {
