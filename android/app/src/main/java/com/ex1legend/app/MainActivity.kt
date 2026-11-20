@@ -82,6 +82,7 @@ class MainActivity : ComponentActivity() {
             setBackgroundColor(Color.rgb(9, 7, 20))
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
+            settings.cacheMode = WebSettings.LOAD_NO_CACHE
             settings.loadsImagesAutomatically = true
             settings.javaScriptCanOpenWindowsAutomatically = false
             settings.setSupportMultipleWindows(false)
