@@ -218,13 +218,13 @@ class MainActivity : ComponentActivity() {
             intArrayOf(Color.rgb(8, 6, 18), Color.rgb(25, 10, 48), Color.rgb(7, 9, 22))
         )
         val container = FrameLayout(this).apply {
-            background = background
+            this.background = background
             isClickable = true
             isFocusable = true
         }
 
         val glow = View(this).apply {
-            background = GradientDrawable(
+            this.background = GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
                 intArrayOf(Color.argb(95, 151, 65, 255), Color.TRANSPARENT)
             ).apply { cornerRadius = dp(220).toFloat() }
