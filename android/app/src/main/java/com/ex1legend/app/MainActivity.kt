@@ -199,14 +199,19 @@ class MainActivity : ComponentActivity() {
             FrameLayout.LayoutParams.MATCH_PARENT
         ))
 
-        val splash = createSplashOverlay()
-        splashOverlay = splash
-        root.addView(splash, FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.MATCH_PARENT
-        ))
+        if (BuildConfig.IS_ADMIN) {
+            // The intro animation belongs to the player edition only.
+            splashAnimationFinished = true
+        } else {
+            val splash = createSplashOverlay()
+            splashOverlay = splash
+            root.addView(splash, FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            ))
+            startSplashAnimation(splash)
+        }
         setContentView(root)
-        startSplashAnimation(splash)
         registerNetworkCallback()
         tryLoadWhenOnline()
 
@@ -291,9 +296,11 @@ class MainActivity : ComponentActivity() {
         override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)
             val elapsed = (SystemClock.elapsedRealtime() - startedAt).coerceAtLeast(0L)
+            val totalDuration = frameDurationMs * 7L
             val frame = (elapsed / frameDurationMs).toInt().coerceAtMost(6)
             source.set(frame * frameWidth, 0, (frame + 1) * frameWidth, frameHeight)
 
+            // Fit the complete frame inside the screen; never crop or stretch it.
             val scale = minOf(width.toFloat() / frameWidth, height.toFloat() / frameHeight) * 0.88f
             val drawWidth = frameWidth * scale
             val drawHeight = frameHeight * scale
@@ -302,8 +309,10 @@ class MainActivity : ComponentActivity() {
             destination.set(left, top, left + drawWidth, top + drawHeight)
             canvas.drawBitmap(bitmap, source, destination, paint)
 
-            if (elapsed < frameDurationMs * 7) {
-                postInvalidateDelayed(16L)
+            if (elapsed < totalDuration) {
+                // Redraw only at the next frame boundary, not 60 times per second.
+                val untilNextFrame = frameDurationMs - (elapsed % frameDurationMs)
+                postInvalidateDelayed(untilNextFrame.coerceAtLeast(1L))
             } else if (!completionSent) {
                 completionSent = true
                 post {
