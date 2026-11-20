@@ -295,7 +295,7 @@ function showStartupError(message){
  box.style.cssText="position:fixed;inset:14px;z-index:99999;display:grid;place-content:center;gap:14px;padding:24px;border:1px solid #8c5bc7;border-radius:20px;background:#100d20;color:#fff;text-align:center;font:15px/2 Tahoma,Arial,sans-serif";
  const title=document.createElement("strong");title.textContent="EX1 نتوانست راه‌اندازی شود";
  const detail=document.createElement("p");detail.textContent="فعلاً امکان بارگذاری برنامه وجود ندارد. لطفاً کمی بعد دوباره تلاش کن.";console.error("EX1 startup:",message);
- const retry=document.createElement("button");retry.type="button";retry.textContent="تلاش دوباره";retry.style.cssText="padding:12px 18px;border:0;border-radius:12px;background:#8951c5;color:#fff;font-weight:bold";retry.onclick=()=>location.reload();
+ const retry=document.createElement("button");retry.type="button";retry.textContent="تلاش دوباره";retry.style.cssText="padding:12px 18px;border:0;border-radius:12px;background:#8951c5;color:#fff;font-weight:bold";retry.onclick=()=>window.Ex1Native?window.Ex1Native.reloadApp():location.reload();
  box.append(title,detail,retry);document.body.append(box);
 }
 window.addEventListener("error",e=>{console.error("EX1 runtime error:",e.error||e.message);const t=$("toast");if(t){t.textContent="خطای برنامه: "+(e.message||"خطای نامشخص");t.classList.add("show");}});
@@ -1310,7 +1310,7 @@ setInterval(()=>{const now=Date.now();document.querySelectorAll("[data-room-star
 setInterval(()=>{if(activeRoomDetail&&!$("roomDetail").hidden&&!document.hidden)refreshRoomAccess(activeRoomDetail.id);},15000);
 </script>
 <script>
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js"));}
+if(!window.EX1_NATIVE_APP&&"serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js"));}
 </script>
 
 <script>
