@@ -684,11 +684,11 @@ function switchPage(page){
  });
  document.querySelectorAll(".bottom-nav [data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
  if(page==="profile"){
-  const uid=currentUser?.id||null;
+  const uid=currentUser?.id||null,profileAlreadyLoaded=uid===profileCacheUserId&&profileDataLoaded;
   if(uid!==profileCacheUserId){profileCacheUserId=uid;profileDataLoaded=false;supportDataLoaded=false;notificationsDataLoaded=false;}
   if(currentUser&&!profileDataLoaded){profileDataLoaded=true;loadProfile().catch(()=>profileDataLoaded=false);}
   if(currentUser&&!supportDataLoaded){supportDataLoaded=true;setTimeout(()=>{if($("page-profile")?.classList.contains("active"))loadSupportConversation().catch(()=>supportDataLoaded=false);else supportDataLoaded=false;},180);}
-  if(currentUser){ex1ScheduleRefresh("notifications",15000,loadUserNotifications);ex1ScheduleRefresh("wallet",15000,loadWallet);}
+  if(currentUser){ex1ScheduleRefresh("notifications",15000,loadUserNotifications);if(profileAlreadyLoaded)ex1ScheduleRefresh("wallet",15000,loadWallet);}
  }
  if(page==="tournaments")ex1ScheduleRefresh("tournaments",18000,loadTournaments);
  if(page==="ranking")ex1ScheduleRefresh("ranking",18000,loadRanking);
@@ -1029,10 +1029,12 @@ async function openConversation(otherId,person){
 }
 async function loadMessages(){
  if(!activeConversation)return;
+ const box=$("chatMessages"),wasNearBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80,firstLoad=box.dataset.ex1Loaded!=="1";
  const {data,error}=await sb.from("social_messages").select("id,sender_id,body,created_at,deleted_at").eq("conversation_id",activeConversation).order("created_at",{ascending:true}).limit(100);
- if(error){$("chatMessages").innerHTML='<div class="empty">پیام‌ها دریافت نشدند.</div>';return;}
- $("chatMessages").innerHTML=(data||[]).map(m=>'<div class="bubble '+(m.sender_id===currentUser.id?"mine":"")+'">'+esc(m.deleted_at?"پیام حذف‌شده":m.body)+'</div>').join("")||'<div class="empty">اولین پیام را بفرست.</div>';
- $("chatMessages").scrollTop=$("chatMessages").scrollHeight;
+ if(error){box.innerHTML='<div class="empty">پیام‌ها دریافت نشدند.</div>';return;}
+ box.innerHTML=(data||[]).map(m=>'<div class="bubble '+(m.sender_id===currentUser.id?"mine":"")+'">'+esc(m.deleted_at?"پیام حذف‌شده":m.body)+'</div>').join("")||'<div class="empty">اولین پیام را بفرست.</div>';
+ box.dataset.ex1Loaded="1";
+ if(firstLoad||wasNearBottom)box.scrollTop=box.scrollHeight;
 }
 $("chatForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!activeConversation||!currentUser)return;const body=$("chatText").value.trim();if(!body)return;
