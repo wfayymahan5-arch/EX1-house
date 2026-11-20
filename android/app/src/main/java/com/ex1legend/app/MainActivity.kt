@@ -1,7 +1,5 @@
 package com.ex1legend.app
 
-import android.graphics.Canvas
-import android.graphics.Paint
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -384,55 +382,6 @@ class MainActivity : ComponentActivity() {
         }
         frame.addView(title, FrameLayout.LayoutParams(dp(292), dp(112), Gravity.CENTER))
         return frame
-    }
-
-    private inner class SplashBackdropView : View(this@MainActivity) {
-        private val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.argb(18, 139, 92, 246)
-            strokeWidth = dp(1).toFloat()
-        }
-        private val accentPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.argb(90, 34, 211, 238)
-            strokeWidth = dp(2).toFloat()
-        }
-        private val framePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.argb(65, 167, 139, 250)
-            style = Paint.Style.STROKE
-            strokeWidth = dp(1).toFloat()
-        }
-
-        override fun onDraw(canvas: Canvas) {
-            super.onDraw(canvas)
-            canvas.drawColor(Color.rgb(7, 5, 17))
-            val step = dp(44).toFloat()
-            var x = 0f
-            while (x < width) {
-                canvas.drawLine(x, 0f, x, height.toFloat(), gridPaint)
-                x += step
-            }
-            var y = 0f
-            while (y < height) {
-                canvas.drawLine(0f, y, width.toFloat(), y, gridPaint)
-                y += step
-            }
-
-            val inset = dp(24).toFloat()
-            val corner = dp(34).toFloat()
-            val right = width - inset
-            val bottom = height - inset
-            canvas.drawLine(inset, inset, inset + corner, inset, accentPaint)
-            canvas.drawLine(inset, inset, inset, inset + corner, accentPaint)
-            canvas.drawLine(right - corner, inset, right, inset, accentPaint)
-            canvas.drawLine(right, inset, right, inset + corner, accentPaint)
-            canvas.drawLine(inset, bottom - corner, inset, bottom, accentPaint)
-            canvas.drawLine(inset, bottom, inset + corner, bottom, accentPaint)
-            canvas.drawLine(right - corner, bottom, right, bottom, accentPaint)
-            canvas.drawLine(right, bottom - corner, right, bottom, accentPaint)
-            canvas.drawRoundRect(
-                inset + dp(8), inset + dp(8), right - dp(8), bottom - dp(8),
-                dp(12).toFloat(), dp(12).toFloat(), framePaint
-            )
-        }
     }
 
     private fun startSplashAnimation(view: View) {
