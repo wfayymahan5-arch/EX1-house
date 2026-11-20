@@ -264,7 +264,15 @@ class MainActivity : ComponentActivity() {
         loadInProgress = true
         mainFrameLoadFailed = false
         ex1WebView?.visibility = View.INVISIBLE
-        ex1WebView?.loadUrl(if (BuildConfig.IS_ADMIN) ADMIN_URL else PLAYER_URL)
+        val pageUrl = if (BuildConfig.IS_ADMIN) ADMIN_URL else PLAYER_URL
+        val assetName = if (BuildConfig.IS_ADMIN) "ex1-admin.html" else "ex1-player.html"
+        try {
+            val html = assets.open(assetName).bufferedReader(Charsets.UTF_8).use { it.readText() }
+            ex1WebView?.loadDataWithBaseURL(pageUrl, html, "text/html", "UTF-8", null)
+        } catch (error: Exception) {
+            loadInProgress = false
+            showStartupMessage("فایل برنامه در این نسخه اندروید پیدا نشد. لطفاً نسخه را دوباره نصب کن.")
+        }
     }
 
     private fun showOfflineMessageIfNeeded() {
