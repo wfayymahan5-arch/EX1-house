@@ -27,9 +27,14 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.9
+      - name: Bundle current player and admin web pages into APKs
+        run: |
+          mkdir -p android/app/src/main/assets
+          cp app.html android/app/src/main/assets/ex1-player.html
+          cp admin.html android/app/src/main/assets/ex1-admin.html
       - name: Build player and admin preview APKs
         working-directory: android
-        run: gradle -Pex1BaseUrl=https://ex1-house-git-feature-android-shell-cur-9b2fe8-wfayymahan5-arch.vercel.app assemblePlayerDebug assembleAdminDebug
+        run: gradle -Pex1BaseUrl=https://ex1-house.vercel.app assemblePlayerDebug assembleAdminDebug
       - name: Collect APKs
         run: |
           mkdir -p release-apks
