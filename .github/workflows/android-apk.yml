@@ -2,6 +2,20 @@ name: Build EX1 LEGEND Android preview APKs
 
 on:
   workflow_dispatch:
+    inputs:
+      update_channel:
+        description: "Update channel for this APK"
+        required: true
+        type: choice
+        options:
+          - preview
+          - stable
+        default: preview
+      base_url:
+        description: "Vercel deployment URL for this channel"
+        required: true
+        type: string
+        default: "https://ex1-house.vercel.app"
   pull_request:
     branches:
       - main
@@ -32,18 +46,26 @@ jobs:
           mkdir -p android/app/src/main/assets
           cp app.html android/app/src/main/assets/ex1-player.html
           cp admin.html android/app/src/main/assets/ex1-admin.html
-      - name: Build player and admin preview APKs
+      - name: Resolve APK update channel and deployment URL
+        id: channel
+        shell: bash
+        run: |
+          CHANNEL="${{ github.event.inputs.update_channel || 'preview' }}"
+          BASE_URL="${{ github.event.inputs.base_url || 'https://ex1-house.vercel.app' }}"
+          echo "channel=$CHANNEL" >> "$GITHUB_OUTPUT"
+          echo "base_url=$BASE_URL" >> "$GITHUB_OUTPUT"
+      - name: Build player and admin APKs
         working-directory: android
-        run: gradle -Pex1BaseUrl=https://ex1-house.vercel.app -Pex1UpdateChannel=preview assemblePlayerDebug assembleAdminDebug
+        run: gradle -Pex1BaseUrl="${{ steps.channel.outputs.base_url }}" -Pex1UpdateChannel="${{ steps.channel.outputs.channel }}" assemblePlayerDebug assembleAdminDebug
       - name: Collect APKs
         run: |
           mkdir -p release-apks
-          cp android/app/build/outputs/apk/player/debug/app-player-debug.apk release-apks/EX1-LEGEND-Player-preview.apk
-          cp android/app/build/outputs/apk/admin/debug/app-admin-debug.apk release-apks/EX1-LEGEND-Admin-preview.apk
+          cp android/app/build/outputs/apk/player/debug/app-player-debug.apk release-apks/EX1-LEGEND-Player-${{ steps.channel.outputs.channel }}.apk
+          cp android/app/build/outputs/apk/admin/debug/app-admin-debug.apk release-apks/EX1-LEGEND-Admin-${{ steps.channel.outputs.channel }}.apk
       - name: Upload APK artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: EX1-LEGEND-Android-Preview-APKs
+          name: EX1-LEGEND-Android-${{ steps.channel.outputs.channel }}-APKs
           path: release-apks/*.apk
           if-no-files-found: error
           retention-days: 30
