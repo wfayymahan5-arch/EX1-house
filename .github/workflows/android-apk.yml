@@ -34,7 +34,7 @@ jobs:
           cp admin.html android/app/src/main/assets/ex1-admin.html
       - name: Build player and admin preview APKs
         working-directory: android
-        run: gradle -Pex1BaseUrl=https://ex1-house.vercel.app assemblePlayerDebug assembleAdminDebug
+        run: gradle -Pex1BaseUrl=https://ex1-house.vercel.app -Pex1UpdateChannel=preview assemblePlayerDebug assembleAdminDebug
       - name: Collect APKs
         run: |
           mkdir -p release-apks
