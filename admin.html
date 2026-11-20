@@ -93,6 +93,7 @@ input:focus,select:focus,textarea:focus{outline:1px solid #a78bfa;box-shadow:0 0
 }
 
 </style>
+<style id="ex1-room-fx-admin-toggle">.ex1-room-fx-toggle{display:flex!important;align-items:center;gap:10px;padding:12px;border:1px solid #7752a8;border-radius:12px;background:#201634;color:#eee}.ex1-room-fx-toggle input{width:20px!important;height:20px;accent-color:#a66cff}</style>
 <style id="ex1-full-project-admin-motion">
 @keyframes ex1AdminTabEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 .section.tab:not(.hidden){animation:ex1AdminTabEnter .26s ease-out both}
@@ -244,6 +245,8 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
  <div id="roomImagePreviewWrap" class="room-image-preview-wrap hidden"><div id="roomImagePreview" class="room-image-preview"><img id="roomImagePreviewImg" alt="پیش‌نمایش تصویر روم"></div><div class="room-image-focus-control"><span>جابه‌جایی افقی کادر</span><input id="rf_image_focus_x_range" type="range" min="0" max="100" value="50" aria-label="جابه‌جایی افقی کادر"></div><div class="room-image-focus-control"><span>جابه‌جایی عمودی کادر</span><input id="rf_image_focus_y_range" type="range" min="0" max="100" value="55" aria-label="جابه‌جایی عمودی کادر"></div></div>
  <p class="muted">عکس را از گالری انتخاب کن. برش اولیه با توجه به عمودی یا افقی بودن عکس تنظیم می‌شود؛ برای تعیین دقیق بخش مهم، همان قسمت را روی پیش‌نمایش لمس کن یا نوار تنظیم کادر را جابه‌جا کن. تصویر کشیده نمی‌شود.</p>
  <p id="roomImageUploadStatus" class="muted" aria-live="polite"></p>
+ <label class="wide ex1-room-fx-toggle"><input id="rf_room_effects_enabled" type="checkbox"> افکت نئونی و ذرات متحرک برای تصویر این روم فعال باشد</label>
+ <p class="muted wide">تصویر اصلی ثابت می‌ماند؛ فقط نور و ذرات تزئینی روی آن حرکت می‌کنند. این گزینه برای هر روم جداگانه ذخیره می‌شود و به‌صورت پیش‌فرض خاموش است.</p>
 </div>
 <label class="wide">قوانین اختصاصی این روم<textarea id="rf_rules" maxlength="5000"></textarea></label>
 <p class="muted wide">ورودی از امتیاز مجازی EX1 کسر می‌شود؛ این امتیاز ارزش نقدی ندارد و قابل خرید، انتقال یا برداشت نیست. ظرفیت کل به‌صورت خودکار از تعداد تیم‌ها × نفرات هر تیم محاسبه می‌شود.</p>
@@ -312,7 +315,7 @@ function resetRoomForm(){
  $("roomForm").reset();$("rf_id").value="";$("rf_max_teams").value=25;$("rf_team_size").value="4";
  $("rf_capacity").value=100;$("rf_entry_demo_points").value=0;
  $("rf_prize_demo_points").value=0;$("rf_prize_second_demo_points").value=0;$("rf_prize_third_demo_points").value=0;
- $("rf_status").value="open";resetRoomImage();updateRoomCapacity();
+ $("rf_status").value="open";$("rf_room_effects_enabled").checked=false;resetRoomImage();updateRoomCapacity();
  $("roomAccessAdminPanel").classList.remove("hidden");
  $("rf_room_code").value="";$("rf_room_password").value="";
  $("rf_room_code").disabled=true;$("rf_room_password").disabled=true;$("publishRoomAccessButton").disabled=true;
@@ -835,6 +838,7 @@ $("roomForm").addEventListener("submit",async e=>{
   status:$("rf_status").value,room_image_url:$("rf_room_image_url").value.trim()||null,
   room_image_focus_x:Math.max(0,Math.min(100,Number($("rf_image_focus_x").value)||50)),
   room_image_focus_y:Math.max(0,Math.min(100,Number($("rf_image_focus_y").value)||55)),
+  room_effects_enabled:$("rf_room_effects_enabled").checked,
   rules:$("rf_rules").value.trim()
  };
  if(!payload.tournament_id)return toast("مسابقه مرتبط را انتخاب کن.");
@@ -905,6 +909,7 @@ $("roomsTable").addEventListener("click",async e=>{
   $("rf_status").value=data.status||"draft";$("rf_room_image_url").value=data.room_image_url||"";
   resetRoomImage();$("rf_room_image_url").value=data.room_image_url||"";
   setRoomImagePreview(data.room_image_url||"",data.room_image_focus_x??50,data.room_image_focus_y??55);
+  $("rf_room_effects_enabled").checked=data.room_effects_enabled===true;
   $("rf_rules").value=data.rules||"";
   $("rf_room_code").value="";$("rf_room_password").value="";
   $("rf_room_code").disabled=false;$("rf_room_password").disabled=false;$("publishRoomAccessButton").disabled=false;
