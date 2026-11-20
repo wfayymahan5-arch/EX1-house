@@ -268,7 +268,7 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
 </div><button class="btn primary" id="saveTheme" type="submit" style="margin-top:14px">ذخیره تنظیمات</button></form><div id="themeMessage" class="muted" style="margin-top:10px"></div></section>
 </main></div></div><footer>EX1 LEGEND · پنل مدیریت متصل به Supabase</footer></div><div class="toast" id="toast"></div>
 <script src="/supabase-config.js"></script>
-<script src="/supabase-config.js"></script><script>
+<script>
 (async function bootEx1Admin() {
   const authMessage = document.getElementById("authMessage");
   const loadSdk = (src) => new Promise((resolve, reject) => {
@@ -276,7 +276,7 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
     const timeout = setTimeout(() => {
       script.remove();
       reject(new Error("SDK load timeout"));
-    }, 15000);
+    }, 9000);
     script.src = src;
     script.onload = () => { clearTimeout(timeout); resolve(); };
     script.onerror = () => { clearTimeout(timeout); script.remove(); reject(new Error("SDK load failed")); };
