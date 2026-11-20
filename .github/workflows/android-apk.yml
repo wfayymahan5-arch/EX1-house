@@ -47,10 +47,3 @@ jobs:
           path: release-apks/*.apk
           if-no-files-found: error
           retention-days: 30
-      - name: Publish latest preview APK downloads
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          TAG="android-preview"
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "EX1 LEGEND Android Preview" --notes "Latest test APKs. These are preview/debug builds, not production releases." --prerelease
-          gh release upload "$TAG" release-apks/*.apk --clobber
