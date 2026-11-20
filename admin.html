@@ -690,12 +690,20 @@ function applyAccess(user){
  return pending.finally(()=>{if(accessBuildPromise===pending){accessBuildPromise=null;accessBuildUserId=null;}});
 }
 async function applyAccessInternal(user){
- $("authView").classList.add("hidden");$("appView").classList.remove("hidden");$("identity").textContent=user.email||"حساب واردشده";
+ let ownerAccess=false;
+ try{ownerAccess=(await rpc("is_current_user_owner"))===true;}catch(e){ownerAccess=false;}
+ if(!ownerAccess){
+  $("appView").classList.add("hidden");$("authView").classList.remove("hidden");
+  $("authView").innerHTML='<h2>دسترسی محدود به مالک</h2><p class="muted">پنل مدیریت EX1 فقط برای حساب مالک اصلی در دسترس است. مدیران می‌توانند وظایف مجاز خود را از داخل اپلیکیشن انجام دهند.</p><a class="btn primary" href="/app.html">بازگشت به اپلیکیشن</a>';
+  return;
+ }
+ isOwner=true;
+ $("authView").classList.add("hidden");$("appView").classList.remove("hidden");$("identity").textContent=user.email||"حساب مالک";
  $("nav").innerHTML="";permissions={};
  let list;
  try{list=await rpc("admin_my_permissions");}catch(e){$("appView").classList.add("hidden");$("authView").classList.remove("hidden");$("authMessage").textContent="دریافت مجوزها ممکن نشد؛ دسترسی رد شد.";return;}
  list.forEach(p=>permissions[p.permission_code]=p.is_allowed===true);
- try{isOwner=(await rpc("is_current_user_owner"))===true;}catch(e){isOwner=false;}
+ isOwner=true;
  const allowedTabs=["overview"];
  if(permissions["tournaments.view"]||permissions["tournaments.create"])allowedTabs.push("tournaments");
  if(permissions["rooms.view"]||permissions["rooms.manage"])allowedTabs.push("rooms");
