@@ -17,6 +17,34 @@
 .tag{display:inline-block;padding:4px 9px;border-radius:20px;background:#1d3b34;color:#8ff0c9;font-size:11px}.empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed #38384c;border-radius:12px}.hidden{display:none}.colorgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.colorfield{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px}.colorfield input{width:48px;height:38px;border:0;background:transparent}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{position:fixed;bottom:18px;left:18px;background:#222035;border:1px solid #5c477e;padding:12px 16px;border-radius:12px;display:none;z-index:10}.toast.show{display:block}
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.nav{display:grid;grid-template-columns:repeat(3,1fr)}.nav button{text-align:center;padding:9px;font-size:12px}.wrap{padding:14px}.colorgrid{grid-template-columns:1fr}}
+
+/* EX1 Motion Effects Completion */
+html{scroll-behavior:smooth}
+body{isolation:isolate}
+body::before,body::after{content:"";position:fixed;inset:-12%;z-index:-1;pointer-events:none;will-change:transform}
+body::before{background:radial-gradient(ellipse at 16% 24%,rgba(151,77,255,.16),transparent 34%),radial-gradient(ellipse at 86% 68%,rgba(58,203,255,.12),transparent 32%);transform:translate3d(0,var(--ex1-parallax-y,0px),0);transition:transform .12s linear}
+body::after{background:radial-gradient(circle at 50% 12%,rgba(165,105,255,.08),transparent 42%);animation:ex1AmbientGlow 11s ease-in-out infinite alternate}
+.ex1-motion-floats{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.ex1-motion-floats i{position:absolute;display:block;width:clamp(7px,1.1vw,14px);aspect-ratio:1;border:1px solid rgba(176,126,255,.5);border-radius:35%;background:rgba(133,85,255,.12);box-shadow:0 0 22px rgba(130,86,255,.22);animation:ex1Float 13s ease-in-out infinite}
+.ex1-motion-floats i:nth-child(1){top:20%;left:7%;animation-delay:-2s}
+.ex1-motion-floats i:nth-child(2){top:62%;left:15%;width:9px;animation-delay:-7s}
+.ex1-motion-floats i:nth-child(3){top:34%;right:8%;width:17px;animation-delay:-4s}
+.ex1-motion-floats i:nth-child(4){top:78%;right:18%;width:8px;animation-delay:-10s}
+body>*:not(.ex1-motion-floats){position:relative;z-index:1}
+.hero h1,.hero-card,.hero-mark{animation:ex1HeroEnter .9s cubic-bezier(.2,.75,.25,1) both}
+.hero-card{animation-delay:.12s}
+.ex1-reveal{opacity:0;transform:translate3d(0,22px,0);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.7,.2,1)}
+.ex1-reveal.ex1-visible{opacity:1;transform:translate3d(0,0,0)}
+.ex1-glow{box-shadow:0 0 0 1px rgba(161,104,255,.12),0 14px 42px rgba(111,65,190,.12)}
+@keyframes ex1HeroEnter{from{opacity:0;transform:translate3d(0,22px,0) scale(.985);filter:blur(5px)}to{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}}
+@keyframes ex1Float{0%,100%{transform:translate3d(0,0,0) rotate(0deg)}50%{transform:translate3d(13px,-24px,0) rotate(45deg)}}
+@keyframes ex1AmbientGlow{0%{opacity:.45;filter:hue-rotate(0deg)}100%{opacity:1;filter:hue-rotate(24deg)}}
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ body::before,body::after,.ex1-motion-floats i,.hero h1,.hero-card,.hero-mark{animation:none!important;transition:none!important;transform:none!important}
+ .ex1-reveal{opacity:1!important;transform:none!important;transition:none!important}
+}
+
 </style>
 <style id="ex1-admin-gaming-motion-v1">
 :root{--bg:#0B0B12;--panel:#171725;--purple:#8B5CF6;--cyan:#8B5CF6}
@@ -269,4 +297,33 @@ sb.channel("ex1-admin-site-theme")
   if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")console.warn("EX1 admin theme realtime:",status);
  });
 refreshSession();
-</script></body></html>
+</script><script>
+
+/* EX1 Motion Effects: progressive enhancement */
+(()=>{
+ const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+ const floatLayer=document.createElement("div");
+ floatLayer.className="ex1-motion-floats";
+ floatLayer.setAttribute("aria-hidden","true");
+ floatLayer.innerHTML="<i></i><i></i><i></i><i></i>";
+ document.body.appendChild(floatLayer);
+ const candidates=document.querySelectorAll("main section, main .hero-card, main .stat, main .card, main .wallet, .page .section-head, .page .panel, .page .tournament, .page .room-card, .page .wallet-card, .manager-form, .colorfield");
+ if(reduced){candidates.forEach(el=>el.classList.add("ex1-visible"));return;}
+ if("IntersectionObserver" in window){
+  const observer=new IntersectionObserver(entries=>{
+   entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("ex1-visible");observer.unobserve(entry.target);}});
+  },{threshold:.08,rootMargin:"0px 0px -36px 0px"});
+  candidates.forEach(el=>{el.classList.add("ex1-reveal");observer.observe(el);});
+ }else{candidates.forEach(el=>el.classList.add("ex1-visible"));}
+ let ticking=false;
+ window.addEventListener("scroll",()=>{
+  if(ticking)return;ticking=true;
+  window.requestAnimationFrame(()=>{
+   document.documentElement.style.setProperty("--ex1-parallax-y",(window.scrollY*-.12).toFixed(1)+"px");
+   ticking=false;
+  });
+ },{passive:true});
+})();
+
+</script>
+</body></html>
