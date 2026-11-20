@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
+<script>window.EX1_NATIVE_APP=new URLSearchParams(location.search).get("ex1_native")==="1";window.EX1_UPDATE_CHANNEL=new URLSearchParams(location.search).get("ex1_channel")||"web";</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#f5f7fc">
@@ -463,6 +464,7 @@ let activeRoomForJoin=null;
 let activeRoomDetail=null;
 let roomStartReleaseTimer=null;
 async function openRoomJoin(room,slot){
+ if(roomRegistrationClosed(room)){toast("مهلت ثبت‌نام این روم به پایان رسیده است.");return;}
  if(!currentUser){toast("برای ثبت‌نام ابتدا وارد حساب EX1 شو.");openAuth();return;}
  activeRoomForJoin={room,slot};
  const fee=Math.max(0,Number(room.entry_demo_points)||0);
@@ -1346,7 +1348,7 @@ setInterval(()=>{const now=Date.now();document.querySelectorAll("[data-room-end-
 setInterval(()=>{if(activeRoomDetail&&!$("roomDetail").hidden&&!document.hidden)refreshRoomAccess(activeRoomDetail.id);},15000);
 </script>
 <script>
-if(!window.EX1_NATIVE_APP&&"serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js"));}
+if(!window.EX1_NATIVE_APP&&new URLSearchParams(location.search).get("ex1_native")!=="1"&&"serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js"));}
 </script>
 
 <script>
