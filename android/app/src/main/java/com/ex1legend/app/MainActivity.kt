@@ -18,6 +18,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Gravity
 import android.webkit.CookieManager
+import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -203,6 +204,18 @@ class MainActivity : ComponentActivity() {
             visibility = View.INVISIBLE
         }
 
+        web.addJavascriptInterface(object {
+            @JavascriptInterface
+            fun reloadApp() {
+                mainHandler.post {
+                    pageReady = false
+                    loadInProgress = false
+                    mainFrameLoadFailed = false
+                    tryLoadWhenOnline()
+                }
+            }
+        }, "Ex1Native")
+
         ex1WebView = web
         root.addView(web, FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.MATCH_PARENT,
@@ -268,6 +281,8 @@ class MainActivity : ComponentActivity() {
         val assetName = if (BuildConfig.IS_ADMIN) "ex1-admin.html" else "ex1-player.html"
         try {
             val html = assets.open(assetName).bufferedReader(Charsets.UTF_8).use { it.readText() }
+                .replaceFirst("<head>", "<head><script>window.EX1_NATIVE_APP=true;</script>")
+                .replace("retry.onclick=()=>location.reload();", "retry.onclick=()=>window.Ex1Native?window.Ex1Native.reloadApp():location.reload();")
             ex1WebView?.loadDataWithBaseURL(pageUrl, html, "text/html", "UTF-8", null)
         } catch (error: Exception) {
             loadInProgress = false
