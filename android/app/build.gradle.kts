@@ -9,12 +9,15 @@ android {
 
     defaultConfig {
         val baseUrl = providers.gradleProperty("ex1BaseUrl").orNull ?: "https://ex1-house.vercel.app"
-        buildConfigField("String", "EX1_BASE_URL", "\"${baseUrl.trimEnd('/')}\"")
+        val updateChannel = providers.gradleProperty("ex1UpdateChannel").orNull ?: "preview"
+        require(updateChannel in listOf("preview", "stable")) { "ex1UpdateChannel must be preview or stable" }
+        buildConfigField("String", "EX1_BASE_URL", "\""+baseUrl.trimEnd('/')+"\"")
+        buildConfigField("String", "EX1_UPDATE_CHANNEL", "\""+updateChannel+"\"")
         applicationId = "com.ex1legend.app"
         minSdk = 23
         targetSdk = 35
-        versionCode = 6
-        versionName = "2.2.0-preview"
+        versionCode = 7
+        versionName = "2.3.0-$updateChannel"
     }
 
     buildFeatures { buildConfig = true }
@@ -22,13 +25,13 @@ android {
     productFlavors {
         create("player") {
             dimension = "edition"
-            applicationIdSuffix = ".player"
+            applicationIdSuffix = ".$updateChannel.player"
             resValue("string", "app_name", "EX1 LEGEND")
             buildConfigField("boolean", "IS_ADMIN", "false")
         }
         create("admin") {
             dimension = "edition"
-            applicationIdSuffix = ".admin"
+            applicationIdSuffix = ".$updateChannel.admin"
             resValue("string", "app_name", "EX1 LEGEND Admin")
             buildConfigField("boolean", "IS_ADMIN", "true")
         }
