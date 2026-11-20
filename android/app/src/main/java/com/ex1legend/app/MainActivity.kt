@@ -40,6 +40,7 @@ class MainActivity : ComponentActivity() {
     private var pageReady = false
     private var loadInProgress = false
     private var mainFrameLoadFailed = false
+    private var usingBundledFallback = false
     private var networkCallbackRegistered = false
     private val mainHandler = Handler(Looper.getMainLooper())
     private val connectivityManager by lazy { getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager }
@@ -125,6 +126,7 @@ class MainActivity : ComponentActivity() {
                         showOfflineMessageIfNeeded()
                         return
                     }
+                    view.evaluateJavascript("window.EX1_NATIVE_APP=true;window.EX1_UPDATE_CHANNEL='" + BuildConfig.EX1_UPDATE_CHANNEL + "';", null)
                     val readyCheck = if (BuildConfig.IS_ADMIN) {
                         "(document.readyState === 'complete' && !!document.getElementById('authView') && !!document.getElementById('appView') && window.EX1_ADMIN_READY === true)"
                     } else {
@@ -140,18 +142,12 @@ class MainActivity : ComponentActivity() {
                 ) {
                     super.onReceivedHttpError(view, request, errorResponse)
                     if (request.isForMainFrame && errorResponse.statusCode >= 400) {
-                        mainFrameLoadFailed = true
-                        loadInProgress = false
-                        pageReady = false
-                        view.stopLoading()
-                        view.visibility = View.INVISIBLE
-                        showStartupMessage(
-                            if (errorResponse.statusCode == 401 || errorResponse.statusCode == 403) {
-                                "دسترسی به نسخهٔ آزمایشی EX1 مجاز نیست."
-                            } else {
-                                "بارگذاری برنامه ناموفق بود. لطفاً کمی بعد دوباره تلاش کن."
-                            }
-                        )
+                        if (!usingBundledFallback) loadBundledFallback("نسخهٔ آنلاین در دسترس نیست؛ نسخهٔ پشتیبان اجرا می‌شود.")
+                        else {
+                            mainFrameLoadFailed = true; loadInProgress = false; pageReady = false
+                            view.stopLoading(); view.visibility = View.INVISIBLE
+                            showStartupMessage("نسخهٔ آنلاین و نسخهٔ پشتیبان بارگذاری نشدند.")
+                        }
                     }
                 }
 
@@ -162,11 +158,12 @@ class MainActivity : ComponentActivity() {
                 ) {
                     super.onReceivedError(view, request, error)
                     if (request.isForMainFrame) {
-                        mainFrameLoadFailed = true
-                        loadInProgress = false
-                        pageReady = false
-                        view.visibility = View.INVISIBLE
-                        showStartupMessage("بارگذاری برنامه ناموفق بود. اتصال یا آدرس نسخه را بررسی می‌کنیم.")
+                        if (!usingBundledFallback) loadBundledFallback("اتصال به نسخهٔ آنلاین برقرار نشد؛ نسخهٔ پشتیبان اجرا می‌شود.")
+                        else {
+                            mainFrameLoadFailed = true; loadInProgress = false; pageReady = false
+                            view.visibility = View.INVISIBLE
+                            showStartupMessage("نسخهٔ آنلاین و نسخهٔ پشتیبان در دسترس نیستند.")
+                        }
                     }
                 }
             }
@@ -282,19 +279,29 @@ class MainActivity : ComponentActivity() {
         mainFrameLoadFailed = false
         ex1WebView?.visibility = View.INVISIBLE
         val pageUrl = if (BuildConfig.IS_ADMIN) ADMIN_URL else PLAYER_URL
+        usingBundledFallback = false
+        ex1WebView?.loadUrl(pageUrl)
+    }
+
+    private fun loadBundledFallback(message: String) {
+        if (isFinishing || isDestroyed || usingBundledFallback) return
+        usingBundledFallback = true
+        mainFrameLoadFailed = false
+        loadInProgress = true
+        pageReady = false
+        val pageUrl = if (BuildConfig.IS_ADMIN) ADMIN_URL else PLAYER_URL
         val assetName = if (BuildConfig.IS_ADMIN) "ex1-admin.html" else "ex1-player.html"
         try {
             val html = assets.open(assetName).bufferedReader(Charsets.UTF_8).use { it.readText() }
-                .replaceFirst(
-                    "<head>",
-                    """<head><script>window.EX1_NATIVE_APP=true;</script><style id="ex1-native-performance">*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}body::before,body::after{content:none!important;display:none!important}</style>"""
-                )
+                .replaceFirst("<head>", "<head><script>window.EX1_NATIVE_APP=true;window.EX1_UPDATE_CHANNEL='" + BuildConfig.EX1_UPDATE_CHANNEL + "';</script><style id=\"ex1-native-performance\">*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}body::before,body::after{content:none!important;display:none!important}</style>")
                 .replace("retry.onclick=()=>location.reload();", "retry.onclick=()=>window.Ex1Native?window.Ex1Native.reloadApp():location.reload();")
             ex1WebView?.loadDataWithBaseURL(pageUrl, html, "text/html", "UTF-8", null)
+            showStartupMessage(message)
         } catch (error: Exception) {
-            loadInProgress = false
-            showStartupMessage("فایل برنامه در این نسخه اندروید پیدا نشد. لطفاً نسخه را دوباره نصب کن.")
+            loadInProgress = false; mainFrameLoadFailed = true
+            showStartupMessage("نسخهٔ آنلاین و فایل پشتیبان در دسترس نیستند.")
         }
+    }
     }
 
     private fun showOfflineMessageIfNeeded() {
@@ -430,7 +437,7 @@ class MainActivity : ComponentActivity() {
     companion object {
         private val EX1_BASE_URL = BuildConfig.EX1_BASE_URL.trimEnd('/')
         private val EX1_HOST = Uri.parse(EX1_BASE_URL).host
-        private val PLAYER_URL = "$EX1_BASE_URL/app.html"
-        private val ADMIN_URL = "$EX1_BASE_URL/admin.html"
+        private val PLAYER_URL = "$EX1_BASE_URL/app.html?ex1_native=1&ex1_channel=" + BuildConfig.EX1_UPDATE_CHANNEL
+        private val ADMIN_URL = "$EX1_BASE_URL/admin.html?ex1_native=1&ex1_channel=" + BuildConfig.EX1_UPDATE_CHANNEL
     }
 }
