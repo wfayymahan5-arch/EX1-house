@@ -245,8 +245,9 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
  <div id="roomImagePreviewWrap" class="room-image-preview-wrap hidden"><div id="roomImagePreview" class="room-image-preview"><img id="roomImagePreviewImg" alt="پیش‌نمایش تصویر روم"></div><div class="room-image-focus-control"><span>جابه‌جایی افقی کادر</span><input id="rf_image_focus_x_range" type="range" min="0" max="100" value="50" aria-label="جابه‌جایی افقی کادر"></div><div class="room-image-focus-control"><span>جابه‌جایی عمودی کادر</span><input id="rf_image_focus_y_range" type="range" min="0" max="100" value="55" aria-label="جابه‌جایی عمودی کادر"></div></div>
  <p class="muted">عکس را از گالری انتخاب کن. برش اولیه با توجه به عمودی یا افقی بودن عکس تنظیم می‌شود؛ برای تعیین دقیق بخش مهم، همان قسمت را روی پیش‌نمایش لمس کن یا نوار تنظیم کادر را جابه‌جا کن. تصویر کشیده نمی‌شود.</p>
  <p id="roomImageUploadStatus" class="muted" aria-live="polite"></p>
- <label class="wide ex1-room-fx-toggle"><input id="rf_room_effects_enabled" type="checkbox"> افکت نئونی و ذرات متحرک برای تصویر این روم فعال باشد</label>
+ <label class="wide ex1-room-fx-toggle"><input id="rf_room_effects_enabled" type="checkbox" disabled> افکت نئونی و ذرات متحرک برای تصویر این روم فعال باشد</label>
  <p class="muted wide">تصویر اصلی ثابت می‌ماند؛ فقط نور و ذرات تزئینی روی آن حرکت می‌کنند. این گزینه برای هر روم جداگانه ذخیره می‌شود و به‌صورت پیش‌فرض خاموش است.</p>
+ <p id="roomEffectsSchemaNotice" class="muted wide" hidden>این قابلیت تا زمان اعمال تغییر تکمیلی پایگاه داده غیرفعال است؛ ساخت و ویرایش عادی روم همچنان فعال می‌ماند.</p>
 </div>
 <label class="wide">قوانین اختصاصی این روم<textarea id="rf_rules" maxlength="5000"></textarea></label>
 <p class="muted wide">ورودی از امتیاز مجازی EX1 کسر می‌شود؛ این امتیاز ارزش نقدی ندارد و قابل خرید، انتقال یا برداشت نیست. ظرفیت کل به‌صورت خودکار از تعداد تیم‌ها × نفرات هر تیم محاسبه می‌شود.</p>
@@ -269,6 +270,14 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2.119.0/dist/umd/supabase.js'"></script><script src="/supabase-config.js"></script>
 <script>
 const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
+let roomEffectsColumnAvailable=false;
+async function detectRoomEffectsColumn(){
+ const toggle=document.getElementById("rf_room_effects_enabled"),notice=document.getElementById("roomEffectsSchemaNotice");
+ try{const {error}=await sb.from("tournament_rooms").select("room_effects_enabled").limit(1);roomEffectsColumnAvailable=!error;}
+ catch(_){roomEffectsColumnAvailable=false;}
+ if(toggle)toggle.disabled=!roomEffectsColumnAvailable;
+ if(notice)notice.hidden=roomEffectsColumnAvailable;
+}
 // Keep the admin panel from browser pinch-zooming while preserving ordinary one-finger page scrolling.
 document.addEventListener("touchmove",e=>{if(e.touches&&e.touches.length>1)e.preventDefault();},{passive:false});
 document.addEventListener("gesturestart",e=>e.preventDefault(),{passive:false});
@@ -707,6 +716,7 @@ async function applyAccessInternal(user){
  try{list=await rpc("admin_my_permissions");}catch(e){$("appView").classList.add("hidden");$("authView").classList.remove("hidden");$("authMessage").textContent="دریافت مجوزها ممکن نشد؛ دسترسی رد شد.";return;}
  list.forEach(p=>permissions[p.permission_code]=p.is_allowed===true);
  isOwner=true;
+ await detectRoomEffectsColumn();
  const allowedTabs=["overview"];
  if(permissions["tournaments.view"]||permissions["tournaments.create"])allowedTabs.push("tournaments");
  if(permissions["rooms.view"]||permissions["rooms.manage"])allowedTabs.push("rooms");
@@ -838,9 +848,9 @@ $("roomForm").addEventListener("submit",async e=>{
   status:$("rf_status").value,room_image_url:$("rf_room_image_url").value.trim()||null,
   room_image_focus_x:Math.max(0,Math.min(100,Number($("rf_image_focus_x").value)||50)),
   room_image_focus_y:Math.max(0,Math.min(100,Number($("rf_image_focus_y").value)||55)),
-  room_effects_enabled:$("rf_room_effects_enabled").checked,
   rules:$("rf_rules").value.trim()
  };
+ if(roomEffectsColumnAvailable)payload.room_effects_enabled=$("rf_room_effects_enabled").checked;
  if(!payload.tournament_id)return toast("مسابقه مرتبط را انتخاب کن.");
  $("saveRoomButton").disabled=true;
  try{
