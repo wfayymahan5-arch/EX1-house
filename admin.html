@@ -468,13 +468,32 @@ $("rf_room_image_file").addEventListener("change",e=>{
  const img=$("roomImagePreviewImg");img.onload=()=>{autoRoomImagePosition(file,img);};
  img.src=roomImageObjectUrl;$("roomImagePreviewWrap").classList.remove("hidden");
 });
+async function readRoomImageBytes(file){
+ if(typeof file.arrayBuffer==="function")return await file.arrayBuffer();
+ return await new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onload=()=>resolve(reader.result);
+  reader.onerror=()=>reject(reader.error||new Error("خواندن فایل تصویر ناموفق بود."));
+  reader.readAsArrayBuffer(file);
+ });
+}
 async function uploadPendingRoomImage(){
  if(!pendingRoomImageFile)return $("rf_room_image_url").value.trim()||null;
- const file=pendingRoomImageFile,ext=file.type==="image/png"?"png":file.type==="image/webp"?"webp":"jpg";
+ const file=pendingRoomImageFile;
+ const mime=file.type||"image/jpeg";
+ const ext=mime==="image/png"?"png":mime==="image/webp"?"webp":"jpg";
+ if(!["image/jpeg","image/png","image/webp"].includes(mime))throw new Error("نوع تصویر پشتیبانی نمی‌شود؛ JPG، PNG یا WebP انتخاب کن.");
+ if(!file.size||file.size>5*1024*1024)throw new Error("حجم تصویر معتبر نیست؛ حداکثر ۵ مگابایت مجاز است.");
  const path="rooms/"+(crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(36).slice(2))+"."+ext;
+ $("roomImageUploadStatus").textContent="در حال آماده‌سازی تصویر...";
+ const bytes=await readRoomImageBytes(file);
+ if(!(bytes instanceof ArrayBuffer)||bytes.byteLength!==file.size)throw new Error("خواندن کامل فایل تصویر انجام نشد.");
  $("roomImageUploadStatus").textContent="در حال بارگذاری تصویر...";
- const {data,error}=await sb.storage.from("tournament-assets").upload(path,file,{upsert:false,contentType:file.type,cacheControl:"31536000"});
- if(error)throw error;
+ const {data,error}=await sb.storage.from("tournament-assets").upload(path,bytes,{upsert:false,contentType:mime,cacheControl:"31536000"});
+ if(error){
+  console.error("EX1 room image storage upload:",{message:error.message,statusCode:error.statusCode,error:error.error});
+  throw error;
+ }
  const url=sb.storage.from("tournament-assets").getPublicUrl(data.path).data.publicUrl;
  $("rf_room_image_url").value=url;pendingRoomImageFile=null;
  $("roomImageUploadStatus").textContent="تصویر با موفقیت بارگذاری شد.";
