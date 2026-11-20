@@ -245,6 +245,8 @@ class MainActivity : ComponentActivity() {
 
     private fun tryLoadWhenOnline() {
         if (isFinishing || isDestroyed) return
+        // Keep WebView/network rendering off the UI thread budget while the player intro is animating.
+        if (!BuildConfig.IS_ADMIN && !splashAnimationFinished) return
         if (!hasValidatedInternet()) {
             showOfflineMessageIfNeeded()
             return
@@ -317,6 +319,7 @@ class MainActivity : ComponentActivity() {
                 completionSent = true
                 post {
                     splashAnimationFinished = true
+                    tryLoadWhenOnline()
                     scheduleSplashExit()
                 }
             }
