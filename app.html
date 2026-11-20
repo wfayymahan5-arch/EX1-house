@@ -1412,5 +1412,47 @@ if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.se
 .profile-cover h1{margin:5px 0 2px}
 .profile-cover .profile-handle{line-height:1.4}
 </style>
+
+<style id="ex1-cinematic-tab-motion-v1">
+/* Smooth, noticeable page transitions: compositor-friendly opacity/transform only. */
+@keyframes ex1CinematicPageEnter {
+  0% { opacity: 0; transform: translate3d(0,18px,0) scale(.985); }
+  65% { opacity: 1; transform: translate3d(0,-2px,0) scale(1.002); }
+  100% { opacity: 1; transform: translate3d(0,0,0) scale(1); }
+}
+@keyframes ex1NavIconPop {
+  0% { transform: translateY(5px) scale(.82); }
+  65% { transform: translateY(-2px) scale(1.12); }
+  100% { transform: translateY(0) scale(1); }
+}
+.page.active.ex1-page-enter {
+  animation: ex1CinematicPageEnter 430ms cubic-bezier(.2,.78,.22,1) both;
+  will-change: opacity, transform;
+}
+.bottom-nav button.active svg,
+.bottom-nav button.active .rank-icon {
+  animation: ex1NavIconPop 360ms cubic-bezier(.2,.8,.2,1) both;
+}
+.bottom-nav button.active {
+  color: #e2c2ff;
+  text-shadow: 0 0 12px rgba(183,112,255,.55);
+}
+.bottom-nav button:active { transform: scale(.94); }
+#home-explore:not([hidden]), #home-messages:not([hidden]),
+#profileMatches:not([hidden]), #profileTeam:not([hidden]) {
+  animation: ex1CinematicPageEnter 360ms cubic-bezier(.2,.78,.22,1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page.active.ex1-page-enter,
+  .bottom-nav button.active svg,
+  .bottom-nav button.active .rank-icon,
+  #home-explore:not([hidden]), #home-messages:not([hidden]),
+  #profileMatches:not([hidden]), #profileTeam:not([hidden]) {
+    animation: none !important;
+    will-change: auto !important;
+  }
+}
+</style>
+
 </body>
 </html>
