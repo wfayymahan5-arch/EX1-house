@@ -3,14 +3,15 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+val updateChannel = providers.gradleProperty("ex1UpdateChannel").orNull ?: "preview"
+require(updateChannel in listOf("preview", "stable")) { "ex1UpdateChannel must be preview or stable" }
+
 android {
     namespace = "com.ex1legend.app"
     compileSdk = 35
 
     defaultConfig {
         val baseUrl = providers.gradleProperty("ex1BaseUrl").orNull ?: "https://ex1-house.vercel.app"
-        val updateChannel = providers.gradleProperty("ex1UpdateChannel").orNull ?: "preview"
-        require(updateChannel in listOf("preview", "stable")) { "ex1UpdateChannel must be preview or stable" }
         buildConfigField("String", "EX1_BASE_URL", "\""+baseUrl.trimEnd('/')+"\"")
         buildConfigField("String", "EX1_UPDATE_CHANNEL", "\""+updateChannel+"\"")
         applicationId = "com.ex1legend.app"
