@@ -113,8 +113,7 @@ class MainActivity : ComponentActivity() {
                 override fun onPageFinished(view: WebView, url: String) {
                     super.onPageFinished(view, url)
                     val loadedUri = Uri.parse(url)
-                    val expectedPath = if (BuildConfig.IS_ADMIN) "/admin.html" else "/app.html"
-                    if (loadedUri.host != EX1_HOST || loadedUri.path != expectedPath || mainFrameLoadFailed) {
+                    if (loadedUri.host != EX1_HOST || mainFrameLoadFailed) {
                         loadInProgress = false
                         view.visibility = View.INVISIBLE
                         pageReady = false
@@ -129,27 +128,11 @@ class MainActivity : ComponentActivity() {
                         return
                     }
                     val readyCheck = if (BuildConfig.IS_ADMIN) {
-                        "(document.readyState === 'complete' && !!document.getElementById('authView') && !!document.getElementById('appView') && !!window.supabase && !!window.EX1_CONFIG)"
+                        "(document.readyState === 'complete' && !!document.getElementById('authView') && !!document.getElementById('appView') && window.EX1_ADMIN_READY === true)"
                     } else {
                         "(document.readyState === 'complete' && !!document.querySelector('.page.active'))"
                     }
-                    view.evaluateJavascript(readyCheck) { result ->
-                        if (isFinishing || isDestroyed || mainFrameLoadFailed) return@evaluateJavascript
-                        if (result != "true") {
-                            loadInProgress = false
-                            view.visibility = View.INVISIBLE
-                            pageReady = false
-                            showStartupMessage("صفحهٔ اصلی EX1 آماده نشد. لطفاً کمی بعد دوباره تلاش کن.")
-                            return@evaluateJavascript
-                        }
-                        loadInProgress = false
-                        startupMessageView?.let { appRoot?.removeView(it) }
-                        startupMessageView = null
-                        startupMessageText = null
-                        view.visibility = View.VISIBLE
-                        pageReady = true
-                        scheduleSplashExit()
-                    }
+                    verifyPageReady(view, readyCheck)
                 }
 
                 override fun onReceivedHttpError(
@@ -246,6 +229,29 @@ class MainActivity : ComponentActivity() {
         })
     }
 
+    private fun verifyPageReady(view: WebView, readyCheck: String, startedAt: Long = SystemClock.elapsedRealtime()) {
+        if (isFinishing || isDestroyed || mainFrameLoadFailed) return
+        view.evaluateJavascript(readyCheck) { result ->
+            if (isFinishing || isDestroyed || mainFrameLoadFailed) return@evaluateJavascript
+            if (result == "true") {
+                loadInProgress = false
+                startupMessageView?.let { appRoot?.removeView(it) }
+                startupMessageView = null
+                startupMessageText = null
+                view.visibility = View.VISIBLE
+                pageReady = true
+                scheduleSplashExit()
+            } else if (SystemClock.elapsedRealtime() - startedAt < 25000L) {
+                mainHandler.postDelayed({ verifyPageReady(view, readyCheck, startedAt) }, 250L)
+            } else {
+                loadInProgress = false
+                view.visibility = View.INVISIBLE
+                pageReady = false
+                showStartupMessage("پنل مدیریت هنوز آماده نشده است. اتصال اینترنت و بارگذاری سرویس را بررسی کن.")
+            }
+        }
+    }
+
     private fun hasValidatedInternet(): Boolean {
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
@@ -281,7 +287,10 @@ class MainActivity : ComponentActivity() {
         val assetName = if (BuildConfig.IS_ADMIN) "ex1-admin.html" else "ex1-player.html"
         try {
             val html = assets.open(assetName).bufferedReader(Charsets.UTF_8).use { it.readText() }
-                .replaceFirst("<head>", "<head><script>window.EX1_NATIVE_APP=true;</script>")
+                .replaceFirst(
+                    "<head>",
+                    """<head><script>window.EX1_NATIVE_APP=true;</script><style id="ex1-native-performance">*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}body::before,body::after{content:none!important;display:none!important}</style>"""
+                )
                 .replace("retry.onclick=()=>location.reload();", "retry.onclick=()=>window.Ex1Native?window.Ex1Native.reloadApp():location.reload();")
             ex1WebView?.loadDataWithBaseURL(pageUrl, html, "text/html", "UTF-8", null)
         } catch (error: Exception) {
@@ -355,82 +364,26 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun createSplashOverlay(): View {
-        return FrameLayout(this).apply {
-            setBackgroundColor(Color.rgb(7, 5, 17))
-            addView(SplashBackdropView(), FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            ))
-
-            val content = LinearLayout(this@MainActivity).apply {
-                orientation = LinearLayout.VERTICAL
-                gravity = Gravity.CENTER
-                setPadding(dp(24), dp(24), dp(24), dp(24))
-                alpha = 0f
-                scaleX = 0.96f
-                scaleY = 0.96f
-            }
-
-            val eyebrow = TextView(this@MainActivity).apply {
-                text = "EX1  //  TACTICAL GAMING"
-                textSize = 10f
-                letterSpacing = 0.22f
-                setTextColor(Color.rgb(69, 211, 225))
-                gravity = Gravity.CENTER
-                typeface = Typeface.create("sans-serif", Typeface.BOLD)
-            }
-            val logo = TextView(this@MainActivity).apply {
-                text = "EX1 LEGEND"
-                textSize = 36f
-                letterSpacing = 0.015f
-                setTextColor(Color.WHITE)
-                gravity = Gravity.CENTER
-                typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
-                setShadowLayer(dp(16).toFloat(), 0f, 0f, Color.rgb(113, 67, 190))
-            }
-            val divider = View(this@MainActivity).apply {
-                background = GradientDrawable(
-                    GradientDrawable.Orientation.LEFT_RIGHT,
-                    intArrayOf(Color.TRANSPARENT, Color.rgb(139, 92, 246), Color.rgb(34, 211, 238), Color.TRANSPARENT)
-                )
-            }
-            val tagline = TextView(this@MainActivity).apply {
-                text = "وارد میدان شو، افسانه شو"
-                textSize = 15f
-                setTextColor(Color.rgb(220, 211, 239))
-                gravity = Gravity.CENTER
-                typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
-                setPadding(0, dp(15), 0, dp(24))
-            }
-            val footer = TextView(this@MainActivity).apply {
-                text = "PLAYER NETWORK  /  EST. 2026"
-                textSize = 9f
-                letterSpacing = 0.18f
-                setTextColor(Color.rgb(126, 116, 153))
-                gravity = Gravity.CENTER
-            }
-
-            content.addView(eyebrow, LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = dp(14) })
-            content.addView(logo, LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
-            ))
-            content.addView(divider, LinearLayout.LayoutParams(dp(164), dp(2)).apply {
-                topMargin = dp(17)
-            })
-            content.addView(tagline, LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
-            ))
-            content.addView(footer, LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
-            ))
-            addView(content, FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                Gravity.CENTER
-            ))
+        val frame = FrameLayout(this).apply {
+            setBackgroundColor(Color.rgb(7, 7, 14))
         }
+        val title = TextView(this).apply {
+            text = "EX1 LEGEND"
+            textSize = 34f
+            letterSpacing = 0.10f
+            gravity = Gravity.CENTER
+            setTextColor(Color.WHITE)
+            typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+            setShadowLayer(dp(10).toFloat(), 0f, 0f, Color.rgb(116, 70, 190))
+            background = GradientDrawable().apply {
+                setColor(Color.rgb(15, 13, 26))
+                setStroke(dp(1), Color.rgb(104, 75, 145))
+                cornerRadius = dp(8).toFloat()
+            }
+            setPadding(dp(24), dp(24), dp(24), dp(24))
+        }
+        frame.addView(title, FrameLayout.LayoutParams(dp(292), dp(112), Gravity.CENTER))
+        return frame
     }
 
     private inner class SplashBackdropView : View(this@MainActivity) {
@@ -483,13 +436,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startSplashAnimation(view: View) {
-        val content = (view as? FrameLayout)?.getChildAt(1)
-        content?.animate()?.alpha(1f)?.scaleX(1f)?.scaleY(1f)?.setDuration(620L)?.start()
-        mainHandler.postDelayed({
-            splashAnimationFinished = true
-            tryLoadWhenOnline()
-            scheduleSplashExit()
-        }, 2100L)
+        // Static title only: no preview frames, image scaling, or splash animation.
+        splashAnimationFinished = true
+        tryLoadWhenOnline()
+        scheduleSplashExit()
     }
 
     private fun scheduleSplashExit() {
@@ -502,10 +452,8 @@ class MainActivity : ComponentActivity() {
 
     private fun hideSplash() {
         val overlay = splashOverlay ?: return
-        overlay.animate().alpha(0f).setDuration(360).withEndAction {
-            appRoot?.removeView(overlay)
-            splashOverlay = null
-        }.start()
+        appRoot?.removeView(overlay)
+        splashOverlay = null
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
