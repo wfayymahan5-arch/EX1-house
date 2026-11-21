@@ -222,6 +222,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                     else NativeEx1Api.adminSnapshot(renewed, permissions)
             } else {
                 rooms = NativeEx1Api.rooms(renewed)
+                notifications = runCatching { NativeEx1Api.notifications(renewed) }.getOrDefault(emptyList())
             }
         } catch (e: NativeApiException) {
             if (e.status == 400 || e.status == 401 || e.status == 403) {
@@ -1076,6 +1077,7 @@ private fun PlayerPreviewPanel(
     onRefresh: () -> Unit,
     onSignOut: () -> Unit
 ) { 
+    val hasUnreadNotifications = notifications.any { it.readAt == null }
     Column(Modifier.fillMaxSize().background(Color(0xFF090817))) {
         // Header mirrors the existing EX1 web app: brand, connection status and quick actions.
         Row(
@@ -1084,7 +1086,19 @@ private fun PlayerPreviewPanel(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             TextButton(onClick = { onTab("profile") }) { Text("پروفایل من", color = Color(0xFFD9C8F4), fontSize = 11.sp) }
-            Text("⚙", color = Color(0xFFE8DDF7), fontSize = 20.sp)
+            TextButton(onClick = { onTab("settings") }) { Text("⚙", color = Color(0xFFE8DDF7), fontSize = 20.sp) }
+            Box(
+                modifier = Modifier.size(34.dp).clickable { onTab("notifications") },
+                contentAlignment = Alignment.Center
+            ) {
+                Text("♧", color = Color(0xFFE8DDF7), fontSize = 21.sp)
+                if (hasUnreadNotifications) {
+                    Box(
+                        Modifier.size(8.dp).align(Alignment.TopEnd)
+                            .background(Color(0xFFFF3B54), CircleShape)
+                    )
+                }
+            }
             Column(Modifier.weight(1f)) {
                 Text("EX1", color = Color(0xFFC17CFF), fontWeight = FontWeight.Black, fontSize = 22.sp)
                 Text("LEGEND", color = Color.White, fontWeight = FontWeight.Black, fontSize = 19.sp)
