@@ -12,7 +12,7 @@ This inventory is derived from the current player/admin web clients. It is a dis
 ## Player client resources
 
 ### Tables queried
-`profiles`, `site_theme_settings`, `social_conversation_members`, `social_conversations`, `social_messages`, `social_reports`, `support_conversations`, `support_messages`, `team_invites`, `team_members`, `teams`, `tournament_player_results`, `tournament_results`, `tournament_room_registrations`, `tournament_rooms`, `tournaments`, `user_blocks`, `user_follows`, `user_notifications`, `user_settings`.
+`profiles` (including public `bio` after the staged migration), `site_theme_settings`, `social_conversation_members`, `social_conversations`, `social_messages`, `social_reports`, `support_conversations`, `support_messages`, `team_invites`, `team_members`, `teams`, `tournament_player_results`, `tournament_results`, `tournament_room_registrations`, `tournament_rooms`, `tournaments`, `user_blocks`, `user_follows`, `user_notifications`, `user_settings`.
 
 ### RPC calls
 `ex1_my_role_summary`, `ex1_public_role_badges`, `get_my_room_solo_status`, `get_my_tournament_room_access`, `get_tournament_room_slots`, `get_tournament_room_waiting_players`, `is_current_user_banned`, `register_for_tournament_room`, `register_for_tournament_room_solo`, `team_delete`, `team_invite_cancel`, `team_invite_create`, `team_invite_respond`, `team_leave`, `team_member_remove`, `wallet_my_history`, `wallet_my_summary`.
