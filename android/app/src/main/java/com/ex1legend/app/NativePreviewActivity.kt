@@ -162,14 +162,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                         }
                     }
                 },
-                onSignOut = {
-                    scope.launch {
-                        val current = session
-                        if (current != null) runCatching { NativeEx1Api.signOut(current) }
-                        NativeEx1Api.clearSession(context)
-                        session = null
-                    }
-                }
+                onSignOut = { confirmSignOut = true }
             )
         } else {
             PlayerPreviewPanel(
@@ -192,13 +185,27 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                         }
                     }
                 },
-                onSignOut = {
-                    scope.launch {
-                        val current = session
-                        if (current != null) runCatching { NativeEx1Api.signOut(current) }
-                        NativeEx1Api.clearSession(context)
-                        session = null
-                    }
+                onSignOut = { confirmSignOut = true }
+            )
+        }
+        if (confirmSignOut) {
+            AlertDialog(
+                onDismissRequest = { confirmSignOut = false },
+                title = { Text("خروج از حساب") },
+                text = { Text("آیا می‌خواهید از حساب کاربری خود خارج شوید؟") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        confirmSignOut = false
+                        scope.launch {
+                            val current = session
+                            if (current != null) runCatching { NativeEx1Api.signOut(current) }
+                            NativeEx1Api.clearSession(context)
+                            session = null
+                        }
+                    }) { Text("خروج") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirmSignOut = false }) { Text("انصراف") }
                 }
             )
         }
