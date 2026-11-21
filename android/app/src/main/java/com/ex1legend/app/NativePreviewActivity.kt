@@ -1038,8 +1038,8 @@ private fun RankingPreviewPanel(
                                 fontSize = 11.sp
                             )
                         }
-                        if (!player.userId.isNullOrBlank()) {
-                            TextButton(onClick = { onOpenProfile(player.userId) }) { Text("پروفایل") }
+                        player.userId?.takeIf { it.isNotBlank() }?.let { userId ->
+                            TextButton(onClick = { onOpenProfile(userId) }) { Text("پروفایل") }
                         }
                     }
                 }
