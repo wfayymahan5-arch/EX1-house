@@ -368,15 +368,7 @@ object NativeEx1Api {
 
     suspend fun rooms(session: NativeSession?): List<NativeRoom> = withContext(Dispatchers.IO) {
         val path = "/rest/v1/tournament_rooms?select=id,title,game_category,price_category,game_mode,map,status,starts_at,ends_at,capacity,team_size,max_teams,entry_demo_points,prize_demo_points&status=in.(open,full,completed)&order=starts_at.asc&limit=100"
-        val rows = try {
-            request("GET", path, session) as? JSONArray ?: JSONArray()
-        } catch (e: NativeApiException) {
-            if (!isBioColumnUnavailable(e)) throw e
-            val legacyBase = "/rest/v1/profiles?select=id,display_name,username,game_name,avatar_url,cover_url&id=neq.${session.userId}&order=created_at.desc&limit=50"
-            val legacyPath = if (clean.isBlank()) legacyBase else legacyBase + "&or=" +
-                java.net.URLEncoder.encode("(display_name.ilike.*$clean*,username.ilike.*$clean*)", "UTF-8")
-            request("GET", legacyPath, session) as? JSONArray ?: JSONArray()
-        }
+        val rows = request("GET", path, session) as? JSONArray ?: JSONArray()
         (0 until rows.length()).mapNotNull { index ->
             val row = rows.optJSONObject(index) ?: return@mapNotNull null
             fun optional(name: String) = row.optString(name)
@@ -757,7 +749,15 @@ object NativeEx1Api {
         val base = "/rest/v1/profiles?select=id,display_name,username,game_name,avatar_url,cover_url,bio&id=neq.${session.userId}&order=created_at.desc&limit=50"
         val path = if (clean.isBlank()) base else base + "&or=" +
             java.net.URLEncoder.encode("(display_name.ilike.*$clean*,username.ilike.*$clean*)", "UTF-8")
-        val rows = request("GET", path, session) as? JSONArray ?: JSONArray()
+        val rows = try {
+            request("GET", path, session) as? JSONArray ?: JSONArray()
+        } catch (e: NativeApiException) {
+            if (!isBioColumnUnavailable(e)) throw e
+            val legacyBase = "/rest/v1/profiles?select=id,display_name,username,game_name,avatar_url,cover_url&id=neq.${session.userId}&order=created_at.desc&limit=50"
+            val legacyPath = if (clean.isBlank()) legacyBase else legacyBase + "&or=" +
+                java.net.URLEncoder.encode("(display_name.ilike.*$clean*,username.ilike.*$clean*)", "UTF-8")
+            request("GET", legacyPath, session) as? JSONArray ?: JSONArray()
+        }
         (0 until rows.length()).mapNotNull { index ->
             val row = rows.optJSONObject(index) ?: return@mapNotNull null
             fun optional(name: String) = row.optString(name).takeIf { it.isNotBlank() && it != "null" }
