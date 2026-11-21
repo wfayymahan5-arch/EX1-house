@@ -366,6 +366,22 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 error = roomDetailError,
                 message = roomActionMessage,
                 onDismiss = { selectedRoom = null },
+                onRefresh = {
+                    scope.launch {
+                        val current = session ?: return@launch
+                        roomDetailLoading = true
+                        try {
+                            roomSlots = NativeEx1Api.roomSlots(current, selectedRoom!!.id)
+                            soloStatus = NativeEx1Api.soloStatus(current, selectedRoom!!.id)
+                            roomAccess = NativeEx1Api.roomAccess(current, selectedRoom!!.id)
+                            roomDetailError = null
+                        } catch (e: Exception) {
+                            roomDetailError = e.message ?: "به‌روزرسانی وضعیت روم ناموفق بود."
+                        } finally {
+                            roomDetailLoading = false
+                        }
+                    }
+                },
                 onRegister = { slot, solo -> onRegisterRoom(selectedRoom!!, slot, solo) }
             )
         }
@@ -670,6 +686,7 @@ private fun RoomDetailDialog(
     error: String?,
     message: String?,
     onDismiss: () -> Unit,
+    onRefresh: () -> Unit,
     onRegister: (Int, Boolean) -> Unit
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -720,6 +737,7 @@ private fun RoomDetailDialog(
                 } else if (access?.waitingForStart == true || access?.waitingForAdmin == true) {
                     Text("اطلاعات خصوصی روم پس از زمان‌بندی و تأیید مدیر برای شرکت‌کنندگان مجاز نمایش داده می‌شود.", color = Color(0xFFBBA8D8), fontSize = 12.sp)
                 }
+                TextButton(onClick = onRefresh, enabled = !busy && !loading) { Text("به‌روزرسانی وضعیت و اطلاعات روم") }
                 Text("جایگاه‌های تیمی", fontWeight = FontWeight.Bold)
                 if (maxTeams <= 0) Text("ظرفیت جایگاه‌ها مشخص نیست.")
                 else if (room.status != "open") Text("ثبت‌نام این روم در وضعیت فعلی باز نیست.")
