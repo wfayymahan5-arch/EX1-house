@@ -95,6 +95,10 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var category by remember { mutableStateOf("all") }
     var price by remember { mutableStateOf("all") }
     var confirmSignOut by remember { mutableStateOf(false) }
+    var confirmDeleteAccount by remember { mutableStateOf(false) }
+    var showDeleteForm by remember { mutableStateOf(false) }
+    var deletePassword by remember { mutableStateOf("") }
+    var deletePhrase by remember { mutableStateOf("") }
 
     LaunchedEffect(session?.userId) {
         val current = session ?: return@LaunchedEffect
@@ -230,6 +234,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 wallet = wallet,
                 activeTab = activeTab,
                 onTab = { activeTab = it },
+                onDeleteAccount = { confirmDeleteAccount = true },
                 onSaveProfile = { name, username, uid, gameName ->
                     scope.launch {
                         val current = session ?: return@launch
@@ -275,6 +280,78 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                     }
                 },
                 onSignOut = { confirmSignOut = true }
+            )
+        }
+        if (confirmDeleteAccount) {
+            AlertDialog(
+                onDismissRequest = { confirmDeleteAccount = false },
+                title = { Text("حذف دائمی حساب") },
+                text = { Text("این عملیات دائمی است و قابل بازگشت نیست. برای ادامه باید هویتت را تأیید کنی.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        confirmDeleteAccount = false
+                        deletePassword = ""
+                        deletePhrase = ""
+                        showDeleteForm = true
+                    }) { Text("ادامه") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirmDeleteAccount = false }) { Text("انصراف") }
+                }
+            )
+        }
+        if (showDeleteForm) {
+            AlertDialog(
+                onDismissRequest = { if (!busy) showDeleteForm = false },
+                title = { Text("تأیید نهایی حذف حساب") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("رمز فعلی حساب را وارد کن و عبارت «حذف حساب» را دقیقاً بنویس.")
+                        OutlinedTextField(
+                            value = deletePassword,
+                            onValueChange = { deletePassword = it },
+                            label = { Text("رمز عبور فعلی") },
+                            visualTransformation = PasswordVisualTransformation(),
+                            singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = deletePhrase,
+                            onValueChange = { deletePhrase = it },
+                            label = { Text("عبارت تأیید") },
+                            singleLine = true
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        enabled = !busy && deletePassword.isNotBlank() && deletePhrase.trim() == "حذف حساب",
+                        onClick = {
+                            scope.launch {
+                                busy = true
+                                try {
+                                    val current = session ?: throw IllegalStateException("نشست کاربر پیدا نشد.")
+                                    val result = NativeEx1Api.deleteAccount(current, deletePassword, deletePhrase.trim())
+                                    if (!result.optBoolean("success")) {
+                                        throw IllegalStateException(result.optString("error", "حذف حساب انجام نشد."))
+                                    }
+                                    NativeEx1Api.clearSession(context)
+                                    session = null
+                                    showDeleteForm = false
+                                    error = null
+                                    deletePassword = ""
+                                    deletePhrase = ""
+                                } catch (e: Exception) {
+                                    error = e.message ?: "حذف حساب انجام نشد."
+                                } finally {
+                                    busy = false
+                                }
+                            }
+                        }
+                    ) { Text(if (busy) "در حال حذف..." else "حذف دائمی حساب") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { if (!busy) showDeleteForm = false }) { Text("انصراف") }
+                }
             )
         }
         if (confirmSignOut) {
@@ -359,6 +436,7 @@ private fun PlayerPreviewPanel(
     wallet: NativeWallet?,
     activeTab: String,
     onTab: (String) -> Unit,
+    onDeleteAccount: () -> Unit,
     onSaveProfile: (String, String, String, String) -> Unit,
     category: String,
     price: String,
@@ -381,11 +459,13 @@ private fun PlayerPreviewPanel(
             FilterChip(selected = activeTab == "rooms", onClick = { onTab("rooms") }, label = { Text("روم‌ها") })
             FilterChip(selected = activeTab == "profile", onClick = { onTab("profile") }, label = { Text("پروفایل") })
             FilterChip(selected = activeTab == "wallet", onClick = { onTab("wallet") }, label = { Text("کیف پول مجازی") })
+            FilterChip(selected = activeTab == "settings", onClick = { onTab("settings") }, label = { Text("تنظیمات") })
         }
         if (!error.isNullOrBlank()) Text(error, color = if (error.contains("ذخیره شد") || error.contains("بررسی ارسال")) Color(0xFFBFA0F4) else Color(0xFFFFA2A2), modifier = Modifier.padding(vertical = 8.dp))
         when (activeTab) {
             "profile" -> ProfilePreviewPanel(profile = profile, onSave = onSaveProfile)
             "wallet" -> WalletPreviewPanel(wallet = wallet)
+            "settings" -> SettingsPreviewPanel(onDeleteAccount = onDeleteAccount)
             else -> {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
                     listOf("all" to "برای شما", "battle_royale" to "بتل‌رویال", "fight" to "فایت", "multiplayer" to "مولتی", "uncategorized" to "بدون دسته").forEach { (key, label) ->
@@ -473,6 +553,20 @@ private fun WalletPreviewPanel(wallet: NativeWallet?) {
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun SettingsPreviewPanel(onDeleteAccount: () -> Unit) {
+    Column(
+        Modifier.fillMaxWidth().heightIn(max = 560.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text("تنظیمات حساب", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text("خروج از حساب و حذف حساب دو عملیات جدا هستند. حذف حساب فقط پس از تأیید دوباره و بررسی رمز فعلی توسط سرور انجام می‌شود.", color = Color(0xFF9B91AA), fontSize = 12.sp)
+        Button(onClick = onDeleteAccount, modifier = Modifier.fillMaxWidth()) {
+            Text("حذف دائمی حساب کاربری")
         }
     }
 }
