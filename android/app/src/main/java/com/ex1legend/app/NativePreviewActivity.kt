@@ -165,6 +165,38 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
         }
     }
 
+    val onRegisterRoom: (NativeRoom, Int, Boolean) -> Unit = { room, slotNumber, solo ->
+                    scope.launch {
+                        roomActionBusy = true
+                        roomDetailError = null
+                        roomActionMessage = null
+                        try {
+                            val current = session ?: throw IllegalStateException("ابتدا وارد حساب شو.")
+                            val currentProfile = profile ?: NativeEx1Api.profile(current).also { profile = it }
+                            if (currentProfile?.gameUid.isNullOrBlank() || currentProfile?.gameName.isNullOrBlank() || currentProfile?.gameUid?.contains("@") == true) {
+                                throw IllegalStateException("برای ثبت‌نام، UID و نام داخل بازی کالاف را در پروفایل تکمیل کن.")
+                            }
+                            val result = if (solo) NativeEx1Api.registerSolo(current, room.id, slotNumber)
+                                else NativeEx1Api.registerForRoom(current, room.id, slotNumber)
+                            roomActionMessage = if (solo && result.optString("status") == "matched") {
+                                "تیمت به‌صورت خودکار تشکیل شد؛ جایگاه ${result.optInt("slot_number")}."
+                            } else if (solo) {
+                                "ثبت‌نام انفرادی در صف ثبت شد؛ ${result.optInt("players_waiting")} نفر از ${result.optInt("team_size")} نفر."
+                            } else {
+                                "ثبت‌نام با موفقیت ثبت شد؛ جایگاه ${result.optInt("slot_number")}."
+                            }
+                            wallet = NativeEx1Api.wallet(current)
+                            roomSlots = NativeEx1Api.roomSlots(current, room.id)
+                            soloStatus = NativeEx1Api.soloStatus(current, room.id)
+                            roomAccess = NativeEx1Api.roomAccess(current, room.id)
+                        } catch (e: Exception) {
+                            roomDetailError = e.message ?: "ثبت‌نام انجام نشد."
+                        } finally {
+                            roomActionBusy = false
+                        }
+                    }
+    }
+
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF0A0812)) {
         if (session == null) {
             LoginPanel(
@@ -241,53 +273,8 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
             }
         } else if (isAdmin) {
             AdminPreviewPanel(
-                permissions = permissions,
-                ownerAccessDenied = ownerAccessDenied,
-                error = error,
-                onRefresh = {
-                    scope.launch {
-                        loading = true
-                        try {
-                            val current = session ?: return@launch
-                            ownerAccessDenied = !NativeEx1Api.isCurrentUserOwner(current)
-                            permissions = if (ownerAccessDenied) emptyList() else NativeEx1Api.adminPermissions(current)
-                            error = null
-                        } catch (e: Exception) {
-                            error = e.message ?: "دریافت مجوزها ناموفق بود."
-                        } finally {
-                            loading = false
-                        }
-                    }
-                },
-                onSignOut = { confirmSignOut = true }
-            )
-        } else {
-            PlayerPreviewPanel(
-                rooms = rooms,
-                profile = profile,
-                wallet = wallet,
-                activeTab = activeTab,
-                onTab = { activeTab = it },
-                onOpenRoom = { room ->
-                    selectedRoom = room
-                    roomSlots = emptyList()
-                    soloStatus = null
-                    roomAccess = null
-                    roomDetailError = null
-                    roomActionMessage = null
-                    roomDetailLoading = true
-                    scope.launch {
-                        try {
-                            val current = session ?: throw IllegalStateException("ابتدا وارد حساب شو.")
-                            roomSlots = NativeEx1Api.roomSlots(current, room.id)
-                            soloStatus = NativeEx1Api.soloStatus(current, room.id)
-                            roomAccess = NativeEx1Api.roomAccess(current, room.id)
-                        } catch (e: Exception) {
-                            roomDetailError = e.message ?: "دریافت اطلاعات روم ناموفق بود."
-                        } finally {
-                            roomDetailLoading = false
-                        }
-                    }
+                            onRegister = onRegisterRoom,
+
                 },
                 onRegister = { room, slotNumber, solo ->
                     scope.launch {
@@ -537,7 +524,6 @@ private fun PlayerPreviewPanel(
     activeTab: String,
     onTab: (String) -> Unit,
     onOpenRoom: (NativeRoom) -> Unit,
-    onRegister: (NativeRoom, Int, Boolean) -> Unit,
     onDeleteAccount: () -> Unit,
     onSaveProfile: (String, String, String, String) -> Unit,
     category: String,
