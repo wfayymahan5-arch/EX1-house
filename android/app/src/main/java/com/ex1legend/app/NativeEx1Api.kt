@@ -299,8 +299,8 @@ object NativeEx1Api {
             val playerRows = row.optJSONArray("players") ?: JSONArray()
             val players = (0 until playerRows.length()).mapNotNull { playerIndex ->
                 val player = playerRows.optJSONObject(playerIndex) ?: return@mapNotNull null
-                player.optString("display_name").takeIf { it.isNotBlank() && it != "null" }
-                    ?: player.optString("game_name").takeIf { it.isNotBlank() && it != "null" }
+                player.optString("game_name").takeIf { it.isNotBlank() && it != "null" }
+                    ?: player.optString("display_name").takeIf { it.isNotBlank() && it != "null" }
             }
             NativeRoomSlot(
                 row.optInt("slot_number"),
