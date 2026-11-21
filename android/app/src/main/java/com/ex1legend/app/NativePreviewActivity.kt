@@ -5,6 +5,10 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +59,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+
+private fun currentIsoTimestamp(): String =
+    SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
+        .apply { timeZone = TimeZone.getTimeZone("UTC") }
+        .format(Date())
 
 class NativePreviewActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -392,7 +401,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                     scope.launch {
                         val current = session ?: return@launch
                         try {
-                            NativeEx1Api.markNotificationRead(current, notificationId, java.time.Instant.now().toString())
+                            NativeEx1Api.markNotificationRead(current, notificationId, currentIsoTimestamp())
                             notifications = NativeEx1Api.notifications(current)
                         } catch (e: Exception) {
                             error = e.message ?: "ثبت وضعیت اعلان ناموفق بود."
