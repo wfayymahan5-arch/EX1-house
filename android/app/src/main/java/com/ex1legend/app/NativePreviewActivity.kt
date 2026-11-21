@@ -84,6 +84,9 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var displayName by remember { mutableStateOf("") }
     var isSignUp by remember { mutableStateOf(false) }
     var rooms by remember { mutableStateOf<List<NativeRoom>>(emptyList()) }
+    var profile by remember { mutableStateOf<NativeProfile?>(null) }
+    var wallet by remember { mutableStateOf<NativeWallet?>(null) }
+    var activeTab by remember { mutableStateOf("rooms") }
     var permissions by remember { mutableStateOf<List<String>>(emptyList()) }
     var loading by remember { mutableStateOf(session != null) }
     var busy by remember { mutableStateOf(false) }
@@ -114,6 +117,22 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
             error = e.message ?: "فعلاً دریافت اطلاعات ممکن نیست."
         } finally {
             loading = false
+        }
+    }
+
+    LaunchedEffect(session?.userId, activeTab) {
+        val current = session ?: return@LaunchedEffect
+        if (!isAdmin && activeTab != "rooms") {
+            loading = true
+            try {
+                if (activeTab == "profile") profile = NativeEx1Api.profile(current)
+                if (activeTab == "wallet") wallet = NativeEx1Api.wallet(current)
+                error = null
+            } catch (e: Exception) {
+                error = e.message ?: "دریافت اطلاعات انجام نشد."
+            } finally {
+                loading = false
+            }
         }
     }
 
@@ -206,6 +225,31 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
         } else {
             PlayerPreviewPanel(
                 rooms = rooms,
+                profile = profile,
+                wallet = wallet,
+                activeTab = activeTab,
+                onTab = { activeTab = it },
+                onSaveProfile = { name, username, uid, gameName ->
+                    scope.launch {
+                        val current = session ?: return@launch
+                        loading = true
+                        try {
+                            val result = NativeEx1Api.updateProfile(current, name, username, uid, gameName)
+                            if (result.optBoolean("pending_review")) {
+                                error = result.optString("message", "پروفایل برای بررسی ارسال شد.")
+                            } else if (result.optBoolean("success")) {
+                                profile = NativeEx1Api.profile(current)
+                                error = "پروفایل ذخیره شد."
+                            } else {
+                                error = result.optString("error", "ذخیره پروفایل انجام نشد.")
+                            }
+                        } catch (e: Exception) {
+                            error = e.message ?: "ذخیره پروفایل انجام نشد."
+                        } finally {
+                            loading = false
+                        }
+                    }
+                },
                 category = category,
                 price = price,
                 error = error,
@@ -305,6 +349,11 @@ private fun LoginPanel(
 @Composable
 private fun PlayerPreviewPanel(
     rooms: List<NativeRoom>,
+    profile: NativeProfile?,
+    wallet: NativeWallet?,
+    activeTab: String,
+    onTab: (String) -> Unit,
+    onSaveProfile: (String, String, String, String) -> Unit,
     category: String,
     price: String,
     error: String?,
@@ -313,10 +362,6 @@ private fun PlayerPreviewPanel(
     onRefresh: () -> Unit,
     onSignOut: () -> Unit
 ) {
-    val visibleRooms = rooms.filter {
-        (category == "all" || it.gameCategory == category) &&
-            (price == "all" || it.priceCategory == price)
-    }
     Column(Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.weight(1f)) {
@@ -325,28 +370,104 @@ private fun PlayerPreviewPanel(
             }
             Button(onClick = onRefresh) { Text("به‌روزرسانی") }
         }
-        Spacer(Modifier.height(14.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
-            listOf("all" to "برای شما", "battle_royale" to "بتل‌رویال", "fight" to "فایت", "multiplayer" to "مولتی", "uncategorized" to "بدون دسته").forEach { (key, label) ->
-                FilterChip(selected = category == key, onClick = { onCategory(key) }, label = { Text(label, fontSize = 11.sp) })
+        Spacer(Modifier.height(12.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+            FilterChip(selected = activeTab == "rooms", onClick = { onTab("rooms") }, label = { Text("روم‌ها") })
+            FilterChip(selected = activeTab == "profile", onClick = { onTab("profile") }, label = { Text("پروفایل") })
+            FilterChip(selected = activeTab == "wallet", onClick = { onTab("wallet") }, label = { Text("کیف پول مجازی") })
+        }
+        if (!error.isNullOrBlank()) Text(error, color = if (error.contains("ذخیره شد") || error.contains("بررسی ارسال")) Color(0xFFBFA0F4) else Color(0xFFFFA2A2), modifier = Modifier.padding(vertical = 8.dp))
+        when (activeTab) {
+            "profile" -> ProfilePreviewPanel(profile = profile, onSave = onSaveProfile)
+            "wallet" -> WalletPreviewPanel(wallet = wallet)
+            else -> {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
+                    listOf("all" to "برای شما", "battle_royale" to "بتل‌رویال", "fight" to "فایت", "multiplayer" to "مولتی", "uncategorized" to "بدون دسته").forEach { (key, label) ->
+                        FilterChip(selected = category == key, onClick = { onCategory(key) }, label = { Text(label, fontSize = 11.sp) })
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
+                    listOf("all" to "همه قیمت‌ها", "free" to "رایگان", "economy" to "اقتصادی", "expensive" to "گران").forEach { (key, label) ->
+                        FilterChip(selected = price == key, onClick = { onPrice(key) }, label = { Text(label, fontSize = 11.sp) })
+                    }
+                }
+                val visibleRooms = rooms.filter {
+                    (category == "all" || it.gameCategory == category) &&
+                        (price == "all" || it.priceCategory == price)
+                }
+                if (visibleRooms.isEmpty()) {
+                    Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        Text("در این دسته روم فعالی پیدا نشد.", color = Color(0xFFAAA2B8))
+                    }
+                } else {
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.weight(1f)) {
+                        items(visibleRooms, key = { it.id }) { room -> RoomPreviewCard(room) }
+                    }
+                }
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
-            listOf("all" to "همه قیمت‌ها", "free" to "رایگان", "economy" to "اقتصادی", "expensive" to "گران").forEach { (key, label) ->
-                FilterChip(selected = price == key, onClick = { onPrice(key) }, label = { Text(label, fontSize = 11.sp) })
-            }
-        }
-        if (!error.isNullOrBlank()) Text(error, color = Color(0xFFFFA2A2), modifier = Modifier.padding(vertical = 8.dp))
-        if (visibleRooms.isEmpty()) {
-            Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Text("در این دسته روم فعالی پیدا نشد.", color = Color(0xFFAAA2B8))
-            }
-        } else {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.weight(1f)) {
-                items(visibleRooms, key = { it.id }) { room -> RoomPreviewCard(room) }
-            }
-        }
+        Spacer(Modifier.height(8.dp))
         Button(onClick = onSignOut, modifier = Modifier.fillMaxWidth()) { Text("خروج از حساب") }
+    }
+}
+
+@Composable
+private fun ProfilePreviewPanel(
+    profile: NativeProfile?,
+    onSave: (String, String, String, String) -> Unit
+) {
+    var displayName by remember(profile?.id, profile?.displayName) { mutableStateOf(profile?.displayName.orEmpty()) }
+    var username by remember(profile?.id, profile?.username) { mutableStateOf(profile?.username.orEmpty()) }
+    var gameUid by remember(profile?.id, profile?.gameUid) { mutableStateOf(profile?.gameUid.orEmpty()) }
+    var gameName by remember(profile?.id, profile?.gameName) { mutableStateOf(profile?.gameName.orEmpty()) }
+    Column(
+        Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text("اطلاعات پروفایل", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        OutlinedTextField(displayName, { displayName = it }, label = { Text("نام نمایشی") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+        OutlinedTextField(username, { username = it }, label = { Text("نام کاربری") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+        OutlinedTextField(gameUid, { gameUid = it }, label = { Text("UID کالاف") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+        OutlinedTextField(gameName, { gameName = it }, label = { Text("نام داخل بازی") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+        Text("تغییرات از مسیر امن سرور بررسی می‌شوند؛ ممکن است بعضی تغییرها نیازمند تأیید مالک باشند.", color = Color(0xFF9B91AA), fontSize = 12.sp)
+        Button(
+            onClick = { onSave(displayName, username, gameUid, gameName) },
+            enabled = displayName.trim().length >= 2,
+            modifier = Modifier.fillMaxWidth()
+        ) { Text("ذخیره پروفایل") }
+    }
+}
+
+@Composable
+private fun WalletPreviewPanel(wallet: NativeWallet?) {
+    Column(Modifier.weight(1f).fillMaxWidth()) {
+        Text("کیف پول مجازی", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(8.dp))
+        Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF211831))) {
+            Column(Modifier.fillMaxWidth().padding(18.dp)) {
+                Text("موجودی امتیاز مجازی", color = Color(0xFFBBA8D8), fontSize = 13.sp)
+                Text(wallet?.balance?.toString() ?: "—", fontSize = 28.sp, fontWeight = FontWeight.Black)
+                Text("این امتیازها فقط داخل EX1 کاربرد دارند و ارزش نقدی یا امکان برداشت ندارند.", color = Color(0xFF9B91AA), fontSize = 11.sp)
+            }
+        }
+        Spacer(Modifier.height(14.dp))
+        Text("سوابق اخیر", fontWeight = FontWeight.Bold)
+        if (wallet?.history.isNullOrEmpty()) {
+            Text("تراکنشی برای نمایش وجود ندارد.", color = Color(0xFFAAA2B8), modifier = Modifier.padding(top = 12.dp))
+        } else {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(wallet!!.history) { entry ->
+                    Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
+                        Column(Modifier.fillMaxWidth().padding(12.dp)) {
+                            Text(if (entry.type == "credit") "افزایش امتیاز" else "کسر امتیاز", fontWeight = FontWeight.Bold)
+                            Text("مقدار: ${entry.amount}  ·  موجودی پس از ثبت: ${entry.balanceAfter}", color = Color(0xFFC4BBD2), fontSize = 12.sp)
+                            if (entry.reason.isNotBlank()) Text(entry.reason, color = Color(0xFF8E879B), fontSize = 12.sp)
+                            Text(entry.createdAt, color = Color(0xFF8E879B), fontSize = 10.sp)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
