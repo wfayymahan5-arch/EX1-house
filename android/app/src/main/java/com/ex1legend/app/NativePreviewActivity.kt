@@ -92,6 +92,11 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var profile by remember { mutableStateOf<NativeProfile?>(null) }
     var wallet by remember { mutableStateOf<NativeWallet?>(null) }
     var permissions by remember { mutableStateOf<List<String>>(emptyList()) }
+    var team by remember { mutableStateOf<NativeTeam?>(null) }
+    var teamInvites by remember { mutableStateOf<List<NativeTeamInvite>>(emptyList()) }
+    var sentTeamInvites by remember { mutableStateOf<List<NativeSentTeamInvite>>(emptyList()) }
+    var teamMessage by remember { mutableStateOf<String?>(null) }
+    var teamError by remember { mutableStateOf<String?>(null) }
     var ownerAccessDenied by remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(session != null) }
     var busy by remember { mutableStateOf(false) }
@@ -228,6 +233,12 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
         }
     }
 
+    suspend fun refreshTeam(current: NativeSession) {
+        team = NativeEx1Api.myTeam(current)
+        teamInvites = NativeEx1Api.incomingTeamInvites(current)
+        sentTeamInvites = if (team?.isCaptain == true) NativeEx1Api.sentTeamInvites(current, team!!.id) else emptyList()
+    }
+
     val saveProfile: (String, String, String, String) -> Unit = { name, username, uid, gameName ->
         scope.launch {
             val current = session ?: return@launch
@@ -362,6 +373,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                 when (tab) {
                                     "profile" -> profile = NativeEx1Api.profile(current)
                                     "wallet" -> wallet = NativeEx1Api.wallet(current)
+                                    "team" -> refreshTeam(current)
                                 }
                                 error = null
                             } catch (e: Exception) {
@@ -373,6 +385,88 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                     }
                 },
                 onOpenRoom = openRoom,
+                team = team,
+                teamInvites = teamInvites,
+                sentTeamInvites = sentTeamInvites,
+                teamMessage = teamMessage,
+                teamError = teamError,
+                onCreateTeam = { name, tag, description ->
+                    scope.launch {
+                        busy = true; teamError = null; teamMessage = null
+                        try {
+                            val current = session ?: throw IllegalStateException("ابتدا وارد حساب شو.")
+                            val result = NativeEx1Api.createTeam(current, name, tag, description)
+                            if (result.optBoolean("pending_review")) teamMessage = result.optString("message", "درخواست ساخت تیم برای بررسی ارسال شد.")
+                            else if (!result.optBoolean("success")) throw IllegalStateException(result.optString("error", "ساخت تیم انجام نشد."))
+                            else { refreshTeam(current); teamMessage = "تیم ساخته شد." }
+                        } catch (e: Exception) { teamError = e.message ?: "ساخت تیم انجام نشد." }
+                        finally { busy = false }
+                    }
+                },
+                onUpdateTeam = { name, tag, description ->
+                    scope.launch {
+                        busy = true; teamError = null; teamMessage = null
+                        try {
+                            val current = session ?: throw IllegalStateException("ابتدا وارد حساب شو.")
+                            val currentTeam = team ?: throw IllegalStateException("تیمی پیدا نشد.")
+                            val result = NativeEx1Api.updateTeam(current, currentTeam.id, name, tag, description)
+                            if (result.optBoolean("pending_review")) teamMessage = result.optString("message", "تغییرات برای بررسی مالک ارسال شد.")
+                            else if (!result.optBoolean("success")) throw IllegalStateException(result.optString("error", "ویرایش تیم انجام نشد."))
+                            else { refreshTeam(current); teamMessage = "اطلاعات تیم به‌روزرسانی شد." }
+                        } catch (e: Exception) { teamError = e.message ?: "ویرایش تیم انجام نشد." }
+                        finally { busy = false }
+                    }
+                },
+                onInvite = { username ->
+                    scope.launch {
+                        busy = true; teamError = null; teamMessage = null
+                        try {
+                            val current = session ?: throw IllegalStateException("ابتدا وارد حساب شو.")
+                            NativeEx1Api.createTeamInvite(current, username)
+                            refreshTeam(current); teamMessage = "دعوت برای بازیکن ارسال شد."
+                        } catch (e: Exception) { teamError = e.message ?: "ارسال دعوت انجام نشد." }
+                        finally { busy = false }
+                    }
+                },
+                onRespondInvite = { inviteId, accept ->
+                    scope.launch {
+                        busy = true; teamError = null; teamMessage = null
+                        try {
+                            val current = session ?: throw IllegalStateException("ابتدا وارد حساب شو.")
+                            NativeEx1Api.respondTeamInvite(current, inviteId, accept)
+                            refreshTeam(current)
+                            teamMessage = if (accept) "به تیم پیوستی." else "دعوت رد شد."
+                        } catch (e: Exception) { teamError = e.message ?: "پاسخ به دعوت انجام نشد." }
+                        finally { busy = false }
+                    }
+                },
+                onCancelInvite = { inviteId ->
+                    scope.launch {
+                        busy = true; teamError = null; teamMessage = null
+                        try {
+                            val current = session ?: throw IllegalStateException("ابتدا وارد حساب شو.")
+                            NativeEx1Api.cancelTeamInvite(current, inviteId)
+                            refreshTeam(current); teamMessage = "دعوت لغو شد."
+                        } catch (e: Exception) { teamError = e.message ?: "لغو دعوت انجام نشد." }
+                        finally { busy = false }
+                    }
+                },
+                onTeamAction = { action, userId ->
+                    scope.launch {
+                        busy = true; teamError = null; teamMessage = null
+                        try {
+                            val current = session ?: throw IllegalStateException("ابتدا وارد حساب شو.")
+                            when (action) {
+                                "leave" -> NativeEx1Api.leaveTeam(current)
+                                "delete" -> NativeEx1Api.deleteTeam(current)
+                                "remove" -> NativeEx1Api.removeTeamMember(current, userId ?: throw IllegalStateException("شناسه عضو مشخص نیست."))
+                            }
+                            refreshTeam(current)
+                            teamMessage = when (action) { "leave" -> "از تیم خارج شدی."; "delete" -> "تیم حذف شد."; else -> "عضو از تیم خارج شد." }
+                        } catch (e: Exception) { teamError = e.message ?: "عملیات تیم انجام نشد." }
+                        finally { busy = false }
+                    }
+                },
                 onDeleteAccount = { confirmDeleteAccount = true },
                 onSaveProfile = saveProfile,
                 category = category,
