@@ -718,7 +718,7 @@ object NativeEx1Api {
     }
 
     suspend fun explorePlayers(session: NativeSession, query: String): List<NativePublicProfile> = withContext(Dispatchers.IO) {
-        val clean = query.trim().take(40).replace(Regex("[%*(),\\\\\\\"]"), " ").replace(Regex("\\s+"), " ")
+        val clean = query.trim().take(40).filter { it.isLetterOrDigit() || it.isWhitespace() || it in "._-" }.replace(Regex("\\s+"), " ")
         val base = "/rest/v1/profiles?select=id,display_name,username,game_name,avatar_url,cover_url,bio&id=neq.${session.userId}&order=created_at.desc&limit=50"
         val path = if (clean.isBlank()) base else base + "&or=" +
             java.net.URLEncoder.encode("(display_name.ilike.*$clean*,username.ilike.*$clean*)", "UTF-8")
@@ -740,7 +740,7 @@ object NativeEx1Api {
     }
 
     suspend fun publicProfile(session: NativeSession, userId: String): NativePublicProfile? = withContext(Dispatchers.IO) {
-        if (!userId.matches(Regex("[0-9a-fA-F-]{36}"))) throw IllegalArgumentException("شناسه بازیکن معتبر نیست.")
+        if (!userId.matches(Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")) throw IllegalArgumentException("شناسه بازیکن معتبر نیست.")
         val rows = request(
             "GET",
             "/rest/v1/profiles?select=id,display_name,username,game_name,avatar_url,cover_url,bio&id=eq.$userId&limit=1",
@@ -749,12 +749,14 @@ object NativeEx1Api {
         if (rows.length() == 0) return@withContext null
         val row = rows.getJSONObject(0)
         fun optional(name: String) = row.optString(name).takeIf { it.isNotBlank() && it != "null" }
-        val badges = request(
-            "POST",
-            "/rest/v1/rpc/ex1_public_role_badges",
-            session,
-            JSONObject().put("p_user_ids", JSONArray().put(userId))
-        ) as? JSONArray ?: JSONArray()
+        val badges = runCatching {
+            request(
+                "POST",
+                "/rest/v1/rpc/ex1_public_role_badges",
+                session,
+                JSONObject().put("p_user_ids", JSONArray().put(userId))
+            ) as? JSONArray
+        }.getOrNull() ?: JSONArray()
         val badge = (0 until badges.length()).mapNotNull { badges.optJSONObject(it) }
             .firstOrNull { it.optString("user_id") == userId }?.optString("badge_type")?.takeIf { it.isNotBlank() }
         NativePublicProfile(
