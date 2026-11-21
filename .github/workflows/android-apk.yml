@@ -68,7 +68,7 @@ jobs:
           echo "base_url=$BASE_URL" >> "$GITHUB_OUTPUT"
       - name: Build player and admin APKs
         working-directory: android
-        run: gradle -Pex1BaseUrl="${{ steps.channel.outputs.base_url }}" -Pex1UpdateChannel="${{ steps.channel.outputs.channel }}" assemblePlayerDebug assembleAdminDebug
+        run: gradle -Pex1BaseUrl="${{ steps.channel.outputs.base_url }}" -Pex1UpdateChannel="${{ steps.channel.outputs.channel }}" testPlayerDebugUnitTest testAdminDebugUnitTest assemblePlayerDebug assembleAdminDebug
       - name: Collect APKs
         run: |
           mkdir -p release-apks
