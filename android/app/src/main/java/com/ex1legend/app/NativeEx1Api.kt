@@ -576,7 +576,7 @@ object NativeEx1Api {
     suspend fun roomResults(session: NativeSession, roomId: String): List<NativePlayerResult> = withContext(Dispatchers.IO) {
         val rows = request(
             "GET",
-            "/rest/v1/tournament_player_results?select=placement,kills,points,profiles!tournament_player_results_user_id_fkey(display_name,game_name)&room_id=eq.$roomId&order=placement.asc,kills.desc",
+            "/rest/v1/tournament_player_results?select=placement,kills,points,profiles(display_name,username,game_name)&room_id=eq.$roomId&order=placement.asc.nullslast,points.desc,kills.desc",
             session
         ) as? JSONArray ?: JSONArray()
         (0 until rows.length()).mapNotNull { index ->
@@ -584,6 +584,7 @@ object NativeEx1Api {
             val person = row.optJSONObject("profiles") ?: JSONObject()
             val name = person.optString("game_name").takeIf { it.isNotBlank() && it != "null" }
                 ?: person.optString("display_name").takeIf { it.isNotBlank() && it != "null" }
+                ?: person.optString("username").takeIf { it.isNotBlank() && it != "null" }
                 ?: "بازیکن"
             NativePlayerResult(
                 name,
