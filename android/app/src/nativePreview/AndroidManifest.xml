@@ -3,12 +3,14 @@
     <application>
         <activity
             android:name=".MainActivity"
-            android:exported="false">
+            android:exported="false"
+            tools:replace="android:exported">
             <intent-filter tools:node="removeAll" />
         </activity>
         <activity
             android:name=".NativePreviewActivity"
             android:exported="true"
+            tools:replace="android:exported"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
