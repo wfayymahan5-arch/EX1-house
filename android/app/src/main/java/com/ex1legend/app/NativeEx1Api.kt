@@ -48,7 +48,6 @@ data class NativeTeamMember(
     val userId: String,
     val displayName: String,
     val username: String?,
-    val gameName: String?,
     val role: String,
     val joinedAt: String?
 )
@@ -364,7 +363,6 @@ object NativeEx1Api {
                 userId,
                 person.optString("display_name").ifBlank { "بازیکن" },
                 person.optString("username").takeIf { it.isNotBlank() && it != "null" },
-                person.optString("game_name").takeIf { it.isNotBlank() && it != "null" },
                 row.optString("role"),
                 row.optString("joined_at").takeIf { it.isNotBlank() && it != "null" }
             )
