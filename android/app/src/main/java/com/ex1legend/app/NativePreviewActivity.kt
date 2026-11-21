@@ -89,6 +89,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var wallet by remember { mutableStateOf<NativeWallet?>(null) }
     var activeTab by remember { mutableStateOf("rooms") }
     var permissions by remember { mutableStateOf<List<String>>(emptyList()) }
+    var ownerAccessDenied by remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(session != null) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -106,10 +107,21 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
         error = null
         try {
             val renewed = NativeEx1Api.refresh(current)
+            if (NativeEx1Api.isCurrentUserBanned(renewed)) {
+                runCatching { NativeEx1Api.signOut(renewed) }
+                NativeEx1Api.clearSession(context)
+                session = null
+                error = "دسترسی این حساب به EX1 مسدود شده است. برای پیگیری با پشتیبانی تماس بگیر."
+                return@LaunchedEffect
+            }
             NativeEx1Api.saveSession(context, renewed)
             session = renewed
-            if (isAdmin) permissions = NativeEx1Api.adminPermissions(renewed)
-            else rooms = NativeEx1Api.rooms(renewed)
+            if (isAdmin) {
+                ownerAccessDenied = !NativeEx1Api.isCurrentUserOwner(renewed)
+                permissions = if (ownerAccessDenied) emptyList() else NativeEx1Api.adminPermissions(renewed)
+            } else {
+                rooms = NativeEx1Api.rooms(renewed)
+            }
         } catch (e: NativeApiException) {
             if (e.status == 400 || e.status == 401 || e.status == 403) {
                 NativeEx1Api.clearSession(context)
@@ -185,12 +197,19 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                     val created = NativeEx1Api.signUp(email, password, displayName)
                                     if (created == null) {
                                         error = "درخواست ساخت حساب ثبت شد؛ برای تکمیل ثبت‌نام ایمیلت را تأیید کن."
+                                    } else if (NativeEx1Api.isCurrentUserBanned(created)) {
+                                        runCatching { NativeEx1Api.signOut(created) }
+                                        error = "دسترسی این حساب به EX1 مسدود شده است."
                                     } else {
                                         NativeEx1Api.saveSession(context, created)
                                         session = created
                                     }
                                 } else {
                                     val loggedIn = NativeEx1Api.signIn(email, password)
+                                    if (NativeEx1Api.isCurrentUserBanned(loggedIn)) {
+                                        runCatching { NativeEx1Api.signOut(loggedIn) }
+                                        throw IllegalStateException("دسترسی این حساب به EX1 مسدود شده است.")
+                                    }
                                     NativeEx1Api.saveSession(context, loggedIn)
                                     session = loggedIn
                                 }
@@ -211,12 +230,15 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
         } else if (isAdmin) {
             AdminPreviewPanel(
                 permissions = permissions,
+                ownerAccessDenied = ownerAccessDenied,
                 error = error,
                 onRefresh = {
                     scope.launch {
                         loading = true
                         try {
-                            permissions = NativeEx1Api.adminPermissions(session!!)
+                            val current = session ?: return@launch
+                            ownerAccessDenied = !NativeEx1Api.isCurrentUserOwner(current)
+                            permissions = if (ownerAccessDenied) emptyList() else NativeEx1Api.adminPermissions(current)
                             error = null
                         } catch (e: Exception) {
                             error = e.message ?: "دریافت مجوزها ناموفق بود."
@@ -604,6 +626,7 @@ private fun RoomPreviewCard(room: NativeRoom) {
 @Composable
 private fun AdminPreviewPanel(
     permissions: List<String>,
+    ownerAccessDenied: Boolean,
     error: String?,
     onRefresh: () -> Unit,
     onSignOut: () -> Unit
@@ -614,7 +637,8 @@ private fun AdminPreviewPanel(
         Spacer(Modifier.height(16.dp))
         Text("مجوزهای تأییدشده حساب", fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(10.dp))
-        if (permissions.isEmpty()) Text("برای این حساب مجوز مدیریتی فعالی دریافت نشد.", color = Color(0xFFB6AEC2))
+        if (ownerAccessDenied) Text("این بخش فقط برای حساب مالک اصلی در دسترس است.", color = Color(0xFFFFA2A2))
+        else if (permissions.isEmpty()) Text("برای این حساب مجوز مدیریتی فعالی دریافت نشد.", color = Color(0xFFB6AEC2))
         else permissions.forEach { Text("• $it", color = Color(0xFFD9CDEA), modifier = Modifier.padding(vertical = 4.dp)) }
         if (!error.isNullOrBlank()) Text(error, color = Color(0xFFFFA2A2))
         Spacer(Modifier.weight(1f))
