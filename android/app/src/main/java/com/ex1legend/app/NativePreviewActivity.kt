@@ -834,6 +834,111 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
 }
 
 @Composable
+private fun GuestNativeHome(
+    rooms: List<NativeRoom>,
+    loading: Boolean,
+    error: String?,
+    category: String,
+    onCategory: (String) -> Unit,
+    onRefresh: () -> Unit,
+    onSignIn: () -> Unit
+) {
+    val categories = listOf(
+        "all" to "برای شما",
+        "battle_royale" to "بتل‌رویال",
+        "fight" to "فایت",
+        "multiplayer" to "مولتی",
+        "uncategorized" to "دسته‌بندی نشده"
+    )
+    val visibleRooms = rooms.filter { category == "all" || it.gameCategory == category }
+    Column(Modifier.fillMaxSize().background(Color(0xFF090817))) {
+        Row(
+            Modifier.fillMaxWidth().background(Color(0xF00A0818)).padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("EX1 LEGEND", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Black)
+                Text("میدان بازیکنان · ورود مهمان", color = Color(0xFFBBA8D8), fontSize = 11.sp)
+            }
+            TextButton(onClick = onRefresh) { Text("↻ تازه‌سازی", color = Color(0xFF8FE9F2)) }
+        }
+        Column(Modifier.weight(1f).padding(horizontal = 16.dp)) {
+            Spacer(Modifier.height(18.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF171128)),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("وارد میدان شو، افسانه شو", color = Color.White, fontSize = 21.sp, fontWeight = FontWeight.Black)
+                    Text(
+                        "روم‌ها و مسابقات را ببین؛ برای ثبت‌نام، ساخت تیم و امکانات حساب کاربری هر زمان خواستی وارد شو.",
+                        color = Color(0xFFC8BED8), fontSize = 12.sp
+                    )
+                    Button(onClick = onSignIn, modifier = Modifier.fillMaxWidth()) {
+                        Text("ورود یا ساخت حساب")
+                    }
+                }
+            }
+            Spacer(Modifier.height(18.dp))
+            Text("روم‌های فعال", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                categories.forEach { (key, label) ->
+                    FilterChip(
+                        selected = category == key,
+                        onClick = { onCategory(key) },
+                        label = { Text(label, fontSize = 11.sp) }
+                    )
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            if (!error.isNullOrBlank()) Text(error, color = Color(0xFFFFA0A0), fontSize = 12.sp)
+            if (loading) {
+                Box(Modifier.fillMaxWidth().padding(28.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else if (visibleRooms.isEmpty()) {
+                Text(
+                    "فعلاً رومی در این دسته‌بندی پیدا نشد.",
+                    color = Color(0xFFAAA0BC),
+                    modifier = Modifier.padding(vertical = 24.dp)
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(9.dp)
+                ) {
+                    items(visibleRooms, key = { it.id }) { room ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF151122)),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                Text(room.title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text(
+                                    "\${room.gameCategory}  ·  \${room.priceCategory}  ·  ظرفیت \${room.capacity}",
+                                    color = Color(0xFFBBA8D8), fontSize = 11.sp
+                                )
+                                Text(
+                                    "ورودی: \${room.entryPoints} امتیاز مجازی  |  جایزه اول: \${room.firstPrize}",
+                                    color = Color(0xFF8FE9F2), fontSize = 11.sp
+                                )
+                                Text("برای ثبت‌نام وارد حساب شو", color = Color(0xFFAAA0BC), fontSize = 10.sp)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun LoginPanel(
     email: String,
     password: String,
