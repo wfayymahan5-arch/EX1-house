@@ -133,6 +133,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var profile by remember { mutableStateOf<NativeProfile?>(null) }
     var wallet by remember { mutableStateOf<NativeWallet?>(null) }
     var permissions by remember { mutableStateOf<List<String>>(emptyList()) }
+    var adminSnapshot by remember { mutableStateOf(NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())) }
     var team by remember { mutableStateOf<NativeTeam?>(null) }
     var notifications by remember { mutableStateOf<List<NativeNotification>>(emptyList()) }
     var supportConversationId by remember { mutableStateOf<String?>(null) }
@@ -188,6 +189,8 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
             if (isAdmin) {
                 ownerAccessDenied = !NativeEx1Api.isCurrentUserOwner(renewed)
                 permissions = if (ownerAccessDenied) emptyList() else NativeEx1Api.adminPermissions(renewed)
+                adminSnapshot = if (ownerAccessDenied) NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
+                    else NativeEx1Api.adminSnapshot(renewed, permissions)
             } else {
                 rooms = NativeEx1Api.rooms(renewed)
             }
@@ -392,6 +395,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
         } else if (isAdmin) {
             AdminPreviewPanel(
                 permissions = permissions,
+                snapshot = adminSnapshot,
                 ownerAccessDenied = ownerAccessDenied,
                 error = error,
                 onRefresh = {
@@ -401,6 +405,8 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                             val current = session ?: return@launch
                             ownerAccessDenied = !NativeEx1Api.isCurrentUserOwner(current)
                             permissions = if (ownerAccessDenied) emptyList() else NativeEx1Api.adminPermissions(current)
+                            adminSnapshot = if (ownerAccessDenied) NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
+                                else NativeEx1Api.adminSnapshot(current, permissions)
                             error = null
                         } catch (e: Exception) {
                             error = e.message ?: "دریافت مجوزها ناموفق بود."
@@ -1426,24 +1432,139 @@ private fun RoomPreviewCard(room: NativeRoom, onOpen: () -> Unit) {
 @Composable
 private fun AdminPreviewPanel(
     permissions: List<String>,
+    snapshot: NativeAdminSnapshot,
     ownerAccessDenied: Boolean,
     error: String?,
     onRefresh: () -> Unit,
     onSignOut: () -> Unit
 ) {
-    Column(Modifier.fillMaxSize().padding(20.dp)) {
-        Text("EX1 LEGEND", fontWeight = FontWeight.Black, fontSize = 26.sp)
-        Text("پیش‌نمایش Native پنل مدیریت", color = Color(0xFFBBA8D8))
-        Spacer(Modifier.height(16.dp))
-        Text("مجوزهای تأییدشده حساب", fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(10.dp))
-        if (ownerAccessDenied) Text("این بخش فقط برای حساب مالک اصلی در دسترس است.", color = Color(0xFFFFA2A2))
-        else if (permissions.isEmpty()) Text("برای این حساب مجوز مدیریتی فعالی دریافت نشد.", color = Color(0xFFB6AEC2))
-        else permissions.forEach { Text("• $it", color = Color(0xFFD9CDEA), modifier = Modifier.padding(vertical = 4.dp)) }
-        if (!error.isNullOrBlank()) Text(error, color = Color(0xFFFFA2A2))
-        Spacer(Modifier.weight(1f))
-        Button(onClick = onRefresh, modifier = Modifier.fillMaxWidth()) { Text("به‌روزرسانی مجوزها") }
+    var section by remember { mutableStateOf("overview") }
+    Column(Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 12.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.weight(1f)) {
+                Text("EX1 LEGEND", fontWeight = FontWeight.Black, fontSize = 23.sp)
+                Text("پنل مالک · پیش‌نمایش Native", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+            }
+            Button(onClick = onRefresh) { Text("به‌روزرسانی") }
+        }
+        Spacer(Modifier.height(12.dp))
+        if (ownerAccessDenied) {
+            Text("این بخش فقط برای حساب مالک اصلی در دسترس است.", color = Color(0xFFFFA2A2))
+        } else {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+            ) {
+                listOf(
+                    "overview" to "خلاصه",
+                    "tournaments" to "مسابقات",
+                    "registrations" to "ثبت‌نام‌ها",
+                    "teams" to "تیم‌ها",
+                    "users" to "کاربران",
+                    "wallet" to "امتیازهای مجازی",
+                    "permissions" to "مجوزها"
+                ).forEach { (key, label) ->
+                    FilterChip(selected = section == key, onClick = { section = key }, label = { Text(label, fontSize = 11.sp) })
+                }
+            }
+            when (section) {
+                "overview" -> Column(
+                    Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    AdminMetricCard("مسابقات", snapshot.tournaments.size)
+                    AdminMetricCard("ثبت‌نام‌ها", snapshot.registrations.size)
+                    AdminMetricCard("تیم‌ها", snapshot.teams.size)
+                    AdminMetricCard("کاربران", snapshot.users.size)
+                    AdminMetricCard("کیف‌پول‌های مجازی", snapshot.wallet.size)
+                    Text("داده‌ها فقط از RPCهای مجاز و با بررسی مجوز سمت سرور خوانده می‌شوند.", color = Color(0xFF9B91AA), fontSize = 11.sp)
+                }
+                "tournaments" -> if (permissions.contains("tournaments.view")) {
+                    AdminDataPanel("مسابقات", snapshot.tournaments, listOf(
+                        "عنوان" to "title", "بازی" to "game", "حالت" to "mode",
+                        "نقشه" to "map", "وضعیت" to "status", "شروع" to "starts_at"
+                    ))
+                } else AdminNoPermission()
+                "registrations" -> if (permissions.contains("registrations.view_all")) {
+                    AdminDataPanel("ثبت‌نام‌ها", snapshot.registrations, listOf(
+                        "مسابقه" to "tournament_title", "تیم" to "team_name",
+                        "برچسب" to "team_tag", "وضعیت" to "status", "زمان" to "registered_at"
+                    ))
+                } else AdminNoPermission()
+                "teams" -> if (permissions.contains("teams.view")) {
+                    AdminDataPanel("تیم‌ها", snapshot.teams, listOf(
+                        "نام تیم" to "name", "تگ" to "tag", "اعضا" to "member_count", "توضیحات" to "description"
+                    ))
+                } else AdminNoPermission()
+                "users" -> if (permissions.contains("users.view") || permissions.contains("profiles.view_all")) {
+                    AdminDataPanel("کاربران", snapshot.users, listOf(
+                        "نام" to "display_name", "نام کاربری" to "username", "شناسه" to "user_id", "تاریخ" to "created_at"
+                    ))
+                } else AdminNoPermission()
+                "wallet" -> if (permissions.contains("wallet.view_all")) {
+                    AdminDataPanel("موجودی‌های امتیاز مجازی · فقط خواندنی", snapshot.wallet, listOf(
+                        "نام" to "display_name", "نام بازی" to "game_name", "شناسه" to "user_id",
+                        "امتیاز" to "balance_units", "دفترکل" to "currency_code", "حالت" to "wallet_mode"
+                    ))
+                } else AdminNoPermission()
+                else -> Column(
+                    Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text("مجوزهای فعال حساب", fontWeight = FontWeight.Bold)
+                    permissions.forEach { Text("• $it", color = Color(0xFFD9CDEA), fontSize = 12.sp) }
+                }
+            }
+        }
+        if (!error.isNullOrBlank()) Text(error, color = Color(0xFFFFA2A2), modifier = Modifier.padding(vertical = 6.dp))
         Spacer(Modifier.height(8.dp))
         Button(onClick = onSignOut, modifier = Modifier.fillMaxWidth()) { Text("خروج از حساب") }
     }
 }
+
+@Composable
+private fun AdminMetricCard(label: String, value: Int) {
+    Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
+        Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(label, modifier = Modifier.weight(1f), color = Color(0xFFBBA8D8))
+            Text(value.toString(), fontWeight = FontWeight.Black, fontSize = 20.sp)
+        }
+    }
+}
+
+@Composable
+private fun AdminNoPermission() {
+    Box(Modifier.fillMaxWidth().heightIn(min = 160.dp), contentAlignment = Alignment.Center) {
+        Text("مجوز مشاهده این بخش برای حساب فعال نیست.", color = Color(0xFF9B91AA))
+    }
+}
+
+@Composable
+private fun AdminDataPanel(title: String, rows: List<org.json.JSONObject>, fields: List<Pair<String, String>>) {
+    Column(
+        Modifier.fillMaxWidth().heightIn(max = 520.dp).verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text("$title · ${rows.size}", fontWeight = FontWeight.Bold)
+        if (rows.isEmpty()) {
+            Text("داده‌ای برای نمایش وجود ندارد.", color = Color(0xFF9B91AA))
+        } else {
+            rows.forEach { row ->
+                Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
+                    Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        fields.forEachIndexed { index, field ->
+                            val value = row.optString(field.second).takeIf { it.isNotBlank() && it != "null" } ?: "—"
+                            Text(
+                                "${field.first}: $value",
+                                color = if (index == 0) Color.White else Color(0xFFBBA8D8),
+                                fontSize = if (index == 0) 14.sp else 11.sp,
+                                fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
