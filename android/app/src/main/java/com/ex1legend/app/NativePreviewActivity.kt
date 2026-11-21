@@ -91,6 +91,13 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var rooms by remember { mutableStateOf<List<NativeRoom>>(emptyList()) }
     var profile by remember { mutableStateOf<NativeProfile?>(null) }
     var wallet by remember { mutableStateOf<NativeWallet?>(null) }
+    var permissions by remember { mutableStateOf<List<String>>(emptyList()) }
+    var ownerAccessDenied by remember { mutableStateOf(false) }
+    var loading by remember { mutableStateOf(session != null) }
+    var busy by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var category by remember { mutableStateOf("all") }
+    var price by remember { mutableStateOf("all") }
     var activeTab by remember { mutableStateOf("rooms") }
     var selectedRoom by remember { mutableStateOf<NativeRoom?>(null) }
     var roomSlots by remember { mutableStateOf<List<NativeRoomSlot>>(emptyList()) }
@@ -100,13 +107,6 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var roomActionBusy by remember { mutableStateOf(false) }
     var roomDetailError by remember { mutableStateOf<String?>(null) }
     var roomActionMessage by remember { mutableStateOf<String?>(null) }
-    var permissions by remember { mutableStateOf<List<String>>(emptyList()) }
-    var ownerAccessDenied by remember { mutableStateOf(false) }
-    var loading by remember { mutableStateOf(session != null) }
-    var busy by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var category by remember { mutableStateOf("all") }
-    var price by remember { mutableStateOf("all") }
     var confirmSignOut by remember { mutableStateOf(false) }
     var confirmDeleteAccount by remember { mutableStateOf(false) }
     var showDeleteForm by remember { mutableStateOf(false) }
@@ -149,52 +149,103 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
         }
     }
 
-    LaunchedEffect(session?.userId, activeTab) {
-        val current = session ?: return@LaunchedEffect
-        if (!isAdmin && activeTab != "rooms") {
-            loading = true
+    val openRoom: (NativeRoom) -> Unit = { room ->
+        selectedRoom = room
+        roomSlots = emptyList()
+        soloStatus = null
+        roomAccess = null
+        roomDetailError = null
+        roomActionMessage = null
+        roomDetailLoading = true
+        scope.launch {
             try {
-                if (activeTab == "profile") profile = NativeEx1Api.profile(current)
-                if (activeTab == "wallet") wallet = NativeEx1Api.wallet(current)
-                error = null
+                val current = session ?: throw IllegalStateException("ابتدا وارد حساب شو.")
+                val loadedSlots = NativeEx1Api.roomSlots(current, room.id)
+                val loadedSoloStatus = NativeEx1Api.soloStatus(current, room.id)
+                val loadedAccess = NativeEx1Api.roomAccess(current, room.id)
+                if (selectedRoom?.id == room.id) {
+                    roomSlots = loadedSlots
+                    soloStatus = loadedSoloStatus
+                    roomAccess = loadedAccess
+                }
             } catch (e: Exception) {
-                error = e.message ?: "دریافت اطلاعات انجام نشد."
+                if (selectedRoom?.id == room.id) {
+                    roomDetailError = e.message ?: "دریافت اطلاعات روم ناموفق بود."
+                }
             } finally {
-                loading = false
+                if (selectedRoom?.id == room.id) roomDetailLoading = false
             }
         }
     }
 
-    val onRegisterRoom: (NativeRoom, Int, Boolean) -> Unit = { room, slotNumber, solo ->
-                    scope.launch {
-                        roomActionBusy = true
-                        roomDetailError = null
-                        roomActionMessage = null
-                        try {
-                            val current = session ?: throw IllegalStateException("ابتدا وارد حساب شو.")
-                            val currentProfile = profile ?: NativeEx1Api.profile(current).also { profile = it }
-                            if (currentProfile?.gameUid.isNullOrBlank() || currentProfile?.gameName.isNullOrBlank() || currentProfile?.gameUid?.contains("@") == true) {
-                                throw IllegalStateException("برای ثبت‌نام، UID و نام داخل بازی کالاف را در پروفایل تکمیل کن.")
-                            }
-                            val result = if (solo) NativeEx1Api.registerSolo(current, room.id, slotNumber)
-                                else NativeEx1Api.registerForRoom(current, room.id, slotNumber)
-                            roomActionMessage = if (solo && result.optString("status") == "matched") {
-                                "تیمت به‌صورت خودکار تشکیل شد؛ جایگاه ${result.optInt("slot_number")}."
-                            } else if (solo) {
-                                "ثبت‌نام انفرادی در صف ثبت شد؛ ${result.optInt("players_waiting")} نفر از ${result.optInt("team_size")} نفر."
-                            } else {
-                                "ثبت‌نام با موفقیت ثبت شد؛ جایگاه ${result.optInt("slot_number")}."
-                            }
-                            wallet = NativeEx1Api.wallet(current)
-                            roomSlots = NativeEx1Api.roomSlots(current, room.id)
-                            soloStatus = NativeEx1Api.soloStatus(current, room.id)
-                            roomAccess = NativeEx1Api.roomAccess(current, room.id)
-                        } catch (e: Exception) {
-                            roomDetailError = e.message ?: "ثبت‌نام انجام نشد."
-                        } finally {
-                            roomActionBusy = false
+    val registerRoom: (NativeRoom, Int, Boolean) -> Unit = { room, slotNumber, solo ->
+        if (room.status != "open") {
+            roomDetailError = "ثبت‌نام این روم در وضعیت فعلی باز نیست."
+        } else {
+            scope.launch {
+                roomActionBusy = true
+                roomDetailError = null
+                roomActionMessage = null
+                try {
+                    val current = session ?: throw IllegalStateException("ابتدا وارد حساب شو.")
+                    val currentProfile = profile ?: NativeEx1Api.profile(current).also { profile = it }
+                    if (currentProfile?.gameUid.isNullOrBlank() ||
+                        currentProfile?.gameName.isNullOrBlank() ||
+                        currentProfile?.gameUid?.contains("@") == true
+                    ) {
+                        throw IllegalStateException("برای ثبت‌نام، UID و نام داخل بازی کالاف را در پروفایل تکمیل کن.")
+                    }
+                    val result = if (solo) {
+                        NativeEx1Api.registerSolo(current, room.id, slotNumber)
+                    } else {
+                        NativeEx1Api.registerForRoom(current, room.id, slotNumber)
+                    }
+                    if (selectedRoom?.id == room.id) {
+                        roomActionMessage = if (solo && result.optString("status") == "matched") {
+                            "تیمت به‌صورت خودکار تشکیل شد؛ جایگاه ${result.optInt("slot_number")}."
+                        } else if (solo) {
+                            "ثبت‌نام انفرادی در صف ثبت شد؛ ${result.optInt("players_waiting")} نفر از ${result.optInt("team_size")} نفر."
+                        } else {
+                            "ثبت‌نام با موفقیت ثبت شد؛ جایگاه ${result.optInt("slot_number")}."
                         }
                     }
+                    wallet = NativeEx1Api.wallet(current)
+                    if (selectedRoom?.id == room.id) {
+                        roomSlots = NativeEx1Api.roomSlots(current, room.id)
+                        soloStatus = NativeEx1Api.soloStatus(current, room.id)
+                        roomAccess = NativeEx1Api.roomAccess(current, room.id)
+                    }
+                } catch (e: Exception) {
+                    if (selectedRoom?.id == room.id) {
+                        roomDetailError = e.message ?: "ثبت‌نام انجام نشد."
+                    }
+                } finally {
+                    roomActionBusy = false
+                }
+            }
+        }
+    }
+
+    val saveProfile: (String, String, String, String) -> Unit = { name, username, uid, gameName ->
+        scope.launch {
+            val current = session ?: return@launch
+            loading = true
+            try {
+                val result = NativeEx1Api.updateProfile(current, name, username, uid, gameName)
+                if (result.optBoolean("pending_review")) {
+                    error = result.optString("message", "پروفایل برای بررسی ارسال شد.")
+                } else if (result.optBoolean("success")) {
+                    profile = NativeEx1Api.profile(current)
+                    error = "پروفایل ذخیره شد."
+                } else {
+                    error = result.optString("error", "ذخیره پروفایل انجام نشد.")
+                }
+            } catch (e: Exception) {
+                error = e.message ?: "ذخیره پروفایل انجام نشد."
+            } finally {
+                loading = false
+            }
+        }
     }
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF0A0812)) {
@@ -273,62 +324,55 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
             }
         } else if (isAdmin) {
             AdminPreviewPanel(
-                            onRegister = onRegisterRoom,
-
-                },
-                onRegister = { room, slotNumber, solo ->
+                permissions = permissions,
+                ownerAccessDenied = ownerAccessDenied,
+                error = error,
+                onRefresh = {
                     scope.launch {
-                        roomActionBusy = true
-                        roomDetailError = null
-                        roomActionMessage = null
-                        try {
-                            val current = session ?: throw IllegalStateException("ابتدا وارد حساب شو.")
-                            val currentProfile = profile ?: NativeEx1Api.profile(current).also { profile = it }
-                            if (currentProfile?.gameUid.isNullOrBlank() || currentProfile?.gameName.isNullOrBlank() || currentProfile?.gameUid?.contains("@") == true) {
-                                throw IllegalStateException("برای ثبت‌نام، UID و نام داخل بازی کالاف را در پروفایل تکمیل کن.")
-                            }
-                            val result = if (solo) NativeEx1Api.registerSolo(current, room.id, slotNumber)
-                                else NativeEx1Api.registerForRoom(current, room.id, slotNumber)
-                            roomActionMessage = if (solo && result.optString("status") == "matched") {
-                                "تیمت به‌صورت خودکار تشکیل شد؛ جایگاه ${result.optInt("slot_number")}."
-                            } else if (solo) {
-                                "ثبت‌نام انفرادی در صف ثبت شد؛ ${result.optInt("players_waiting")} نفر از ${result.optInt("team_size")} نفر."
-                            } else {
-                                "ثبت‌نام با موفقیت ثبت شد؛ جایگاه ${result.optInt("slot_number")}."
-                            }
-                            wallet = NativeEx1Api.wallet(current)
-                            roomSlots = NativeEx1Api.roomSlots(current, room.id)
-                            soloStatus = NativeEx1Api.soloStatus(current, room.id)
-                            roomAccess = NativeEx1Api.roomAccess(current, room.id)
-                        } catch (e: Exception) {
-                            roomDetailError = e.message ?: "ثبت‌نام انجام نشد."
-                        } finally {
-                            roomActionBusy = false
-                        }
-                    }
-                },
-                onDeleteAccount = { confirmDeleteAccount = true },
-                onSaveProfile = { name, username, uid, gameName ->
-                    scope.launch {
-                        val current = session ?: return@launch
                         loading = true
                         try {
-                            val result = NativeEx1Api.updateProfile(current, name, username, uid, gameName)
-                            if (result.optBoolean("pending_review")) {
-                                error = result.optString("message", "پروفایل برای بررسی ارسال شد.")
-                            } else if (result.optBoolean("success")) {
-                                profile = NativeEx1Api.profile(current)
-                                error = "پروفایل ذخیره شد."
-                            } else {
-                                error = result.optString("error", "ذخیره پروفایل انجام نشد.")
-                            }
+                            val current = session ?: return@launch
+                            ownerAccessDenied = !NativeEx1Api.isCurrentUserOwner(current)
+                            permissions = if (ownerAccessDenied) emptyList() else NativeEx1Api.adminPermissions(current)
+                            error = null
                         } catch (e: Exception) {
-                            error = e.message ?: "ذخیره پروفایل انجام نشد."
+                            error = e.message ?: "دریافت مجوزها ناموفق بود."
                         } finally {
                             loading = false
                         }
                     }
                 },
+                onSignOut = { confirmSignOut = true }
+            )
+        } else {
+            PlayerPreviewPanel(
+                rooms = rooms,
+                profile = profile,
+                wallet = wallet,
+                activeTab = activeTab,
+                onTab = { tab ->
+                    activeTab = tab
+                    val current = session
+                    if (current != null && tab != "rooms") {
+                        scope.launch {
+                            loading = true
+                            try {
+                                when (tab) {
+                                    "profile" -> profile = NativeEx1Api.profile(current)
+                                    "wallet" -> wallet = NativeEx1Api.wallet(current)
+                                }
+                                error = null
+                            } catch (e: Exception) {
+                                error = e.message ?: "دریافت اطلاعات انجام نشد."
+                            } finally {
+                                loading = false
+                            }
+                        }
+                    }
+                },
+                onOpenRoom = openRoom,
+                onDeleteAccount = { confirmDeleteAccount = true },
+                onSaveProfile = saveProfile,
                 category = category,
                 price = price,
                 error = error,
@@ -355,6 +399,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 onSignOut = { confirmSignOut = true }
             )
         }
+
         if (selectedRoom != null) {
             RoomDetailDialog(
                 room = selectedRoom!!,
@@ -369,22 +414,32 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 onRefresh = {
                     scope.launch {
                         val current = session ?: return@launch
+                        val room = selectedRoom ?: return@launch
                         roomDetailLoading = true
                         try {
-                            roomSlots = NativeEx1Api.roomSlots(current, selectedRoom!!.id)
-                            soloStatus = NativeEx1Api.soloStatus(current, selectedRoom!!.id)
-                            roomAccess = NativeEx1Api.roomAccess(current, selectedRoom!!.id)
-                            roomDetailError = null
+                            val loadedSlots = NativeEx1Api.roomSlots(current, room.id)
+                            val loadedSoloStatus = NativeEx1Api.soloStatus(current, room.id)
+                            val loadedAccess = NativeEx1Api.roomAccess(current, room.id)
+                            if (selectedRoom?.id == room.id) {
+                                roomSlots = loadedSlots
+                                soloStatus = loadedSoloStatus
+                                roomAccess = loadedAccess
+                                roomDetailError = null
+                            }
                         } catch (e: Exception) {
-                            roomDetailError = e.message ?: "به‌روزرسانی وضعیت روم ناموفق بود."
+                            if (selectedRoom?.id == room.id) roomDetailError = e.message ?: "به‌روزرسانی وضعیت روم ناموفق بود."
                         } finally {
-                            roomDetailLoading = false
+                            if (selectedRoom?.id == room.id) roomDetailLoading = false
                         }
                     }
                 },
-                onRegister = { slot, solo -> onRegisterRoom(selectedRoom!!, slot, solo) }
+                onRegister = { slot, solo ->
+                    val room = selectedRoom
+                    if (room != null) registerRoom(room, slot, solo)
+                }
             )
         }
+
         if (confirmDeleteAccount) {
             AlertDialog(
                 onDismissRequest = { confirmDeleteAccount = false },
