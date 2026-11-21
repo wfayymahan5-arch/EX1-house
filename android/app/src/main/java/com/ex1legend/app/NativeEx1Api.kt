@@ -350,7 +350,7 @@ object NativeEx1Api {
         val profiles = if (ids.isEmpty()) JSONArray() else {
             request(
                 "GET",
-                "/rest/v1/profiles?select=id,display_name,username,game_name&id=in.(${ids.joinToString(",")})",
+                "/rest/v1/profiles?select=id,display_name,username&id=in.(${ids.joinToString(",")})",
                 session
             ) as? JSONArray ?: JSONArray()
         }
