@@ -70,18 +70,26 @@ jobs:
           fi
           echo "channel=$CHANNEL" >> "$GITHUB_OUTPUT"
           echo "base_url=$BASE_URL" >> "$GITHUB_OUTPUT"
-      - name: Build player and admin APKs
+      - name: Run player and admin unit tests
         working-directory: android
-        run: gradle -Pex1BaseUrl="${{ steps.channel.outputs.base_url }}" -Pex1UpdateChannel="${{ steps.channel.outputs.channel }}" testPlayerDebugUnitTest testAdminDebugUnitTest assemblePlayerDebug assembleAdminDebug
+        run: gradle -Pex1BaseUrl="${{ steps.channel.outputs.base_url }}" -Pex1UpdateChannel="${{ steps.channel.outputs.channel }}" testPlayerDebugUnitTest testAdminDebugUnitTest testPlayerNativePreviewUnitTest testAdminNativePreviewUnitTest
+      - name: Build current WebView preview APKs
+        working-directory: android
+        run: gradle -Pex1BaseUrl="${{ steps.channel.outputs.base_url }}" -Pex1UpdateChannel="${{ steps.channel.outputs.channel }}" assemblePlayerDebug assembleAdminDebug
+      - name: Build dedicated Native Compose preview APKs
+        working-directory: android
+        run: gradle -Pex1BaseUrl="${{ steps.channel.outputs.base_url }}" -Pex1UpdateChannel="${{ steps.channel.outputs.channel }}" assemblePlayerNativePreview assembleAdminNativePreview
       - name: Collect APKs
         run: |
           mkdir -p release-apks
-          cp android/app/build/outputs/apk/player/debug/app-player-debug.apk release-apks/EX1-LEGEND-Player-${{ steps.channel.outputs.channel }}.apk
-          cp android/app/build/outputs/apk/admin/debug/app-admin-debug.apk release-apks/EX1-LEGEND-Admin-${{ steps.channel.outputs.channel }}.apk
+          cp android/app/build/outputs/apk/player/debug/app-player-debug.apk release-apks/EX1-LEGEND-Player-WebView-${{ steps.channel.outputs.channel }}.apk
+          cp android/app/build/outputs/apk/admin/debug/app-admin-debug.apk release-apks/EX1-LEGEND-Admin-WebView-${{ steps.channel.outputs.channel }}.apk
+          cp android/app/build/outputs/apk/player/nativePreview/app-player-nativePreview.apk release-apks/EX1-LEGEND-Player-NativePreview-${{ steps.channel.outputs.channel }}.apk
+          cp android/app/build/outputs/apk/admin/nativePreview/app-admin-nativePreview.apk release-apks/EX1-LEGEND-Admin-NativePreview-${{ steps.channel.outputs.channel }}.apk
       - name: Upload APK artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: EX1-LEGEND-Android-${{ steps.channel.outputs.channel }}-APKs
+          name: EX1-LEGEND-Android-${{ steps.channel.outputs.channel }}-WebView-and-Native-preview-APKs
           path: release-apks/*.apk
           if-no-files-found: error
           retention-days: 30
