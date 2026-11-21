@@ -296,6 +296,19 @@ object NativeEx1Api {
         ) as? JSONObject ?: throw IllegalStateException("پاسخ ذخیره پروفایل معتبر نیست.")
     }
 
+    suspend fun deleteAccount(
+        session: NativeSession,
+        password: String,
+        confirmation: String
+    ): JSONObject = withContext(Dispatchers.IO) {
+        request(
+            "POST",
+            "/functions/v1/delete-account",
+            session,
+            JSONObject().put("password", password).put("confirmation", confirmation)
+        ) as? JSONObject ?: throw IllegalStateException("پاسخ حذف حساب معتبر نیست.")
+    }
+
     suspend fun wallet(session: NativeSession): NativeWallet = withContext(Dispatchers.IO) {
         val summary = request("POST", "/rest/v1/rpc/wallet_my_summary", session, JSONObject())
         val first = when (summary) {
