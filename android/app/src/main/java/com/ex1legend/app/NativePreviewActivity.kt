@@ -135,6 +135,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var rooms by remember { mutableStateOf<List<NativeRoom>>(emptyList()) }
     var profile by remember { mutableStateOf<NativeProfile?>(null) }
     var explorePlayers by remember { mutableStateOf<List<NativePublicProfile>>(emptyList()) }
+    var rankingPlayers by remember { mutableStateOf<List<NativeRankedPlayer>>(emptyList()) }
     var exploreQuery by remember { mutableStateOf("") }
     var selectedPublicProfile by remember { mutableStateOf<NativePublicProfile?>(null) }
     var publicProfileLoading by remember { mutableStateOf(false) }
@@ -188,7 +189,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 runCatching { NativeEx1Api.signOut(renewed) }
                 NativeEx1Api.clearSession(context)
                 session = null
-                rooms = emptyList(); profile = null; explorePlayers = emptyList(); selectedPublicProfile = null; publicProfileLoading = false; publicProfileError = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false; adminSnapshot = NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList()); roomResults = emptyList()
+                rooms = emptyList(); profile = null; explorePlayers = emptyList(); rankingPlayers = emptyList(); selectedPublicProfile = null; publicProfileLoading = false; publicProfileError = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false; adminSnapshot = NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList()); roomResults = emptyList()
                 error = "دسترسی این حساب به EX1 مسدود شده است. برای پیگیری با پشتیبانی تماس بگیر."
                 return@LaunchedEffect
             }
@@ -436,6 +437,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 rooms = rooms,
                 profile = profile,
                 explorePlayers = explorePlayers,
+                rankingPlayers = rankingPlayers,
                 exploreQuery = exploreQuery,
                 onExploreQuery = { exploreQuery = it },
                 onSearchExplore = {
@@ -473,6 +475,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                 when (tab) {
                                     "profile" -> profile = NativeEx1Api.profile(current)
                                     "explore" -> explorePlayers = NativeEx1Api.explorePlayers(current, exploreQuery)
+                                    "ranking" -> rankingPlayers = NativeEx1Api.rankingPlayers(current)
                                     "wallet" -> wallet = NativeEx1Api.wallet(current)
                                     "team" -> refreshTeam(current)
                                     "notifications" -> notifications = NativeEx1Api.notifications(current)
@@ -653,6 +656,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                             when (activeTab) {
                                 "profile" -> profile = NativeEx1Api.profile(current)
                                 "explore" -> explorePlayers = NativeEx1Api.explorePlayers(current, exploreQuery)
+                                "ranking" -> rankingPlayers = NativeEx1Api.rankingPlayers(current)
                                 "wallet" -> wallet = NativeEx1Api.wallet(current)
                                 "team" -> refreshTeam(current)
                                 "notifications" -> notifications = NativeEx1Api.notifications(current)
@@ -812,7 +816,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                             if (current != null) runCatching { NativeEx1Api.signOut(current) }
                             NativeEx1Api.clearSession(context)
                             session = null
-                            rooms = emptyList(); profile = null; explorePlayers = emptyList(); exploreQuery = ""; selectedPublicProfile = null; publicProfileLoading = false; publicProfileError = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false; adminSnapshot = NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
+                            rooms = emptyList(); profile = null; explorePlayers = emptyList(); rankingPlayers = emptyList(); exploreQuery = ""; selectedPublicProfile = null; publicProfileLoading = false; publicProfileError = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false; adminSnapshot = NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
                         }
                     }) { Text("خروج") }
                 },
@@ -880,6 +884,7 @@ private fun PlayerPreviewPanel(
     rooms: List<NativeRoom>,
     profile: NativeProfile?,
     explorePlayers: List<NativePublicProfile>,
+    rankingPlayers: List<NativeRankedPlayer>,
     exploreQuery: String,
     onExploreQuery: (String) -> Unit,
     onSearchExplore: () -> Unit,
@@ -933,6 +938,7 @@ private fun PlayerPreviewPanel(
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
             FilterChip(selected = activeTab == "rooms", onClick = { onTab("rooms") }, label = { Text("روم‌ها") })
             FilterChip(selected = activeTab == "explore", onClick = { onTab("explore") }, label = { Text("اکسپلور") })
+            FilterChip(selected = activeTab == "ranking", onClick = { onTab("ranking") }, label = { Text("رتبه‌بندی") })
             FilterChip(selected = activeTab == "profile", onClick = { onTab("profile") }, label = { Text("پروفایل") })
             FilterChip(selected = activeTab == "wallet", onClick = { onTab("wallet") }, label = { Text("کیف پول مجازی") })
             FilterChip(selected = activeTab == "team", onClick = { onTab("team") }, label = { Text("تیم") })
@@ -944,6 +950,7 @@ private fun PlayerPreviewPanel(
         when (activeTab) {
             "profile" -> ProfilePreviewPanel(profile = profile, onSave = onSaveProfile)
             "explore" -> ExplorePreviewPanel(explorePlayers, exploreQuery, onExploreQuery, onSearchExplore, onOpenPublicProfile)
+            "ranking" -> RankingPreviewPanel(rankingPlayers, onOpenPublicProfile)
             "wallet" -> WalletPreviewPanel(wallet = wallet)
             "notifications" -> NotificationsPreviewPanel(notifications, teamBusy, onMarkNotificationRead, onDeleteNotification)
             "support" -> SupportPreviewPanel(supportMessages, supportHint, supportError, supportHandoff, supportBusy, supportSendRevision, onNewSupport, onSendSupport)
@@ -990,6 +997,54 @@ private fun PlayerPreviewPanel(
         }
         Spacer(Modifier.height(8.dp))
         Button(onClick = onSignOut, modifier = Modifier.fillMaxWidth()) { Text("خروج از حساب") }
+    }
+}
+
+@Composable
+private fun RankingPreviewPanel(
+    players: List<NativeRankedPlayer>,
+    onOpenProfile: (String) -> Unit
+) {
+    Column(
+        Modifier.fillMaxWidth().heightIn(max = 560.dp).verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text("رتبه‌بندی بازیکنان", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text("بر اساس امتیاز و سپس تعداد کیل؛ لمس پروفایل، اطلاعات عمومی بازیکن را باز می‌کند.", color = Color(0xFF9B91AA), fontSize = 11.sp)
+        if (players.isEmpty()) {
+            Box(Modifier.fillMaxWidth().heightIn(min = 180.dp), contentAlignment = Alignment.Center) {
+                Text("هنوز نتیجه‌ای برای رتبه‌بندی ثبت نشده است.", color = Color(0xFF9B91AA))
+            }
+        } else {
+            players.forEachIndexed { index, player ->
+                Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
+                    Row(
+                        Modifier.fillMaxWidth().padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text("#${index + 1}", color = Color(0xFFC9A5FF), fontWeight = FontWeight.Black)
+                        Column(Modifier.weight(1f)) {
+                            Text(player.playerName, fontWeight = FontWeight.Bold)
+                            Text(
+                                listOfNotNull(player.tournamentTitle, player.roomTitle).joinToString(" · ").ifBlank { "مسابقه ثبت‌شده" },
+                                color = Color(0xFF9B91AA),
+                                fontSize = 10.sp,
+                                maxLines = 1
+                            )
+                            Text(
+                                "جایگاه ${player.placement ?: "—"} · کیل ${player.kills} · امتیاز ${player.points}",
+                                color = Color(0xFFBBA8D8),
+                                fontSize = 11.sp
+                            )
+                        }
+                        if (!player.userId.isNullOrBlank()) {
+                            TextButton(onClick = { onOpenProfile(player.userId) }) { Text("پروفایل") }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
