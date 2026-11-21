@@ -3,7 +3,7 @@
 alter table public.profiles
   add column if not exists bio text;
 
-do $$
+do $ex1_bio$
 begin
   if not exists (
     select 1
@@ -16,7 +16,7 @@ begin
       check (bio is null or char_length(bio) <= 500);
   end if;
 end;
-$;
+$ex1_bio$;
 
 comment on column public.profiles.bio is
   'Optional public player biography; content is moderated by the update-profile Edge Function before it is stored.';
