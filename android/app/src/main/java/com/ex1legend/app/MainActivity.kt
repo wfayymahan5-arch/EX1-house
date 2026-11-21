@@ -41,6 +41,7 @@ class MainActivity : ComponentActivity() {
     private var pageReady = false
     private var loadInProgress = false
     private var mainFrameLoadFailed = false
+    private var mainFrameFailureDetails: String? = null
     private var usingBundledFallback = false
     private var networkCallbackRegistered = false
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -114,13 +115,19 @@ class MainActivity : ComponentActivity() {
                     super.onPageFinished(view, url)
                     // onPageFinished can also be called for iframe navigations. Validate
                     // the WebView's top-level URL rather than the callback URL.
-                    val loadedUri = Uri.parse(view.url ?: url)
+                    val loadedUrl = view.url ?: url
+                    val loadedUri = Uri.parse(loadedUrl)
                     if (!isTrustedEx1Host(loadedUri.host) || mainFrameLoadFailed) {
-                        Log.e(TAG, "Rejected top-level page URL: " + loadedUri + " (configured host=" + EX1_HOST + ")")
+                        val reason = mainFrameFailureDetails
+                            ?: if (loadedUri.host.isNullOrBlank()) "نشانی صفحه میزبان معتبر ندارد."
+                            else "دامنه توسط برنامه تأیید نشد."
+                        val diagnostic = "علت: " + reason + "\nمیزبان: " + (loadedUri.host ?: "نامشخص") +
+                            "\nنشانی: " + loadedUri.scheme + "://" + (loadedUri.host ?: "نامشخص") + (loadedUri.path ?: "")
+                        Log.e(TAG, "Rejected top-level page URL: " + loadedUri + " (configured host=" + EX1_HOST + "; " + reason + ")")
                         loadInProgress = false
                         view.visibility = View.INVISIBLE
                         pageReady = false
-                        showStartupMessage("صفحهٔ اصلی EX1 بارگذاری نشد. نسخهٔ آزمایشی را بررسی می‌کنیم.")
+                        showStartupMessage("صفحهٔ اصلی EX1 بارگذاری نشد.\n" + diagnostic)
                         return
                     }
                     view.evaluateJavascript("window.EX1_NATIVE_APP=true;window.EX1_UPDATE_CHANNEL='" + BuildConfig.EX1_UPDATE_CHANNEL + "';", null)
@@ -139,6 +146,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     super.onReceivedHttpError(view, request, errorResponse)
                     if (request.isForMainFrame && errorResponse.statusCode >= 400) {
+                        mainFrameFailureDetails = "HTTP " + errorResponse.statusCode + " · " + request.url
                         Log.e(TAG, "Main-frame HTTP error " + errorResponse.statusCode + ": " + request.url)
                         if (!usingBundledFallback) loadBundledFallback("نسخهٔ آنلاین در دسترس نیست؛ نسخهٔ پشتیبان اجرا می‌شود.")
                         else {
@@ -156,6 +164,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     super.onReceivedError(view, request, error)
                     if (request.isForMainFrame) {
+                        mainFrameFailureDetails = "WebView " + error.errorCode + " · " + error.description + " · " + request.url
                         Log.e(TAG, "Main-frame load error " + error.errorCode + ": " + error.description + "; url=" + request.url)
                         if (!usingBundledFallback) loadBundledFallback("اتصال به نسخهٔ آنلاین برقرار نشد؛ نسخهٔ پشتیبان اجرا می‌شود.")
                         else {
@@ -286,6 +295,7 @@ class MainActivity : ComponentActivity() {
         if (pageReady || loadInProgress) return
         loadInProgress = true
         mainFrameLoadFailed = false
+        mainFrameFailureDetails = null
         ex1WebView?.visibility = View.INVISIBLE
         val pageUrl = if (BuildConfig.IS_ADMIN) ADMIN_URL else PLAYER_URL
         usingBundledFallback = false
