@@ -108,6 +108,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var supportHint by remember { mutableStateOf("برای شروع، پیام خودت را بنویس.") }
     var supportError by remember { mutableStateOf<String?>(null) }
     var supportHandoff by remember { mutableStateOf(false) }
+    var supportBusy by remember { mutableStateOf(false) }
     var teamInvites by remember { mutableStateOf<List<NativeTeamInvite>>(emptyList()) }
     var sentTeamInvites by remember { mutableStateOf<List<NativeSentTeamInvite>>(emptyList()) }
     var teamMessage by remember { mutableStateOf<String?>(null) }
@@ -412,6 +413,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 supportHint = supportHint,
                 supportError = supportError,
                 supportHandoff = supportHandoff,
+                supportBusy = supportBusy,
                 onNewSupport = {
                     supportConversationId = null
                     supportMessages = emptyList()
@@ -421,6 +423,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 },
                 onSendSupport = { message ->
                     scope.launch {
+                        supportBusy = true
                         supportError = null
                         supportHint = "در حال دریافت پاسخ..."
                         try {
@@ -434,6 +437,8 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                         } catch (e: Exception) {
                             supportError = e.message ?: "ارسال پیام انجام نشد."
                             supportHint = "ارسال پیام ناموفق بود؛ دوباره تلاش کن."
+                        } finally {
+                            supportBusy = false
                         }
                     }
                 },
@@ -779,6 +784,7 @@ private fun PlayerPreviewPanel(
     supportHint: String,
     supportError: String?,
     supportHandoff: Boolean,
+    supportBusy: Boolean,
     onNewSupport: () -> Unit,
     onSendSupport: (String) -> Unit,
     onMarkNotificationRead: (String) -> Unit,
@@ -828,7 +834,7 @@ private fun PlayerPreviewPanel(
             "profile" -> ProfilePreviewPanel(profile = profile, onSave = onSaveProfile)
             "wallet" -> WalletPreviewPanel(wallet = wallet)
             "notifications" -> NotificationsPreviewPanel(notifications, teamBusy, onMarkNotificationRead, onDeleteNotification)
-            "support" -> SupportPreviewPanel(supportMessages, supportHint, supportError, supportHandoff, onNewSupport, onSendSupport)
+            "support" -> SupportPreviewPanel(supportMessages, supportHint, supportError, supportHandoff, supportBusy, onNewSupport, onSendSupport)
             "team" -> TeamPreviewPanel(
                 team = team,
                 invites = teamInvites,
@@ -941,6 +947,7 @@ private fun SupportPreviewPanel(
     hint: String,
     error: String?,
     handoff: Boolean,
+    busy: Boolean,
     onNewConversation: () -> Unit,
     onSend: (String) -> Unit
 ) {
@@ -951,7 +958,7 @@ private fun SupportPreviewPanel(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("پشتیبانی EX1", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.weight(1f))
-            TextButton(onClick = { draft = ""; onNewConversation() }) { Text("گفت‌وگوی تازه") }
+            TextButton(enabled = !busy, onClick = { draft = ""; onNewConversation() }) { Text("گفت‌وگوی تازه") }
         }
         if (handoff) Text("این گفت‌وگو در صف پشتیبان انسانی قرار دارد.", color = Color(0xFFBFA0F4), fontSize = 12.sp)
         LazyColumn(
@@ -994,7 +1001,7 @@ private fun SupportPreviewPanel(
                     draft = ""
                 }
             },
-            enabled = draft.trim().isNotEmpty(),
+            enabled = !busy && draft.trim().isNotEmpty(),
             modifier = Modifier.fillMaxWidth()
         ) { Text("ارسال پیام") }
     }
