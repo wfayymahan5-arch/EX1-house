@@ -200,7 +200,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 permissions = NativeEx1Api.adminPermissions(renewed)
                 // Owner access is retained; delegated managers are admitted only by
                 // explicit server-issued permissions. Never infer permissions on-device.
-                ownerAccessDenied = !isOwner && permissions.isEmpty()
+                ownerAccessDenied = !hasNativeAdminAccess(isOwner, permissions)
                 adminSnapshot = if (ownerAccessDenied) NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
                     else NativeEx1Api.adminSnapshot(renewed, permissions)
             } else {
@@ -423,7 +423,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                             val current = session ?: return@launch
                             val isOwner = NativeEx1Api.isCurrentUserOwner(current)
                             permissions = NativeEx1Api.adminPermissions(current)
-                            ownerAccessDenied = !isOwner && permissions.isEmpty()
+                            ownerAccessDenied = !hasNativeAdminAccess(isOwner, permissions)
                             adminSnapshot = if (ownerAccessDenied) NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
                                 else NativeEx1Api.adminSnapshot(current, permissions)
                             error = null
