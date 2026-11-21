@@ -43,6 +43,28 @@ data class NativeRoom(
     val firstPrize: Long
 )
 
+data class NativeProfile(
+    val id: String,
+    val displayName: String?,
+    val username: String?,
+    val gameUid: String?,
+    val gameName: String?,
+    val avatarUrl: String?
+)
+
+data class NativeWalletEntry(
+    val type: String,
+    val amount: Long,
+    val balanceAfter: Long,
+    val reason: String,
+    val createdAt: String
+)
+
+data class NativeWallet(
+    val balance: Long,
+    val history: List<NativeWalletEntry>
+)
+
 class NativeApiException(val status: Int, message: String) : Exception(message)
 
 private object NativeSessionVault {
@@ -234,6 +256,66 @@ object NativeEx1Api {
                 firstPrize = row.optLong("prize_demo_points")
             )
         }
+    }
+
+    suspend fun profile(session: NativeSession): NativeProfile? = withContext(Dispatchers.IO) {
+        val rows = request(
+            "GET",
+            "/rest/v1/profiles?select=id,display_name,username,game_uid,game_name,avatar_url&id=eq.${session.userId}&limit=1",
+            session
+        ) as? JSONArray ?: return@withContext null
+        if (rows.length() == 0) return@withContext null
+        val row = rows.getJSONObject(0)
+        fun optional(name: String) = row.optString(name).takeIf { it.isNotBlank() && it != "null" }
+        NativeProfile(
+            row.optString("id"),
+            optional("display_name"),
+            optional("username"),
+            optional("game_uid"),
+            optional("game_name"),
+            optional("avatar_url")
+        )
+    }
+
+    suspend fun updateProfile(
+        session: NativeSession,
+        displayName: String,
+        username: String,
+        gameUid: String,
+        gameName: String
+    ): JSONObject = withContext(Dispatchers.IO) {
+        request(
+            "POST",
+            "/functions/v1/update-profile",
+            session,
+            JSONObject()
+                .put("display_name", displayName.trim())
+                .put("username", username.trim().ifBlank { JSONObject.NULL })
+                .put("game_uid", gameUid.trim().ifBlank { JSONObject.NULL })
+                .put("game_name", gameName.trim().ifBlank { JSONObject.NULL })
+        ) as? JSONObject ?: throw IllegalStateException("پاسخ ذخیره پروفایل معتبر نیست.")
+    }
+
+    suspend fun wallet(session: NativeSession): NativeWallet = withContext(Dispatchers.IO) {
+        val summary = request("POST", "/rest/v1/rpc/wallet_my_summary", session, JSONObject()) as? JSONArray
+        val first = if (summary != null && summary.length() > 0) summary.optJSONObject(0) else null
+        val history = request(
+            "POST",
+            "/rest/v1/rpc/wallet_my_history",
+            session,
+            JSONObject().put("p_limit", 30)
+        ) as? JSONArray ?: JSONArray()
+        val entries = (0 until history.length()).mapNotNull { index ->
+            val row = history.optJSONObject(index) ?: return@mapNotNull null
+            NativeWalletEntry(
+                row.optString("entry_type"),
+                row.optLong("amount_units"),
+                row.optLong("balance_after_units"),
+                row.optString("reason"),
+                row.optString("created_at")
+            )
+        }
+        NativeWallet(first?.optLong("balance_units") ?: 0L, entries)
     }
 
     suspend fun adminPermissions(session: NativeSession): List<String> = withContext(Dispatchers.IO) {
