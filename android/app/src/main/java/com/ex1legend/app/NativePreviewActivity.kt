@@ -441,7 +441,7 @@ private fun ProfilePreviewPanel(
 
 @Composable
 private fun WalletPreviewPanel(wallet: NativeWallet?) {
-    Column(Modifier.weight(1f).fillMaxWidth()) {
+    Column(Modifier.fillMaxWidth().heightIn(max = 560.dp)) {
         Text("کیف پول مجازی", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF211831))) {
