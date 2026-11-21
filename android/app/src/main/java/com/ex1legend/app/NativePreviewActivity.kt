@@ -133,6 +133,8 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var password by remember { mutableStateOf("") }
     var displayName by remember { mutableStateOf("") }
     var isSignUp by remember { mutableStateOf(false) }
+    var showAuth by remember { mutableStateOf(false) }
+    var guestCategory by remember { mutableStateOf("all") }
     var rooms by remember { mutableStateOf<List<NativeRoom>>(emptyList()) }
     var profile by remember { mutableStateOf<NativeProfile?>(null) }
     var explorePlayers by remember { mutableStateOf<List<NativePublicProfile>>(emptyList()) }
@@ -181,7 +183,21 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var deletePhrase by remember { mutableStateOf("") }
 
     LaunchedEffect(session?.userId) {
-        val current = session ?: return@LaunchedEffect
+        val current = session
+        if (current == null) {
+            if (!isAdmin) {
+                loading = true
+                try {
+                    rooms = NativeEx1Api.rooms(null)
+                    error = null
+                } catch (e: Exception) {
+                    error = e.message ?: "دریافت روم‌ها ممکن نشد."
+                } finally {
+                    loading = false
+                }
+            }
+            return@LaunchedEffect
+        }
         loading = true
         error = null
         try {
@@ -338,8 +354,29 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     }
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF0A0812)) {
-        if (session == null) {
-            LoginPanel(
+        if (session == null && !isAdmin && !showAuth) {
+            GuestNativeHome(
+                rooms = rooms,
+                loading = loading,
+                error = error,
+                category = guestCategory,
+                onCategory = { guestCategory = it },
+                onRefresh = {
+                    scope.launch {
+                        loading = true
+                        try { rooms = NativeEx1Api.rooms(null); error = null }
+                        catch (e: Exception) { error = e.message ?: "دریافت روم‌ها ممکن نشد." }
+                        finally { loading = false }
+                    }
+                },
+                onSignIn = { showAuth = true }
+            )
+        } else if (session == null) {
+            Column(Modifier.fillMaxSize()) {
+                TextButton(onClick = { showAuth = false; error = null }, modifier = Modifier.padding(start = 12.dp, top = 8.dp)) {
+                    Text("← بازگشت به صفحه اصلی")
+                }
+                LoginPanel(
                 email = email,
                 password = password,
                 displayName = displayName,
@@ -387,6 +424,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                     } else {
                                         NativeEx1Api.saveSession(context, created)
                                         session = created
+                                        showAuth = false
                                     }
                                 } else {
                                     val loggedIn = NativeEx1Api.signIn(email, password)
@@ -396,6 +434,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                     }
                                     NativeEx1Api.saveSession(context, loggedIn)
                                     session = loggedIn
+                                    showAuth = false
                                 }
                             } catch (e: Exception) {
                                 error = e.message ?: "ورود یا ثبت‌نام انجام نشد."
@@ -406,7 +445,8 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                     }
                 },
                 isAdmin = isAdmin
-            )
+                )
+            }
         } else if (loading) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
