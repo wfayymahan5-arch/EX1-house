@@ -182,6 +182,27 @@ object NativeEx1Api {
         parseSession(result) ?: throw IllegalStateException("نشست ورود از سرور دریافت نشد.")
     }
 
+    suspend fun signUp(email: String, password: String, displayName: String): NativeSession? = withContext(Dispatchers.IO) {
+        val result = request(
+            "POST",
+            "/auth/v1/signup",
+            payload = JSONObject()
+                .put("email", email.trim())
+                .put("password", password)
+                .put("data", JSONObject().put("display_name", displayName.trim()))
+        ) as? JSONObject ?: throw IllegalStateException("پاسخ ثبت‌نام معتبر نیست.")
+        parseSession(result)
+    }
+
+    suspend fun requestPasswordReset(email: String) = withContext(Dispatchers.IO) {
+        val redirect = java.net.URLEncoder.encode(BuildConfig.EX1_BASE_URL.trimEnd('/') + "/", "UTF-8")
+        request(
+            "POST",
+            "/auth/v1/recover?redirect_to=$redirect",
+            payload = JSONObject().put("email", email.trim())
+        )
+    }
+
     suspend fun refresh(session: NativeSession): NativeSession = withContext(Dispatchers.IO) {
         val result = request(
             "POST",
