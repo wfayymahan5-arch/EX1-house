@@ -335,6 +335,14 @@ object NativeEx1Api {
         NativeWallet(first?.optLong("balance_units") ?: 0L, entries)
     }
 
+    suspend fun isCurrentUserBanned(session: NativeSession): Boolean = withContext(Dispatchers.IO) {
+        request("POST", "/rest/v1/rpc/is_current_user_banned", session, JSONObject()) == true
+    }
+
+    suspend fun isCurrentUserOwner(session: NativeSession): Boolean = withContext(Dispatchers.IO) {
+        request("POST", "/rest/v1/rpc/is_current_user_owner", session, JSONObject()) == true
+    }
+
     suspend fun adminPermissions(session: NativeSession): List<String> = withContext(Dispatchers.IO) {
         val rows = request("POST", "/rest/v1/rpc/admin_my_permissions", session, JSONObject()) as? JSONArray
             ?: return@withContext emptyList()
