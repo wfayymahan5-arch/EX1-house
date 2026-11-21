@@ -15,8 +15,8 @@ begin
       add constraint profiles_bio_length_check
       check (bio is null or char_length(bio) <= 500);
   end if;
-end
-$$;
+end;
+$;
 
 comment on column public.profiles.bio is
   'Optional public player biography; content is moderated by the update-profile Edge Function before it is stored.';
