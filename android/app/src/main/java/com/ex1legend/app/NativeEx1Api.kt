@@ -84,29 +84,31 @@ private object NativeSessionVault {
             .apply()
     }
 
-    fun load(context: Context): NativeSession? {\n        return try {
-        val encoded = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .getString(VALUE, null) ?: return null
-        val packed = Base64.decode(encoded, Base64.NO_WRAP)
-        if (packed.size <= 12) return null
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        cipher.init(
-            Cipher.DECRYPT_MODE,
-            key(),
-            GCMParameterSpec(128, packed.copyOfRange(0, 12))
-        )
-        val json = JSONObject(
-            String(cipher.doFinal(packed.copyOfRange(12, packed.size)), Charsets.UTF_8)
-        )
-        NativeSession(
-            json.getString("access"),
-            json.getString("refresh"),
-            json.getString("user"),
-            json.optString("email")
-        )
-    } catch (_: Exception) {
-        clear(context)
-        null
+    fun load(context: Context): NativeSession? {
+        return try {
+            val encoded = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getString(VALUE, null) ?: return null
+            val packed = Base64.decode(encoded, Base64.NO_WRAP)
+            if (packed.size <= 12) return null
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(
+                Cipher.DECRYPT_MODE,
+                key(),
+                GCMParameterSpec(128, packed.copyOfRange(0, 12))
+            )
+            val json = JSONObject(
+                String(cipher.doFinal(packed.copyOfRange(12, packed.size)), Charsets.UTF_8)
+            )
+            NativeSession(
+                json.getString("access"),
+                json.getString("refresh"),
+                json.getString("user"),
+                json.optString("email")
+            )
+        } catch (_: Exception) {
+            clear(context)
+            null
+        }
     }
 
     fun clear(context: Context) {
