@@ -15,7 +15,7 @@ begin
       add constraint profiles_bio_length_check
       check (bio is null or char_length(bio) <= 500);
   end if;
-end
+end;
 $;
 
 comment on column public.profiles.bio is
