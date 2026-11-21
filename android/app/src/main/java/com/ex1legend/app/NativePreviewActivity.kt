@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -421,7 +422,7 @@ private fun ProfilePreviewPanel(
     var gameUid by remember(profile?.id, profile?.gameUid) { mutableStateOf(profile?.gameUid.orEmpty()) }
     var gameName by remember(profile?.id, profile?.gameName) { mutableStateOf(profile?.gameName.orEmpty()) }
     Column(
-        Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
+        Modifier.fillMaxWidth().heightIn(max = 560.dp).verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text("اطلاعات پروفایل", fontWeight = FontWeight.Bold, fontSize = 18.sp)
@@ -455,7 +456,7 @@ private fun WalletPreviewPanel(wallet: NativeWallet?) {
         if (wallet?.history.isNullOrEmpty()) {
             Text("تراکنشی برای نمایش وجود ندارد.", color = Color(0xFFAAA2B8), modifier = Modifier.padding(top = 12.dp))
         } else {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.heightIn(max = 420.dp)) {
                 items(wallet!!.history) { entry ->
                     Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
                         Column(Modifier.fillMaxWidth().padding(12.dp)) {
