@@ -195,7 +195,7 @@ object NativeEx1Api {
     }
 
     suspend fun requestPasswordReset(email: String) = withContext(Dispatchers.IO) {
-        val redirect = java.net.URLEncoder.encode(BuildConfig.EX1_BASE_URL.trimEnd('/') + "/", "UTF-8")
+        val redirect = java.net.URLEncoder.encode(BuildConfig.EX1_BASE_URL.trimEnd('/') + "/app.html", "UTF-8")
         request(
             "POST",
             "/auth/v1/recover?redirect_to=$redirect",
