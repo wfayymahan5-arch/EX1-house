@@ -201,8 +201,8 @@ object NativeEx1Api {
             NativeRoom(
                 id = row.optString("id"),
                 title = row.optString("title", "روم بدون عنوان"),
-                gameCategory = optional("game_category") ?: "uncategorized",
-                priceCategory = optional("price_category") ?: "uncategorized",
+                gameCategory = normalizeGameCategory(optional("game_category")),
+                priceCategory = normalizePriceCategory(optional("price_category")),
                 gameMode = optional("game_mode"),
                 map = optional("map"),
                 status = row.optString("status"),
