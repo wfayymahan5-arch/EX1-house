@@ -136,6 +136,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var team by remember { mutableStateOf<NativeTeam?>(null) }
     var notifications by remember { mutableStateOf<List<NativeNotification>>(emptyList()) }
     var supportConversationId by remember { mutableStateOf<String?>(null) }
+    var supportFresh by remember { mutableStateOf(false) }
     var supportMessages by remember { mutableStateOf<List<NativeSupportMessage>>(emptyList()) }
     var supportHint by remember { mutableStateOf("برای شروع، پیام خودت را بنویس.") }
     var supportError by remember { mutableStateOf<String?>(null) }
@@ -429,10 +430,12 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                     "team" -> refreshTeam(current)
                                     "notifications" -> notifications = NativeEx1Api.notifications(current)
                                     "support" -> {
-                                        val latest = NativeEx1Api.latestSupportConversation(current)
-                                        supportConversationId = latest?.id
-                                        supportMessages = if (latest == null) emptyList() else NativeEx1Api.supportMessages(current, latest.id)
-                                        supportHint = if (latest == null) "گفت‌وگوی تازه آماده است؛ پیام اول را بنویس." else "گفت‌وگوی پشتیبانی"
+                                        if (!supportFresh) {
+                                            val latest = NativeEx1Api.latestSupportConversation(current)
+                                            supportConversationId = latest?.id
+                                            supportMessages = if (latest == null) emptyList() else NativeEx1Api.supportMessages(current, latest.id)
+                                            supportHint = if (latest == null) "گفت‌وگوی تازه آماده است؛ پیام اول را بنویس." else "گفت‌وگوی پشتیبانی"
+                                        }
                                     }
                                 }
                                 error = null
@@ -453,6 +456,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 supportBusy = supportBusy,
                 supportSendRevision = supportSendRevision,
                 onNewSupport = {
+                    supportFresh = true
                     supportConversationId = null
                     supportMessages = emptyList()
                     supportHandoff = false
@@ -469,6 +473,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                             val result = NativeEx1Api.sendSupportMessage(current, message, supportConversationId)
                             if (!result.optBoolean("success")) throw IllegalStateException(result.optString("error", "پاسخی دریافت نشد."))
                             supportConversationId = result.optString("conversation_id").takeIf { it.isNotBlank() && it != "null" }
+                            supportFresh = false
                             supportHandoff = result.optBoolean("handoff")
                             supportMessages = if (supportConversationId == null) supportMessages else NativeEx1Api.supportMessages(current, supportConversationId!!)
                             supportHint = if (supportHandoff) "این گفت‌وگو در صف پشتیبان انسانی است." else "پاسخ پشتیبانی دریافت شد."
@@ -605,7 +610,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                 "notifications" -> notifications = NativeEx1Api.notifications(current)
                                 "support" -> {
                                     val activeConversation = supportConversationId
-                                    supportMessages = if (activeConversation == null) emptyList() else NativeEx1Api.supportMessages(current, activeConversation)
+                                    supportMessages = if (supportFresh || activeConversation == null) emptyList() else NativeEx1Api.supportMessages(current, activeConversation)
                                 }
                                 else -> rooms = NativeEx1Api.rooms(current)
                             }
