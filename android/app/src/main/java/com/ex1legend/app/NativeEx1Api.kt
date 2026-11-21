@@ -44,6 +44,15 @@ data class NativeRoom(
     val firstPrize: Long
 )
 
+data class NativeNotification(
+    val id: String,
+    val title: String,
+    val body: String,
+    val type: String,
+    val readAt: String?,
+    val createdAt: String
+)
+
 data class NativeTeamMember(
     val userId: String,
     val displayName: String,
@@ -321,6 +330,42 @@ object NativeEx1Api {
                 firstPrize = row.optLong("prize_demo_points")
             )
         }
+    }
+
+    suspend fun notifications(session: NativeSession): List<NativeNotification> = withContext(Dispatchers.IO) {
+        val rows = request(
+            "GET",
+            "/rest/v1/user_notifications?select=id,title,body,notification_type,read_at,created_at&user_id=eq.${session.userId}&order=created_at.desc&limit=20",
+            session
+        ) as? JSONArray ?: JSONArray()
+        (0 until rows.length()).mapNotNull { index ->
+            val row = rows.optJSONObject(index) ?: return@mapNotNull null
+            NativeNotification(
+                row.optString("id"),
+                row.optString("title"),
+                row.optString("body"),
+                row.optString("notification_type"),
+                row.optString("read_at").takeIf { it.isNotBlank() && it != "null" },
+                row.optString("created_at")
+            )
+        }
+    }
+
+    suspend fun markNotificationRead(session: NativeSession, notificationId: String, readAt: String) = withContext(Dispatchers.IO) {
+        request(
+            "PATCH",
+            "/rest/v1/user_notifications?id=eq.$notificationId&user_id=eq.${session.userId}",
+            session,
+            JSONObject().put("read_at", readAt)
+        )
+    }
+
+    suspend fun deleteNotification(session: NativeSession, notificationId: String) = withContext(Dispatchers.IO) {
+        request(
+            "DELETE",
+            "/rest/v1/user_notifications?id=eq.$notificationId&user_id=eq.${session.userId}",
+            session
+        )
     }
 
     suspend fun myTeam(session: NativeSession): NativeTeam? = withContext(Dispatchers.IO) {
