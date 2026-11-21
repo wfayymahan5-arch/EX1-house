@@ -23,6 +23,11 @@ This inventory is derived from the current player/admin web clients. It is a dis
 ### Realtime channels
 `ex1-site-theme-settings`.
 
+### Native read additions
+- `profiles.bio` is an optional public biography field, staged in `20261121133500_profiles_public_bio.sql`.
+- Explore reads only public profile fields; profile detail omits game UID.
+- Ranking reads `tournament_player_results` with related public profile, tournament, and room labels. Tapping a ranked player opens the public profile.
+
 ## Admin client resources
 
 ### Tables queried
