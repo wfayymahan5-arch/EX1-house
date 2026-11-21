@@ -9,7 +9,7 @@
         android:theme="@android:style/Theme.Material.NoActionBar"
         android:usesCleartextTraffic="false"
         android:supportsRtl="true">
-        <activity android:name=".NativePreviewActivity" android:exported="false" />
+        <activity android:name=".NativePreviewActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
