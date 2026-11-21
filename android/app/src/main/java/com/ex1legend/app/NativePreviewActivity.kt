@@ -76,6 +76,8 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var session by remember { mutableStateOf(NativeEx1Api.loadSession(context)) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var displayName by remember { mutableStateOf("") }
+    var isSignUp by remember { mutableStateOf(false) }
     var rooms by remember { mutableStateOf<List<NativeRoom>>(emptyList()) }
     var permissions by remember { mutableStateOf<List<String>>(emptyList()) }
     var loading by remember { mutableStateOf(session != null) }
@@ -115,23 +117,56 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
             LoginPanel(
                 email = email,
                 password = password,
+                displayName = displayName,
+                isSignUp = isSignUp,
                 busy = busy,
                 error = error,
                 onEmail = { email = it },
                 onPassword = { password = it },
-                onLogin = {
-                    if (email.isBlank() || password.isBlank()) {
-                        error = "ایمیل و رمز عبور را وارد کن."
+                onDisplayName = { displayName = it },
+                onModeSwitch = { isSignUp = !isSignUp; error = null },
+                onForgotPassword = {
+                    if (email.isBlank()) {
+                        error = "اول ایمیل حساب را وارد کن."
                     } else {
                         scope.launch {
                             busy = true
                             error = null
                             try {
-                                val loggedIn = NativeEx1Api.signIn(email, password)
-                                NativeEx1Api.saveSession(context, loggedIn)
-                                session = loggedIn
+                                NativeEx1Api.requestPasswordReset(email)
+                                error = "اگر این ایمیل ثبت شده باشد، لینک بازیابی برایت ارسال می‌شود. ایمیلت را بررسی کن."
                             } catch (e: Exception) {
-                                error = e.message ?: "ورود انجام نشد."
+                                error = e.message ?: "ارسال لینک بازیابی انجام نشد."
+                            } finally {
+                                busy = false
+                            }
+                        }
+                    }
+                },
+                onSubmit = {
+                    if (email.isBlank() || password.length < 8 || (isSignUp && displayName.trim().length < 2)) {
+                        error = if (isSignUp) "نام نمایشی حداقل ۲ نویسه و رمز عبور حداقل ۸ نویسه باشد."
+                        else "ایمیل را وارد کن و رمز عبور باید حداقل ۸ نویسه باشد."
+                    } else {
+                        scope.launch {
+                            busy = true
+                            error = null
+                            try {
+                                if (isSignUp) {
+                                    val created = NativeEx1Api.signUp(email, password, displayName)
+                                    if (created == null) {
+                                        error = "درخواست ساخت حساب ثبت شد؛ برای تکمیل ثبت‌نام ایمیلت را تأیید کن."
+                                    } else {
+                                        NativeEx1Api.saveSession(context, created)
+                                        session = created
+                                    }
+                                } else {
+                                    val loggedIn = NativeEx1Api.signIn(email, password)
+                                    NativeEx1Api.saveSession(context, loggedIn)
+                                    session = loggedIn
+                                }
+                            } catch (e: Exception) {
+                                error = e.message ?: "ورود یا ثبت‌نام انجام نشد."
                             } finally {
                                 busy = false
                             }
@@ -215,11 +250,16 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
 private fun LoginPanel(
     email: String,
     password: String,
+    displayName: String,
+    isSignUp: Boolean,
     busy: Boolean,
     error: String?,
     onEmail: (String) -> Unit,
     onPassword: (String) -> Unit,
-    onLogin: () -> Unit,
+    onDisplayName: (String) -> Unit,
+    onModeSwitch: () -> Unit,
+    onForgotPassword: () -> Unit,
+    onSubmit: () -> Unit,
     isAdmin: Boolean
 ) {
     Column(
@@ -230,20 +270,30 @@ private fun LoginPanel(
         Text("EX1 LEGEND", fontSize = 30.sp, fontWeight = FontWeight.Black, color = Color.White)
         Text(if (isAdmin) "پنل مدیریت · نسخه Native آزمایشی" else "وارد میدان شو، افسانه شو", color = Color(0xFFBBA8D8))
         Spacer(Modifier.height(28.dp))
+        if (isSignUp) {
+            OutlinedTextField(value = displayName, onValueChange = onDisplayName, label = { Text("نام نمایشی") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            Spacer(Modifier.height(12.dp))
+        }
         OutlinedTextField(value = email, onValueChange = onEmail, label = { Text("ایمیل") }, singleLine = true, modifier = Modifier.fillMaxWidth())
         Spacer(Modifier.height(12.dp))
-        OutlinedTextField(value = password, onValueChange = onPassword, label = { Text("رمز عبور") }, singleLine = true, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = password, onValueChange = onPassword, label = { Text("رمز عبور (حداقل ۸ نویسه)") }, singleLine = true, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
         Spacer(Modifier.height(18.dp))
-        Button(onClick = onLogin, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = onSubmit, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
             if (busy) CircularProgressIndicator(modifier = Modifier.width(18.dp).height(18.dp), strokeWidth = 2.dp)
-            else Text("ورود امن")
+            else Text(if (isSignUp) "ساخت حساب" else "ورود امن")
+        }
+        TextButton(onClick = onModeSwitch, enabled = !busy) {
+            Text(if (isSignUp) "قبلاً حساب داری؟ ورود" else "ساخت حساب جدید")
+        }
+        if (!isSignUp) TextButton(onClick = onForgotPassword, enabled = !busy) {
+            Text("فراموشی رمز عبور")
         }
         if (!error.isNullOrBlank()) {
-            Spacer(Modifier.height(12.dp))
-            Text(error, color = Color(0xFFFF9B9B), textAlign = TextAlign.Center)
+            Spacer(Modifier.height(8.dp))
+            Text(error, color = if (error.contains("ارسال شد") || error.contains("تأیید کن")) Color(0xFFBFA0F4) else Color(0xFFFF9B9B), textAlign = TextAlign.Center)
         }
         Spacer(Modifier.height(18.dp))
-        Text("این صفحه فقط پیش‌نمایش Native است؛ ورود و مجوزها از سرور بررسی می‌شوند.", color = Color(0xFF8E879B), fontSize = 12.sp, textAlign = TextAlign.Center)
+        Text("ورود و ساخت حساب از طریق Supabase Auth انجام می‌شود.", color = Color(0xFF8E879B), fontSize = 12.sp, textAlign = TextAlign.Center)
     }
 }
 
