@@ -207,7 +207,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
             if (e.status == 400 || e.status == 401 || e.status == 403) {
                 NativeEx1Api.clearSession(context)
                 session = null
-                rooms = emptyList(); profile = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false; adminSnapshot = NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
+                rooms = emptyList(); profile = null; explorePlayers = emptyList(); rankingPlayers = emptyList(); exploreQuery = ""; selectedPublicProfile = null; publicProfileLoading = false; publicProfileError = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false; adminSnapshot = NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
                 error = "نشست قبلی معتبر نیست؛ دوباره وارد شو."
             } else {
                 error = e.message ?: "ارتباط با سرور برقرار نشد."
@@ -784,7 +784,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                     }
                                     NativeEx1Api.clearSession(context)
                                     session = null
-                                    rooms = emptyList(); profile = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false; adminSnapshot = NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
+                                    rooms = emptyList(); profile = null; explorePlayers = emptyList(); rankingPlayers = emptyList(); exploreQuery = ""; selectedPublicProfile = null; publicProfileLoading = false; publicProfileError = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false; adminSnapshot = NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
                                     showDeleteForm = false
                                     error = null
                                     deletePassword = ""
