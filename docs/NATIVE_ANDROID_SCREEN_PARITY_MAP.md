@@ -3,8 +3,8 @@
 This map was extracted from the current `app.html` and `admin.html` clients on the migration branch. It is the source checklist for feature-by-feature native replacement. It does not authorize backend changes.
 
 ## Player screens and dialogs
-- Home/explore: `page-home`
-- Profile: `page-profile`
+- Home/explore: `page-home`, including public player discovery and player profile detail
+- Profile: `page-profile`, including owner-editable biography and public biography display
 - Tournament/room discovery: `page-tournaments`
 - Room details: `roomDetail`
 - Ranking: `page-ranking`
@@ -12,7 +12,7 @@ This map was extracted from the current `app.html` and `admin.html` clients on t
 - Support: `supportPanel`
 - Notifications: `userNotificationsPanel`
 - Waiting queue: `roomWaitingPanel`
-- Dialogs: `authModal`, `profileEditorModal`, `settingsModal`, `walletModal`, `joinRoomModal`, `ex1ConfirmModal`
+- Dialogs: `authModal`, `profileEditorModal` (including biography), `settingsModal`, `walletModal`, `joinRoomModal`, `ex1ConfirmModal`, public player profile detail
 
 ## Admin screens and forms
 - Owner/admin entry: `authView`
