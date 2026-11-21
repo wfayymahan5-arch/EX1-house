@@ -956,7 +956,9 @@ async function loadFollowStats(){
 async function loadProfile(){
  if(!currentUser)return;
  loadWallet();
- const {data,error}=await sb.from("profiles").select("id,display_name,username,avatar_url,cover_url,game_uid,game_name,bio").eq("id",currentUser.id).maybeSingle();
+ let profileResult=await sb.from("profiles").select("id,display_name,username,avatar_url,cover_url,game_uid,game_name,bio").eq("id",currentUser.id).maybeSingle();
+ if(profileResult.error&&/bio/i.test(profileResult.error.message||""))profileResult=await sb.from("profiles").select("id,display_name,username,avatar_url,cover_url,game_uid,game_name").eq("id",currentUser.id).maybeSingle();
+ const {data,error}=profileResult;
  if(error){console.error("EX1 profile load:",error);toast("اطلاعات پروفایل فعلاً در دسترس نیست. دوباره تلاش کن.");return;}
  if(!data){toast("پروفایل این حساب هنوز ساخته نشده است؛ دوباره وارد شو.");return;}
  $("profileDisplayName").textContent=data.display_name||"بازیکن";
@@ -990,6 +992,13 @@ $("profileForm").addEventListener("submit",async e=>{
 }
  if(updateData?.pending_review){toast(updateData.message||"پروفایل برای بررسی مالک ارسال شد.");return;}
  if(!updateData?.success){toast(updateData?.error||"ذخیره پروفایل انجام نشد.");return;}
+ if(payload.bio){
+  const {data:bioCheck,error:bioCheckError}=await sb.from("profiles").select("bio").eq("id",currentUser.id).maybeSingle();
+  if(bioCheckError||bioCheck?.bio!==payload.bio){
+   toast("اطلاعات پروفایل ذخیره شد، اما سرور هنوز ذخیره بیوگرافی را تأیید نکرده است؛ قابلیت بیوگرافی پس از به‌روزرسانی سرور فعال می‌شود.");
+   return;
+  }
+ }
  toast("پروفایل ذخیره شد.");$("profileEditorModal").classList.remove("show");loadProfile();
 });
 
@@ -1005,7 +1014,13 @@ async function loadExplore(){
  let q=($("userSearch").value||"").trim();
  let req=sb.from("profiles").select("id,display_name,username,avatar_url,cover_url,game_name,bio").neq("id",currentUser.id).limit(50);
  if(q)req=req.or("display_name.ilike.%"+q+"%,username.ilike.%"+q+"%");
- const [{data,error},follows]=await Promise.all([req,sb.from("user_follows").select("follower_id,followed_id,status")]);
+ const [profileResult,follows]=await Promise.all([req,sb.from("user_follows").select("follower_id,followed_id,status")]);
+ let {data,error}=profileResult;
+ if(error&&/bio/i.test(error.message||"")){
+  let fallback=sb.from("profiles").select("id,display_name,username,avatar_url,cover_url,game_name").neq("id",currentUser.id).limit(50);
+  if(q)fallback=fallback.or("display_name.ilike.%"+q+"%,username.ilike.%"+q+"%");
+  const retry=await fallback;data=retry.data;error=retry.error;
+ }
  if(error){$("exploreUsers").innerHTML='<div class="empty">جست‌وجو انجام نشد.</div>';return;}
  const edges=follows.data||[];
  const {data:roleBadges}=await sb.rpc("ex1_public_role_badges",{p_user_ids:(data||[]).map(p=>p.id)});
@@ -1037,7 +1052,9 @@ async function openPublicPlayerProfile(userId){
  content.textContent="در حال دریافت پروفایل...";
  modal.classList.add("show");
  try{
-  const {data,error}=await sb.from("profiles").select("id,display_name,username,game_name,avatar_url,bio").eq("id",userId).maybeSingle();
+  let result=await sb.from("profiles").select("id,display_name,username,game_name,avatar_url,bio").eq("id",userId).maybeSingle();
+  if(result.error&&/bio/i.test(result.error.message||""))result=await sb.from("profiles").select("id,display_name,username,game_name,avatar_url").eq("id",userId).maybeSingle();
+  const {data,error}=result;
   if(error)throw error;
   if(!data){content.textContent="پروفایل این بازیکن در دسترس نیست.";return;}
   const name=esc(data.display_name||"بازیکن");
