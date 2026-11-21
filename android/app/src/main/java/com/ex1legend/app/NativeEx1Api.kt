@@ -37,6 +37,7 @@ data class NativeRoom(
     val map: String?,
     val status: String,
     val startsAt: String?,
+    val endsAt: String?,
     val capacity: Int,
     val teamSize: Int,
     val maxTeams: Int,
@@ -327,7 +328,7 @@ object NativeEx1Api {
     }
 
     suspend fun rooms(session: NativeSession?): List<NativeRoom> = withContext(Dispatchers.IO) {
-        val path = "/rest/v1/tournament_rooms?select=id,title,game_category,price_category,game_mode,map,status,starts_at,capacity,team_size,max_teams,entry_demo_points,prize_demo_points&status=in.(open,full,completed)&order=starts_at.asc&limit=100"
+        val path = "/rest/v1/tournament_rooms?select=id,title,game_category,price_category,game_mode,map,status,starts_at,ends_at,capacity,team_size,max_teams,entry_demo_points,prize_demo_points&status=in.(open,full,completed)&order=starts_at.asc&limit=100"
         val rows = request("GET", path, session) as? JSONArray ?: JSONArray()
         (0 until rows.length()).mapNotNull { index ->
             val row = rows.optJSONObject(index) ?: return@mapNotNull null
@@ -342,6 +343,7 @@ object NativeEx1Api {
                 map = optional("map"),
                 status = row.optString("status"),
                 startsAt = optional("starts_at"),
+                endsAt = optional("ends_at"),
                 capacity = row.optInt("capacity"),
                 teamSize = row.optInt("team_size", 4),
                 maxTeams = row.optInt("max_teams"),
