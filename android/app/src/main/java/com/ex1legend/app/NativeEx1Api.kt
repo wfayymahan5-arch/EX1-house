@@ -39,6 +39,7 @@ data class NativeRoom(
     val startsAt: String?,
     val capacity: Int,
     val teamSize: Int,
+    val maxTeams: Int,
     val entryPoints: Long,
     val firstPrize: Long
 )
@@ -262,7 +263,7 @@ object NativeEx1Api {
     }
 
     suspend fun rooms(session: NativeSession?): List<NativeRoom> = withContext(Dispatchers.IO) {
-        val path = "/rest/v1/tournament_rooms?select=id,title,game_category,price_category,game_mode,map,status,starts_at,capacity,team_size,entry_demo_points,prize_demo_points&status=in.(open,full,completed)&order=starts_at.asc&limit=100"
+        val path = "/rest/v1/tournament_rooms?select=id,title,game_category,price_category,game_mode,map,status,starts_at,capacity,team_size,max_teams,entry_demo_points,prize_demo_points&status=in.(open,full,completed)&order=starts_at.asc&limit=100"
         val rows = request("GET", path, session) as? JSONArray ?: JSONArray()
         (0 until rows.length()).mapNotNull { index ->
             val row = rows.optJSONObject(index) ?: return@mapNotNull null
@@ -279,6 +280,7 @@ object NativeEx1Api {
                 startsAt = optional("starts_at"),
                 capacity = row.optInt("capacity"),
                 teamSize = row.optInt("team_size", 4),
+                maxTeams = row.optInt("max_teams"),
                 entryPoints = row.optLong("entry_demo_points"),
                 firstPrize = row.optLong("prize_demo_points")
             )
@@ -355,12 +357,12 @@ object NativeEx1Api {
         ) as? JSONObject ?: throw IllegalStateException("پاسخ ثبت‌نام معتبر نیست.")
     }
 
-    suspend fun registerSolo(session: NativeSession, roomId: String): JSONObject = withContext(Dispatchers.IO) {
+    suspend fun registerSolo(session: NativeSession, roomId: String, slotNumber: Int): JSONObject = withContext(Dispatchers.IO) {
         request(
             "POST",
             "/rest/v1/rpc/register_for_tournament_room_solo",
             session,
-            JSONObject().put("p_room_id", roomId)
+            JSONObject().put("p_room_id", roomId).put("p_slot_number", slotNumber)
         ) as? JSONObject ?: throw IllegalStateException("پاسخ ثبت‌نام انفرادی معتبر نیست.")
     }
 
