@@ -568,9 +568,8 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                 "team" -> refreshTeam(current)
                                 "notifications" -> notifications = NativeEx1Api.notifications(current)
                                 "support" -> {
-                                    val latest = NativeEx1Api.latestSupportConversation(current)
-                                    supportConversationId = latest?.id
-                                    supportMessages = if (latest == null) emptyList() else NativeEx1Api.supportMessages(current, latest.id)
+                                    val activeConversation = supportConversationId
+                                    supportMessages = if (activeConversation == null) emptyList() else NativeEx1Api.supportMessages(current, activeConversation)
                                 }
                                 else -> rooms = NativeEx1Api.rooms(current)
                             }
