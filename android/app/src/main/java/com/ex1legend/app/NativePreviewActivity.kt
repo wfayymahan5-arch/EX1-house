@@ -178,7 +178,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 runCatching { NativeEx1Api.signOut(renewed) }
                 NativeEx1Api.clearSession(context)
                 session = null
-                rooms = emptyList(); profile = null; wallet = null; permissions = emptyList(); selectedRoom = null
+                rooms = emptyList(); profile = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList()
                 error = "دسترسی این حساب به EX1 مسدود شده است. برای پیگیری با پشتیبانی تماس بگیر."
                 return@LaunchedEffect
             }
@@ -1297,7 +1297,7 @@ private fun RoomDetailDialog(
     val maxTeams = room.maxTeams.takeIf { it > 0 } ?: if (room.teamSize > 0) room.capacity / room.teamSize else 0
     val occupied = slots.associateBy { it.number }
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (!busy) onDismiss() },
         title = { Text(room.title) },
         text = {
             Column(
@@ -1382,7 +1382,7 @@ private fun RoomDetailDialog(
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("بستن") } }
+        confirmButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("بستن") } }
     )
 }
 
@@ -1391,19 +1391,19 @@ private fun RoomPreviewCard(room: NativeRoom, onOpen: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))
+        colors = CardDefaults.cardColors(containerColor = if (isRoomFinished(room)) Color(0xFF121018) else Color(0xFF191426))
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(room.title, modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                Text(room.title, modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold, fontSize = 17.sp, color = if (isRoomFinished(room)) Color(0xFF8E879B) else Color.White)
                 Text(
-                    when (room.status) {
-                        "open" -> "باز"
-                        "full" -> "تکمیل"
-                        "completed" -> "پایان‌یافته"
+                    when {
+                        isRoomFinished(room) -> "پایان‌یافته"
+                        room.status == "open" -> "باز"
+                        room.status == "full" -> "تکمیل"
                         else -> room.status
                     },
-                    color = if (room.status == "completed") Color(0xFF898393) else Color(0xFFC5A4FF),
+                    color = if (isRoomFinished(room)) Color(0xFF898393) else Color(0xFFC5A4FF),
                     fontSize = 12.sp
                 )
             }
