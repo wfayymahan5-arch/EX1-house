@@ -67,3 +67,55 @@ The same six form IDs exist in `manager.html`, but source markup and controls di
 - [ ] Extract all CSS custom properties, typography declarations, layout breakpoints, image URLs and icon definitions.
 - [ ] Map all Supabase table reads/writes, RPCs, Edge Functions, Storage calls and Realtime channels to the exact UI action.
 - [ ] Produce source-linked parity rows and test cases for player, admin and manager independently.
+
+## JavaScript behavior and backend references extracted from source
+
+Static JavaScript function declarations and directly named backend calls were also enumerated. These are useful coverage anchors, but indirect calls, helper wrappers, dynamically built queries and event delegation still require call-graph review.
+
+| Source | Declared functions | Distinct addEventListener event types | Explicit RPC names | Direct .from() resource names | Edge Function invokes | CSS custom properties |
+|---|---:|---:|---:|---:|---:|---:|
+| `app.html` | 71 | 21 | 17 | 22 | 7 | 20 |
+| `admin.html` | 37 | 12 | 8 | 8 | 5 | 16 |
+| `manager.html` | 34 | 12 | 8 | 8 | 5 | 16 |
+
+### Player explicit RPC calls
+
+`wallet_my_summary`, `wallet_my_history`, `register_for_tournament_room_solo`, `register_for_tournament_room`, `get_my_room_solo_status`, `get_tournament_room_waiting_players`, `get_my_tournament_room_access`, `get_tournament_room_slots`, `is_current_user_banned`, `ex1_public_role_badges`, `ex1_my_role_summary`, `team_invite_create`, `team_invite_respond`, `team_invite_cancel`, `team_member_remove`, `team_leave`, `team_delete`.
+
+### Player Edge Functions
+
+`delete-account`, `moderate-avatar-immediate`, `moderate-profile-cover`, `update-profile`, `send-social-message`, `ai-support`, `manage-team`.
+
+### Admin and manager explicit RPC calls
+
+`admin_social_reported_content`, `admin_dashboard_users`, `is_current_user_owner`, `admin_list_user_bans`, `admin_wallet_demo_history`, `admin_wallet_demo_adjust`, `admin_get_tournament_room_access_status`, `admin_publish_tournament_room_access`.
+
+### Admin and manager Edge Functions
+
+`get-ai-moderation-evidence`, `manage-user-ban`, `admin-list-users-for-notifications`, `admin-send-user-notification`, `manage-ai-moderation-case-v2`.
+
+### Direct .from() resource names
+
+Player: `site_theme_settings`, `user_settings`, `profiles`, `tournament_player_results`, `ex1-avatars`, `ex1-avatar-review`, `user_follows`, `user_blocks`, `social_reports`, `social_conversation_members`, `social_conversations`, `social_messages`, `user_notifications`, `support_conversations`, `support_messages`, `tournament_rooms`, `tournament_room_registrations`, `tournament_results`, `team_invites`, `team_members`, `teams`, `tournaments`.
+
+Admin and manager: `tournament_rooms`, `tournament-assets`, `tournaments`, `social_reports`, `profiles`, `ai_moderation_cases`, `profile_moderation`, `site_theme_settings`.
+
+### Observed player CSS tokens
+
+`bg`, `surface`, `surface2`, `stroke`, `text`, `muted`, `violet`, `violet2`, `cyan`, `gold`, `accent`, `accent2`, `ex1-ui-accent`, `ex1-ui-button`, `ex1-neon`, `ex1-cyan`, `ex1-glow`, `ex1-violet`, `ex1-pink`, `ex1-blue`.
+
+### Observed admin/manager CSS tokens
+
+`bg`, `panel`, `line`, `text`, `muted`, `purple`, `cyan`, `green`, `ex1-glow-purple`, `ex1-glow-cyan`, `ex1-neon`, `ex1-cyan`, `ex1-violet`, `ex1-pink`, `ex1-blue`, `ex1-glow`.
+
+### Observed font stacks
+
+- Player: `Tahoma, Arial, sans-serif`; `system-ui, sans-serif`; `Arial, sans-serif`; `monospace`.
+- Admin/manager: `system-ui, Tahoma, Arial, sans-serif`.
+
+### Interpretation and next inspection pass
+
+- Player source includes 21 distinct listener event types, including visibility/page lifecycle, pointer, touch, keyboard, form and context-menu interactions. A native port must account for lifecycle and gesture semantics, not only button clicks.
+- Admin and manager have equal named RPC/Edge Function counts but differ in function count, markup and CSS blocks; identical API names do not imply identical UI permissions or behavior.
+- The direct resource inventory includes Storage bucket names used through `.from()`; table and bucket references must be classified separately before implementing the repository layer.
+- Next pass must trace function bodies and listener registrations to the exact DOM elements and state transitions, then map each to a native screen test.
