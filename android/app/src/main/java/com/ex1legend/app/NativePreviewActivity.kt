@@ -387,8 +387,30 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                     }
                 },
                 onOpenRoom = openRoom,
-                team = team,
                 notifications = notifications,
+                onMarkNotificationRead = { notificationId ->
+                    scope.launch {
+                        val current = session ?: return@launch
+                        try {
+                            NativeEx1Api.markNotificationRead(current, notificationId, java.time.Instant.now().toString())
+                            notifications = NativeEx1Api.notifications(current)
+                        } catch (e: Exception) {
+                            error = e.message ?: "ثبت وضعیت اعلان ناموفق بود."
+                        }
+                    }
+                },
+                onDeleteNotification = { notificationId ->
+                    scope.launch {
+                        val current = session ?: return@launch
+                        try {
+                            NativeEx1Api.deleteNotification(current, notificationId)
+                            notifications = NativeEx1Api.notifications(current)
+                        } catch (e: Exception) {
+                            error = e.message ?: "حذف اعلان ناموفق بود."
+                        }
+                    }
+                },
+                team = team,
                 teamBusy = busy,
                 teamInvites = teamInvites,
                 sentTeamInvites = sentTeamInvites,
@@ -486,6 +508,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                             when (activeTab) {
                                 "profile" -> profile = NativeEx1Api.profile(current)
                                 "wallet" -> wallet = NativeEx1Api.wallet(current)
+                                "notifications" -> notifications = NativeEx1Api.notifications(current)
                                 else -> rooms = NativeEx1Api.rooms(current)
                             }
                             error = null
