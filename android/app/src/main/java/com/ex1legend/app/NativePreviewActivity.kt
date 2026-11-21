@@ -260,10 +260,15 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                     scope.launch {
                         loading = true
                         try {
-                            rooms = NativeEx1Api.rooms(session)
+                            val current = session ?: return@launch
+                            when (activeTab) {
+                                "profile" -> profile = NativeEx1Api.profile(current)
+                                "wallet" -> wallet = NativeEx1Api.wallet(current)
+                                else -> rooms = NativeEx1Api.rooms(current)
+                            }
                             error = null
                         } catch (e: Exception) {
-                            error = e.message ?: "دریافت روم‌ها ناموفق بود."
+                            error = e.message ?: "دریافت اطلاعات ناموفق بود."
                         } finally {
                             loading = false
                         }
