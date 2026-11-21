@@ -3,13 +3,11 @@ package com.ex1legend.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -272,12 +271,12 @@ private fun PlayerPreviewPanel(
             Button(onClick = onRefresh) { Text("به‌روزرسانی") }
         }
         Spacer(Modifier.height(14.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
             listOf("all" to "برای شما", "battle_royale" to "بتل‌رویال", "fight" to "فایت", "multiplayer" to "مولتی", "uncategorized" to "بدون دسته").forEach { (key, label) ->
                 FilterChip(selected = category == key, onClick = { onCategory(key) }, label = { Text(label, fontSize = 11.sp) })
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
             listOf("all" to "همه قیمت‌ها", "free" to "رایگان", "economy" to "اقتصادی", "expensive" to "گران").forEach { (key, label) ->
                 FilterChip(selected = price == key, onClick = { onPrice(key) }, label = { Text(label, fontSize = 11.sp) })
             }
