@@ -151,7 +151,19 @@ data class NativeProfile(
     val username: String?,
     val gameUid: String?,
     val gameName: String?,
-    val avatarUrl: String?
+    val avatarUrl: String?,
+    val bio: String?
+)
+
+data class NativePublicProfile(
+    val id: String,
+    val displayName: String?,
+    val username: String?,
+    val gameName: String?,
+    val avatarUrl: String?,
+    val coverUrl: String?,
+    val bio: String?,
+    val roleBadge: String?
 )
 
 data class NativeWalletEntry(
@@ -688,7 +700,7 @@ object NativeEx1Api {
     suspend fun profile(session: NativeSession): NativeProfile? = withContext(Dispatchers.IO) {
         val rows = request(
             "GET",
-            "/rest/v1/profiles?select=id,display_name,username,game_uid,game_name,avatar_url&id=eq.${session.userId}&limit=1",
+            "/rest/v1/profiles?select=id,display_name,username,game_uid,game_name,avatar_url,bio&id=eq.${session.userId}&limit=1",
             session
         ) as? JSONArray ?: return@withContext null
         if (rows.length() == 0) return@withContext null
@@ -700,7 +712,60 @@ object NativeEx1Api {
             optional("username"),
             optional("game_uid"),
             optional("game_name"),
-            optional("avatar_url")
+            optional("avatar_url"),
+            optional("bio")
+        )
+    }
+
+    suspend fun explorePlayers(session: NativeSession, query: String): List<NativePublicProfile> = withContext(Dispatchers.IO) {
+        val clean = query.trim().take(40).replace(Regex("[%*(),\\\\\\\"]"), " ").replace(Regex("\\s+"), " ")
+        val base = "/rest/v1/profiles?select=id,display_name,username,game_name,avatar_url,cover_url,bio&id=neq.${session.userId}&order=created_at.desc&limit=50"
+        val path = if (clean.isBlank()) base else base + "&or=" +
+            java.net.URLEncoder.encode("(display_name.ilike.*$clean*,username.ilike.*$clean*)", "UTF-8")
+        val rows = request("GET", path, session) as? JSONArray ?: JSONArray()
+        (0 until rows.length()).mapNotNull { index ->
+            val row = rows.optJSONObject(index) ?: return@mapNotNull null
+            fun optional(name: String) = row.optString(name).takeIf { it.isNotBlank() && it != "null" }
+            NativePublicProfile(
+                row.optString("id"),
+                optional("display_name"),
+                optional("username"),
+                optional("game_name"),
+                optional("avatar_url"),
+                optional("cover_url"),
+                optional("bio"),
+                null
+            )
+        }
+    }
+
+    suspend fun publicProfile(session: NativeSession, userId: String): NativePublicProfile? = withContext(Dispatchers.IO) {
+        if (!userId.matches(Regex("[0-9a-fA-F-]{36}"))) throw IllegalArgumentException("شناسه بازیکن معتبر نیست.")
+        val rows = request(
+            "GET",
+            "/rest/v1/profiles?select=id,display_name,username,game_name,avatar_url,cover_url,bio&id=eq.$userId&limit=1",
+            session
+        ) as? JSONArray ?: JSONArray()
+        if (rows.length() == 0) return@withContext null
+        val row = rows.getJSONObject(0)
+        fun optional(name: String) = row.optString(name).takeIf { it.isNotBlank() && it != "null" }
+        val badges = request(
+            "POST",
+            "/rest/v1/rpc/ex1_public_role_badges",
+            session,
+            JSONObject().put("p_user_ids", JSONArray().put(userId))
+        ) as? JSONArray ?: JSONArray()
+        val badge = (0 until badges.length()).mapNotNull { badges.optJSONObject(it) }
+            .firstOrNull { it.optString("user_id") == userId }?.optString("badge_type")?.takeIf { it.isNotBlank() }
+        NativePublicProfile(
+            row.optString("id"),
+            optional("display_name"),
+            optional("username"),
+            optional("game_name"),
+            optional("avatar_url"),
+            optional("cover_url"),
+            optional("bio"),
+            badge
         )
     }
 
@@ -709,7 +774,8 @@ object NativeEx1Api {
         displayName: String,
         username: String,
         gameUid: String,
-        gameName: String
+        gameName: String,
+        bio: String
     ): JSONObject = withContext(Dispatchers.IO) {
         request(
             "POST",
@@ -720,6 +786,7 @@ object NativeEx1Api {
                 .put("username", username.trim().ifBlank { JSONObject.NULL })
                 .put("game_uid", gameUid.trim().ifBlank { JSONObject.NULL })
                 .put("game_name", gameName.trim().ifBlank { JSONObject.NULL })
+                .put("bio", bio.trim().ifBlank { JSONObject.NULL })
         ) as? JSONObject ?: throw IllegalStateException("پاسخ ذخیره پروفایل معتبر نیست.")
     }
 
