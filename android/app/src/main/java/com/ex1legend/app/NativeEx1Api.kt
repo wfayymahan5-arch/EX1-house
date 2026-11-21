@@ -194,7 +194,7 @@ data class NativeWallet(
 class NativeApiException(val status: Int, message: String) : Exception(message)
 
 internal fun hasNativeAdminAccess(isOwner: Boolean, permissions: Collection<String>): Boolean =
-    isOwner || permissions.isNotEmpty()
+    isOwner || permissions.any { it.isNotBlank() }
 
 private fun isBioColumnUnavailable(error: NativeApiException): Boolean {
     val message = error.message.orEmpty().lowercase()
