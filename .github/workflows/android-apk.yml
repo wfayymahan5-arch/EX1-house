@@ -22,6 +22,7 @@ on:
   push:
     branches:
       - feature/android-shell-current-main
+      - feature/native-android-migration
 
 permissions:
   contents: write
