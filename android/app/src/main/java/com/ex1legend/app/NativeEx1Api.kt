@@ -5,6 +5,7 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -776,7 +777,7 @@ object NativeEx1Api {
         val canTeams = permissions.contains("teams.view")
         val canUsers = permissions.contains("users.view") || permissions.contains("profiles.view_all")
         val canWallet = permissions.contains("wallet.view_all")
-        val tournaments = kotlinx.coroutines.async { if (canTournaments) adminRows(session, "admin_dashboard_tournaments") else emptyList() }
+        val tournaments = async { if (canTournaments) adminRows(session, "admin_dashboard_tournaments") else emptyList() }
         val registrations = kotlinx.coroutines.async { if (canRegistrations) adminRows(session, "admin_dashboard_registrations") else emptyList() }
         val teams = kotlinx.coroutines.async { if (canTeams) adminRows(session, "admin_dashboard_teams") else emptyList() }
         val users = kotlinx.coroutines.async { if (canUsers) adminRows(session, "admin_dashboard_users") else emptyList() }
