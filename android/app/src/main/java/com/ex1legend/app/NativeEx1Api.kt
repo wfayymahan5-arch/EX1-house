@@ -44,6 +44,44 @@ data class NativeRoom(
     val firstPrize: Long
 )
 
+data class NativeTeamMember(
+    val userId: String,
+    val displayName: String,
+    val username: String?,
+    val gameName: String?,
+    val role: String,
+    val joinedAt: String?
+)
+
+data class NativeTeam(
+    val id: String,
+    val name: String,
+    val tag: String?,
+    val description: String?,
+    val captainId: String,
+    val logoUrl: String?,
+    val members: List<NativeTeamMember>
+) {
+    val isCaptain: Boolean get() = members.any { it.userId == captainId }
+}
+
+data class NativeTeamInvite(
+    val id: String,
+    val teamId: String,
+    val teamName: String,
+    val teamTag: String?,
+    val inviterName: String,
+    val inviterUsername: String?,
+    val createdAt: String
+)
+
+data class NativeSentTeamInvite(
+    val id: String,
+    val displayName: String,
+    val username: String?,
+    val createdAt: String
+)
+
 data class NativeRoomSlot(
     val number: Int,
     val teamName: String,
@@ -285,6 +323,154 @@ object NativeEx1Api {
                 firstPrize = row.optLong("prize_demo_points")
             )
         }
+    }
+
+    suspend fun myTeam(session: NativeSession): NativeTeam? = withContext(Dispatchers.IO) {
+        val memberships = request(
+            "GET",
+            "/rest/v1/team_members?select=team_id,role&user_id=eq.${session.userId}&limit=1",
+            session
+        ) as? JSONArray ?: JSONArray()
+        if (memberships.length() == 0) return@withContext null
+        val teamId = memberships.getJSONObject(0).optString("team_id")
+        if (teamId.isBlank()) return@withContext null
+        val teamRows = request(
+            "GET",
+            "/rest/v1/teams?select=id,name,tag,description,captain_id,logo_url&id=eq.$teamId&limit=1",
+            session
+        ) as? JSONArray ?: JSONArray()
+        if (teamRows.length() == 0) return@withContext null
+        val team = teamRows.getJSONObject(0)
+        val memberRows = request(
+            "GET",
+            "/rest/v1/team_members?select=user_id,role,joined_at&team_id=eq.$teamId&order=joined_at.asc",
+            session
+        ) as? JSONArray ?: JSONArray()
+        val ids = (0 until memberRows.length()).mapNotNull { memberRows.optJSONObject(it)?.optString("user_id") }
+            .filter { it.isNotBlank() }
+        val profiles = if (ids.isEmpty()) JSONArray() else {
+            request(
+                "GET",
+                "/rest/v1/profiles?select=id,display_name,username,game_name&id=in.(${ids.joinToString(",")})",
+                session
+            ) as? JSONArray ?: JSONArray()
+        }
+        val profilesById = (0 until profiles.length()).mapNotNull { profiles.optJSONObject(it) }
+            .associateBy { it.optString("id") }
+        val members = (0 until memberRows.length()).mapNotNull { index ->
+            val row = memberRows.optJSONObject(index) ?: return@mapNotNull null
+            val userId = row.optString("user_id")
+            val person = profilesById[userId] ?: JSONObject()
+            NativeTeamMember(
+                userId,
+                person.optString("display_name").ifBlank { "بازیکن" },
+                person.optString("username").takeIf { it.isNotBlank() && it != "null" },
+                person.optString("game_name").takeIf { it.isNotBlank() && it != "null" },
+                row.optString("role"),
+                row.optString("joined_at").takeIf { it.isNotBlank() && it != "null" }
+            )
+        }
+        NativeTeam(
+            team.optString("id"),
+            team.optString("name"),
+            team.optString("tag").takeIf { it.isNotBlank() && it != "null" },
+            team.optString("description").takeIf { it.isNotBlank() && it != "null" },
+            team.optString("captain_id"),
+            team.optString("logo_url").takeIf { it.isNotBlank() && it != "null" },
+            members
+        )
+    }
+
+    suspend fun incomingTeamInvites(session: NativeSession): List<NativeTeamInvite> = withContext(Dispatchers.IO) {
+        val rows = request(
+            "GET",
+            "/rest/v1/team_invites?select=id,team_id,created_at,teams(name,tag),profiles!team_invites_invited_by_fkey(display_name,username)&invited_user_id=eq.${session.userId}&status=eq.pending&order=created_at.desc",
+            session
+        ) as? JSONArray ?: JSONArray()
+        (0 until rows.length()).mapNotNull { index ->
+            val row = rows.optJSONObject(index) ?: return@mapNotNull null
+            val team = row.optJSONObject("teams") ?: JSONObject()
+            val inviter = row.optJSONObject("profiles") ?: JSONObject()
+            NativeTeamInvite(
+                row.optString("id"),
+                row.optString("team_id"),
+                team.optString("name", "تیم EX1"),
+                team.optString("tag").takeIf { it.isNotBlank() && it != "null" },
+                inviter.optString("display_name").ifBlank { inviter.optString("username", "کاپیتان") },
+                inviter.optString("username").takeIf { it.isNotBlank() && it != "null" },
+                row.optString("created_at")
+            )
+        }
+    }
+
+    suspend fun sentTeamInvites(session: NativeSession, teamId: String): List<NativeSentTeamInvite> = withContext(Dispatchers.IO) {
+        val rows = request(
+            "GET",
+            "/rest/v1/team_invites?select=id,created_at,profiles!team_invites_invited_user_id_fkey(display_name,username)&team_id=eq.$teamId&status=eq.pending&order=created_at.desc",
+            session
+        ) as? JSONArray ?: JSONArray()
+        (0 until rows.length()).mapNotNull { index ->
+            val row = rows.optJSONObject(index) ?: return@mapNotNull null
+            val person = row.optJSONObject("profiles") ?: JSONObject()
+            NativeSentTeamInvite(
+                row.optString("id"),
+                person.optString("display_name").ifBlank { "بازیکن" },
+                person.optString("username").takeIf { it.isNotBlank() && it != "null" },
+                row.optString("created_at")
+            )
+        }
+    }
+
+    suspend fun createTeam(session: NativeSession, name: String, tag: String, description: String): JSONObject = withContext(Dispatchers.IO) {
+        request(
+            "POST",
+            "/functions/v1/manage-team",
+            session,
+            JSONObject().put("action", "create").put("name", name.trim())
+                .put("tag", tag.trim().uppercase().ifBlank { JSONObject.NULL })
+                .put("description", description.trim().ifBlank { JSONObject.NULL })
+        ) as? JSONObject ?: throw IllegalStateException("پاسخ ساخت تیم معتبر نیست.")
+    }
+
+    suspend fun updateTeam(session: NativeSession, teamId: String, name: String, tag: String, description: String): JSONObject = withContext(Dispatchers.IO) {
+        request(
+            "POST",
+            "/functions/v1/manage-team",
+            session,
+            JSONObject().put("action", "update").put("team_id", teamId)
+                .put("name", name.trim())
+                .put("tag", tag.trim().uppercase().ifBlank { JSONObject.NULL })
+                .put("description", description.trim().ifBlank { JSONObject.NULL })
+        ) as? JSONObject ?: throw IllegalStateException("پاسخ ویرایش تیم معتبر نیست.")
+    }
+
+    suspend fun createTeamInvite(session: NativeSession, username: String) = withContext(Dispatchers.IO) {
+        request("POST", "/rest/v1/rpc/team_invite_create", session, JSONObject().put("p_username", username.trim()))
+    }
+
+    suspend fun respondTeamInvite(session: NativeSession, inviteId: String, accept: Boolean) = withContext(Dispatchers.IO) {
+        request(
+            "POST",
+            "/rest/v1/rpc/team_invite_respond",
+            session,
+            JSONObject().put("p_invite_id", inviteId).put("p_accept", accept)
+        )
+    }
+
+    suspend fun cancelTeamInvite(session: NativeSession, inviteId: String) = withContext(Dispatchers.IO) {
+        request("POST", "/rest/v1/rpc/team_invite_cancel", session, JSONObject().put("p_invite_id", inviteId))
+    }
+
+    suspend fun removeTeamMember(session: NativeSession, userId: String) = withContext(Dispatchers.IO) {
+        request("POST", "/rest/v1/rpc/team_member_remove", session, JSONObject().put("p_user_id", userId))
+    }
+
+    suspend fun leaveTeam(session: NativeSession) = withContext(Dispatchers.IO) {
+        request("POST", "/rest/v1/rpc/team_leave", session, JSONObject())
+    }
+
+    suspend fun deleteTeam(session: NativeSession) = withContext(Dispatchers.IO) {
+        request("POST", "/rest/v1/rpc/team_delete", session, JSONObject())
     }
 
     suspend fun roomSlots(session: NativeSession, roomId: String): List<NativeRoomSlot> = withContext(Dispatchers.IO) {
