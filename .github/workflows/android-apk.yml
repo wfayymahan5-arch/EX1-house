@@ -24,8 +24,12 @@ on:
       - feature/android-shell-current-main
       - feature/native-android-migration
 
+concurrency:
+  group: ex1-android-build-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
