@@ -84,7 +84,7 @@ private object NativeSessionVault {
             .apply()
     }
 
-    fun load(context: Context): NativeSession? = try {
+    fun load(context: Context): NativeSession? {\n        return try {
         val encoded = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .getString(VALUE, null) ?: return null
         val packed = Base64.decode(encoded, Base64.NO_WRAP)
