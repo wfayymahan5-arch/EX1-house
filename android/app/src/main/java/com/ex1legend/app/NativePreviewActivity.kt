@@ -565,6 +565,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                             when (activeTab) {
                                 "profile" -> profile = NativeEx1Api.profile(current)
                                 "wallet" -> wallet = NativeEx1Api.wallet(current)
+                                "team" -> refreshTeam(current)
                                 "notifications" -> notifications = NativeEx1Api.notifications(current)
                                 "support" -> {
                                     val latest = NativeEx1Api.latestSupportConversation(current)
