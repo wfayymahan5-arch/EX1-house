@@ -193,6 +193,9 @@ data class NativeWallet(
 
 class NativeApiException(val status: Int, message: String) : Exception(message)
 
+internal fun hasNativeAdminAccess(isOwner: Boolean, permissions: Collection<String>): Boolean =
+    isOwner || permissions.isNotEmpty()
+
 private fun isBioColumnUnavailable(error: NativeApiException): Boolean {
     val message = error.message.orEmpty().lowercase()
     return error.status == 400 && message.contains("bio") &&
