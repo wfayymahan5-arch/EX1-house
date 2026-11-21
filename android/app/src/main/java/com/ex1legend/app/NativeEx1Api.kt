@@ -166,6 +166,18 @@ data class NativePublicProfile(
     val roleBadge: String?
 )
 
+data class NativeRankedPlayer(
+    val userId: String?,
+    val playerName: String,
+    val username: String?,
+    val gameName: String?,
+    val tournamentTitle: String?,
+    val roomTitle: String?,
+    val placement: Int?,
+    val kills: Int,
+    val points: Int
+)
+
 data class NativeWalletEntry(
     val type: String,
     val amount: Long,
@@ -801,6 +813,34 @@ object NativeEx1Api {
             optional("bio"),
             badge
         )
+    }
+
+    suspend fun rankingPlayers(session: NativeSession): List<NativeRankedPlayer> = withContext(Dispatchers.IO) {
+        val rows = request(
+            "GET",
+            "/rest/v1/tournament_player_results?select=user_id,placement,kills,points,profiles(id,display_name,username,game_name),tournaments(title),tournament_rooms(title)&order=points.desc,kills.desc&limit=30",
+            session
+        ) as? JSONArray ?: JSONArray()
+        (0 until rows.length()).mapNotNull { index ->
+            val row = rows.optJSONObject(index) ?: return@mapNotNull null
+            val person = row.optJSONObject("profiles") ?: JSONObject()
+            val tournament = row.optJSONObject("tournaments") ?: JSONObject()
+            val room = row.optJSONObject("tournament_rooms") ?: JSONObject()
+            val gameName = person.optString("game_name").takeIf { it.isNotBlank() && it != "null" }
+            val displayName = person.optString("display_name").takeIf { it.isNotBlank() && it != "null" }
+            val username = person.optString("username").takeIf { it.isNotBlank() && it != "null" }
+            NativeRankedPlayer(
+                row.optString("user_id").takeIf { it.isNotBlank() && it != "null" },
+                gameName ?: displayName ?: username ?: "بازیکن",
+                username,
+                gameName,
+                tournament.optString("title").takeIf { it.isNotBlank() && it != "null" },
+                room.optString("title").takeIf { it.isNotBlank() && it != "null" },
+                row.optInt("placement").takeIf { !row.isNull("placement") },
+                row.optInt("kills"),
+                row.optInt("points")
+            )
+        }
     }
 
     suspend fun updateProfile(
