@@ -929,78 +929,142 @@ private fun PlayerPreviewPanel(
     onPrice: (String) -> Unit,
     onRefresh: () -> Unit,
     onSignOut: () -> Unit
-) {
-    Column(Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 12.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+) { 
+    Column(Modifier.fillMaxSize().background(Color(0xFF090817))) {
+        // Header mirrors the existing EX1 web app: brand, connection status and quick actions.
+        Row(
+            modifier = Modifier.fillMaxWidth().background(Color(0xF00A0818)).padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            TextButton(onClick = { onTab("profile") }) { Text("پروفایل من", color = Color(0xFFD9C8F4), fontSize = 11.sp) }
+            Text("⚙", color = Color(0xFFE8DDF7), fontSize = 20.sp)
             Column(Modifier.weight(1f)) {
-                Text("EX1 LEGEND", fontWeight = FontWeight.Black, fontSize = 23.sp)
-                Text("نسخه Native · پیش‌نمایش بازیکن", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+                Text("EX1", color = Color(0xFFC17CFF), fontWeight = FontWeight.Black, fontSize = 22.sp)
+                Text("LEGEND", color = Color.White, fontWeight = FontWeight.Black, fontSize = 19.sp)
             }
-            Button(onClick = onRefresh) { Text("به‌روزرسانی") }
+            Column(
+                modifier = Modifier.background(Color(0xFF17152A), RoundedCornerShape(14.dp)).padding(horizontal = 12.dp, vertical = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Text("●", color = Color(0xFF45D8A1), fontSize = 9.sp)
+                    Text("متصل به", color = Color(0xFFBBA8D8), fontSize = 10.sp)
+                }
+                Text("EX1", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            }
+            TextButton(onClick = onRefresh) { Text("⌕", color = Color.White, fontSize = 20.sp) }
         }
-        Spacer(Modifier.height(12.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-            FilterChip(selected = activeTab == "rooms", onClick = { onTab("rooms") }, label = { Text("روم‌ها") })
-            FilterChip(selected = activeTab == "explore", onClick = { onTab("explore") }, label = { Text("اکسپلور") })
-            FilterChip(selected = activeTab == "ranking", onClick = { onTab("ranking") }, label = { Text("رتبه‌بندی") })
-            FilterChip(selected = activeTab == "profile", onClick = { onTab("profile") }, label = { Text("پروفایل") })
-            FilterChip(selected = activeTab == "wallet", onClick = { onTab("wallet") }, label = { Text("کیف پول مجازی") })
-            FilterChip(selected = activeTab == "team", onClick = { onTab("team") }, label = { Text("تیم") })
-            FilterChip(selected = activeTab == "notifications", onClick = { onTab("notifications") }, label = { Text("اعلان‌ها") })
-            FilterChip(selected = activeTab == "support", onClick = { onTab("support") }, label = { Text("پشتیبانی") })
-            FilterChip(selected = activeTab == "settings", onClick = { onTab("settings") }, label = { Text("تنظیمات") })
-        }
-        if (!error.isNullOrBlank()) Text(error, color = if (error.contains("ذخیره شد") || error.contains("بررسی ارسال")) Color(0xFFBFA0F4) else Color(0xFFFFA2A2), modifier = Modifier.padding(vertical = 8.dp))
-        when (activeTab) {
-            "profile" -> ProfilePreviewPanel(profile = profile, onSave = onSaveProfile)
-            "explore" -> ExplorePreviewPanel(explorePlayers, exploreQuery, onExploreQuery, onSearchExplore, onOpenPublicProfile)
-            "ranking" -> RankingPreviewPanel(rankingPlayers, onOpenPublicProfile)
-            "wallet" -> WalletPreviewPanel(wallet = wallet)
-            "notifications" -> NotificationsPreviewPanel(notifications, teamBusy, onMarkNotificationRead, onDeleteNotification)
-            "support" -> SupportPreviewPanel(supportMessages, supportHint, supportError, supportHandoff, supportBusy, supportSendRevision, onNewSupport, onSendSupport)
-            "team" -> TeamPreviewPanel(
-                team = team,
-                invites = teamInvites,
-                sentInvites = sentTeamInvites,
-                message = teamMessage,
-                error = teamError,
-                busy = teamBusy,
-                onCreateTeam = onCreateTeam,
-                onUpdateTeam = onUpdateTeam,
-                onInvite = onInvite,
-                onRespondInvite = onRespondInvite,
-                onCancelInvite = onCancelInvite,
-                onTeamAction = onTeamAction
-            )
-            "settings" -> SettingsPreviewPanel(onDeleteAccount = onDeleteAccount)
-            else -> {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
-                    listOf("all" to "برای شما", "battle_royale" to "بتل‌رویال", "fight" to "فایت", "multiplayer" to "مولتی", "uncategorized" to "بدون دسته").forEach { (key, label) ->
-                        FilterChip(selected = category == key, onClick = { onCategory(key) }, label = { Text(label, fontSize = 11.sp) })
+
+        Box(Modifier.weight(1f).fillMaxWidth()) {
+            when (activeTab) {
+                "profile" -> ProfilePreviewPanel(profile = profile, onSave = onSaveProfile)
+                "explore" -> ExplorePreviewPanel(explorePlayers, exploreQuery, onExploreQuery, onSearchExplore, onOpenPublicProfile)
+                "ranking" -> RankingPreviewPanel(rankingPlayers, onOpenPublicProfile)
+                "wallet" -> WalletPreviewPanel(wallet = wallet)
+                "notifications" -> NotificationsPreviewPanel(notifications, teamBusy, onMarkNotificationRead, onDeleteNotification)
+                "support" -> SupportPreviewPanel(supportMessages, supportHint, supportError, supportHandoff, supportBusy, supportSendRevision, onNewSupport, onSendSupport)
+                "team" -> TeamPreviewPanel(
+                    team = team, invites = teamInvites, sentInvites = sentTeamInvites,
+                    message = teamMessage, error = teamError, busy = teamBusy,
+                    onCreateTeam = onCreateTeam, onUpdateTeam = onUpdateTeam, onInvite = onInvite,
+                    onRespondInvite = onRespondInvite, onCancelInvite = onCancelInvite, onTeamAction = onTeamAction
+                )
+                "settings" -> SettingsPreviewPanel(onDeleteAccount = onDeleteAccount)
+                else -> Column(Modifier.fillMaxSize()) {
+                    Column(
+                        Modifier.fillMaxWidth().background(
+                            brush = androidx.compose.ui.graphics.Brush.linearGradient(
+                                listOf(Color(0xFF32164F), Color(0xFF101B32), Color(0xFF092A38))
+                            ),
+                            shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
+                        ).padding(horizontal = 20.dp, vertical = 24.dp)
+                    ) {
+                        Text("EX1 LEGEND COMMUNITY", color = Color(0xFFD5A7FF), fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
+                        Spacer(Modifier.height(8.dp))
+                        Text("میدان بازیکنان", color = Color.White, fontSize = 27.sp, fontWeight = FontWeight.Bold)
+                        Text("بازیکنان جامعه EX1 را پیدا کن و در رقابت‌ها شرکت کن.", color = Color(0xFFC6BBD9), fontSize = 12.sp)
                     }
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
-                    listOf("all" to "همه قیمت‌ها", "free" to "رایگان", "economy" to "اقتصادی", "expensive" to "گران").forEach { (key, label) ->
-                        FilterChip(selected = price == key, onClick = { onPrice(key) }, label = { Text(label, fontSize = 11.sp) })
+                    Row(
+                        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+                            .background(Color(0xFF17152A), RoundedCornerShape(22.dp)).padding(5.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        listOf("explore" to "اکسپلور بازیکنان", "support" to "چت").forEach { (key, label) ->
+                            Box(
+                                Modifier.weight(1f).background(
+                                    if (activeTab == key) Color(0xFF34313F) else Color.Transparent,
+                                    RoundedCornerShape(16.dp)
+                                ).clickable { onTab(key) }.padding(vertical = 14.dp),
+                                contentAlignment = Alignment.Center
+                            ) { Text(label, color = if (activeTab == key) Color.White else Color(0xFFAAA2B8), fontWeight = FontWeight.SemiBold) }
+                        }
                     }
-                }
-                val visibleRooms = rooms.filter {
-                    (category == "all" || it.gameCategory == category) &&
-                        (price == "all" || it.priceCategory == price)
-                }
-                if (visibleRooms.isEmpty()) {
-                    Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Text("در این دسته روم فعالی پیدا نشد.", color = Color(0xFFAAA2B8))
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf("مسابقات" to "روم‌های فعال", "قهرمانان" to "رتبه‌ها", "مبلغ" to "کیف پول آزمایشی").forEach { (title, subtitle) ->
+                            Card(
+                                modifier = Modifier.weight(1f).clickable {
+                                    onTab(when (title) { "مسابقات" -> "rooms"; "قهرمانان" -> "ranking"; else -> "wallet" })
+                                },
+                                shape = RoundedCornerShape(20.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFF191629))
+                            ) {
+                                Column(Modifier.fillMaxWidth().padding(12.dp)) {
+                                    Text("↗", color = Color(0xFFC17CFF), fontSize = 16.sp)
+                                    Spacer(Modifier.height(12.dp))
+                                    Text(title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                    Text(subtitle, color = Color(0xFFAAA2B8), fontSize = 10.sp)
+                                }
+                            }
+                        }
                     }
-                } else {
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.weight(1f)) {
-                        items(visibleRooms, key = { it.id }) { room -> RoomPreviewCard(room, onOpen = { onOpenRoom(room) }) }
+                    if (activeTab == "explore") {
+                        Column(Modifier.weight(1f).padding(horizontal = 16.dp, vertical = 12.dp)) {
+                            ExplorePreviewPanel(explorePlayers, exploreQuery, onExploreQuery, onSearchExplore, onOpenPublicProfile)
+                        }
+                    } else {
+                        Column(Modifier.weight(1f).padding(horizontal = 16.dp, vertical = 12.dp)) {
+                            Text("اکسپلور بازیکنان", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            Text("بازیکنان جامعه EX1 را پیدا کن", color = Color(0xFFAAA2B8), fontSize = 11.sp)
+                            Spacer(Modifier.height(10.dp))
+                            if (rooms.isEmpty()) {
+                                Box(
+                                    Modifier.fillMaxWidth().weight(1f).background(Color(0xFF17152A), RoundedCornerShape(20.dp)),
+                                    contentAlignment = Alignment.Center
+                                ) { Text("برای دیدن بازیکنان وارد حساب شو.", color = Color(0xFFD8D1E3), fontSize = 13.sp) }
+                            } else {
+                                LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    items(rooms.filter {
+                                        (category == "all" || it.gameCategory == category) &&
+                                            (price == "all" || it.priceCategory == price)
+                                    }, key = { it.id }) { room -> RoomPreviewCard(room, onOpen = { onOpenRoom(room) }) }
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-        Spacer(Modifier.height(8.dp))
-        Button(onClick = onSignOut, modifier = Modifier.fillMaxWidth()) { Text("خروج از حساب") }
+
+        if (!error.isNullOrBlank()) {
+            Text(error, color = Color(0xFFFFA2A2), modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), fontSize = 11.sp)
+        }
+        Row(
+            Modifier.fillMaxWidth().background(Color(0xFF111022)).padding(horizontal = 8.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            listOf("profile" to "پروفایل", "ranking" to "قهرمانان", "rooms" to "مسابقات", "home" to "خانه").forEach { (key, label) ->
+                val selected = (key == "home" && activeTab == "rooms") || activeTab == key
+                TextButton(onClick = { onTab(if (key == "home") "rooms" else key) }) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(when (key) { "profile" -> "♙"; "ranking" -> "✦"; "rooms" -> "♜"; else -> "⌂" },
+                            color = if (selected) Color(0xFFC58BFF) else Color(0xFF9C92AD), fontSize = 19.sp)
+                        Text(label, color = if (selected) Color(0xFFC58BFF) else Color(0xFF9C92AD), fontSize = 10.sp)
+                    }
+                }
+            }
+        }
     }
 }
 
