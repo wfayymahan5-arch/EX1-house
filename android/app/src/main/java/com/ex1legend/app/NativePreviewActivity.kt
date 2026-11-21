@@ -313,8 +313,14 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 if (result.optBoolean("pending_review")) {
                     error = result.optString("message", "پروفایل برای بررسی ارسال شد.")
                 } else if (result.optBoolean("success")) {
-                    profile = NativeEx1Api.profile(current)
-                    error = "پروفایل ذخیره شد."
+                    val refreshedProfile = NativeEx1Api.profile(current)
+                    profile = refreshedProfile
+                    val expectedBio = bio.trim().ifBlank { null }
+                    error = if (refreshedProfile?.bio == expectedBio) {
+                        "پروفایل ذخیره شد."
+                    } else {
+                        "اطلاعات پروفایل ذخیره شد، اما سرور هنوز ذخیره بیوگرافی را تأیید نکرده است؛ این قابلیت پس از به‌روزرسانی هم‌زمان سرور و پایگاه داده فعال می‌شود."
+                    }
                 } else {
                     error = result.optString("error", "ذخیره پروفایل انجام نشد.")
                 }
