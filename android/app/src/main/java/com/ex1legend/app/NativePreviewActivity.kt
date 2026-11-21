@@ -103,6 +103,11 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var permissions by remember { mutableStateOf<List<String>>(emptyList()) }
     var team by remember { mutableStateOf<NativeTeam?>(null) }
     var notifications by remember { mutableStateOf<List<NativeNotification>>(emptyList()) }
+    var supportConversationId by remember { mutableStateOf<String?>(null) }
+    var supportMessages by remember { mutableStateOf<List<NativeSupportMessage>>(emptyList()) }
+    var supportHint by remember { mutableStateOf("برای شروع، پیام خودت را بنویس.") }
+    var supportError by remember { mutableStateOf<String?>(null) }
+    var supportHandoff by remember { mutableStateOf(false) }
     var teamInvites by remember { mutableStateOf<List<NativeTeamInvite>>(emptyList()) }
     var sentTeamInvites by remember { mutableStateOf<List<NativeSentTeamInvite>>(emptyList()) }
     var teamMessage by remember { mutableStateOf<String?>(null) }
@@ -385,6 +390,12 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                     "wallet" -> wallet = NativeEx1Api.wallet(current)
                                     "team" -> refreshTeam(current)
                                     "notifications" -> notifications = NativeEx1Api.notifications(current)
+                                    "support" -> {
+                                        val latest = NativeEx1Api.latestSupportConversation(current)
+                                        supportConversationId = latest?.id
+                                        supportMessages = if (latest == null) emptyList() else NativeEx1Api.supportMessages(current, latest.id)
+                                        supportHint = if (latest == null) "گفت‌وگوی تازه آماده است؛ پیام اول را بنویس." else "گفت‌وگوی پشتیبانی"
+                                    }
                                 }
                                 error = null
                             } catch (e: Exception) {
@@ -397,6 +408,35 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 },
                 onOpenRoom = openRoom,
                 notifications = notifications,
+                supportMessages = supportMessages,
+                supportHint = supportHint,
+                supportError = supportError,
+                supportHandoff = supportHandoff,
+                onNewSupport = {
+                    supportConversationId = null
+                    supportMessages = emptyList()
+                    supportHandoff = false
+                    supportError = null
+                    supportHint = "گفت‌وگوی تازه آماده است؛ پیام اول را بنویس."
+                },
+                onSendSupport = { message ->
+                    scope.launch {
+                        supportError = null
+                        supportHint = "در حال دریافت پاسخ..."
+                        try {
+                            val current = session ?: throw IllegalStateException("ابتدا وارد حساب شو.")
+                            val result = NativeEx1Api.sendSupportMessage(current, message, supportConversationId)
+                            if (!result.optBoolean("success")) throw IllegalStateException(result.optString("error", "پاسخی دریافت نشد."))
+                            supportConversationId = result.optString("conversation_id").takeIf { it.isNotBlank() && it != "null" }
+                            supportHandoff = result.optBoolean("handoff")
+                            supportMessages = if (supportConversationId == null) supportMessages else NativeEx1Api.supportMessages(current, supportConversationId!!)
+                            supportHint = if (supportHandoff) "این گفت‌وگو در صف پشتیبان انسانی است." else "پاسخ پشتیبانی دریافت شد."
+                        } catch (e: Exception) {
+                            supportError = e.message ?: "ارسال پیام انجام نشد."
+                            supportHint = "ارسال پیام ناموفق بود؛ دوباره تلاش کن."
+                        }
+                    }
+                },
                 onMarkNotificationRead = { notificationId ->
                     scope.launch {
                         val current = session ?: return@launch
@@ -518,6 +558,11 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                 "profile" -> profile = NativeEx1Api.profile(current)
                                 "wallet" -> wallet = NativeEx1Api.wallet(current)
                                 "notifications" -> notifications = NativeEx1Api.notifications(current)
+                                "support" -> {
+                                    val latest = NativeEx1Api.latestSupportConversation(current)
+                                    supportConversationId = latest?.id
+                                    supportMessages = if (latest == null) emptyList() else NativeEx1Api.supportMessages(current, latest.id)
+                                }
                                 else -> rooms = NativeEx1Api.rooms(current)
                             }
                             error = null
@@ -730,6 +775,12 @@ private fun PlayerPreviewPanel(
     onTab: (String) -> Unit,
     onOpenRoom: (NativeRoom) -> Unit,
     notifications: List<NativeNotification>,
+    supportMessages: List<NativeSupportMessage>,
+    supportHint: String,
+    supportError: String?,
+    supportHandoff: Boolean,
+    onNewSupport: () -> Unit,
+    onSendSupport: (String) -> Unit,
     onMarkNotificationRead: (String) -> Unit,
     onDeleteNotification: (String) -> Unit,
     team: NativeTeam?,
@@ -769,6 +820,7 @@ private fun PlayerPreviewPanel(
             FilterChip(selected = activeTab == "wallet", onClick = { onTab("wallet") }, label = { Text("کیف پول مجازی") })
             FilterChip(selected = activeTab == "team", onClick = { onTab("team") }, label = { Text("تیم") })
             FilterChip(selected = activeTab == "notifications", onClick = { onTab("notifications") }, label = { Text("اعلان‌ها") })
+            FilterChip(selected = activeTab == "support", onClick = { onTab("support") }, label = { Text("پشتیبانی") })
             FilterChip(selected = activeTab == "settings", onClick = { onTab("settings") }, label = { Text("تنظیمات") })
         }
         if (!error.isNullOrBlank()) Text(error, color = if (error.contains("ذخیره شد") || error.contains("بررسی ارسال")) Color(0xFFBFA0F4) else Color(0xFFFFA2A2), modifier = Modifier.padding(vertical = 8.dp))
@@ -776,6 +828,7 @@ private fun PlayerPreviewPanel(
             "profile" -> ProfilePreviewPanel(profile = profile, onSave = onSaveProfile)
             "wallet" -> WalletPreviewPanel(wallet = wallet)
             "notifications" -> NotificationsPreviewPanel(notifications, teamBusy, onMarkNotificationRead, onDeleteNotification)
+            "support" -> SupportPreviewPanel(supportMessages, supportHint, supportError, supportHandoff, onNewSupport, onSendSupport)
             "team" -> TeamPreviewPanel(
                 team = team,
                 invites = teamInvites,
@@ -879,6 +932,71 @@ private fun WalletPreviewPanel(wallet: NativeWallet?) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SupportPreviewPanel(
+    messages: List<NativeSupportMessage>,
+    hint: String,
+    error: String?,
+    handoff: Boolean,
+    onNewConversation: () -> Unit,
+    onSend: (String) -> Unit
+) {
+    var draft by remember { mutableStateOf("") }
+    Column(
+        Modifier.fillMaxWidth().heightIn(max = 560.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("پشتیبانی EX1", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.weight(1f))
+            TextButton(onClick = { draft = ""; onNewConversation() }) { Text("گفت‌وگوی تازه") }
+        }
+        if (handoff) Text("این گفت‌وگو در صف پشتیبان انسانی قرار دارد.", color = Color(0xFFBFA0F4), fontSize = 12.sp)
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().heightIn(max = 360.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            if (messages.isEmpty()) {
+                item { Text("برای شروع، پیام خودت را بنویس.", color = Color(0xFF9B91AA)) }
+            }
+            items(messages) { item ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = if (item.senderRole == "user") Arrangement.End else Arrangement.Start
+                ) {
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (item.senderRole == "user") Color(0xFF382653) else Color(0xFF191426)
+                        )
+                    ) {
+                        Text(item.body, modifier = Modifier.padding(12.dp), color = Color(0xFFF4F0FA))
+                    }
+                }
+            }
+        }
+        if (!error.isNullOrBlank()) Text(error, color = Color(0xFFFF9B9B), fontSize = 12.sp)
+        Text(hint, color = Color(0xFF9B91AA), fontSize = 11.sp)
+        OutlinedTextField(
+            value = draft,
+            onValueChange = { draft = it },
+            label = { Text("پیامت را بنویس") },
+            modifier = Modifier.fillMaxWidth(),
+            minLines = 2,
+            maxLines = 4
+        )
+        Button(
+            onClick = {
+                val message = draft.trim()
+                if (message.isNotEmpty()) {
+                    onSend(message)
+                    draft = ""
+                }
+            },
+            enabled = draft.trim().isNotEmpty(),
+            modifier = Modifier.fillMaxWidth()
+        ) { Text("ارسال پیام") }
     }
 }
 
