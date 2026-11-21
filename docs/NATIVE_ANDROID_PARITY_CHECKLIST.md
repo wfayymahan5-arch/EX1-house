@@ -20,6 +20,8 @@ This checklist consolidates previously approved product decisions for the Native
 - [ ] Sign-in, sign-up, session refresh, persisted sessions, and sign-out.
 - [ ] Store native session material encrypted with Android Keystore (AES-GCM); never store raw access/refresh tokens in plaintext preferences or logs.
 - [ ] Profile read/update, username, display name, game UID/name, avatar and cover image flows, with existing moderation and storage rules preserved.
+- [ ] Public player profiles from Explore: open a player profile, display public name/username/game name and approved biography; never expose game UID or private account data.
+- [ ] Biography is optional, limited to 500 characters, editable only by its owner, and saved through the authenticated `update-profile` Edge Function moderation flow. Flagged text remains unpublished pending owner review.
 - [ ] Account deletion must require explicit confirmation and the existing server-side reauthentication/authorization safeguards.
 - [ ] Sign-out must show the agreed confirmation prompt before clearing the session.
 - [ ] Do not expose one user's private profile, avatar-review media, or account details to another user.
