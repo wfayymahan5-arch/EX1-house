@@ -43,6 +43,33 @@ data class NativeRoom(
     val firstPrize: Long
 )
 
+data class NativeRoomSlot(
+    val number: Int,
+    val teamName: String,
+    val status: String,
+    val players: List<String>
+)
+
+data class NativeSoloStatus(
+    val registered: Boolean,
+    val status: String?,
+    val slotNumber: Int?,
+    val waiting: Int?,
+    val needed: Int?
+)
+
+data class NativeRoomAccess(
+    val accessReady: Boolean,
+    val waitingForStart: Boolean,
+    val waitingForAdmin: Boolean,
+    val roomCode: String?,
+    val roomPassword: String?,
+    val slotNumber: Int?,
+    val teamName: String?,
+    val startsAt: String?,
+    val rules: String?
+)
+
 data class NativeProfile(
     val id: String,
     val displayName: String?,
@@ -256,6 +283,85 @@ object NativeEx1Api {
                 firstPrize = row.optLong("prize_demo_points")
             )
         }
+    }
+
+    suspend fun roomSlots(session: NativeSession, roomId: String): List<NativeRoomSlot> = withContext(Dispatchers.IO) {
+        val rows = request(
+            "POST",
+            "/rest/v1/rpc/get_tournament_room_slots",
+            session,
+            JSONObject().put("p_room_id", roomId)
+        ) as? JSONArray ?: JSONArray()
+        (0 until rows.length()).mapNotNull { index ->
+            val row = rows.optJSONObject(index) ?: return@mapNotNull null
+            val playerRows = row.optJSONArray("players") ?: JSONArray()
+            val players = (0 until playerRows.length()).mapNotNull { playerIndex ->
+                val player = playerRows.optJSONObject(playerIndex) ?: return@mapNotNull null
+                player.optString("display_name").takeIf { it.isNotBlank() && it != "null" }
+                    ?: player.optString("game_name").takeIf { it.isNotBlank() && it != "null" }
+            }
+            NativeRoomSlot(
+                row.optInt("slot_number"),
+                row.optString("team_name"),
+                row.optString("status"),
+                players
+            )
+        }
+    }
+
+    suspend fun soloStatus(session: NativeSession, roomId: String): NativeSoloStatus = withContext(Dispatchers.IO) {
+        val row = request(
+            "POST",
+            "/rest/v1/rpc/get_my_room_solo_status",
+            session,
+            JSONObject().put("p_room_id", roomId)
+        ) as? JSONObject ?: JSONObject()
+        NativeSoloStatus(
+            row.optBoolean("registered"),
+            row.optString("status").takeIf { it.isNotBlank() && it != "null" },
+            row.optInt("slot_number").takeIf { row.has("slot_number") && !row.isNull("slot_number") },
+            row.optInt("players_waiting").takeIf { row.has("players_waiting") && !row.isNull("players_waiting") },
+            row.optInt("players_needed").takeIf { row.has("players_needed") && !row.isNull("players_needed") }
+        )
+    }
+
+    suspend fun roomAccess(session: NativeSession, roomId: String): NativeRoomAccess = withContext(Dispatchers.IO) {
+        val row = request(
+            "POST",
+            "/rest/v1/rpc/get_my_tournament_room_access",
+            session,
+            JSONObject().put("p_room_id", roomId)
+        ) as? JSONObject ?: JSONObject()
+        fun optional(name: String) = row.optString(name).takeIf { it.isNotBlank() && it != "null" }
+        NativeRoomAccess(
+            row.optBoolean("access_ready"),
+            row.optBoolean("waiting_for_start"),
+            row.optBoolean("waiting_for_admin"),
+            optional("room_code"),
+            optional("room_password"),
+            row.optInt("slot_number").takeIf { row.has("slot_number") && !row.isNull("slot_number") },
+            optional("team_name"),
+            optional("starts_at"),
+            optional("rules")
+        )
+    }
+
+    suspend fun registerForRoom(session: NativeSession, roomId: String, slotNumber: Int): JSONObject = withContext(Dispatchers.IO) {
+        request(
+            "POST",
+            "/rest/v1/rpc/register_for_tournament_room",
+            session,
+            JSONObject().put("p_room_id", roomId).put("p_slot_number", slotNumber)
+        ) as? JSONObject ?: throw IllegalStateException("پاسخ ثبت‌نام معتبر نیست.")
+    }
+
+    suspend fun registerSolo(session: NativeSession, roomId: String): JSONObject = withContext(Dispatchers.IO) {
+        request(
+            "POST",
+            "/rest/v1/rpc/register_for_tournament_room_solo",
+            session,
+            JSONObject().put("p_room_id", roomId)
+        ) as? JSONObject ?: throw IllegalStateException("پاسخ ثبت‌نام انفرادی معتبر نیست.")
     }
 
     suspend fun profile(session: NativeSession): NativeProfile? = withContext(Dispatchers.IO) {
