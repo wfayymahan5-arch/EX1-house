@@ -1,0 +1,82 @@
+name: Build EX1 LEGEND Android preview APKs
+
+on:
+  workflow_dispatch:
+    inputs:
+      update_channel:
+        description: "Update channel for this APK"
+        required: true
+        type: choice
+        options:
+          - preview
+          - stable
+        default: preview
+      base_url:
+        description: "Optional Vercel URL; defaults to the matching preview/stable deployment"
+        required: false
+        type: string
+        default: ""
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - feature/android-shell-current-main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
+      - name: Bundle current player and admin web pages into APKs
+        run: |
+          mkdir -p android/app/src/main/assets
+          cp app.html android/app/src/main/assets/ex1-player.html
+          cp admin.html android/app/src/main/assets/ex1-admin.html
+      - name: Resolve APK update channel and deployment URL
+        id: channel
+        shell: bash
+        run: |
+          CHANNEL="${{ github.event.inputs.update_channel || 'preview' }}"
+          BASE_URL="${{ github.event.inputs.base_url }}"
+          if [ -z "$BASE_URL" ]; then
+            if [ "$CHANNEL" = "preview" ]; then
+              BASE_URL="https://ex1-house-git-feature-android-shell-cur-9b2fe8-wfayymahan5-arch.vercel.app"
+            else
+              BASE_URL="https://ex1-house.vercel.app"
+            fi
+          fi
+          if [ "$CHANNEL" = "stable" ] && [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::error::Stable APKs must be built from main."
+            exit 1
+          fi
+          echo "channel=$CHANNEL" >> "$GITHUB_OUTPUT"
+          echo "base_url=$BASE_URL" >> "$GITHUB_OUTPUT"
+      - name: Build player and admin APKs
+        working-directory: android
+        run: gradle -Pex1BaseUrl="${{ steps.channel.outputs.base_url }}" -Pex1UpdateChannel="${{ steps.channel.outputs.channel }}" assemblePlayerDebug assembleAdminDebug
+      - name: Collect APKs
+        run: |
+          mkdir -p release-apks
+          cp android/app/build/outputs/apk/player/debug/app-player-debug.apk release-apks/EX1-LEGEND-Player-${{ steps.channel.outputs.channel }}.apk
+          cp android/app/build/outputs/apk/admin/debug/app-admin-debug.apk release-apks/EX1-LEGEND-Admin-${{ steps.channel.outputs.channel }}.apk
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: EX1-LEGEND-Android-${{ steps.channel.outputs.channel }}-APKs
+          path: release-apks/*.apk
+          if-no-files-found: error
+          retention-days: 30

@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
+<script>window.EX1_NATIVE_APP=new URLSearchParams(location.search).get("ex1_native")==="1";window.EX1_UPDATE_CHANNEL=new URLSearchParams(location.search).get("ex1_channel")||"web";</script>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#090910"><link rel="icon" type="image/svg+xml" href="/ex1-legend-mark.svg">
 <title>پنل مدیریت | EX1 LEGEND</title>
@@ -93,6 +94,7 @@ input:focus,select:focus,textarea:focus{outline:1px solid #a78bfa;box-shadow:0 0
 }
 
 </style>
+<style id="ex1-room-fx-admin-toggle">.ex1-room-fx-toggle{display:flex!important;align-items:center;gap:10px;padding:12px;border:1px solid #7752a8;border-radius:12px;background:#201634;color:#eee}.ex1-room-fx-toggle input{width:20px!important;height:20px;accent-color:#a66cff}</style>
 <style id="ex1-full-project-admin-motion">
 @keyframes ex1AdminTabEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 .section.tab:not(.hidden){animation:ex1AdminTabEnter .26s ease-out both}
@@ -188,7 +190,7 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
 }
 </style></head>
 <body><div class="wrap">
-<header class="top"><div class="brand"><img src="/ex1-legend-mark.svg" alt="" width="30" height="30" style="vertical-align:middle;margin-inline-end:7px">EX1 <span>LEGEND</span> <small style="color:#9998b2;font-size:12px">/ مدیریت</small></div><a class="btn" href="/">بازگشت به سایت ↗</a></header>
+<header class="top"><div class="brand"><img src="/ex1-legend-mark.svg" alt="" width="30" height="30" style="vertical-align:middle;margin-inline-end:7px">EX1 <span>LEGEND</span> <small style="color:#9998b2;font-size:12px">/ مدیریت</small></div><a class="btn" href="/download.html">دانلود اپ اندروید</a><a class="btn" href="/">بازگشت به سایت ↗</a></header>
 <section id="authView" class="authbox"><h2>ورود مدیران EX1 LEGEND</h2><p class="muted">با حساب کاربری تأییدشده وارد شو. ساخت حساب یا اعطای دسترسی مدیریتی از این صفحه ممکن نیست.</p><form id="loginForm"><label class="muted" for="email">ایمیل</label><input class="field" id="email" type="email" autocomplete="username" required maxlength="254"><label class="muted" for="password">رمز عبور</label><input class="field" id="password" type="password" autocomplete="current-password" required maxlength="72"><button class="btn primary" id="loginButton" type="submit">ورود امن</button></form><p id="authMessage" class="muted" aria-live="polite"></p></section>
 <div id="appView" class="hidden">
 <section class="hero"><div class="row"><div><h1>پنل مدیریت EX1 LEGEND</h1><div class="muted" id="identity">در حال بررسی دسترسی...</div></div><button class="btn" id="logoutButton">خروج امن</button></div><div class="notice">پنل به دیتابیس زنده متصل است. هر بخش فقط با مجوز سمت سرور قابل مشاهده است؛ عملیات تغییردهنده تا تکمیل کنترل‌های بیشتر غیرفعال‌اند.</div></section>
@@ -222,7 +224,9 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
 <div class="formgrid">
 <label>مسابقه مرتبط<select id="rf_tournament_id" required></select></label>
 <label>نام روم<input id="rf_title" required maxlength="120"></label>
-<label>حالت بازی<input id="rf_game_mode" maxlength="80" placeholder="Battle Royale"></label>
+<label>بخش بازی در اپ<select id="rf_game_category" required><option value="battle_royale">بتل‌رویال</option><option value="fight">فایت</option><option value="multiplayer">مولتی</option><option value="uncategorized">دسته‌بندی نشده (برای اصلاح روم‌های قدیمی)</option></select></label>
+<label>ردهٔ ورودی<select id="rf_price_category" required><option value="free">رایگان</option><option value="economy">اقتصادی</option><option value="expensive">گران</option></select></label>
+<label>حالت یا توضیح تکمیلی (اختیاری)<input id="rf_game_mode" maxlength="80" placeholder="مثلاً سولو، اسکواد یا حالت ویژه"></label>
 <label>نقشه<input id="rf_map" maxlength="80" placeholder="Isolated"></label>
 <label>تعداد جایگاه‌ها (تعداد تیم‌ها)<input id="rf_max_teams" type="number" min="1" max="25" value="25" required></label>
 <label>تعداد نفرات هر تیم<select id="rf_team_size"><option value="2">۲ نفره (DUO)</option><option value="4" selected>۴ نفره (SQUAD)</option></select></label>
@@ -244,6 +248,9 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
  <div id="roomImagePreviewWrap" class="room-image-preview-wrap hidden"><div id="roomImagePreview" class="room-image-preview"><img id="roomImagePreviewImg" alt="پیش‌نمایش تصویر روم"></div><div class="room-image-focus-control"><span>جابه‌جایی افقی کادر</span><input id="rf_image_focus_x_range" type="range" min="0" max="100" value="50" aria-label="جابه‌جایی افقی کادر"></div><div class="room-image-focus-control"><span>جابه‌جایی عمودی کادر</span><input id="rf_image_focus_y_range" type="range" min="0" max="100" value="55" aria-label="جابه‌جایی عمودی کادر"></div></div>
  <p class="muted">عکس را از گالری انتخاب کن. برش اولیه با توجه به عمودی یا افقی بودن عکس تنظیم می‌شود؛ برای تعیین دقیق بخش مهم، همان قسمت را روی پیش‌نمایش لمس کن یا نوار تنظیم کادر را جابه‌جا کن. تصویر کشیده نمی‌شود.</p>
  <p id="roomImageUploadStatus" class="muted" aria-live="polite"></p>
+ <label class="wide ex1-room-fx-toggle"><input id="rf_room_effects_enabled" type="checkbox" disabled> افکت نئونی و ذرات متحرک برای تصویر این روم فعال باشد</label>
+ <p class="muted wide">تصویر اصلی ثابت می‌ماند؛ فقط نور و ذرات تزئینی روی آن حرکت می‌کنند. این گزینه برای هر روم جداگانه ذخیره می‌شود و به‌صورت پیش‌فرض خاموش است.</p>
+ <p id="roomEffectsSchemaNotice" class="muted wide" hidden>این قابلیت تا زمان اعمال تغییر تکمیلی پایگاه داده غیرفعال است؛ ساخت و ویرایش عادی روم همچنان فعال می‌ماند.</p>
 </div>
 <label class="wide">قوانین اختصاصی این روم<textarea id="rf_rules" maxlength="5000"></textarea></label>
 <p class="muted wide">ورودی از امتیاز مجازی EX1 کسر می‌شود؛ این امتیاز ارزش نقدی ندارد و قابل خرید، انتقال یا برداشت نیست. ظرفیت کل به‌صورت خودکار از تعداد تیم‌ها × نفرات هر تیم محاسبه می‌شود.</p>
@@ -263,9 +270,68 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
 <label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
 </div><button class="btn primary" id="saveTheme" type="submit" style="margin-top:14px">ذخیره تنظیمات</button></form><div id="themeMessage" class="muted" style="margin-top:10px"></div></section>
 </main></div></div><footer>EX1 LEGEND · پنل مدیریت متصل به Supabase</footer></div><div class="toast" id="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script><script src="/supabase-config.js"></script>
+<script src="/supabase-config.js"></script>
 <script>
+(async function bootEx1Admin() {
+  const authMessage = document.getElementById("authMessage");
+  const loadSdk = (src) => new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    const timeout = setTimeout(() => {
+      script.remove();
+      reject(new Error("SDK load timeout"));
+    }, 9000);
+    script.src = src;
+    script.onload = () => { clearTimeout(timeout); resolve(); };
+    script.onerror = () => { clearTimeout(timeout); script.remove(); reject(new Error("SDK load failed")); };
+    document.head.appendChild(script);
+  });
+
+  if (!window.supabase || typeof window.supabase.createClient !== "function") {
+    const sources = [
+      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js",
+      "https://unpkg.com/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"
+    ];
+    for (const src of sources) {
+      try { await loadSdk(src); } catch (_) {}
+      if (window.supabase && typeof window.supabase.createClient === "function") break;
+    }
+  }
+
+  if (!window.supabase || typeof window.supabase.createClient !== "function") {
+    if (authMessage) {
+      authMessage.textContent = "کتابخانهٔ ورود بارگذاری نشد. اتصال اینترنت را بررسی و دوباره تلاش کن.";
+      const retry = document.createElement("button");
+      retry.type = "button";
+      retry.className = "btn";
+      retry.textContent = "تلاش دوباره";
+      retry.style.marginTop = "10px";
+      retry.addEventListener("click", () => {
+        if (window.Ex1Native && window.Ex1Native.reloadApp) window.Ex1Native.reloadApp();
+        else location.reload();
+      });
+      authMessage.appendChild(document.createElement("br"));
+      authMessage.appendChild(retry);
+    }
+    window.EX1_ADMIN_READY = true;
+    return;
+  }
+
+  if (!window.EX1_CONFIG || !window.EX1_CONFIG.url || !window.EX1_CONFIG.publishableKey) {
+    if (authMessage) authMessage.textContent = "تنظیمات اتصال EX1 بارگذاری نشد. صفحه را دوباره بارگذاری کن.";
+    window.EX1_ADMIN_READY = true;
+    return;
+  }
+
+  window.EX1_ADMIN_READY = false;
 const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
+let roomEffectsColumnAvailable=false;
+async function detectRoomEffectsColumn(){
+ const toggle=document.getElementById("rf_room_effects_enabled"),notice=document.getElementById("roomEffectsSchemaNotice");
+ try{const {error}=await sb.from("tournament_rooms").select("room_effects_enabled").limit(1);roomEffectsColumnAvailable=!error;}
+ catch(_){roomEffectsColumnAvailable=false;}
+ if(toggle)toggle.disabled=!roomEffectsColumnAvailable;
+ if(notice)notice.hidden=roomEffectsColumnAvailable;
+}
 // Keep the admin panel from browser pinch-zooming while preserving ordinary one-finger page scrolling.
 document.addEventListener("touchmove",e=>{if(e.touches&&e.touches.length>1)e.preventDefault();},{passive:false});
 document.addEventListener("gesturestart",e=>e.preventDefault(),{passive:false});
@@ -292,7 +358,7 @@ function updateRoomCapacity(){
  const size=Number($("rf_team_size").value)===2?2:4;
  $("rf_capacity").value=teams*size;
 }
-let pendingRoomImageFile=null,roomImageObjectUrl=null,roomImageManuallyAdjusted=false,roomImagePointerActive=false;
+let pendingRoomImageFile=null,pendingRoomImageBytes=null,roomImageObjectUrl=null,roomImageManuallyAdjusted=false,roomImagePointerActive=false;
 function setRoomImagePreview(url,x=50,y=55){
  const wrap=$("roomImagePreviewWrap"),img=$("roomImagePreviewImg");
  const fx=Math.max(0,Math.min(100,Number(x)||0)),fy=Math.max(0,Math.min(100,Number(y)||0));
@@ -302,17 +368,17 @@ function setRoomImagePreview(url,x=50,y=55){
  else{img.removeAttribute("src");wrap.classList.add("hidden");}
 }
 function resetRoomImage(){
- pendingRoomImageFile=null;roomImageManuallyAdjusted=false;roomImagePointerActive=false;
+ pendingRoomImageFile=null;pendingRoomImageBytes=null;roomImageManuallyAdjusted=false;roomImagePointerActive=false;
  if(roomImageObjectUrl){URL.revokeObjectURL(roomImageObjectUrl);roomImageObjectUrl=null;}
  $("rf_room_image_file").value="";$("rf_room_image_url").value="";
  $("roomImageUploadStatus").textContent="";setRoomImagePreview("");
 }
 function resetRoomForm(){
  window.ex1AdminAccessRoomId=null;
- $("roomForm").reset();$("rf_id").value="";$("rf_max_teams").value=25;$("rf_team_size").value="4";
+ $("roomForm").reset();$("rf_id").value="";$("rf_game_category").value="battle_royale";$("rf_price_category").value="free";$("rf_max_teams").value=25;$("rf_team_size").value="4";
  $("rf_capacity").value=100;$("rf_entry_demo_points").value=0;
  $("rf_prize_demo_points").value=0;$("rf_prize_second_demo_points").value=0;$("rf_prize_third_demo_points").value=0;
- $("rf_status").value="open";resetRoomImage();updateRoomCapacity();
+ $("rf_status").value="open";$("rf_room_effects_enabled").checked=false;resetRoomImage();updateRoomCapacity();
  $("roomAccessAdminPanel").classList.remove("hidden");
  $("rf_room_code").value="";$("rf_room_password").value="";
  $("rf_room_code").disabled=true;$("rf_room_password").disabled=true;$("publishRoomAccessButton").disabled=true;
@@ -395,25 +461,51 @@ for(const range of [$("rf_image_focus_x_range"),$("rf_image_focus_y_range")]){
 }
 $("rf_image_focus_x_range").addEventListener("input",e=>applyRoomImageFocus(e.target.value,$("rf_image_focus_y").value,true));
 $("rf_image_focus_y_range").addEventListener("input",e=>applyRoomImageFocus($("rf_image_focus_x").value,e.target.value,true));
-$("rf_room_image_file").addEventListener("change",e=>{
+$("rf_room_image_file").addEventListener("change",async e=>{
  const file=e.target.files?.[0];if(!file)return;
  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){toast("فقط تصویر JPG، PNG یا WebP انتخاب کن.");e.target.value="";return;}
  if(file.size>5*1024*1024){toast("حجم تصویر باید حداکثر ۵ مگابایت باشد.");e.target.value="";return;}
  if(roomImageObjectUrl)URL.revokeObjectURL(roomImageObjectUrl);
- roomImageObjectUrl=URL.createObjectURL(file);pendingRoomImageFile=file;roomImageManuallyAdjusted=false;
- $("rf_room_image_url").value="";$("roomImageUploadStatus").textContent="تصویر انتخاب شد؛ پس از ذخیره روم بارگذاری می‌شود.";
- const img=$("roomImagePreviewImg");img.onload=()=>{autoRoomImagePosition(file,img);};
- img.src=roomImageObjectUrl;$("roomImagePreviewWrap").classList.remove("hidden");
+ pendingRoomImageFile=file;pendingRoomImageBytes=null;roomImageManuallyAdjusted=false;
+ $("rf_room_image_url").value="";$("roomImageUploadStatus").textContent="در حال خواندن امن تصویر...";
+ try{
+  const bytes=await readRoomImageBytes(file);
+  if(!(bytes instanceof ArrayBuffer)||bytes.byteLength!==file.size)throw new Error("خواندن کامل فایل تصویر انجام نشد.");
+  pendingRoomImageBytes=bytes;
+  const imageBlob=new Blob([bytes],{type:file.type});roomImageObjectUrl=URL.createObjectURL(imageBlob);
+  $("roomImageUploadStatus").textContent="تصویر آماده است؛ پس از ذخیره روم بارگذاری می‌شود.";
+  const img=$("roomImagePreviewImg");img.onload=()=>{autoRoomImagePosition(imageBlob,img);};
+  img.src=roomImageObjectUrl;$("roomImagePreviewWrap").classList.remove("hidden");
+ }catch(error){console.error("EX1 room image read:",error);pendingRoomImageFile=null;pendingRoomImageBytes=null;e.target.value="";$("roomImageUploadStatus").textContent="خواندن تصویر ناموفق بود؛ دوباره انتخابش کن.";toast(error.message||"خواندن تصویر انجام نشد.");}
 });
+async function readRoomImageBytes(file){
+ if(typeof file.arrayBuffer==="function")return await file.arrayBuffer();
+ return await new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onload=()=>resolve(reader.result);
+  reader.onerror=()=>reject(reader.error||new Error("خواندن فایل تصویر ناموفق بود."));
+  reader.readAsArrayBuffer(file);
+ });
+}
 async function uploadPendingRoomImage(){
  if(!pendingRoomImageFile)return $("rf_room_image_url").value.trim()||null;
- const file=pendingRoomImageFile,ext=file.type==="image/png"?"png":file.type==="image/webp"?"webp":"jpg";
+ const file=pendingRoomImageFile;
+ const mime=file.type||"image/jpeg";
+ const ext=mime==="image/png"?"png":mime==="image/webp"?"webp":"jpg";
+ if(!["image/jpeg","image/png","image/webp"].includes(mime))throw new Error("نوع تصویر پشتیبانی نمی‌شود؛ JPG، PNG یا WebP انتخاب کن.");
+ if(!file.size||file.size>5*1024*1024)throw new Error("حجم تصویر معتبر نیست؛ حداکثر ۵ مگابایت مجاز است.");
  const path="rooms/"+(crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(36).slice(2))+"."+ext;
+ $("roomImageUploadStatus").textContent="در حال آماده‌سازی تصویر...";
+ const bytes=pendingRoomImageBytes;
+ if(!(bytes instanceof ArrayBuffer)||bytes.byteLength!==file.size)throw new Error("دادهٔ آمادهٔ تصویر در دسترس نیست؛ تصویر را دوباره انتخاب کن.");
  $("roomImageUploadStatus").textContent="در حال بارگذاری تصویر...";
- const {data,error}=await sb.storage.from("tournament-assets").upload(path,file,{upsert:false,contentType:file.type,cacheControl:"31536000"});
- if(error)throw error;
+ const {data,error}=await sb.storage.from("tournament-assets").upload(path,bytes,{upsert:false,contentType:mime,cacheControl:"31536000"});
+ if(error){
+  console.error("EX1 room image storage upload:",{message:error.message,statusCode:error.statusCode,error:error.error});
+  throw error;
+ }
  const url=sb.storage.from("tournament-assets").getPublicUrl(data.path).data.publicUrl;
- $("rf_room_image_url").value=url;pendingRoomImageFile=null;
+ $("rf_room_image_url").value=url;pendingRoomImageFile=null;pendingRoomImageBytes=null;
  $("roomImageUploadStatus").textContent="تصویر با موفقیت بارگذاری شد.";
  return url;
 }
@@ -436,9 +528,11 @@ async function loadRooms(){
  const rows=rooms.map(r=>{
   const t=roomTournamentCache.find(x=>x.id===r.tournament_id);
   const actions=canManage?'<button class="action-btn" data-edit-room="'+esc(r.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-room="'+esc(r.id)+'">حذف</button>':"—";
-  return row([esc(r.title),esc(t?.title||"—"),esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.max_teams||25)+" تیم",esc(r.team_size===2?"۲ نفره":"۴ نفره"),esc(r.entry_demo_points||0)+" ⭐", "اول "+esc(r.prize_demo_points||0)+" · دوم "+esc(r.prize_second_demo_points||0)+" · سوم "+esc(r.prize_third_demo_points||0),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
+  const gameLabel=({battle_royale:"بتل‌رویال",fight:"فایت",multiplayer:"مولتی",uncategorized:"دسته‌بندی نشده"})[r.game_category]||"دسته‌بندی نشده";
+  const priceLabel=({free:"رایگان",economy:"اقتصادی",expensive:"گران"})[r.price_category]||"—";
+  return row([esc(r.title),esc(t?.title||"—"),gameLabel,priceLabel,esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.max_teams||25)+" تیم",esc(r.team_size===2?"۲ نفره":"۴ نفره"),esc(r.entry_demo_points||0)+" ⭐", "اول "+esc(r.prize_demo_points||0)+" · دوم "+esc(r.prize_second_demo_points||0)+" · سوم "+esc(r.prize_third_demo_points||0),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
  });
- $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","نقشه","جایگاه‌ها","اندازه تیم","ورودی هر نفر","جوایز رتبه‌ها","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
+ $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","بخش بازی","ردهٔ ورودی","حالت تکمیلی","نقشه","جایگاه‌ها","اندازه تیم","ورودی هر نفر","جوایز رتبه‌ها","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
 }
 async function loadSocialModeration(){
  const host=$("socialReportsTable");
@@ -704,6 +798,7 @@ async function applyAccessInternal(user){
  try{list=await rpc("admin_my_permissions");}catch(e){$("appView").classList.add("hidden");$("authView").classList.remove("hidden");$("authMessage").textContent="دریافت مجوزها ممکن نشد؛ دسترسی رد شد.";return;}
  list.forEach(p=>permissions[p.permission_code]=p.is_allowed===true);
  isOwner=true;
+ await detectRoomEffectsColumn();
  const allowedTabs=["overview"];
  if(permissions["tournaments.view"]||permissions["tournaments.create"])allowedTabs.push("tournaments");
  if(permissions["rooms.view"]||permissions["rooms.manage"])allowedTabs.push("rooms");
@@ -823,6 +918,8 @@ $("roomForm").addEventListener("submit",async e=>{
  const id=$("rf_id").value;
  const payload={
    tournament_id:$("rf_tournament_id").value,title:$("rf_title").value.trim(),
+  game_category:$("rf_game_category").value,
+  price_category:$("rf_price_category").value,
   game_mode:$("rf_game_mode").value.trim()||null,map:$("rf_map").value.trim()||null,
   team_size:Number($("rf_team_size").value)===2?2:4,
   max_teams:Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1)),
@@ -837,7 +934,10 @@ $("roomForm").addEventListener("submit",async e=>{
   room_image_focus_y:Math.max(0,Math.min(100,Number($("rf_image_focus_y").value)||55)),
   rules:$("rf_rules").value.trim()
  };
+ if(roomEffectsColumnAvailable)payload.room_effects_enabled=$("rf_room_effects_enabled").checked;
  if(!payload.tournament_id)return toast("مسابقه مرتبط را انتخاب کن.");
+ if(payload.price_category==="free"&&payload.entry_demo_points!==0)return toast("برای ردهٔ رایگان، ورودی باید صفر باشد.");
+ if(payload.price_category!=="free"&&payload.entry_demo_points<=0)return toast("برای روم اقتصادی یا گران، مبلغ ورودی مجازی را بیشتر از صفر وارد کن.");
  $("saveRoomButton").disabled=true;
  try{
   payload.room_image_url=await uploadPendingRoomImage();
@@ -894,6 +994,8 @@ $("roomsTable").addEventListener("click",async e=>{
   const {data,error}=await sb.from("tournament_rooms").select("*").eq("id",edit.dataset.editRoom).single();
   if(error||!data)return toast("اطلاعات روم دریافت نشد.");
   $("rf_id").value=data.id;fillRoomTournamentOptions(data.tournament_id);$("rf_title").value=data.title||"";
+  $("rf_game_category").value=data.game_category||"uncategorized";
+  $("rf_price_category").value=data.price_category||(Number(data.entry_demo_points||0)===0?"free":"economy");
   $("rf_game_mode").value=data.game_mode||"";$("rf_map").value=data.map||"";
   $("rf_max_teams").value=data.max_teams||25;$("rf_team_size").value=String(data.team_size===2?2:4);
   $("rf_capacity").value=data.capacity||((data.max_teams||25)*(data.team_size||4));
@@ -905,6 +1007,7 @@ $("roomsTable").addEventListener("click",async e=>{
   $("rf_status").value=data.status||"draft";$("rf_room_image_url").value=data.room_image_url||"";
   resetRoomImage();$("rf_room_image_url").value=data.room_image_url||"";
   setRoomImagePreview(data.room_image_url||"",data.room_image_focus_x??50,data.room_image_focus_y??55);
+  $("rf_room_effects_enabled").checked=data.room_effects_enabled===true;
   $("rf_rules").value=data.rules||"";
   $("rf_room_code").value="";$("rf_room_password").value="";
   $("rf_room_code").disabled=false;$("rf_room_password").disabled=false;$("publishRoomAccessButton").disabled=false;
@@ -986,4 +1089,12 @@ sb.channel("ex1-admin-site-theme")
   if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")console.warn("EX1 admin theme realtime:",status);
  });
 refreshSession();
+
+  window.EX1_ADMIN_READY = true;
+})().catch((error) => {
+  console.error("EX1 admin startup:", error);
+  const message = document.getElementById("authMessage");
+  if (message) message.textContent = "راه‌اندازی پنل مدیریت ناموفق بود. لطفاً دوباره تلاش کن.";
+  window.EX1_ADMIN_READY = true;
+});
 </script></body></html>

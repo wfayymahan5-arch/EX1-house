@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
+<script>window.EX1_NATIVE_APP=new URLSearchParams(location.search).get("ex1_native")==="1";window.EX1_UPDATE_CHANNEL=new URLSearchParams(location.search).get("ex1_channel")||"web";</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#f5f7fc">
@@ -207,7 +208,27 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 .bottom-nav button.active span:not(.rank-icon){text-shadow:0 0 8px rgba(155,92,255,.85),0 0 14px rgba(39,230,242,.45)}
 .bottom-nav button:active{transform:scale(.96);background:transparent!important;border:0!important;box-shadow:none!important}
 .bottom-nav svg{overflow:visible}
-</style><style id="ex1-room-date-readability-v1">.room-date-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0 2px}.room-date-item{min-width:0;padding:11px 12px;border:1px solid #b98be866;border-radius:13px;background:linear-gradient(135deg,#ffffff16,#ffffff08);box-shadow:inset 0 1px #ffffff14}.room-date-item small{display:block;margin-bottom:6px;color:#c9a8ee;font-size:10px;font-weight:800}.room-date-item strong{display:block;color:#fff;font-size:11px;line-height:1.9;overflow-wrap:anywhere;direction:rtl;text-align:right}@media(max-width:360px){.room-date-grid{grid-template-columns:1fr;gap:7px}}</style></head>
+</style><style id="ex1-room-date-readability-v1">.room-date-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0 2px}.room-date-item{min-width:0;padding:11px 12px;border:1px solid #b98be866;border-radius:13px;background:linear-gradient(135deg,#ffffff16,#ffffff08);box-shadow:inset 0 1px #ffffff14}.room-date-item small{display:block;margin-bottom:6px;color:#c9a8ee;font-size:10px;font-weight:800}.room-date-item strong{display:block;color:#fff;font-size:11px;line-height:1.9;overflow-wrap:anywhere;direction:rtl;text-align:right}@media(max-width:360px){.room-date-grid{grid-template-columns:1fr;gap:7px}}</style><style id="ex1-room-layout-v2">
+.room-grid{display:flex!important;flex-direction:column;gap:18px;min-width:0}
+.room-category-section{min-width:0;width:100%}
+.room-category-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 2px 9px}
+.room-category-heading h3{margin:0;font-size:14px;color:var(--text,#fff)}
+.room-category-heading span{font-size:10px;color:var(--muted,#aaa)}
+.room-category-track{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;padding:3px 2px 14px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.room-category-track>.room-card{flex:0 0 min(82vw,300px);width:min(82vw,300px);min-width:0;scroll-snap-align:start}
+.room-card>img,.room-card>video,.room-card>.room-card-fallback{height:150px!important}
+.room-card-body{position:relative;z-index:3;padding:11px!important}
+.room-card h3{font-size:13px;margin:9px 0 7px}
+.room-meta{font-size:9px;gap:5px}
+.room-date-grid{gap:6px}
+.room-open-btn{margin-top:10px;padding:10px;font-size:10px}
+.room-card>.ex1-room-fx{inset:0 0 auto!important;height:150px!important;z-index:2}
+.room-card-completed{filter:none!important;opacity:1!important;transform:translateZ(0);backface-visibility:hidden}
+.room-card-completed>img,.room-card-completed>video,.room-card-completed>.room-card-fallback{filter:grayscale(1)!important;opacity:.72}
+.room-card-completed .room-card-body{background:linear-gradient(145deg,#29292e,#19191e)!important}
+.room-card-completed .room-open-btn{background:#343434!important;box-shadow:none!important}
+</style>
+</head>
 <style id="ex1-full-project-soft-entry">
 @keyframes ex1PageSoftEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ex1DialogSoftEnter{from{opacity:0;transform:translateY(13px) scale(.985);filter:brightness(.82)}to{opacity:1;transform:translateY(0) scale(1);filter:brightness(1)}}
@@ -267,7 +288,7 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 </section>
 <section class="page" id="page-tournaments">
  <div class="tournament-banner"><div class="tournament-banner-copy"><span>EX1 LEGEND · ARENA</span><h1>جوایز و<br>مسابقات</h1><p>رقابت‌های جامعه، روم‌های فعال و جدول قهرمانان</p></div><div class="tournament-banner-mark">EX1</div><div class="banner-bottom"><b>مسابقات فعال</b><small>برای دیدن جزئیات، کارت هر مسابقه را انتخاب کن</small></div></div>
- <div class="tournament-filter" id="roomCategoryFilter"><button class="active" type="button" data-room-category="all">برای شما</button><button type="button" data-room-category="fight">فایت</button><button type="button" data-room-category="br">بتل‌رویال</button><button type="button" data-room-category="multi">مولتی</button></div><div class="section-head"><div><h2 id="roomCategoryTitle">روم‌های پیشنهادی</h2><p>یک روم را انتخاب کن تا جزئیاتش را ببینی.</p></div></div><label class="searchbar"><input id="roomSearch" class="field" type="search" maxlength="80" placeholder="جست‌وجوی نام روم، نقشه یا حالت بازی..."></label>
+ <div class="tournament-filter" id="roomCategoryFilter"><button class="active" type="button" data-room-category="all">برای شما</button><button type="button" data-room-category="battle_royale">بتل‌رویال</button><button type="button" data-room-category="fight">فایت</button><button type="button" data-room-category="multiplayer">مولتی</button><button type="button" data-room-category="uncategorized">دسته‌بندی نشده</button></div><div class="section-head"><div><h2 id="roomCategoryTitle">روم‌های پیشنهادی</h2><p>یک روم را انتخاب کن تا جزئیاتش را ببینی.</p></div></div><label class="searchbar"><input id="roomSearch" class="field" type="search" maxlength="80" placeholder="جست‌وجوی نام روم، نقشه یا حالت بازی..."></label>
  <div id="roomCards" class="room-grid"><div class="empty">در حال دریافت روم‌ها...</div></div><div id="roomNoData" class="panel room-empty-state" hidden><strong>هنوز رومی برای ثبت‌نام فعال نشده</strong><p>به‌محض اضافه شدن روم جدید، برای شما در این قسمت نمایش داده می‌شود.</p></div><div id="roomCategoryEmpty" class="empty" hidden>فعلاً رومی در این دسته وجود ندارد.</div><section id="roomDetail" class="panel room-detail" hidden></section>
 </section>
 <section class="page" id="page-ranking">
@@ -283,7 +304,7 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
  </nav>
 <footer>EX1 LEGEND · جامعه‌ی رقابت سالم</footer>
 <div class="modal" id="authModal"><div class="dialog"><h3 id="authTitle">ورود به EX1 LEGEND</h3><p id="authHint" class="muted">با ایمیل و رمز عبور وارد شو یا حساب جدید بساز.</p><form id="authForm"><input id="authName" class="field" maxlength="30" placeholder="نام نمایشی" hidden><input id="authEmail" class="field" type="email" maxlength="254" autocomplete="email" placeholder="ایمیل" required><input id="authPassword" class="field" type="password" minlength="8" maxlength="72" autocomplete="current-password" placeholder="رمز عبور (حداقل ۸ نویسه)" required><button class="btn" id="authSubmit" type="submit">ورود</button></form><button class="btn ghost" id="forgotPasswordButton" type="button">فراموشی رمز عبور؟</button><button class="btn secondary" id="authSwitch" type="button">ساخت حساب جدید</button><button class="btn ghost" type="button" onclick="closeAuth()">بستن</button><p class="muted">رمز عبورت را در اختیار هیچ‌کس قرار نده و آن را در چت ارسال نکن.</p></div></div>
-<div class="modal" id="profileEditorModal"><div class="dialog"><h3>ویرایش پروفایل</h3><form id="profileForm"><label>نام نمایشی<input class="field" id="profileName" maxlength="30" required></label><label>نام کاربری<input class="field" id="profileHandle" maxlength="24" placeholder="اختیاری"></label><label>UID کالاف دیوتی موبایل<input class="field" id="profileGameUid" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="شناسهٔ بازیکن در بازی (بدون ایمیل)"></label><label>نام دقیق داخل بازی<input class="field" id="profileGameName" maxlength="40" placeholder="Nickname کالاف"></label><small class="muted">UID را از پروفایل داخل بازی وارد کن؛ ایمیل یا نشانی جیمیل قابل قبول نیست. نام بازی را دقیقاً مطابق پروفایل کالاف بنویس.</small><button class="btn" type="submit">ذخیره تغییرات</button></form><button class="btn ghost" type="button" data-close-modal="profileEditorModal">بستن</button></div></div><div class="modal" id="settingsModal"><div class="dialog"><h3>تنظیمات EX1</h3><button class="btn secondary" id="showAppearanceSettings" type="button">تنظیمات ظاهری</button><div id="appearanceSettings" hidden><label>تم رنگی<select class="field" id="userTheme"><option value="soft">نرم و متعادل</option><option value="blue">آبی</option><option value="green">سبز</option><option value="amber">کهربایی</option></select></label><label>فونت برنامه<select class="field" id="userFont"><option value="tahoma">Tahoma</option><option value="system">فونت سیستم</option><option value="arial">Arial</option><option value="mono">Monospace</option></select></label><button class="btn small" id="saveUserSettings" type="button">ذخیره تنظیمات</button><p class="muted" id="userSettingsMessage">تنظیمات روی همین دستگاه ذخیره می‌شوند.</p></div><button class="btn secondary" id="showBlockedSettings" type="button">حساب‌های مسدودشده</button><div id="blockedSettings" hidden><div id="blockedUsers" class="user-list"><div class="empty">در حال دریافت فهرست...</div></div></div><button class="btn secondary" id="changeAccountButton" type="button">تغییر حساب کاربری</button><button class="btn ghost" id="logoutButton" type="button">خروج از حساب</button><button class="btn ghost" id="deleteAccountButton" type="button" style="border-color:#b94a4a;color:#b94a4a">حذف حساب کاربری</button><p class="muted">حذف حساب دائمی است و پس از تأیید هویت قابل بازگشت نیست.</p><button class="btn ghost" type="button" data-close-modal="settingsModal">بستن</button></div></div>
+<div class="modal" id="profileEditorModal"><div class="dialog"><h3>ویرایش پروفایل</h3><form id="profileForm"><label>نام نمایشی<input class="field" id="profileName" maxlength="30" required></label><label>نام کاربری<input class="field" id="profileHandle" maxlength="24" placeholder="اختیاری"></label><label>UID کالاف دیوتی موبایل<input class="field" id="profileGameUid" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="شناسهٔ بازیکن در بازی (بدون ایمیل)"></label><label>نام دقیق داخل بازی<input class="field" id="profileGameName" maxlength="40" placeholder="Nickname کالاف"></label><small class="muted">UID را از پروفایل داخل بازی وارد کن؛ ایمیل یا نشانی جیمیل قابل قبول نیست. نام بازی را دقیقاً مطابق پروفایل کالاف بنویس.</small><button class="btn" type="submit">ذخیره تغییرات</button></form><button class="btn ghost" type="button" data-close-modal="profileEditorModal">بستن</button></div></div><div class="modal" id="settingsModal"><div class="dialog"><h3>تنظیمات EX1</h3><a class="btn secondary" href="/download.html" style="display:block;text-align:center;margin:10px 0">دانلود نسخه اندروید EX1 LEGEND</a><button class="btn secondary" id="showAppearanceSettings" type="button">تنظیمات ظاهری</button><div id="appearanceSettings" hidden><label>تم رنگی<select class="field" id="userTheme"><option value="soft">نرم و متعادل</option><option value="blue">آبی</option><option value="green">سبز</option><option value="amber">کهربایی</option></select></label><label>فونت برنامه<select class="field" id="userFont"><option value="tahoma">Tahoma</option><option value="system">فونت سیستم</option><option value="arial">Arial</option><option value="mono">Monospace</option></select></label><button class="btn small" id="saveUserSettings" type="button">ذخیره تنظیمات</button><p class="muted" id="userSettingsMessage">تنظیمات روی همین دستگاه ذخیره می‌شوند.</p></div><button class="btn secondary" id="showBlockedSettings" type="button">حساب‌های مسدودشده</button><div id="blockedSettings" hidden><div id="blockedUsers" class="user-list"><div class="empty">در حال دریافت فهرست...</div></div></div><button class="btn secondary" id="changeAccountButton" type="button">تغییر حساب کاربری</button><button class="btn ghost" id="logoutButton" type="button">خروج از حساب</button><button class="btn ghost" id="deleteAccountButton" type="button" style="border-color:#b94a4a;color:#b94a4a">حذف حساب کاربری</button><p class="muted">حذف حساب دائمی است و پس از تأیید هویت قابل بازگشت نیست.</p><button class="btn ghost" type="button" data-close-modal="settingsModal">بستن</button></div></div>
 <div class="modal" id="walletModal"><div class="dialog"><h3>کیف پول</h3><div class="wallet-modal-balance"><span>موجودی فعلی</span><strong id="walletModalBalance">۰ <small>استار</small></strong></div><p class="muted">استارها برای استفاده در امکانات داخلی برنامه هستند و از طریق فعالیت‌ها و امتیازهای داخل برنامه به دست می‌آیند.</p><div class="wallet-history"><h4>تاریخچه دفترکل استار</h4><div id="walletHistory" class="empty">در حال دریافت تاریخچه...</div></div><button class="btn ghost" type="button" data-close-modal="walletModal">بستن</button></div></div><div class="modal" id="joinRoomModal"><div class="dialog"><h3>ثبت‌نام در روم</h3><p id="joinRoomSummary" class="muted"></p><div class="panel"><strong>چطور شرکت می‌کنی؟</strong><p>لازم نیست از قبل تیم داشته باشی. ثبت‌نام انفرادی کن تا سیستم به‌ترتیب بازیکنان را در تیم‌های کامل دو یا چهار نفره قرار دهد.</p><small class="muted">اگر تیم کامل خودت را داری، کاپیتان می‌تواند گزینهٔ ثبت‌نام با تیم را انتخاب کند.</small></div><p id="soloJoinProgress" class="muted"></p><button class="btn" id="confirmRoomSoloJoin" type="button">ثبت‌نام انفرادی و تشکیل خودکار تیم</button><button class="btn secondary" id="confirmRoomJoin" type="button">ثبت‌نام با تیم کامل</button><p class="muted">ورودی هر روم در جزئیات همان روم مشخص است؛ ورودی هر روم با استار EX1 محاسبه می‌شود و جایزه نقدی برای آن تعریف نشده است.</p><button class="btn ghost" type="button" data-close-modal="joinRoomModal">بازگشت</button></div></div><div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2.119.0/dist/umd/supabase.js'"></script>
 <script src="/supabase-config.js"></script>
@@ -295,7 +316,7 @@ function showStartupError(message){
  box.style.cssText="position:fixed;inset:14px;z-index:99999;display:grid;place-content:center;gap:14px;padding:24px;border:1px solid #8c5bc7;border-radius:20px;background:#100d20;color:#fff;text-align:center;font:15px/2 Tahoma,Arial,sans-serif";
  const title=document.createElement("strong");title.textContent="EX1 نتوانست راه‌اندازی شود";
  const detail=document.createElement("p");detail.textContent="فعلاً امکان بارگذاری برنامه وجود ندارد. لطفاً کمی بعد دوباره تلاش کن.";console.error("EX1 startup:",message);
- const retry=document.createElement("button");retry.type="button";retry.textContent="تلاش دوباره";retry.style.cssText="padding:12px 18px;border:0;border-radius:12px;background:#8951c5;color:#fff;font-weight:bold";retry.onclick=()=>location.reload();
+ const retry=document.createElement("button");retry.type="button";retry.textContent="تلاش دوباره";retry.style.cssText="padding:12px 18px;border:0;border-radius:12px;background:#8951c5;color:#fff;font-weight:bold";retry.onclick=()=>window.Ex1Native?window.Ex1Native.reloadApp():location.reload();
  box.append(title,detail,retry);document.body.append(box);
 }
 window.addEventListener("error",e=>{console.error("EX1 runtime error:",e.error||e.message);const t=$("toast");if(t){t.textContent="خطای برنامه: "+(e.message||"خطای نامشخص");t.classList.add("show");}});
@@ -367,7 +388,7 @@ const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 let currentUser=null,authMode="login",activeConversation=null,activeConversationUser=null;
 
 let toastTimer;
-function toast(s){$("toast").textContent=s;$("toast").classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.remove("show"),3200);}
+function toast(s,duration=3200){$("toast").textContent=s;$("toast").classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.remove("show"),duration);}
 function profileDuplicateMessage(error){
  const message=String(error?.message||error?.details||"");
  if(message.includes("EX1_DUPLICATE_DISPLAY_NAME"))return "این نام نمایشی قبلاً توسط بازیکن دیگری انتخاب شده؛ یک نام دیگر بنویس.";
@@ -426,6 +447,7 @@ async function loadWallet(){
   console.warn("EX1 wallet summary:",se.message);
   return;
  }
+ ex1WalletSummaryCache=summary;ex1WalletSummaryCachedAt=Date.now();
  const row=Array.isArray(summary)?summary[0]:summary;
  const bal=Number(row?.balance_units||0);
  const fmt=n=>Number(n||0).toLocaleString("fa-IR");
@@ -462,7 +484,21 @@ async function ensureCodmProfile(){
 let activeRoomForJoin=null;
 let activeRoomDetail=null;
 let roomStartReleaseTimer=null;
+let roomDetailRequestToken=0;
+let ex1WalletSummaryCache=null,ex1WalletSummaryCachedAt=0,ex1WalletSummaryPromise=null;
+async function getCachedWalletSummary(){
+ const now=Date.now();
+ if(ex1WalletSummaryCache&&now-ex1WalletSummaryCachedAt<30000)return {data:ex1WalletSummaryCache,error:null};
+ if(ex1WalletSummaryPromise)return ex1WalletSummaryPromise;
+ ex1WalletSummaryPromise=(async()=>{
+  const result=await sb.rpc("wallet_my_summary");
+  if(!result.error){ex1WalletSummaryCache=result.data;ex1WalletSummaryCachedAt=Date.now();}
+  return result;
+ })();
+ try{return await ex1WalletSummaryPromise;}finally{ex1WalletSummaryPromise=null;}
+}
 async function openRoomJoin(room,slot){
+ if(roomRegistrationClosed(room)){toast("مهلت ثبت‌نام این روم به پایان رسیده است.");return;}
  if(!currentUser){toast("برای ثبت‌نام ابتدا وارد حساب EX1 شو.");openAuth();return;}
  activeRoomForJoin={room,slot};
  const fee=Math.max(0,Number(room.entry_demo_points)||0);
@@ -472,7 +508,7 @@ async function openRoomJoin(room,slot){
  soloBtn.disabled=true;teamBtn.disabled=true;
  $("soloJoinProgress").textContent="در حال بررسی موجودی استارز...";
  $("joinRoomModal").classList.add("show");
- const {data,error}=await sb.rpc("wallet_my_summary");
+ const {data,error}=await getCachedWalletSummary();
  if(error){
   $("soloJoinProgress").textContent=fee>0?"موجودی استارز دریافت نشد؛ برای جلوگیری از ثبت‌نام نامشخص، دوباره تلاش کن.":"ورودی این روم رایگان است؛ استارزی کسر نمی‌شود.";
   soloBtn.disabled=fee>0;teamBtn.disabled=fee>0;
@@ -499,14 +535,13 @@ $("confirmRoomSoloJoin").onclick=async()=>{
   const {data,error}=await sb.rpc("register_for_tournament_room_solo",{p_room_id:room.id,p_slot_number:Number(activeRoomForJoin.slot)});
   if(error)throw error;
   $("joinRoomModal").classList.remove("show");
-  if(data.status==="matched"){
-   toast("تیمت به‌صورت خودکار تشکیل شد! جایگاه "+Number(data.slot_number).toLocaleString("fa-IR"));
-  }else{
-   toast("ثبت‌نامت در صف جایگاه "+Number(data.slot_number).toLocaleString("fa-IR")+" ثبت شد؛ "+Number(data.players_waiting).toLocaleString("fa-IR")+" نفر از "+Number(data.team_size).toLocaleString("fa-IR")+" نفر.");
-  }
-  activeRoomForJoin=null;
-  await loadWallet();
-  await showRoomDetail(room);
+  const successMessage=data.status==="matched"
+   ?"تیمت به‌صورت خودکار تشکیل شد! جایگاه "+Number(data.slot_number).toLocaleString("fa-IR")
+   :"ثبت‌نامت در صف جایگاه "+Number(data.slot_number).toLocaleString("fa-IR")+" ثبت شد؛ "+Number(data.players_waiting).toLocaleString("fa-IR")+" نفر از "+Number(data.team_size).toLocaleString("fa-IR")+" نفر.";
+  activeRoomForJoin=null;toast(successMessage,6000);
+  try{await loadWallet();}catch(refreshError){console.warn("EX1 wallet refresh after solo signup:",refreshError);}
+  try{await showRoomDetail(room);}catch(refreshError){console.warn("EX1 room refresh after solo signup:",refreshError);}
+  toast(successMessage,6000);
  }catch(err){if(err?.code==="23505"||/uq_solo_queue_one_waiting_per_user/.test(err?.message||"")){toast("ثبت‌نام انفرادی در این روم از قبل برایت ثبت شده است؛ وضعیت صف همین روم را بررسی کن.");await refreshSoloQueueStatus(room.id);
   await loadRoomResults(room.id);}else{toast(err.message||"ثبت‌نام انفرادی انجام نشد.");}}
  finally{btn.disabled=false;btn.textContent="ثبت‌نام انفرادی و تشکیل خودکار تیم";}
@@ -521,10 +556,11 @@ $("confirmRoomJoin").onclick=async()=>{
   const {data,error}=await sb.rpc("register_for_tournament_room",{p_room_id:room.id,p_slot_number:Number(activeRoomForJoin.slot)});
   if(error)throw error;
   $("joinRoomModal").classList.remove("show");
-  toast("ثبت‌نامت با موفقیت ثبت شد. جایگاه "+Number(data.slot_number).toLocaleString("fa-IR"));
-  activeRoomForJoin=null;
-  await loadWallet();
-  await showRoomDetail(room);
+  const successMessage="ثبت‌نامت با موفقیت ثبت شد. جایگاه "+Number(data.slot_number).toLocaleString("fa-IR");
+  activeRoomForJoin=null;toast(successMessage,6000);
+  try{await loadWallet();}catch(refreshError){console.warn("EX1 wallet refresh after team signup:",refreshError);}
+  try{await showRoomDetail(room);}catch(refreshError){console.warn("EX1 room refresh after team signup:",refreshError);}
+  toast(successMessage,6000);
  }catch(err){toast(err.message||"ثبت‌نام انجام نشد.");}
  finally{btn.disabled=false;btn.textContent="تأیید و ثبت‌نام";}
 };
@@ -596,27 +632,42 @@ function scheduleRoomAccessRelease(room){
 }
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&activeRoomDetail)refreshRoomAccess(activeRoomDetail.id).catch(()=>{});});
 function roomHasStarted(room,now=Date.now()){if(!room?.starts_at)return false;const start=new Date(room.starts_at).getTime();return Number.isFinite(start)&&now>=start;}
+function roomRegistrationClosed(room,now=Date.now()){if(!room||room.status!=="open")return true;if(!room.starts_at)return false;const start=new Date(room.starts_at).getTime();return Number.isFinite(start)&&now>=start;}
+function roomIsFinished(room,now=Date.now()){return roomPhase(room)==="completed";}
 function roomPhase(room){if(!room?.ends_at)return 'scheduled';const end=new Date(room.ends_at).getTime(),now=Date.now();if(!Number.isFinite(end))return 'scheduled';if(now<end)return 'scheduled';if(now<end+3600000)return 'running';if(now<end+7200000)return 'pending';return 'completed';}
 function roomPhaseLabel(room){const p=roomPhase(room);if(p==='running')return '● در حال برگزاری';if(p==='pending')return '● در انتظار ثبت نتایج';if(p==='completed')return '● تمام شده';return room.status==='open'?'● ثبت‌نام فعال':room.status==='full'?'● ظرفیت تکمیل':'● غیرفعال';}
 async function loadRoomResults(roomId){const box=$('roomResultsContent');if(!box)return;box.innerHTML='<div class="muted">در حال دریافت نتایج...</div>';const {data,error}=await sb.from('tournament_player_results').select('placement,kills,points,profiles(display_name,username,game_name)').eq('room_id',roomId).order('placement',{ascending:true,nullsFirst:false}).order('points',{ascending:false}).order('kills',{ascending:false});if(error){box.innerHTML='<div class="muted">نتایج فعلاً در دسترس نیست.</div>';return;}const rows=data||[];box.innerHTML=rows.length?rows.map(x=>'<div class="room-results-row"><strong>#'+Number(x.placement||0).toLocaleString('fa-IR')+'</strong><span>'+esc(x.profiles?.game_name||x.profiles?.display_name||x.profiles?.username||'بازیکن')+'</span><span>کیل: '+Number(x.kills||0).toLocaleString('fa-IR')+'</span><span>امتیاز: '+Number(x.points||0).toLocaleString('fa-IR')+'</span></div>').join(''):'<div class="muted">هنوز نتیجه‌ای برای این روم ثبت نشده است.</div>';}
 async function showRoomDetail(room){
+ const requestToken=++roomDetailRequestToken;
  if(window.ex1RoomAccessTimer){clearInterval(window.ex1RoomAccessTimer);window.ex1RoomAccessTimer=null;}
  if(roomStartReleaseTimer){clearTimeout(roomStartReleaseTimer);roomStartReleaseTimer=null;}
  activeRoomDetail=room;
  const media=room.room_media_type==="video"&&room.room_video_url?'<video class="room-cover" controls playsinline preload="metadata" src="'+esc(room.room_video_url)+'"></video>':(room.room_image_url?'<img class="room-cover" style="object-position:'+roomImagePosition(room)+'" src="'+esc(room.room_image_url)+'" alt="تصویر روم">':'<div class="room-cover room-cover-fallback"><img src="/room-arena-art.svg" alt="تصویر میدان رقابت EX1"><span>LEGEND ARENA</span></div>');
+ const roomFx=room.room_effects_enabled===true&&room.room_image_url&&room.room_media_type!=="video"?'<div class="ex1-room-fx" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>':"";
  const n=Math.max(1,Math.min(25,Number(room.max_teams)||25));
  const teamSize=Math.max(1,Math.min(4,Number(room.team_size)||4));
- $("roomDetail").innerHTML='<div class="room-detail-hero">'+media+'<div class="room-hero-shade"></div><div class="room-hero-title"><span class="room-live-tag">'+roomPhaseLabel(room)+'</span><h2>'+esc(room.title)+'</h2><small>EX1 LEGEND · BATTLE ARENA</small></div><button class="room-back-btn" type="button" id="roomBackToList">بازگشت به روم‌ها</button></div><div class="room-summary-grid"><div><small>فرمت</small><strong>'+(room.team_size===2?"دو نفره":"چهار نفره")+'</strong></div><div><small>زمان شروع</small><strong>'+formatRoomStart(room.starts_at)+'</strong></div><div><small>ورودی هر بازیکن</small><strong>'+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div><div class="room-prize-summary"><small>جوایز این روم</small><strong>جایزه‌های رتبه‌بندی</strong></div><div><small>ظرفیت</small><strong>'+n+' تیم</strong></div></div><section class="room-prize-podium" aria-label="جوایز رتبه‌های برتر"><h3>🏆 جوایز رتبه‌های برتر</h3><div class="room-prize-list"><div class="room-prize-card first"><span class="room-prize-medal">🥇</span><div><small>تیم اول</small><strong>'+Number(room.prize_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div><div class="room-prize-card second"><span class="room-prize-medal">🥈</span><div><small>تیم دوم</small><strong>'+Number(room.prize_second_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div><div class="room-prize-card third"><span class="room-prize-medal">🥉</span><div><small>تیم سوم</small><strong>'+Number(room.prize_third_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div></div></section><div class="room-tabs"><button class="active" type="button" data-room-tab="teams">تیم‌ها</button><button type="button" data-room-tab="rules">قوانین</button><button type="button" data-room-tab="results">نتایج</button></div><div id="roomAccessInline" class="panel" style="margin:12px 14px" hidden></div><div id="roomTeamsPanel"><div class="room-section-title"><span></span><div><h3>لیست تیم‌ها</h3><small>وضعیت جایگاه‌ها از دیتابیس به‌روز می‌شود</small></div></div><div class="muted" id="roomSlotsMessage">در حال دریافت جایگاه‌ها...</div><div class="team-slots" id="roomSlotsList"></div><section id="roomWaitingPanel" hidden><div class="room-section-title"><span></span><div><h3>بازیکنان در انتظار تشکیل تیم</h3><small>ثبت‌نام انفرادی تا تکمیل تعداد اعضا</small></div></div><div id="roomWaitingPlayers" class="user-list" style="padding:0 14px 12px"></div></section><div id="soloQueueStatus" class="muted" style="margin:12px 14px;padding:12px;border:1px solid #ffffff20;border-radius:12px;background:#ffffff08" hidden></div></div><div id="roomResultsPanel" class="room-results" hidden><h3>نتایج همین روم</h3><div id="roomResultsContent" class="muted">در حال دریافت...</div></div><div id="roomRulesPanel" class="room-rules" hidden><div class="room-section-title"><span></span><div><h3>قوانین و توضیحات</h3><small>قبل از ثبت‌نام قوانین روم را بخوان</small></div></div><div class="room-rules-copy">'+esc(room.rules||"قوانین اختصاصی برای این روم ثبت نشده است.")+'</div></div><div class="room-register-bar" id="roomRegisterBar"><div><small>ورودی هر بازیکن</small><strong>'+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div><button type="button" id="roomMainJoin" '+(room.status!=="open"?"disabled":"")+'>ثبت‌نام در روم <b>⚡</b></button></div>';
+ $("roomDetail").innerHTML='<div class="room-detail-hero">'+media+roomFx+'<div class="room-hero-shade"></div><div class="room-hero-title"><span class="room-live-tag">'+roomPhaseLabel(room)+'</span><h2>'+esc(room.title)+'</h2><small>EX1 LEGEND · BATTLE ARENA</small></div><button class="room-back-btn" type="button" id="roomBackToList">بازگشت به روم‌ها</button></div><div class="room-summary-grid"><div><small>فرمت</small><strong>'+(room.team_size===2?"دو نفره":"چهار نفره")+'</strong></div><div><small>زمان شروع</small><strong>'+formatRoomStart(room.starts_at)+'</strong></div><div><small>ورودی هر بازیکن</small><strong>'+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div><div class="room-prize-summary"><small>جوایز این روم</small><strong>جایزه‌های رتبه‌بندی</strong></div><div><small>ظرفیت</small><strong>'+n+' تیم</strong></div></div><section class="room-prize-podium" aria-label="جوایز رتبه‌های برتر"><h3>🏆 جوایز رتبه‌های برتر</h3><div class="room-prize-list"><div class="room-prize-card first"><span class="room-prize-medal">🥇</span><div><small>تیم اول</small><strong>'+Number(room.prize_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div><div class="room-prize-card second"><span class="room-prize-medal">🥈</span><div><small>تیم دوم</small><strong>'+Number(room.prize_second_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div><div class="room-prize-card third"><span class="room-prize-medal">🥉</span><div><small>تیم سوم</small><strong>'+Number(room.prize_third_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div></div></section><div class="room-tabs"><button class="active" type="button" data-room-tab="teams">تیم‌ها</button><button type="button" data-room-tab="rules">قوانین</button><button type="button" data-room-tab="results">نتایج</button></div><div id="roomAccessInline" class="panel" style="margin:12px 14px" hidden></div><div id="roomTeamsPanel"><div class="room-section-title"><span></span><div><h3>لیست تیم‌ها</h3><small>وضعیت جایگاه‌ها از دیتابیس به‌روز می‌شود</small></div></div><div class="muted" id="roomSlotsMessage">در حال دریافت جایگاه‌ها...</div><div class="team-slots" id="roomSlotsList"></div><section id="roomWaitingPanel" hidden><div class="room-section-title"><span></span><div><h3>بازیکنان در انتظار تشکیل تیم</h3><small>ثبت‌نام انفرادی تا تکمیل تعداد اعضا</small></div></div><div id="roomWaitingPlayers" class="user-list" style="padding:0 14px 12px"></div></section><div id="soloQueueStatus" class="muted" style="margin:12px 14px;padding:12px;border:1px solid #ffffff20;border-radius:12px;background:#ffffff08" hidden></div></div><div id="roomResultsPanel" class="room-results" hidden><h3>نتایج همین روم</h3><div id="roomResultsContent" class="muted">در حال دریافت...</div></div><div id="roomRulesPanel" class="room-rules" hidden><div class="room-section-title"><span></span><div><h3>قوانین و توضیحات</h3><small>قبل از ثبت‌نام قوانین روم را بخوان</small></div></div><div class="room-rules-copy">'+esc(room.rules||"قوانین اختصاصی برای این روم ثبت نشده است.")+'</div></div><div class="room-register-bar" id="roomRegisterBar"><div><small>ورودی هر بازیکن</small><strong>'+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div><button type="button" id="roomMainJoin" '+(roomRegistrationClosed(room)?"disabled":"")+'>ثبت‌نام در روم <b>⚡</b></button></div>';
  $("roomDetail").hidden=false;
- const roomRegisterBar=$("roomRegisterBar");if(roomRegisterBar)document.body.appendChild(roomRegisterBar);
+ const roomRegisterBar=$("roomRegisterBar");if(roomRegisterBar&&!roomRegistrationClosed(room))document.body.appendChild(roomRegisterBar);else roomRegisterBar?.remove();
  $("roomBackToList").onclick=()=>{if(window.ex1RoomAccessTimer){clearInterval(window.ex1RoomAccessTimer);window.ex1RoomAccessTimer=null;}if(roomStartReleaseTimer){clearTimeout(roomStartReleaseTimer);roomStartReleaseTimer=null;}activeRoomDetail=null;$("roomRegisterBar")?.remove();$("roomDetail").hidden=true;document.getElementById("roomCards").scrollIntoView({behavior:"smooth",block:"start"});};
  $("roomDetail").querySelectorAll("[data-room-tab]").forEach(b=>b.onclick=()=>{const tab=b.dataset.roomTab,rules=tab==="rules",results=tab==="results";$("roomTeamsPanel").hidden=rules||results;$("roomRulesPanel").hidden=!rules;$("roomResultsPanel").hidden=!results;if(results)loadRoomResults(room.id);$("roomDetail").querySelectorAll("[data-room-tab]").forEach(x=>x.classList.toggle("active",x===b));});
  $("roomMainJoin").disabled=true;$("roomMainJoin").textContent="در حال دریافت جایگاه‌ها...";$("roomMainJoin").onclick=()=>{const first=$("roomSlotsList").querySelector("[data-room-slot]");if(!first){toast("فعلاً جایگاه خالی برای ثبت‌نام وجود ندارد.");return;}openRoomJoin(room,Number(first.dataset.roomSlot));};
  const {data:occupied,error}=await sb.rpc("get_tournament_room_slots",{p_room_id:room.id});
- if(error){$("roomSlotsMessage").innerHTML='اطلاعات جایگاه‌ها فعلاً در دسترس نیست. <button class="btn ghost small" type="button" id="retryRoomSlots">تلاش دوباره</button>';$("roomMainJoin").disabled=true;$("roomMainJoin").textContent="فعلاً در دسترس نیست";$("retryRoomSlots").onclick=()=>showRoomDetail(room);console.warn("EX1 room slots unavailable:",error);return;}
+ if(requestToken!==roomDetailRequestToken||activeRoomDetail?.id!==room.id||$("roomDetail")?.hidden)return;
+ const joinButton=$("roomMainJoin");
+ if(!joinButton)return;
+ if(error){
+  const slotsMessage=$("roomSlotsMessage");
+  if(slotsMessage)slotsMessage.innerHTML='اطلاعات جایگاه‌ها فعلاً در دسترس نیست. <button class="btn ghost small" type="button" id="retryRoomSlots">تلاش دوباره</button>';
+  joinButton.disabled=true;joinButton.textContent="فعلاً در دسترس نیست";
+  const retryButton=$("retryRoomSlots");if(retryButton)retryButton.onclick=()=>showRoomDetail(room);
+  console.warn("EX1 room slots unavailable:",error);return;
+ }
  const used=new Map((occupied||[]).map(x=>[Number(x.slot_number),x]));
  const free=n-used.size;
- $("roomMainJoin").disabled=free<=0||room.status!=="open"||roomPhase(room)!=="scheduled";$("roomMainJoin").innerHTML=free>0?"ثبت‌نام در روم <b>⚡</b>":"ظرفیت تکمیل";
+ const registrationClosed=roomRegistrationClosed(room);
+ joinButton.disabled=free<=0||registrationClosed;
+ joinButton.innerHTML=roomIsFinished(room)?"این روم به پایان رسیده":registrationClosed?"مهلت ثبت‌نام تمام شده":free>0?"ثبت‌نام در روم <b>⚡</b>":"ظرفیت تکمیل";
  $("roomSlotsMessage").textContent=free.toLocaleString("fa-IR")+" جایگاه خالی از "+n.toLocaleString("fa-IR")+" تیم";
  $("roomSlotsList").innerHTML=Array.from({length:n},(_,i)=>{
   const slot=i+1,row=used.get(slot),players=Array.isArray(row?.players)?row.players:[];
@@ -632,11 +683,13 @@ async function showRoomDetail(room){
   }).join("");
   const isWaiting=row?.status==="waiting";
   const slotClass=isWaiting?"is-forming":row?"is-full":"is-open";
-  return '<div class="team-slot '+slotClass+'"><span class="team-slot-watermark">'+slot+'</span><div class="team-slot-avatars">'+avatars+'</div><div class="team-slot-info"><strong>'+(isWaiting?"در حال تشکیل تیم":row?esc(row.team_name||"تیم ثبت‌شده"):"تیم آزاد")+'</strong><small>'+(row?players.length+" از "+teamSize+" بازیکن ثبت‌شده":"آماده ثبت‌نام")+'</small></div>'+(row&&!isWaiting?'<span class="team-slot-status">رزرو</span>':'<button type="button" data-room-slot="'+slot+'" '+((room.status!=="open"&&!isWaiting)?"disabled":"")+'>'+(isWaiting?"پیوستن":"انتخاب")+'</button>')+'</div>';
+  return '<div class="team-slot '+slotClass+'"><span class="team-slot-watermark">'+slot+'</span><div class="team-slot-avatars">'+avatars+'</div><div class="team-slot-info"><strong>'+(isWaiting?"در حال تشکیل تیم":row?esc(row.team_name||"تیم ثبت‌شده"):"تیم آزاد")+'</strong><small>'+(row?players.length+" از "+teamSize+" بازیکن ثبت‌شده":"آماده ثبت‌نام")+'</small></div>'+(row&&!isWaiting?'<span class="team-slot-status">رزرو</span>':'<button type="button" data-room-slot="'+slot+'" '+(roomRegistrationClosed(room)?"disabled":"")+'>'+(roomRegistrationClosed(room)?"بسته":isWaiting?"پیوستن":"انتخاب")+'</button>')+'</div>';
  }).join("");
  $("roomDetail").querySelectorAll("[data-room-slot]").forEach(b=>b.onclick=()=>openRoomJoin(room,Number(b.dataset.roomSlot)));
  await refreshSoloQueueStatus(room.id);
-  await refreshRoomAccess(room.id);
+ if(requestToken!==roomDetailRequestToken||activeRoomDetail?.id!==room.id)return;
+ await refreshRoomAccess(room.id);
+ if(requestToken!==roomDetailRequestToken||activeRoomDetail?.id!==room.id)return;
  if(currentUser)window.ex1RoomAccessTimer=setInterval(()=>{if(activeRoomDetail?.id===room.id&&!document.hidden)refreshRoomAccess(room.id).catch(()=>{});},10000);
  if(currentUser)scheduleRoomAccessRelease(room);
  $("roomDetail").scrollIntoView({behavior:"smooth",block:"start"});
@@ -650,7 +703,37 @@ function ex1LoadPageData(key,loader){
  state.at=now;
  state.promise=Promise.resolve().then(loader).catch(err=>{state.at=0;console.warn("EX1 page data:",err);}).finally(()=>{state.promise=null;});
 }
+const ex1SyncState={};
+function ex1ScheduleRefresh(key,minInterval,loader){
+ const now=Date.now(),state=ex1SyncState[key]||(ex1SyncState[key]={last:0,running:false});
+ if(state.running||now-state.last<minInterval)return;
+ state.last=now;state.running=true;
+ Promise.resolve().then(loader).catch(error=>console.warn("EX1 auto refresh "+key+":",error)).finally(()=>{state.running=false;});
+}
+function ex1RefreshVisibleData(){
+ if(!currentUser||document.hidden)return;
+ const profileActive=$("page-profile")?.classList.contains("active");
+ const homeActive=$("page-home")?.classList.contains("active");
+ if(profileActive){
+  ex1ScheduleRefresh("notifications",20000,loadUserNotifications);
+  ex1ScheduleRefresh("wallet",20000,loadWallet);
+ }
+ if(homeActive&&!$("home-messages")?.hidden){
+  ex1ScheduleRefresh("chat-contacts",30000,loadChatContacts);
+  if(activeConversation)ex1ScheduleRefresh("chat-messages",7000,loadMessages);
+ }
+ if($("page-tournaments")?.classList.contains("active"))ex1ScheduleRefresh("tournaments",25000,loadTournaments);
+ if($("page-ranking")?.classList.contains("active"))ex1ScheduleRefresh("ranking",45000,loadRanking);
+}
+function cleanupRoomDetailOnNavigation(){
+ roomDetailRequestToken++;
+ if(window.ex1RoomAccessTimer){clearInterval(window.ex1RoomAccessTimer);window.ex1RoomAccessTimer=null;}
+ if(roomStartReleaseTimer){clearTimeout(roomStartReleaseTimer);roomStartReleaseTimer=null;}
+ $("roomRegisterBar")?.remove();activeRoomDetail=null;
+ if($("roomDetail"))$("roomDetail").hidden=true;
+}
 function switchPage(page){
+ if(page!=="tournaments")cleanupRoomDetailOnNavigation();
  document.querySelectorAll(".page").forEach(x=>{
   const active=x.id==="page-"+page;
   x.classList.toggle("active",active);
@@ -661,15 +744,14 @@ function switchPage(page){
  });
  document.querySelectorAll(".bottom-nav [data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
  if(page==="profile"){
-  const uid=currentUser?.id||null;
+  const uid=currentUser?.id||null,profileAlreadyLoaded=uid===profileCacheUserId&&profileDataLoaded;
   if(uid!==profileCacheUserId){profileCacheUserId=uid;profileDataLoaded=false;supportDataLoaded=false;notificationsDataLoaded=false;}
   if(currentUser&&!profileDataLoaded){profileDataLoaded=true;loadProfile().catch(()=>profileDataLoaded=false);}
-  // Non-critical panels load after the profile becomes visible, so they do not block navigation.
   if(currentUser&&!supportDataLoaded){supportDataLoaded=true;setTimeout(()=>{if($("page-profile")?.classList.contains("active"))loadSupportConversation().catch(()=>supportDataLoaded=false);else supportDataLoaded=false;},180);}
-  if(currentUser&&!notificationsDataLoaded){notificationsDataLoaded=true;setTimeout(()=>{if($("page-profile")?.classList.contains("active"))loadUserNotifications().catch(()=>notificationsDataLoaded=false);else notificationsDataLoaded=false;},260);}
+  if(currentUser){ex1ScheduleRefresh("notifications",15000,loadUserNotifications);if(profileAlreadyLoaded)ex1ScheduleRefresh("wallet",15000,loadWallet);}
  }
- if(page==="tournaments")ex1LoadPageData("tournaments",loadTournaments);
- if(page==="ranking")ex1LoadPageData("ranking",loadRanking);
+ if(page==="tournaments"){if(currentUser)getCachedWalletSummary().catch(()=>{});ex1ScheduleRefresh("tournaments",18000,loadTournaments);}
+ if(page==="ranking")ex1ScheduleRefresh("ranking",18000,loadRanking);
 }
 document.querySelectorAll(".bottom-nav [data-page]").forEach(b=>b.addEventListener("click",()=>switchPage(b.dataset.page)));
 function switchHome(tab){
@@ -677,7 +759,7 @@ function switchHome(tab){
  document.querySelectorAll("[data-home-tab]").forEach(b=>b.classList.toggle("active",b.dataset.homeTab===selected));
  ["explore","messages"].forEach(x=>{$("home-"+x).hidden=x!==selected;});
  if(selected==="explore")loadExplore();
- if(selected==="messages")loadChatContacts();
+ if(selected==="messages"){loadChatContacts();if(activeConversation)loadMessages();}
 }
 document.querySelectorAll("[data-home-tab]").forEach(b=>b.addEventListener("click",()=>switchHome(b.dataset.homeTab)));
 $("headerAuth").onclick=()=>currentUser?switchPage("profile"):openAuth();
@@ -999,7 +1081,7 @@ async function openConversation(otherId,person){
    const {error:me}=await sb.from("social_conversation_members").insert([{conversation_id:conv.id,user_id:currentUser.id},{conversation_id:conv.id,user_id:otherId}]);if(me)throw me;
    convId=conv.id;
   }
-  activeConversation=convId;activeConversationUser=otherId;
+  activeConversation=convId;activeConversationUser=otherId;$("chatMessages").dataset.ex1Loaded="";
   $("chatTitle").textContent="گفت‌وگو با "+(person?.display_name||"بازیکن");
   $("chatText").disabled=false;$("chatSend").disabled=false;
   await loadMessages();
@@ -1007,10 +1089,12 @@ async function openConversation(otherId,person){
 }
 async function loadMessages(){
  if(!activeConversation)return;
+ const box=$("chatMessages"),previousScrollTop=box.scrollTop,wasNearBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80,firstLoad=box.dataset.ex1Loaded!=="1";
  const {data,error}=await sb.from("social_messages").select("id,sender_id,body,created_at,deleted_at").eq("conversation_id",activeConversation).order("created_at",{ascending:true}).limit(100);
- if(error){$("chatMessages").innerHTML='<div class="empty">پیام‌ها دریافت نشدند.</div>';return;}
- $("chatMessages").innerHTML=(data||[]).map(m=>'<div class="bubble '+(m.sender_id===currentUser.id?"mine":"")+'">'+esc(m.deleted_at?"پیام حذف‌شده":m.body)+'</div>').join("")||'<div class="empty">اولین پیام را بفرست.</div>';
- $("chatMessages").scrollTop=$("chatMessages").scrollHeight;
+ if(error){box.innerHTML='<div class="empty">پیام‌ها دریافت نشدند.</div>';return;}
+ box.innerHTML=(data||[]).map(m=>'<div class="bubble '+(m.sender_id===currentUser.id?"mine":"")+'">'+esc(m.deleted_at?"پیام حذف‌شده":m.body)+'</div>').join("")||'<div class="empty">اولین پیام را بفرست.</div>';
+ box.dataset.ex1Loaded="1";
+ if(firstLoad||wasNearBottom)box.scrollTop=box.scrollHeight;else box.scrollTop=previousScrollTop;
 }
 $("chatForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!activeConversation||!currentUser)return;const body=$("chatText").value.trim();if(!body)return;
@@ -1137,20 +1221,61 @@ $("supportForm").addEventListener("submit",async e=>{
  finally{$("supportSend").disabled=false;}
 });
 setInterval(()=>{if(currentUser&&!document.hidden&&$("page-profile")?.classList.contains("active"))loadSupportConversation().catch(()=>{});},10000);
-function roomCategory(mode){const m=String(mode||"").toLowerCase();if(/fight|1v1|solo|فایت|تک/.test(m))return "fight";if(/battle|br|بتل|رویال/.test(m))return "br";if(/multi|mp|مولتی/.test(m))return "multi";return "all";}
+function roomGameCategory(room){
+ const explicit=String(room?.game_category||"").toLowerCase();
+ if(["battle_royale","fight","multiplayer","uncategorized"].includes(explicit))return explicit;
+ const m=String(room?.game_mode||"").toLowerCase();
+ if(/fight|1v1|solo|فایت|تک/.test(m))return "fight";
+ if(/battle|br|بتل|رویال/.test(m))return "battle_royale";
+ if(/multi|mp|مولتی/.test(m))return "multiplayer";
+ return "uncategorized";
+}
+function roomPriceCategory(room){
+ const fee=Number(room?.entry_demo_points||0);
+ if(fee<=0)return "free";
+ const explicit=String(room?.price_category||"").toLowerCase();
+ if(explicit==="expensive")return "expensive";
+ if(explicit==="economy")return "economy";
+ return "economy";
+}
 function roomImagePosition(room){const x=Math.max(0,Math.min(100,Number(room?.room_image_focus_x??50)));const y=Math.max(0,Math.min(100,Number(room?.room_image_focus_y??55)));return x+"% "+y+"%";}
 function formatRoomStart(value){if(!value)return "اعلام نشده";const d=new Date(value);if(Number.isNaN(d.getTime()))return "اعلام نشده";const now=new Date();const today=d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d.getDate()===now.getDate();const time=d.toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"});return today?"امروز ساعت "+time:d.toLocaleDateString("fa-IR",{weekday:"long"})+" ساعت "+time;}
-function applyRoomCategory(category){window.ex1ActiveRoomCategory=category;document.querySelectorAll("[data-room-category]").forEach(b=>b.classList.toggle("active",b.dataset.roomCategory===category));const rooms=window.ex1Rooms||[];const q=($("roomSearch")?.value||"").trim().toLocaleLowerCase();const filtered=rooms.filter(r=>(category==="all"||roomCategory(r.game_mode)===category)&&(!q||[r.title,r.map,r.game_mode].some(v=>String(v||"").toLocaleLowerCase().includes(q))));$("roomCategoryTitle").textContent=({all:"روم‌های پیشنهادی",fight:"روم‌های فایت",br:"روم‌های بتل‌رویال",multi:"روم‌های مولتی"})[category];$("roomCards").querySelectorAll("[data-open-room]").forEach(b=>{b.closest(".room-card").hidden=!filtered.some(r=>r.id===b.dataset.openRoom);});if($("roomCategoryEmpty"))$("roomCategoryEmpty").hidden=rooms.length===0||filtered.length>0;}
+function renderRoomCard(r){
+ const imageUrl=r.room_image_url||r.tournaments?.cover_image_url||"";
+ const media=r.room_media_type==="video"&&r.room_video_url
+  ?'<video muted playsinline preload="metadata" src="'+esc(r.room_video_url)+'"></video>'
+  :(imageUrl?'<img style="object-position:'+roomImagePosition(r)+'" src="'+esc(imageUrl)+'" alt="تصویر مسابقه">':'<div class="room-card-fallback"><img src="/room-arena-art.svg" alt="تصویر میدان رقابت EX1"><span>ARENA ROOM</span></div>');
+ const roomFx=r.room_effects_enabled===true&&imageUrl&&r.room_media_type!=="video"
+  ?'<div class="ex1-room-fx ex1-room-card-fx" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>':"";
+ return '<article class="panel room-card '+(roomIsFinished(r)?"room-card-completed":"")+'" data-room-end-at="'+esc(r.ends_at||"")+'">'+media+roomFx+'<div class="room-card-body"><div class="room-card-top"><span class="room-phase-tag '+roomPhase(r)+'">'+roomPhaseLabel(r)+'</span><span class="room-card-mode">'+(r.team_size===2?"DUO":"SQUAD")+'</span></div><h3>'+esc(r.title)+'</h3><div class="room-meta"><span>'+Number(r.max_teams||25)+' تیم</span><span>·</span><span>ورودی هر بازیکن: '+Number(r.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</span><span>·</span><span>جایزه: اول '+Number(r.prize_demo_points||0).toLocaleString("fa-IR")+' / دوم '+Number(r.prize_second_demo_points||0).toLocaleString("fa-IR")+' / سوم '+Number(r.prize_third_demo_points||0).toLocaleString("fa-IR")+' استارز</span></div><div class="room-date-grid"><div class="room-date-item"><small>زمان شروع</small><strong>'+formatRoomStart(r.starts_at)+'</strong></div><div class="room-date-item"><small>ورودی هر بازیکن</small><strong>'+Number(r.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div><button class="room-open-btn" type="button" data-open-room="'+esc(r.id)+'">مشاهده جزئیات روم <span>←</span></button></div></article>';
+}
+function applyRoomCategory(category){
+ window.ex1ActiveRoomCategory=category;
+ document.querySelectorAll("[data-room-category]").forEach(b=>b.classList.toggle("active",b.dataset.roomCategory===category));
+ const rooms=window.ex1Rooms||[];
+ const q=($("roomSearch")?.value||"").trim().toLocaleLowerCase();
+ const filtered=rooms.filter(r=>(category==="all"||roomGameCategory(r)===category)&&(!q||[r.title,r.map,r.game_mode].some(v=>String(v||"").toLocaleLowerCase().includes(q))));
+ $("roomCategoryTitle").textContent=({all:"روم‌های پیشنهادی",fight:"روم‌های فایت",br:"روم‌های بتل‌رویال",multi:"روم‌های مولتی"})[category]||"روم‌های پیشنهادی";
+ const groups=[
+  {key:"free",title:"روم‌های رایگان",items:filtered.filter(r=>roomPriceCategory(r)==="free")},
+  {key:"economy",title:"روم‌های اقتصادی",items:filtered.filter(r=>roomPriceCategory(r)==="economy")},
+  {key:"expensive",title:"روم‌های گران",items:filtered.filter(r=>roomPriceCategory(r)==="expensive")}
+ ].filter(g=>g.items.length);
+ $("roomCards").innerHTML=groups.map(g=>'<section class="room-category-section" data-room-group="'+g.key+'"><div class="room-category-heading"><h3>'+g.title+'</h3><span>'+g.items.length.toLocaleString("fa-IR")+' روم</span></div><div class="room-category-track">'+g.items.map(renderRoomCard).join("")+'</div></section>').join("");
+ $("roomCards").querySelectorAll("[data-open-room]").forEach(button=>button.addEventListener("click",()=>{const room=filtered.find(x=>x.id===button.dataset.openRoom);if(room)showRoomDetail(room);}));
+ if($("roomCategoryEmpty"))$("roomCategoryEmpty").hidden=rooms.length===0||filtered.length>0;
+}
 document.querySelectorAll("[data-room-category]").forEach(b=>b.onclick=()=>applyRoomCategory(b.dataset.roomCategory));
 $("roomSearch").addEventListener("input",()=>applyRoomCategory(window.ex1ActiveRoomCategory||"all"));
 function applyRankingSearch(){const q=$("rankingSearch").value.trim().toLocaleLowerCase();$("ranking").querySelectorAll("[data-ranking-item]").forEach(item=>{item.hidden=!!q&&!item.textContent.toLocaleLowerCase().includes(q);});}
 $("rankingSearch").addEventListener("input",applyRankingSearch);
 async function loadTournaments(){
-  const {data:rooms,error:re}=await sb.from("tournament_rooms").select("id,tournament_id,title,game_mode,map,capacity,team_size,max_teams,entry_demo_points,prize_demo_points,prize_second_demo_points,prize_third_demo_points,starts_at,ends_at,status,room_image_url,room_image_focus_x,room_image_focus_y,room_media_type,room_video_url,rules,tournaments(cover_image_url)").in("status",["open","full"]).order("starts_at",{ascending:true,nullsFirst:false});
+ const {data:rooms,error:re}=await sb.from("tournament_rooms").select("id,tournament_id,title,game_mode,game_category,price_category,map,capacity,team_size,max_teams,entry_demo_points,prize_demo_points,prize_second_demo_points,prize_third_demo_points,starts_at,ends_at,status,room_image_url,room_image_focus_x,room_image_focus_y,room_media_type,room_video_url,room_effects_enabled,created_at,rules,tournaments(cover_image_url)").in("status",["open","full"]).order("created_at",{ascending:false,nullsFirst:false});
  if(re){$("roomCards").innerHTML='<div class="empty">مسابقات فعلاً بارگذاری نشدند. کمی بعد دوباره تلاش کن.<br><button class="btn small" type="button" id="retryRoomList">تلاش دوباره</button></div>';$("retryRoomList").onclick=loadTournaments;return;}
- const rr=(rooms||[]).filter(r=>!r.ends_at||Date.now()<new Date(r.ends_at).getTime()+86400000);window.ex1Rooms=rr;$("roomNoData").hidden=true;$("roomCards").innerHTML=rr.map(r=>'<article class="panel room-card '+(roomHasStarted(r)?"room-card-completed":"")+'" data-room-start-at="'+esc(r.starts_at||"")+'">'+(r.room_media_type==="video"&&r.room_video_url?'<video muted playsinline preload="metadata" src="'+esc(r.room_video_url)+'"></video>':((r.room_image_url||r.tournaments?.cover_image_url)?'<img style="object-position:'+roomImagePosition(r)+'" src="'+esc(r.room_image_url||r.tournaments.cover_image_url)+'" alt="تصویر مسابقه">':'<div class="room-card-fallback"><img src="/room-arena-art.svg" alt="تصویر میدان رقابت EX1"><span>ARENA ROOM</span></div>'))+'<div class="room-card-body"><div class="room-card-top"><span class="room-phase-tag '+roomPhase(r)+'">'+roomPhaseLabel(r)+'</span><span class="room-card-mode">'+(r.team_size===2?"DUO":"SQUAD")+'</span></div><h3>'+esc(r.title)+'</h3><div class="room-meta"><span>'+Number(r.max_teams||25)+' تیم</span><span>·</span><span>ورودی هر بازیکن: '+Number(r.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</span><span>·</span><span>جایزه: '+"اول "+Number(r.prize_demo_points||0).toLocaleString("fa-IR")+" / دوم "+Number(r.prize_second_demo_points||0).toLocaleString("fa-IR")+" / سوم "+Number(r.prize_third_demo_points||0).toLocaleString("fa-IR")+' استارز</span></div><div class="room-date-grid"><div class="room-date-item"><small>زمان شروع</small><strong>'+formatRoomStart(r.starts_at)+'</strong></div><div class="room-date-item"><small>ورودی هر بازیکن</small><strong>'+Number(r.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div><button class="room-open-btn" type="button" data-open-room="'+esc(r.id)+'">مشاهده جزئیات روم <span>←</span></button></div></article>').join("")||'<div class="empty">هنوز رومی برای نمایش وجود ندارد.</div>';
- $("roomCards").querySelectorAll("[data-open-room]").forEach(button=>button.addEventListener("click",()=>{const room=rr.find(x=>x.id===button.dataset.openRoom);if(room)showRoomDetail(room);}));
- applyRoomCategory("all");$("roomDetail").hidden=true;
+ const rr=(rooms||[]).filter(r=>!r.ends_at||Date.now()<new Date(r.ends_at).getTime()+86400000);
+ window.ex1Rooms=rr;$("roomNoData").hidden=rr.length>0;
+ applyRoomCategory(window.ex1ActiveRoomCategory||"all");
+ $("roomDetail").hidden=true;
 }async function loadMyMatches(){if(!currentUser)return;$("myMatches").innerHTML='<div class="empty">در حال دریافت سابقه...</div>';const {data,error}=await sb.from("tournament_room_registrations").select("id,room_id,tournament_id,team_id,slot_number,status,registered_at,tournament_rooms(title,game_mode)").eq("user_id",currentUser.id).order("registered_at",{ascending:false}).limit(30);if(error){$("myMatches").innerHTML='<div class="empty">سابقهٔ روم‌ها دریافت نشد.</div>';return;}const rows=data||[];const teamIds=[...new Set(rows.map(x=>x.team_id).filter(Boolean))];let resultsByKey={};if(teamIds.length){const {data:results}=await sb.from("tournament_results").select("team_id,tournament_id,placement,points").in("team_id",teamIds);(results||[]).forEach(x=>resultsByKey[x.team_id+":"+x.tournament_id]=x);} $("myMatches").innerHTML=rows.map(x=>{const result=resultsByKey[x.team_id+":"+x.tournament_id];const reward=result?"جایگاه "+Number(result.placement)+" · امتیاز نتیجه: "+Number(result.points||0).toLocaleString("fa-IR"):"هنوز نتیجه‌ای ثبت نشده است";return '<div class="panel user-row"><div class="user-info"><strong>'+esc(x.tournament_rooms?.title||"روم EX1")+'</strong><small>'+esc(x.tournament_rooms?.game_mode||"مسابقه")+' · جایگاه روم '+Number(x.slot_number||0)+' · '+esc(x.status)+'</small><small>'+esc(reward)+'</small></div></div>';}).join("")||'<div class="empty">هنوز در رومی ثبت‌نام نکرده‌ای.</div>';}
 let currentTeamId=null;
 async function loadTeamInvites(){
@@ -1303,13 +1428,17 @@ if(EX1_AUTH_RETURN.recovery){sb.auth.getSession().then(({data,error})=>{if(error
 if(EX1_AUTH_RETURN.errorCode){setTimeout(()=>{openAuth();toast(EX1_AUTH_RETURN.errorCode==="otp_expired"?"لینک بازیابی منقضی شده یا قبلاً استفاده شده است. لینک تازه درخواست کن.":("خطای ورود ایمیلی: "+(EX1_AUTH_RETURN.errorDescription||EX1_AUTH_RETURN.errorCode)));},0);}
 checkConnection();
 authState();
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)setTimeout(ex1RefreshVisibleData,250);});
+window.addEventListener("focus",()=>setTimeout(ex1RefreshVisibleData,250));
+window.addEventListener("pageshow",()=>setTimeout(ex1RefreshVisibleData,250));
+setInterval(ex1RefreshVisibleData,8000);
 document.addEventListener("contextmenu",event=>{if(!event.target.closest("input,textarea,select,[contenteditable=true],.allow-select"))event.preventDefault();});
 document.addEventListener("selectstart",event=>{if(!event.target.closest("input,textarea,select,[contenteditable=true],.allow-select"))event.preventDefault();});
-setInterval(()=>{const now=Date.now();document.querySelectorAll("[data-room-start-at]").forEach(card=>{const start=new Date(card.dataset.roomStartAt).getTime();card.classList.toggle("room-card-completed",Number.isFinite(start)&&now>=start);});},15000);
+setInterval(()=>{const now=Date.now();document.querySelectorAll("[data-room-end-at]").forEach(card=>{const end=new Date(card.dataset.roomEndAt).getTime();card.classList.toggle("room-card-completed",Number.isFinite(end)&&now>=end+7200000);});if(activeRoomDetail&&roomRegistrationClosed(activeRoomDetail)){$("roomRegisterBar")?.remove();document.querySelectorAll("#roomSlotsList [data-room-slot]").forEach(btn=>{btn.disabled=true;btn.textContent="بسته";});}},10000);
 setInterval(()=>{if(activeRoomDetail&&!$("roomDetail").hidden&&!document.hidden)refreshRoomAccess(activeRoomDetail.id);},15000);
 </script>
 <script>
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js"));}
+if(!window.EX1_NATIVE_APP&&new URLSearchParams(location.search).get("ex1_native")!=="1"&&"serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js"));}
 </script>
 
 <script>
@@ -1412,5 +1541,58 @@ if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.se
 .profile-cover h1{margin:5px 0 2px}
 .profile-cover .profile-handle{line-height:1.4}
 </style>
-</body>
+
+<style id="ex1-cinematic-tab-motion-v1">
+/* Smooth, noticeable page transitions: compositor-friendly opacity/transform only. */
+@keyframes ex1CinematicPageEnter {
+  0% { opacity: 0; transform: translate3d(0,18px,0) scale(.985); }
+  65% { opacity: 1; transform: translate3d(0,-2px,0) scale(1.002); }
+  100% { opacity: 1; transform: translate3d(0,0,0) scale(1); }
+}
+@keyframes ex1NavIconPop {
+  0% { transform: translateY(5px) scale(.82); }
+  65% { transform: translateY(-2px) scale(1.12); }
+  100% { transform: translateY(0) scale(1); }
+}
+.page.active.ex1-page-enter {
+  animation: ex1CinematicPageEnter 430ms cubic-bezier(.2,.78,.22,1) both;
+  will-change: opacity, transform;
+}
+.bottom-nav button.active svg,
+.bottom-nav button.active .rank-icon {
+  animation: ex1NavIconPop 360ms cubic-bezier(.2,.8,.2,1) both;
+}
+.bottom-nav button.active {
+  color: #e2c2ff;
+  text-shadow: 0 0 12px rgba(183,112,255,.55);
+}
+.bottom-nav button:active { transform: scale(.94); }
+#home-explore:not([hidden]), #home-messages:not([hidden]),
+#profileMatches:not([hidden]), #profileTeam:not([hidden]) {
+  animation: ex1CinematicPageEnter 360ms cubic-bezier(.2,.78,.22,1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page.active.ex1-page-enter,
+  .bottom-nav button.active svg,
+  .bottom-nav button.active .rank-icon,
+  #home-explore:not([hidden]), #home-messages:not([hidden]),
+  #profileMatches:not([hidden]), #profileTeam:not([hidden]) {
+    animation: none !important;
+    will-change: auto !important;
+  }
+}
+</style>
+
+<style id="ex1-room-image-effects-v1">
+.room-detail-hero{isolation:isolate}
+.ex1-room-fx{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;border:1px solid rgba(180,120,255,.42);box-shadow:inset 0 0 24px rgba(155,92,255,.22),inset 0 0 5px rgba(55,225,255,.18)}
+.ex1-room-fx:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 85%,rgba(150,80,255,.23),transparent 62%);animation:ex1RoomGlow 3.8s ease-in-out infinite alternate}
+.ex1-room-fx:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 28%,rgba(100,220,255,.12) 48%,rgba(185,115,255,.16) 52%,transparent 72%);transform:translateX(-100%);animation:ex1RoomScan 7s ease-in-out infinite}
+.ex1-room-fx i{position:absolute;bottom:-8px;width:3px;height:3px;border-radius:50%;background:#bda0ff;box-shadow:0 0 8px 2px rgba(171,120,255,.8);animation:ex1RoomParticle 4.8s linear infinite}
+.ex1-room-fx i:nth-child(1){left:16%;animation-delay:-1.1s}.ex1-room-fx i:nth-child(2){left:37%;animation-delay:-3.4s}.ex1-room-fx i:nth-child(3){left:61%;animation-delay:-2s}.ex1-room-fx i:nth-child(4){left:78%;animation-delay:-4s}.ex1-room-fx i:nth-child(5){left:91%;animation-delay:-.4s}
+@keyframes ex1RoomGlow{from{opacity:.45}to{opacity:1}}
+@keyframes ex1RoomScan{0%,65%{transform:translateX(-100%);opacity:0}75%{opacity:1}100%{transform:translateX(100%);opacity:0}}
+@keyframes ex1RoomParticle{0%{transform:translate3d(0,0,0);opacity:0}12%{opacity:.9}88%{opacity:.65}100%{transform:translate3d(8px,-270px,0);opacity:0}}
+@media(prefers-reduced-motion:reduce){.ex1-room-fx:before,.ex1-room-fx:after,.ex1-room-fx i{animation:none!important}.ex1-room-fx i{opacity:.55}}
+</style></body>
 </html>
