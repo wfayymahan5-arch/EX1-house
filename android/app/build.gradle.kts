@@ -41,6 +41,15 @@ android {
         }
     }
 
+    buildTypes {
+        create("nativePreview") {
+            initWith(getByName("debug"))
+            matchingFallbacks += listOf("debug")
+            applicationIdSuffix = ".native"
+            versionNameSuffix = "-native"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
