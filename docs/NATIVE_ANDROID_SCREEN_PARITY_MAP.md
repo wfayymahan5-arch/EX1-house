@@ -7,7 +7,7 @@ This map was extracted from the current `app.html` and `admin.html` clients on t
 - Profile: `page-profile`, including owner-editable biography and public biography display
 - Tournament/room discovery: `page-tournaments`
 - Room details: `roomDetail`
-- Ranking: `page-ranking`
+- Ranking: `page-ranking`; player rows open the matching public player profile
 - Team profile and matches: `profileTeam`, `profileMatches`
 - Support: `supportPanel`
 - Notifications: `userNotificationsPanel`
