@@ -179,7 +179,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 runCatching { NativeEx1Api.signOut(renewed) }
                 NativeEx1Api.clearSession(context)
                 session = null
-                rooms = emptyList(); profile = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList()
+                rooms = emptyList(); profile = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false; roomResults = emptyList()
                 error = "دسترسی این حساب به EX1 مسدود شده است. برای پیگیری با پشتیبانی تماس بگیر."
                 return@LaunchedEffect
             }
@@ -195,7 +195,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
             if (e.status == 400 || e.status == 401 || e.status == 403) {
                 NativeEx1Api.clearSession(context)
                 session = null
-                rooms = emptyList(); profile = null; wallet = null; permissions = emptyList(); selectedRoom = null
+                rooms = emptyList(); profile = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false
                 error = "نشست قبلی معتبر نیست؛ دوباره وارد شو."
             } else {
                 error = e.message ?: "ارتباط با سرور برقرار نشد."
@@ -723,7 +723,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                     }
                                     NativeEx1Api.clearSession(context)
                                     session = null
-                                    rooms = emptyList(); profile = null; wallet = null; permissions = emptyList(); selectedRoom = null
+                                    rooms = emptyList(); profile = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false
                                     showDeleteForm = false
                                     error = null
                                     deletePassword = ""
@@ -755,7 +755,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                             if (current != null) runCatching { NativeEx1Api.signOut(current) }
                             NativeEx1Api.clearSession(context)
                             session = null
-                            rooms = emptyList(); profile = null; wallet = null; permissions = emptyList(); selectedRoom = null
+                            rooms = emptyList(); profile = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false
                         }
                     }) { Text("خروج") }
                 },
