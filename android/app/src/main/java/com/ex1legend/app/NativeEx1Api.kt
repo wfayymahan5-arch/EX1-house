@@ -297,8 +297,12 @@ object NativeEx1Api {
     }
 
     suspend fun wallet(session: NativeSession): NativeWallet = withContext(Dispatchers.IO) {
-        val summary = request("POST", "/rest/v1/rpc/wallet_my_summary", session, JSONObject()) as? JSONArray
-        val first = if (summary != null && summary.length() > 0) summary.optJSONObject(0) else null
+        val summary = request("POST", "/rest/v1/rpc/wallet_my_summary", session, JSONObject())
+        val first = when (summary) {
+            is JSONArray -> if (summary.length() > 0) summary.optJSONObject(0) else null
+            is JSONObject -> summary
+            else -> null
+        }
         val history = request(
             "POST",
             "/rest/v1/rpc/wallet_my_history",
