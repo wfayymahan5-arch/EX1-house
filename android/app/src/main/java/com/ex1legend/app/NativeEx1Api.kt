@@ -45,6 +45,14 @@ data class NativeRoom(
     val firstPrize: Long
 )
 
+data class NativeAdminSnapshot(
+    val tournaments: List<JSONObject>,
+    val registrations: List<JSONObject>,
+    val teams: List<JSONObject>,
+    val users: List<JSONObject>,
+    val wallet: List<JSONObject>
+)
+
 data class NativePlayerResult(
     val playerName: String,
     val placement: Int?,
@@ -751,6 +759,32 @@ object NativeEx1Api {
             )
         }
         NativeWallet(first?.optLong("balance_units") ?: 0L, entries)
+    }
+
+    private suspend fun adminRows(
+        session: NativeSession,
+        rpcName: String,
+        args: JSONObject = JSONObject()
+    ): List<JSONObject> = withContext(Dispatchers.IO) {
+        val rows = request("POST", "/rest/v1/rpc/$rpcName", session, args) as? JSONArray ?: JSONArray()
+        (0 until rows.length()).mapNotNull { rows.optJSONObject(it) }
+    }
+
+    suspend fun adminSnapshot(session: NativeSession, permissions: List<String>): NativeAdminSnapshot = kotlinx.coroutines.coroutineScope {
+        val canTournaments = permissions.contains("tournaments.view")
+        val canRegistrations = permissions.contains("registrations.view_all")
+        val canTeams = permissions.contains("teams.view")
+        val canUsers = permissions.contains("users.view") || permissions.contains("profiles.view_all")
+        val canWallet = permissions.contains("wallet.view_all")
+        val tournaments = kotlinx.coroutines.async { if (canTournaments) adminRows(session, "admin_dashboard_tournaments") else emptyList() }
+        val registrations = kotlinx.coroutines.async { if (canRegistrations) adminRows(session, "admin_dashboard_registrations") else emptyList() }
+        val teams = kotlinx.coroutines.async { if (canTeams) adminRows(session, "admin_dashboard_teams") else emptyList() }
+        val users = kotlinx.coroutines.async { if (canUsers) adminRows(session, "admin_dashboard_users") else emptyList() }
+        val wallet = kotlinx.coroutines.async {
+            if (canWallet) adminRows(session, "admin_wallet_demo_overview_v2", JSONObject().put("p_limit", 200))
+            else emptyList()
+        }
+        NativeAdminSnapshot(tournaments.await(), registrations.await(), teams.await(), users.await(), wallet.await())
     }
 
     suspend fun isCurrentUserBanned(session: NativeSession): Boolean = withContext(Dispatchers.IO) {
