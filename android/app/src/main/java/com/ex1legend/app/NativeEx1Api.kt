@@ -439,8 +439,8 @@ object NativeEx1Api {
             session,
             JSONObject().put("action", "update").put("team_id", teamId)
                 .put("name", name.trim())
-                .put("tag", tag.trim().uppercase().ifBlank { JSONObject.NULL })
-                .put("description", description.trim().ifBlank { JSONObject.NULL })
+                .put("tag", if (tag.isBlank()) JSONObject.NULL else tag.trim().uppercase())
+                .put("description", if (description.isBlank()) JSONObject.NULL else description.trim())
         ) as? JSONObject ?: throw IllegalStateException("پاسخ ویرایش تیم معتبر نیست.")
     }
 
