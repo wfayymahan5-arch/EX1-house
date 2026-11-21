@@ -1,6 +1,10 @@
 package com.ex1legend.app
 
 import android.os.Bundle
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -88,6 +92,14 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var profile by remember { mutableStateOf<NativeProfile?>(null) }
     var wallet by remember { mutableStateOf<NativeWallet?>(null) }
     var activeTab by remember { mutableStateOf("rooms") }
+    var selectedRoom by remember { mutableStateOf<NativeRoom?>(null) }
+    var roomSlots by remember { mutableStateOf<List<NativeRoomSlot>>(emptyList()) }
+    var soloStatus by remember { mutableStateOf<NativeSoloStatus?>(null) }
+    var roomAccess by remember { mutableStateOf<NativeRoomAccess?>(null) }
+    var roomDetailLoading by remember { mutableStateOf(false) }
+    var roomActionBusy by remember { mutableStateOf(false) }
+    var roomDetailError by remember { mutableStateOf<String?>(null) }
+    var roomActionMessage by remember { mutableStateOf<String?>(null) }
     var permissions by remember { mutableStateOf<List<String>>(emptyList()) }
     var ownerAccessDenied by remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(session != null) }
@@ -256,6 +268,58 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 wallet = wallet,
                 activeTab = activeTab,
                 onTab = { activeTab = it },
+                onOpenRoom = { room ->
+                    selectedRoom = room
+                    roomSlots = emptyList()
+                    soloStatus = null
+                    roomAccess = null
+                    roomDetailError = null
+                    roomActionMessage = null
+                    roomDetailLoading = true
+                    scope.launch {
+                        try {
+                            val current = session ?: throw IllegalStateException("ابتدا وارد حساب شو.")
+                            roomSlots = NativeEx1Api.roomSlots(current, room.id)
+                            soloStatus = NativeEx1Api.soloStatus(current, room.id)
+                            roomAccess = NativeEx1Api.roomAccess(current, room.id)
+                        } catch (e: Exception) {
+                            roomDetailError = e.message ?: "دریافت اطلاعات روم ناموفق بود."
+                        } finally {
+                            roomDetailLoading = false
+                        }
+                    }
+                },
+                onRegister = { room, slotNumber, solo ->
+                    scope.launch {
+                        roomActionBusy = true
+                        roomDetailError = null
+                        roomActionMessage = null
+                        try {
+                            val current = session ?: throw IllegalStateException("ابتدا وارد حساب شو.")
+                            val currentProfile = profile ?: NativeEx1Api.profile(current).also { profile = it }
+                            if (currentProfile?.gameUid.isNullOrBlank() || currentProfile?.gameName.isNullOrBlank() || currentProfile?.gameUid?.contains("@") == true) {
+                                throw IllegalStateException("برای ثبت‌نام، UID و نام داخل بازی کالاف را در پروفایل تکمیل کن.")
+                            }
+                            val result = if (solo) NativeEx1Api.registerSolo(current, room.id, slotNumber)
+                                else NativeEx1Api.registerForRoom(current, room.id, slotNumber)
+                            roomActionMessage = if (solo && result.optString("status") == "matched") {
+                                "تیمت به‌صورت خودکار تشکیل شد؛ جایگاه ${result.optInt("slot_number")}."
+                            } else if (solo) {
+                                "ثبت‌نام انفرادی در صف ثبت شد؛ ${result.optInt("players_waiting")} نفر از ${result.optInt("team_size")} نفر."
+                            } else {
+                                "ثبت‌نام با موفقیت ثبت شد؛ جایگاه ${result.optInt("slot_number")}."
+                            }
+                            wallet = NativeEx1Api.wallet(current)
+                            roomSlots = NativeEx1Api.roomSlots(current, room.id)
+                            soloStatus = NativeEx1Api.soloStatus(current, room.id)
+                            roomAccess = NativeEx1Api.roomAccess(current, room.id)
+                        } catch (e: Exception) {
+                            roomDetailError = e.message ?: "ثبت‌نام انجام نشد."
+                        } finally {
+                            roomActionBusy = false
+                        }
+                    }
+                },
                 onDeleteAccount = { confirmDeleteAccount = true },
                 onSaveProfile = { name, username, uid, gameName ->
                     scope.launch {
@@ -302,6 +366,20 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                     }
                 },
                 onSignOut = { confirmSignOut = true }
+            )
+        }
+        if (selectedRoom != null) {
+            RoomDetailDialog(
+                room = selectedRoom!!,
+                slots = roomSlots,
+                soloStatus = soloStatus,
+                access = roomAccess,
+                loading = roomDetailLoading,
+                busy = roomActionBusy,
+                error = roomDetailError,
+                message = roomActionMessage,
+                onDismiss = { selectedRoom = null },
+                onRegister = { slot, solo -> onRegisterRoom(selectedRoom!!, slot, solo) }
             )
         }
         if (confirmDeleteAccount) {
@@ -458,6 +536,8 @@ private fun PlayerPreviewPanel(
     wallet: NativeWallet?,
     activeTab: String,
     onTab: (String) -> Unit,
+    onOpenRoom: (NativeRoom) -> Unit,
+    onRegister: (NativeRoom, Int, Boolean) -> Unit,
     onDeleteAccount: () -> Unit,
     onSaveProfile: (String, String, String, String) -> Unit,
     category: String,
@@ -509,7 +589,7 @@ private fun PlayerPreviewPanel(
                     }
                 } else {
                     LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.weight(1f)) {
-                        items(visibleRooms, key = { it.id }) { room -> RoomPreviewCard(room) }
+                        items(visibleRooms, key = { it.id }) { room -> RoomPreviewCard(room, onOpen = { onOpenRoom(room) }) }
                     }
                 }
             }
@@ -594,7 +674,101 @@ private fun SettingsPreviewPanel(onDeleteAccount: () -> Unit) {
 }
 
 @Composable
-private fun RoomPreviewCard(room: NativeRoom) {
+private fun RoomDetailDialog(
+    room: NativeRoom,
+    slots: List<NativeRoomSlot>,
+    soloStatus: NativeSoloStatus?,
+    access: NativeRoomAccess?,
+    loading: Boolean,
+    busy: Boolean,
+    error: String?,
+    message: String?,
+    onDismiss: () -> Unit,
+    onRegister: (Int, Boolean) -> Unit
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val maxTeams = room.maxTeams.takeIf { it > 0 } ?: if (room.teamSize > 0) room.capacity / room.teamSize else 0
+    val occupied = slots.associateBy { it.number }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(room.title) },
+        text = {
+            Column(
+                Modifier.fillMaxWidth().heightIn(max = 560.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text("ورودی: ${room.entryPoints} امتیاز مجازی · ظرفیت: ${room.capacity}")
+                Text("جایزه اول: ${room.firstPrize} امتیاز مجازی · هر تیم: ${room.teamSize} نفر", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+                if (loading) CircularProgressIndicator()
+                if (!message.isNullOrBlank()) Text(message, color = Color(0xFF9DE3B2))
+                if (!error.isNullOrBlank()) Text(error, color = Color(0xFFFF9B9B))
+                if (soloStatus?.registered == true) {
+                    Text(
+                        if (soloStatus.status == "matched") "تیم تو تشکیل شده است · جایگاه ${soloStatus.slotNumber ?: "—"}"
+                        else "در صف تشکیل تیم هستی · ${soloStatus.waiting ?: 0} نفر حاضر، ${soloStatus.needed ?: 0} نفر دیگر لازم است.",
+                        color = Color(0xFFBFA0F4)
+                    )
+                }
+                if (access?.accessReady == true) {
+                    Text("اطلاعات روم بازی", fontWeight = FontWeight.Bold)
+                    access.roomCode?.let { code ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("کد: $code", modifier = Modifier.weight(1f))
+                            TextButton(onClick = {
+                                (context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
+                                    .setPrimaryClip(ClipData.newPlainText("EX1 room code", code))
+                                Toast.makeText(context, "کد روم کپی شد.", Toast.LENGTH_SHORT).show()
+                            }) { Text("کپی") }
+                        }
+                    }
+                    access.roomPassword?.let { password ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("رمز: $password", modifier = Modifier.weight(1f))
+                            TextButton(onClick = {
+                                (context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
+                                    .setPrimaryClip(ClipData.newPlainText("EX1 room password", password))
+                                Toast.makeText(context, "رمز روم کپی شد.", Toast.LENGTH_SHORT).show()
+                            }) { Text("کپی") }
+                        }
+                    }
+                } else if (access?.waitingForStart == true || access?.waitingForAdmin == true) {
+                    Text("اطلاعات خصوصی روم پس از زمان‌بندی و تأیید مدیر برای شرکت‌کنندگان مجاز نمایش داده می‌شود.", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+                }
+                Text("جایگاه‌های تیمی", fontWeight = FontWeight.Bold)
+                if (maxTeams <= 0) Text("ظرفیت جایگاه‌ها مشخص نیست.")
+                else if (room.status != "open") Text("ثبت‌نام این روم در وضعیت فعلی باز نیست.")
+                else (1..maxTeams).forEach { slotNumber ->
+                    val slot = occupied[slotNumber]
+                    Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
+                        Column(Modifier.fillMaxWidth().padding(10.dp)) {
+                            Text(
+                                when {
+                                    slot == null -> "جایگاه $slotNumber · آزاد"
+                                    slot.status == "waiting" -> "جایگاه $slotNumber · در حال تشکیل تیم"
+                                    else -> "جایگاه $slotNumber · ${slot.teamName.ifBlank { "تیم ثبت‌شده" }}"
+                                },
+                                fontWeight = FontWeight.Bold
+                            )
+                            if (slot != null && slot.players.isNotEmpty()) {
+                                Text(slot.players.joinToString("، "), color = Color(0xFFBBA8D8), fontSize = 11.sp)
+                            }
+                            if (slot == null || slot.status == "waiting") {
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    TextButton(enabled = !busy, onClick = { onRegister(slotNumber, false) }) { Text("ثبت‌نام تیمی") }
+                                    if (room.teamSize > 1) TextButton(enabled = !busy, onClick = { onRegister(slotNumber, true) }) { Text("ثبت‌نام انفرادی") }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("بستن") } }
+    )
+}
+
+@Composable
+private fun RoomPreviewCard(room: NativeRoom, onOpen: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -619,6 +793,8 @@ private fun RoomPreviewCard(room: NativeRoom) {
             Text("جایزه اول: ${room.firstPrize} امتیاز مجازی", color = Color(0xFFBFA0F4), fontSize = 13.sp)
             val meta = listOfNotNull(room.gameMode, room.map).joinToString(" · ")
             if (meta.isNotBlank()) Text(meta, color = Color(0xFF8E879B), fontSize = 12.sp)
+            Spacer(Modifier.height(8.dp))
+            Button(onClick = onOpen, modifier = Modifier.fillMaxWidth()) { Text("جزئیات و جایگاه‌ها") }
         }
     }
 }
