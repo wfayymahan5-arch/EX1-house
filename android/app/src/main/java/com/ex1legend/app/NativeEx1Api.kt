@@ -60,10 +60,9 @@ data class NativeTeam(
     val description: String?,
     val captainId: String,
     val logoUrl: String?,
-    val members: List<NativeTeamMember>
-) {
-    val isCaptain: Boolean get() = members.any { it.userId == captainId }
-}
+    val members: List<NativeTeamMember>,
+    val isCaptain: Boolean
+)
 
 data class NativeTeamInvite(
     val id: String,
@@ -377,7 +376,8 @@ object NativeEx1Api {
             team.optString("description").takeIf { it.isNotBlank() && it != "null" },
             team.optString("captain_id"),
             team.optString("logo_url").takeIf { it.isNotBlank() && it != "null" },
-            members
+            members,
+            team.optString("captain_id") == session.userId
         )
     }
 
@@ -427,8 +427,8 @@ object NativeEx1Api {
             "/functions/v1/manage-team",
             session,
             JSONObject().put("action", "create").put("name", name.trim())
-                .put("tag", tag.trim().uppercase().ifBlank { JSONObject.NULL })
-                .put("description", description.trim().ifBlank { JSONObject.NULL })
+                .put("tag", if (tag.isBlank()) JSONObject.NULL else tag.trim().uppercase())
+                .put("description", if (description.isBlank()) JSONObject.NULL else description.trim())
         ) as? JSONObject ?: throw IllegalStateException("پاسخ ساخت تیم معتبر نیست.")
     }
 
