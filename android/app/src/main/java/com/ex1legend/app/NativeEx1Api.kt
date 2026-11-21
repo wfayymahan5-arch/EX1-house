@@ -778,10 +778,10 @@ object NativeEx1Api {
         val canUsers = permissions.contains("users.view") || permissions.contains("profiles.view_all")
         val canWallet = permissions.contains("wallet.view_all")
         val tournaments = async { if (canTournaments) adminRows(session, "admin_dashboard_tournaments") else emptyList() }
-        val registrations = kotlinx.coroutines.async { if (canRegistrations) adminRows(session, "admin_dashboard_registrations") else emptyList() }
-        val teams = kotlinx.coroutines.async { if (canTeams) adminRows(session, "admin_dashboard_teams") else emptyList() }
-        val users = kotlinx.coroutines.async { if (canUsers) adminRows(session, "admin_dashboard_users") else emptyList() }
-        val wallet = kotlinx.coroutines.async {
+        val registrations = async { if (canRegistrations) adminRows(session, "admin_dashboard_registrations") else emptyList() }
+        val teams = async { if (canTeams) adminRows(session, "admin_dashboard_teams") else emptyList() }
+        val users = async { if (canUsers) adminRows(session, "admin_dashboard_users") else emptyList() }
+        val wallet = async {
             if (canWallet) adminRows(session, "admin_wallet_demo_overview_v2", JSONObject().put("p_limit", 200))
             else emptyList()
         }
