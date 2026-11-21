@@ -109,6 +109,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var supportError by remember { mutableStateOf<String?>(null) }
     var supportHandoff by remember { mutableStateOf(false) }
     var supportBusy by remember { mutableStateOf(false) }
+    var supportSendRevision by remember { mutableStateOf(0) }
     var teamInvites by remember { mutableStateOf<List<NativeTeamInvite>>(emptyList()) }
     var sentTeamInvites by remember { mutableStateOf<List<NativeSentTeamInvite>>(emptyList()) }
     var teamMessage by remember { mutableStateOf<String?>(null) }
@@ -414,6 +415,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 supportError = supportError,
                 supportHandoff = supportHandoff,
                 supportBusy = supportBusy,
+                supportSendRevision = supportSendRevision,
                 onNewSupport = {
                     supportConversationId = null
                     supportMessages = emptyList()
@@ -434,6 +436,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                             supportHandoff = result.optBoolean("handoff")
                             supportMessages = if (supportConversationId == null) supportMessages else NativeEx1Api.supportMessages(current, supportConversationId!!)
                             supportHint = if (supportHandoff) "این گفت‌وگو در صف پشتیبان انسانی است." else "پاسخ پشتیبانی دریافت شد."
+                            supportSendRevision++
                         } catch (e: Exception) {
                             supportError = e.message ?: "ارسال پیام انجام نشد."
                             supportHint = "ارسال پیام ناموفق بود؛ دوباره تلاش کن."
@@ -785,6 +788,7 @@ private fun PlayerPreviewPanel(
     supportError: String?,
     supportHandoff: Boolean,
     supportBusy: Boolean,
+    supportSendRevision: Int,
     onNewSupport: () -> Unit,
     onSendSupport: (String) -> Unit,
     onMarkNotificationRead: (String) -> Unit,
@@ -834,7 +838,7 @@ private fun PlayerPreviewPanel(
             "profile" -> ProfilePreviewPanel(profile = profile, onSave = onSaveProfile)
             "wallet" -> WalletPreviewPanel(wallet = wallet)
             "notifications" -> NotificationsPreviewPanel(notifications, teamBusy, onMarkNotificationRead, onDeleteNotification)
-            "support" -> SupportPreviewPanel(supportMessages, supportHint, supportError, supportHandoff, supportBusy, onNewSupport, onSendSupport)
+            "support" -> SupportPreviewPanel(supportMessages, supportHint, supportError, supportHandoff, supportBusy, supportSendRevision, onNewSupport, onSendSupport)
             "team" -> TeamPreviewPanel(
                 team = team,
                 invites = teamInvites,
@@ -948,10 +952,12 @@ private fun SupportPreviewPanel(
     error: String?,
     handoff: Boolean,
     busy: Boolean,
+    sendRevision: Int,
     onNewConversation: () -> Unit,
     onSend: (String) -> Unit
 ) {
     var draft by remember { mutableStateOf("") }
+    LaunchedEffect(sendRevision) { if (sendRevision > 0) draft = "" }
     Column(
         Modifier.fillMaxWidth().heightIn(max = 560.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -998,7 +1004,6 @@ private fun SupportPreviewPanel(
                 val message = draft.trim()
                 if (message.isNotEmpty()) {
                     onSend(message)
-                    draft = ""
                 }
             },
             enabled = !busy && draft.trim().isNotEmpty(),
