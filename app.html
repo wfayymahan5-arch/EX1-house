@@ -288,7 +288,7 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 </section>
 <section class="page" id="page-tournaments">
  <div class="tournament-banner"><div class="tournament-banner-copy"><span>EX1 LEGEND · ARENA</span><h1>جوایز و<br>مسابقات</h1><p>رقابت‌های جامعه، روم‌های فعال و جدول قهرمانان</p></div><div class="tournament-banner-mark">EX1</div><div class="banner-bottom"><b>مسابقات فعال</b><small>برای دیدن جزئیات، کارت هر مسابقه را انتخاب کن</small></div></div>
- <div class="tournament-filter" id="roomCategoryFilter"><button class="active" type="button" data-room-category="all">برای شما</button><button type="button" data-room-category="fight">فایت</button><button type="button" data-room-category="br">بتل‌رویال</button><button type="button" data-room-category="multi">مولتی</button></div><div class="section-head"><div><h2 id="roomCategoryTitle">روم‌های پیشنهادی</h2><p>یک روم را انتخاب کن تا جزئیاتش را ببینی.</p></div></div><label class="searchbar"><input id="roomSearch" class="field" type="search" maxlength="80" placeholder="جست‌وجوی نام روم، نقشه یا حالت بازی..."></label>
+ <div class="tournament-filter" id="roomCategoryFilter"><button class="active" type="button" data-room-category="all">برای شما</button><button type="button" data-room-category="battle_royale">بتل‌رویال</button><button type="button" data-room-category="fight">فایت</button><button type="button" data-room-category="multiplayer">مولتی</button><button type="button" data-room-category="uncategorized">دسته‌بندی نشده</button></div><div class="section-head"><div><h2 id="roomCategoryTitle">روم‌های پیشنهادی</h2><p>یک روم را انتخاب کن تا جزئیاتش را ببینی.</p></div></div><label class="searchbar"><input id="roomSearch" class="field" type="search" maxlength="80" placeholder="جست‌وجوی نام روم، نقشه یا حالت بازی..."></label>
  <div id="roomCards" class="room-grid"><div class="empty">در حال دریافت روم‌ها...</div></div><div id="roomNoData" class="panel room-empty-state" hidden><strong>هنوز رومی برای ثبت‌نام فعال نشده</strong><p>به‌محض اضافه شدن روم جدید، برای شما در این قسمت نمایش داده می‌شود.</p></div><div id="roomCategoryEmpty" class="empty" hidden>فعلاً رومی در این دسته وجود ندارد.</div><section id="roomDetail" class="panel room-detail" hidden></section>
 </section>
 <section class="page" id="page-ranking">
@@ -1221,7 +1221,20 @@ $("supportForm").addEventListener("submit",async e=>{
  finally{$("supportSend").disabled=false;}
 });
 setInterval(()=>{if(currentUser&&!document.hidden&&$("page-profile")?.classList.contains("active"))loadSupportConversation().catch(()=>{});},10000);
-function roomCategory(mode){const m=String(mode||"").toLowerCase();if(/fight|1v1|solo|فایت|تک/.test(m))return "fight";if(/battle|br|بتل|رویال/.test(m))return "br";if(/multi|mp|مولتی/.test(m))return "multi";return "all";}
+function roomGameCategory(room){
+ const explicit=String(room?.game_category||"").toLowerCase();
+ if(["battle_royale","fight","multiplayer","uncategorized"].includes(explicit))return explicit;
+ const m=String(room?.game_mode||"").toLowerCase();
+ if(/fight|1v1|solo|فایت|تک/.test(m))return "fight";
+ if(/battle|br|بتل|رویال/.test(m))return "battle_royale";
+ if(/multi|mp|مولتی/.test(m))return "multiplayer";
+ return "uncategorized";
+}
+function roomPriceCategory(room){
+ const explicit=String(room?.price_category||"").toLowerCase();
+ if(["free","economy","expensive"].includes(explicit))return explicit;
+ return Number(room?.entry_demo_points||0)===0?"free":"economy";
+}
 function roomImagePosition(room){const x=Math.max(0,Math.min(100,Number(room?.room_image_focus_x??50)));const y=Math.max(0,Math.min(100,Number(room?.room_image_focus_y??55)));return x+"% "+y+"%";}
 function formatRoomStart(value){if(!value)return "اعلام نشده";const d=new Date(value);if(Number.isNaN(d.getTime()))return "اعلام نشده";const now=new Date();const today=d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d.getDate()===now.getDate();const time=d.toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"});return today?"امروز ساعت "+time:d.toLocaleDateString("fa-IR",{weekday:"long"})+" ساعت "+time;}
 function renderRoomCard(r){
@@ -1238,11 +1251,12 @@ function applyRoomCategory(category){
  document.querySelectorAll("[data-room-category]").forEach(b=>b.classList.toggle("active",b.dataset.roomCategory===category));
  const rooms=window.ex1Rooms||[];
  const q=($("roomSearch")?.value||"").trim().toLocaleLowerCase();
- const filtered=rooms.filter(r=>(category==="all"||roomCategory(r.game_mode)===category)&&(!q||[r.title,r.map,r.game_mode].some(v=>String(v||"").toLocaleLowerCase().includes(q))));
+ const filtered=rooms.filter(r=>(category==="all"||roomGameCategory(r)===category)&&(!q||[r.title,r.map,r.game_mode].some(v=>String(v||"").toLocaleLowerCase().includes(q))));
  $("roomCategoryTitle").textContent=({all:"روم‌های پیشنهادی",fight:"روم‌های فایت",br:"روم‌های بتل‌رویال",multi:"روم‌های مولتی"})[category]||"روم‌های پیشنهادی";
  const groups=[
-  {key:"free",title:"روم‌های رایگان",items:filtered.filter(r=>Number(r.entry_demo_points||0)===0)},
-  {key:"paid",title:"روم‌های ورودی‌دار",items:filtered.filter(r=>Number(r.entry_demo_points||0)>0)}
+  {key:"free",title:"روم‌های رایگان",items:filtered.filter(r=>roomPriceCategory(r)==="free")},
+  {key:"economy",title:"روم‌های اقتصادی",items:filtered.filter(r=>roomPriceCategory(r)==="economy")},
+  {key:"expensive",title:"روم‌های گران",items:filtered.filter(r=>roomPriceCategory(r)==="expensive")}
  ].filter(g=>g.items.length);
  $("roomCards").innerHTML=groups.map(g=>'<section class="room-category-section" data-room-group="'+g.key+'"><div class="room-category-heading"><h3>'+g.title+'</h3><span>'+g.items.length.toLocaleString("fa-IR")+' روم</span></div><div class="room-category-track">'+g.items.map(renderRoomCard).join("")+'</div></section>').join("");
  $("roomCards").querySelectorAll("[data-open-room]").forEach(button=>button.addEventListener("click",()=>{const room=filtered.find(x=>x.id===button.dataset.openRoom);if(room)showRoomDetail(room);}));
@@ -1253,7 +1267,7 @@ $("roomSearch").addEventListener("input",()=>applyRoomCategory(window.ex1ActiveR
 function applyRankingSearch(){const q=$("rankingSearch").value.trim().toLocaleLowerCase();$("ranking").querySelectorAll("[data-ranking-item]").forEach(item=>{item.hidden=!!q&&!item.textContent.toLocaleLowerCase().includes(q);});}
 $("rankingSearch").addEventListener("input",applyRankingSearch);
 async function loadTournaments(){
- const {data:rooms,error:re}=await sb.from("tournament_rooms").select("id,tournament_id,title,game_mode,map,capacity,team_size,max_teams,entry_demo_points,prize_demo_points,prize_second_demo_points,prize_third_demo_points,starts_at,ends_at,status,room_image_url,room_image_focus_x,room_image_focus_y,room_media_type,room_video_url,room_effects_enabled,created_at,rules,tournaments(cover_image_url)").in("status",["open","full"]).order("created_at",{ascending:false,nullsFirst:false});
+ const {data:rooms,error:re}=await sb.from("tournament_rooms").select("id,tournament_id,title,game_mode,game_category,price_category,map,capacity,team_size,max_teams,entry_demo_points,prize_demo_points,prize_second_demo_points,prize_third_demo_points,starts_at,ends_at,status,room_image_url,room_image_focus_x,room_image_focus_y,room_media_type,room_video_url,room_effects_enabled,created_at,rules,tournaments(cover_image_url)").in("status",["open","full"]).order("created_at",{ascending:false,nullsFirst:false});
  if(re){$("roomCards").innerHTML='<div class="empty">مسابقات فعلاً بارگذاری نشدند. کمی بعد دوباره تلاش کن.<br><button class="btn small" type="button" id="retryRoomList">تلاش دوباره</button></div>';$("retryRoomList").onclick=loadTournaments;return;}
  const rr=(rooms||[]).filter(r=>!r.ends_at||Date.now()<new Date(r.ends_at).getTime()+86400000);
  window.ex1Rooms=rr;$("roomNoData").hidden=rr.length>0;
