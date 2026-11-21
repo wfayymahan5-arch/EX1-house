@@ -40,6 +40,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -54,8 +57,9 @@ class NativePreviewActivity : ComponentActivity() {
         window.statusBarColor = android.graphics.Color.rgb(10, 8, 18)
         window.navigationBarColor = android.graphics.Color.rgb(10, 8, 18)
         setContent {
-            MaterialTheme(
-                colorScheme = darkColorScheme(
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                MaterialTheme(
+                    colorScheme = darkColorScheme(
                     primary = Color(0xFFB58CFF),
                     secondary = Color(0xFF8D65D6),
                     background = Color(0xFF0A0812),
@@ -63,7 +67,8 @@ class NativePreviewActivity : ComponentActivity() {
                     onSurface = Color(0xFFF4F0FA)
                 )
             ) {
-                NativePreviewRoot(isAdmin = BuildConfig.IS_ADMIN)
+                    NativePreviewRoot(isAdmin = BuildConfig.IS_ADMIN)
+                }
             }
         }
     }
