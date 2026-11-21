@@ -977,13 +977,14 @@ async function loadProfile(){
  }catch(roleError){console.warn("EX1 role badge unavailable:",roleError);$("managerWorkspaceButton").hidden=true;}
  const avatarBox=$("profileAvatar");const fallbackAvatar=esc((data.display_name||"EX").slice(0,1));let avatarUrl=data.avatar_url||"";if(avatarUrl&&!/^https?:\/\//i.test(avatarUrl))avatarUrl=sb.storage.from("ex1-avatars").getPublicUrl(avatarUrl).data.publicUrl;avatarBox.innerHTML=avatarUrl?'<img class="profile-avatar-image" data-avatar-fallback="'+fallbackAvatar+'" data-avatar-class="profile-avatar-fallback" src="'+esc(avatarUrl)+'" alt="عکس پروفایل">':fallbackAvatar;
  const coverBox=$("profileCover");const coverUrl=avatarUrl;if(coverUrl){coverBox.classList.add("has-custom-cover");coverBox.style.backgroundImage='linear-gradient(rgba(10,8,20,.58),rgba(10,8,20,.70)),url("'+coverUrl.replace(/["\\]/g,"")+'")';}else{coverBox.classList.remove("has-custom-cover");coverBox.style.backgroundImage="";}$("removeCoverButton").hidden=true;
- $("profileName").value=data.display_name||"";$("profileHandle").value=data.username||"";$("profileGameUid").value=data.game_uid||"";$("profileGameName").value=data.game_name||"";$("profileBio").value=data.bio||"";loadFollowRequests();loadMyMatches();loadFollowStats();
+ $("profileName").value=data.display_name||"";$("profileHandle").value=data.username||"";$("profileGameUid").value=data.game_uid||"";$("profileGameName").value=data.game_name||"";$("profileBio").value=data.bio||"";$("profileBio").dataset.originalBio=data.bio||"";loadFollowRequests();loadMyMatches();loadFollowStats();
 }
 $("profileForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!currentUser){openAuth();return;}
   const gameUid=$("profileGameUid").value.trim();
   if(gameUid.includes("@")){toast("UID کالاف نباید ایمیل باشد؛ شناسه داخل بازی را وارد کن.");$("profileGameUid").focus();return;}
   const payload={display_name:$("profileName").value.trim(),username:$("profileHandle").value.trim()||null,game_uid:gameUid||null,game_name:$("profileGameName").value.trim()||null,bio:$("profileBio").value.trim()||null};
+ const bioChanged=payload.bio!==($("profileBio").dataset.originalBio||"");
  const {data:updateData,error:updateError}=await sb.functions.invoke("update-profile",{body:payload});
  if(updateError){
   let message=profileDuplicateMessage(updateError)||"ذخیره پروفایل انجام نشد.";
@@ -992,13 +993,14 @@ $("profileForm").addEventListener("submit",async e=>{
 }
  if(updateData?.pending_review){toast(updateData.message||"پروفایل برای بررسی مالک ارسال شد.");return;}
  if(!updateData?.success){toast(updateData?.error||"ذخیره پروفایل انجام نشد.");return;}
- if(payload.bio){
+ if(bioChanged){
   const {data:bioCheck,error:bioCheckError}=await sb.from("profiles").select("bio").eq("id",currentUser.id).maybeSingle();
   if(bioCheckError||bioCheck?.bio!==payload.bio){
    toast("اطلاعات پروفایل ذخیره شد، اما سرور هنوز ذخیره بیوگرافی را تأیید نکرده است؛ قابلیت بیوگرافی پس از به‌روزرسانی سرور فعال می‌شود.");
    return;
   }
  }
+ $("profileBio").dataset.originalBio=payload.bio||"";
  toast("پروفایل ذخیره شد.");$("profileEditorModal").classList.remove("show");loadProfile();
 });
 
