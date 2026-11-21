@@ -386,6 +386,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 },
                 onOpenRoom = openRoom,
                 team = team,
+                teamBusy = busy,
                 teamInvites = teamInvites,
                 sentTeamInvites = sentTeamInvites,
                 teamMessage = teamMessage,
@@ -693,6 +694,18 @@ private fun PlayerPreviewPanel(
     activeTab: String,
     onTab: (String) -> Unit,
     onOpenRoom: (NativeRoom) -> Unit,
+    team: NativeTeam?,
+    teamBusy: Boolean,
+    teamInvites: List<NativeTeamInvite>,
+    sentTeamInvites: List<NativeSentTeamInvite>,
+    teamMessage: String?,
+    teamError: String?,
+    onCreateTeam: (String, String, String) -> Unit,
+    onUpdateTeam: (String, String, String) -> Unit,
+    onInvite: (String) -> Unit,
+    onRespondInvite: (String, Boolean) -> Unit,
+    onCancelInvite: (String) -> Unit,
+    onTeamAction: (String, String?) -> Unit,
     onDeleteAccount: () -> Unit,
     onSaveProfile: (String, String, String, String) -> Unit,
     category: String,
@@ -716,12 +729,27 @@ private fun PlayerPreviewPanel(
             FilterChip(selected = activeTab == "rooms", onClick = { onTab("rooms") }, label = { Text("روم‌ها") })
             FilterChip(selected = activeTab == "profile", onClick = { onTab("profile") }, label = { Text("پروفایل") })
             FilterChip(selected = activeTab == "wallet", onClick = { onTab("wallet") }, label = { Text("کیف پول مجازی") })
+            FilterChip(selected = activeTab == "team", onClick = { onTab("team") }, label = { Text("تیم") })
             FilterChip(selected = activeTab == "settings", onClick = { onTab("settings") }, label = { Text("تنظیمات") })
         }
         if (!error.isNullOrBlank()) Text(error, color = if (error.contains("ذخیره شد") || error.contains("بررسی ارسال")) Color(0xFFBFA0F4) else Color(0xFFFFA2A2), modifier = Modifier.padding(vertical = 8.dp))
         when (activeTab) {
             "profile" -> ProfilePreviewPanel(profile = profile, onSave = onSaveProfile)
             "wallet" -> WalletPreviewPanel(wallet = wallet)
+            "team" -> TeamPreviewPanel(
+                team = team,
+                invites = teamInvites,
+                sentInvites = sentTeamInvites,
+                message = teamMessage,
+                error = teamError,
+                busy = teamBusy,
+                onCreateTeam = onCreateTeam,
+                onUpdateTeam = onUpdateTeam,
+                onInvite = onInvite,
+                onRespondInvite = onRespondInvite,
+                onCancelInvite = onCancelInvite,
+                onTeamAction = onTeamAction
+            )
             "settings" -> SettingsPreviewPanel(onDeleteAccount = onDeleteAccount)
             else -> {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
