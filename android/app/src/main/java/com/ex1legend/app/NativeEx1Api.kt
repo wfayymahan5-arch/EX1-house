@@ -44,6 +44,18 @@ data class NativeRoom(
     val firstPrize: Long
 )
 
+data class NativeSupportMessage(
+    val senderRole: String,
+    val body: String,
+    val createdAt: String
+)
+
+data class NativeSupportConversation(
+    val id: String,
+    val status: String,
+    val updatedAt: String
+)
+
 data class NativeNotification(
     val id: String,
     val title: String,
@@ -330,6 +342,44 @@ object NativeEx1Api {
                 firstPrize = row.optLong("prize_demo_points")
             )
         }
+    }
+
+    suspend fun latestSupportConversation(session: NativeSession): NativeSupportConversation? = withContext(Dispatchers.IO) {
+        val rows = request(
+            "GET",
+            "/rest/v1/support_conversations?select=id,status,updated_at&user_id=eq.${session.userId}&order=updated_at.desc&limit=1",
+            session
+        ) as? JSONArray ?: JSONArray()
+        if (rows.length() == 0) return@withContext null
+        val row = rows.getJSONObject(0)
+        NativeSupportConversation(row.optString("id"), row.optString("status"), row.optString("updated_at"))
+    }
+
+    suspend fun supportMessages(session: NativeSession, conversationId: String): List<NativeSupportMessage> = withContext(Dispatchers.IO) {
+        val rows = request(
+            "GET",
+            "/rest/v1/support_messages?select=sender_role,body,created_at&conversation_id=eq.$conversationId&order=created_at.asc&limit=100",
+            session
+        ) as? JSONArray ?: JSONArray()
+        (0 until rows.length()).mapNotNull { index ->
+            val row = rows.optJSONObject(index) ?: return@mapNotNull null
+            NativeSupportMessage(row.optString("sender_role"), row.optString("body"), row.optString("created_at"))
+        }
+    }
+
+    suspend fun sendSupportMessage(
+        session: NativeSession,
+        message: String,
+        conversationId: String?
+    ): JSONObject = withContext(Dispatchers.IO) {
+        request(
+            "POST",
+            "/functions/v1/ai-support",
+            session,
+            JSONObject()
+                .put("message", message.trim())
+                .put("conversation_id", conversationId ?: JSONObject.NULL)
+        ) as? JSONObject ?: throw IllegalStateException("پاسخ پشتیبانی معتبر نیست.")
     }
 
     suspend fun notifications(session: NativeSession): List<NativeNotification> = withContext(Dispatchers.IO) {
