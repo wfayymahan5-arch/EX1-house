@@ -1,0 +1,340 @@
+package com.ex1legend.app
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
+
+class NativePreviewActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        window.statusBarColor = android.graphics.Color.rgb(10, 8, 18)
+        window.navigationBarColor = android.graphics.Color.rgb(10, 8, 18)
+        setContent {
+            MaterialTheme(
+                colorScheme = darkColorScheme(
+                    primary = Color(0xFFB58CFF),
+                    secondary = Color(0xFF8D65D6),
+                    background = Color(0xFF0A0812),
+                    surface = Color(0xFF171322),
+                    onSurface = Color(0xFFF4F0FA)
+                )
+            ) {
+                NativePreviewRoot(isAdmin = BuildConfig.IS_ADMIN)
+            }
+        }
+    }
+}
+
+@Composable
+private fun NativePreviewRoot(isAdmin: Boolean) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val scope = rememberCoroutineScope()
+    var session by remember { mutableStateOf(NativeEx1Api.loadSession(context)) }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var rooms by remember { mutableStateOf<List<NativeRoom>>(emptyList()) }
+    var permissions by remember { mutableStateOf<List<String>>(emptyList()) }
+    var loading by remember { mutableStateOf(session != null) }
+    var busy by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var category by remember { mutableStateOf("all") }
+    var price by remember { mutableStateOf("all") }
+
+    LaunchedEffect(session?.refreshToken) {
+        val current = session ?: return@LaunchedEffect
+        loading = true
+        error = null
+        try {
+            val renewed = NativeEx1Api.refresh(current)
+            NativeEx1Api.saveSession(context, renewed)
+            session = renewed
+            if (isAdmin) permissions = NativeEx1Api.adminPermissions(renewed)
+            else rooms = NativeEx1Api.rooms(renewed)
+        } catch (e: NativeApiException) {
+            if (e.status == 400 || e.status == 401 || e.status == 403) {
+                NativeEx1Api.clearSession(context)
+                session = null
+                error = "نشست قبلی معتبر نیست؛ دوباره وارد شو."
+            } else {
+                error = e.message ?: "ارتباط با سرور برقرار نشد."
+            }
+        } catch (e: Exception) {
+            error = e.message ?: "فعلاً دریافت اطلاعات ممکن نیست."
+        } finally {
+            loading = false
+        }
+    }
+
+    Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF0A0812)) {
+        if (session == null) {
+            LoginPanel(
+                email = email,
+                password = password,
+                busy = busy,
+                error = error,
+                onEmail = { email = it },
+                onPassword = { password = it },
+                onLogin = {
+                    if (email.isBlank() || password.isBlank()) {
+                        error = "ایمیل و رمز عبور را وارد کن."
+                    } else {
+                        scope.launch {
+                            busy = true
+                            error = null
+                            try {
+                                val loggedIn = NativeEx1Api.signIn(email, password)
+                                NativeEx1Api.saveSession(context, loggedIn)
+                                session = loggedIn
+                            } catch (e: Exception) {
+                                error = e.message ?: "ورود انجام نشد."
+                            } finally {
+                                busy = false
+                            }
+                        }
+                    }
+                },
+                isAdmin = isAdmin
+            )
+        } else if (loading) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else if (isAdmin) {
+            AdminPreviewPanel(
+                permissions = permissions,
+                error = error,
+                onRefresh = {
+                    scope.launch {
+                        loading = true
+                        try {
+                            permissions = NativeEx1Api.adminPermissions(session!!)
+                            error = null
+                        } catch (e: Exception) {
+                            error = e.message ?: "دریافت مجوزها ناموفق بود."
+                        } finally {
+                            loading = false
+                        }
+                    }
+                },
+                onSignOut = {
+                    scope.launch {
+                        val current = session
+                        if (current != null) runCatching { NativeEx1Api.signOut(current) }
+                        NativeEx1Api.clearSession(context)
+                        session = null
+                    }
+                }
+            )
+        } else {
+            PlayerPreviewPanel(
+                rooms = rooms,
+                category = category,
+                price = price,
+                error = error,
+                onCategory = { category = it },
+                onPrice = { price = it },
+                onRefresh = {
+                    scope.launch {
+                        loading = true
+                        try {
+                            rooms = NativeEx1Api.rooms(session)
+                            error = null
+                        } catch (e: Exception) {
+                            error = e.message ?: "دریافت روم‌ها ناموفق بود."
+                        } finally {
+                            loading = false
+                        }
+                    }
+                },
+                onSignOut = {
+                    scope.launch {
+                        val current = session
+                        if (current != null) runCatching { NativeEx1Api.signOut(current) }
+                        NativeEx1Api.clearSession(context)
+                        session = null
+                    }
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun LoginPanel(
+    email: String,
+    password: String,
+    busy: Boolean,
+    error: String?,
+    onEmail: (String) -> Unit,
+    onPassword: (String) -> Unit,
+    onLogin: () -> Unit,
+    isAdmin: Boolean
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("EX1 LEGEND", fontSize = 30.sp, fontWeight = FontWeight.Black, color = Color.White)
+        Text(if (isAdmin) "پنل مدیریت · نسخه Native آزمایشی" else "وارد میدان شو، افسانه شو", color = Color(0xFFBBA8D8))
+        Spacer(Modifier.height(28.dp))
+        OutlinedTextField(value = email, onValueChange = onEmail, label = { Text("ایمیل") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+        Spacer(Modifier.height(12.dp))
+        OutlinedTextField(value = password, onValueChange = onPassword, label = { Text("رمز عبور") }, singleLine = true, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
+        Spacer(Modifier.height(18.dp))
+        Button(onClick = onLogin, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+            if (busy) CircularProgressIndicator(modifier = Modifier.width(18.dp).height(18.dp), strokeWidth = 2.dp)
+            else Text("ورود امن")
+        }
+        if (!error.isNullOrBlank()) {
+            Spacer(Modifier.height(12.dp))
+            Text(error, color = Color(0xFFFF9B9B), textAlign = TextAlign.Center)
+        }
+        Spacer(Modifier.height(18.dp))
+        Text("این صفحه فقط پیش‌نمایش Native است؛ ورود و مجوزها از سرور بررسی می‌شوند.", color = Color(0xFF8E879B), fontSize = 12.sp, textAlign = TextAlign.Center)
+    }
+}
+
+@Composable
+private fun PlayerPreviewPanel(
+    rooms: List<NativeRoom>,
+    category: String,
+    price: String,
+    error: String?,
+    onCategory: (String) -> Unit,
+    onPrice: (String) -> Unit,
+    onRefresh: () -> Unit,
+    onSignOut: () -> Unit
+) {
+    val visibleRooms = rooms.filter {
+        (category == "all" || it.gameCategory == category) &&
+            (price == "all" || it.priceCategory == price)
+    }
+    Column(Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 12.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.weight(1f)) {
+                Text("EX1 LEGEND", fontWeight = FontWeight.Black, fontSize = 23.sp)
+                Text("نسخه Native · پیش‌نمایش بازیکن", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+            }
+            Button(onClick = onRefresh) { Text("به‌روزرسانی") }
+        }
+        Spacer(Modifier.height(14.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
+            listOf("all" to "برای شما", "battle_royale" to "بتل‌رویال", "fight" to "فایت", "multiplayer" to "مولتی", "uncategorized" to "بدون دسته").forEach { (key, label) ->
+                FilterChip(selected = category == key, onClick = { onCategory(key) }, label = { Text(label, fontSize = 11.sp) })
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+            listOf("all" to "همه قیمت‌ها", "free" to "رایگان", "economy" to "اقتصادی", "expensive" to "گران").forEach { (key, label) ->
+                FilterChip(selected = price == key, onClick = { onPrice(key) }, label = { Text(label, fontSize = 11.sp) })
+            }
+        }
+        if (!error.isNullOrBlank()) Text(error, color = Color(0xFFFFA2A2), modifier = Modifier.padding(vertical = 8.dp))
+        if (visibleRooms.isEmpty()) {
+            Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Text("در این دسته روم فعالی پیدا نشد.", color = Color(0xFFAAA2B8))
+            }
+        } else {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.weight(1f)) {
+                items(visibleRooms, key = { it.id }) { room -> RoomPreviewCard(room) }
+            }
+        }
+        Button(onClick = onSignOut, modifier = Modifier.fillMaxWidth()) { Text("خروج از حساب") }
+    }
+}
+
+@Composable
+private fun RoomPreviewCard(room: NativeRoom) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(room.title, modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                Text(
+                    when (room.status) {
+                        "open" -> "باز"
+                        "full" -> "تکمیل"
+                        "completed" -> "پایان‌یافته"
+                        else -> room.status
+                    },
+                    color = if (room.status == "completed") Color(0xFF898393) else Color(0xFFC5A4FF),
+                    fontSize = 12.sp
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+            Text("ورودی: ${room.entryPoints} امتیاز مجازی  ·  ظرفیت: ${room.capacity}", color = Color(0xFFC4BBD2), fontSize = 13.sp)
+            Text("جایزه اول: ${room.firstPrize} امتیاز مجازی", color = Color(0xFFBFA0F4), fontSize = 13.sp)
+            val meta = listOfNotNull(room.gameMode, room.map).joinToString(" · ")
+            if (meta.isNotBlank()) Text(meta, color = Color(0xFF8E879B), fontSize = 12.sp)
+        }
+    }
+}
+
+@Composable
+private fun AdminPreviewPanel(
+    permissions: List<String>,
+    error: String?,
+    onRefresh: () -> Unit,
+    onSignOut: () -> Unit
+) {
+    Column(Modifier.fillMaxSize().padding(20.dp)) {
+        Text("EX1 LEGEND", fontWeight = FontWeight.Black, fontSize = 26.sp)
+        Text("پیش‌نمایش Native پنل مدیریت", color = Color(0xFFBBA8D8))
+        Spacer(Modifier.height(16.dp))
+        Text("مجوزهای تأییدشده حساب", fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(10.dp))
+        if (permissions.isEmpty()) Text("برای این حساب مجوز مدیریتی فعالی دریافت نشد.", color = Color(0xFFB6AEC2))
+        else permissions.forEach { Text("• $it", color = Color(0xFFD9CDEA), modifier = Modifier.padding(vertical = 4.dp)) }
+        if (!error.isNullOrBlank()) Text(error, color = Color(0xFFFFA2A2))
+        Spacer(Modifier.weight(1f))
+        Button(onClick = onRefresh, modifier = Modifier.fillMaxWidth()) { Text("به‌روزرسانی مجوزها") }
+        Spacer(Modifier.height(8.dp))
+        Button(onClick = onSignOut, modifier = Modifier.fillMaxWidth()) { Text("خروج از حساب") }
+    }
+}
