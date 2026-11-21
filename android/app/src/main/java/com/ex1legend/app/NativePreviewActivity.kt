@@ -131,6 +131,11 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var isSignUp by remember { mutableStateOf(false) }
     var rooms by remember { mutableStateOf<List<NativeRoom>>(emptyList()) }
     var profile by remember { mutableStateOf<NativeProfile?>(null) }
+    var explorePlayers by remember { mutableStateOf<List<NativePublicProfile>>(emptyList()) }
+    var exploreQuery by remember { mutableStateOf("") }
+    var selectedPublicProfile by remember { mutableStateOf<NativePublicProfile?>(null) }
+    var publicProfileLoading by remember { mutableStateOf(false) }
+    var publicProfileError by remember { mutableStateOf<String?>(null) }
     var wallet by remember { mutableStateOf<NativeWallet?>(null) }
     var permissions by remember { mutableStateOf<List<String>>(emptyList()) }
     var adminSnapshot by remember { mutableStateOf(NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())) }
@@ -180,7 +185,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 runCatching { NativeEx1Api.signOut(renewed) }
                 NativeEx1Api.clearSession(context)
                 session = null
-                rooms = emptyList(); profile = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false; adminSnapshot = NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList()); roomResults = emptyList()
+                rooms = emptyList(); profile = null; explorePlayers = emptyList(); selectedPublicProfile = null; publicProfileLoading = false; publicProfileError = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false; adminSnapshot = NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList()); roomResults = emptyList()
                 error = "دسترسی این حساب به EX1 مسدود شده است. برای پیگیری با پشتیبانی تماس بگیر."
                 return@LaunchedEffect
             }
@@ -296,12 +301,12 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
         sentTeamInvites = if (team?.isCaptain == true) NativeEx1Api.sentTeamInvites(current, team!!.id) else emptyList()
     }
 
-    val saveProfile: (String, String, String, String) -> Unit = { name, username, uid, gameName ->
+    val saveProfile: (String, String, String, String, String) -> Unit = { name, username, uid, gameName, bio ->
         scope.launch {
             val current = session ?: return@launch
             loading = true
             try {
-                val result = NativeEx1Api.updateProfile(current, name, username, uid, gameName)
+                val result = NativeEx1Api.updateProfile(current, name, username, uid, gameName, bio)
                 if (result.optBoolean("pending_review")) {
                     error = result.optString("message", "پروفایل برای بررسی ارسال شد.")
                 } else if (result.optBoolean("success")) {
@@ -421,6 +426,32 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
             PlayerPreviewPanel(
                 rooms = rooms,
                 profile = profile,
+                explorePlayers = explorePlayers,
+                exploreQuery = exploreQuery,
+                onExploreQuery = { exploreQuery = it },
+                onSearchExplore = {
+                    scope.launch {
+                        val current = session ?: return@launch
+                        loading = true
+                        try { explorePlayers = NativeEx1Api.explorePlayers(current, exploreQuery); error = null }
+                        catch (e: Exception) { error = e.message ?: "جست‌وجوی بازیکنان انجام نشد." }
+                        finally { loading = false }
+                    }
+                },
+                onOpenPublicProfile = { playerId ->
+                    scope.launch {
+                        val current = session ?: return@launch
+                        selectedPublicProfile = null
+                        publicProfileError = null
+                        publicProfileLoading = true
+                        try {
+                            selectedPublicProfile = NativeEx1Api.publicProfile(current, playerId)
+                            if (selectedPublicProfile == null) publicProfileError = "پروفایل این بازیکن پیدا نشد یا در دسترس نیست."
+                        } catch (e: Exception) {
+                            publicProfileError = e.message ?: "دریافت پروفایل بازیکن انجام نشد."
+                        } finally { publicProfileLoading = false }
+                    }
+                },
                 wallet = wallet,
                 activeTab = activeTab,
                 onTab = { tab ->
@@ -432,6 +463,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                             try {
                                 when (tab) {
                                     "profile" -> profile = NativeEx1Api.profile(current)
+                                    "explore" -> explorePlayers = NativeEx1Api.explorePlayers(current, exploreQuery)
                                     "wallet" -> wallet = NativeEx1Api.wallet(current)
                                     "team" -> refreshTeam(current)
                                     "notifications" -> notifications = NativeEx1Api.notifications(current)
@@ -611,6 +643,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                             val current = session ?: return@launch
                             when (activeTab) {
                                 "profile" -> profile = NativeEx1Api.profile(current)
+                                "explore" -> explorePlayers = NativeEx1Api.explorePlayers(current, exploreQuery)
                                 "wallet" -> wallet = NativeEx1Api.wallet(current)
                                 "team" -> refreshTeam(current)
                                 "notifications" -> notifications = NativeEx1Api.notifications(current)
@@ -629,6 +662,15 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                     }
                 },
                 onSignOut = { confirmSignOut = true }
+            )
+        }
+
+        if (publicProfileLoading || selectedPublicProfile != null || publicProfileError != null) {
+            PublicProfileDialog(
+                profile = selectedPublicProfile,
+                loading = publicProfileLoading,
+                error = publicProfileError,
+                onDismiss = { if (!publicProfileLoading) { selectedPublicProfile = null; publicProfileError = null } }
             )
         }
 
@@ -761,7 +803,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                             if (current != null) runCatching { NativeEx1Api.signOut(current) }
                             NativeEx1Api.clearSession(context)
                             session = null
-                            rooms = emptyList(); profile = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false; adminSnapshot = NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
+                            rooms = emptyList(); profile = null; explorePlayers = emptyList(); exploreQuery = ""; selectedPublicProfile = null; publicProfileLoading = false; publicProfileError = null; wallet = null; permissions = emptyList(); selectedRoom = null; roomResults = emptyList(); roomSlots = emptyList(); soloStatus = null; roomAccess = null; team = null; teamInvites = emptyList(); sentTeamInvites = emptyList(); notifications = emptyList(); supportMessages = emptyList(); supportConversationId = null; supportFresh = false; adminSnapshot = NativeAdminSnapshot(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
                         }
                     }) { Text("خروج") }
                 },
@@ -828,6 +870,11 @@ private fun LoginPanel(
 private fun PlayerPreviewPanel(
     rooms: List<NativeRoom>,
     profile: NativeProfile?,
+    explorePlayers: List<NativePublicProfile>,
+    exploreQuery: String,
+    onExploreQuery: (String) -> Unit,
+    onSearchExplore: () -> Unit,
+    onOpenPublicProfile: (String) -> Unit,
     wallet: NativeWallet?,
     activeTab: String,
     onTab: (String) -> Unit,
@@ -856,7 +903,7 @@ private fun PlayerPreviewPanel(
     onCancelInvite: (String) -> Unit,
     onTeamAction: (String, String?) -> Unit,
     onDeleteAccount: () -> Unit,
-    onSaveProfile: (String, String, String, String) -> Unit,
+    onSaveProfile: (String, String, String, String, String) -> Unit,
     category: String,
     price: String,
     error: String?,
@@ -876,6 +923,7 @@ private fun PlayerPreviewPanel(
         Spacer(Modifier.height(12.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
             FilterChip(selected = activeTab == "rooms", onClick = { onTab("rooms") }, label = { Text("روم‌ها") })
+            FilterChip(selected = activeTab == "explore", onClick = { onTab("explore") }, label = { Text("اکسپلور") })
             FilterChip(selected = activeTab == "profile", onClick = { onTab("profile") }, label = { Text("پروفایل") })
             FilterChip(selected = activeTab == "wallet", onClick = { onTab("wallet") }, label = { Text("کیف پول مجازی") })
             FilterChip(selected = activeTab == "team", onClick = { onTab("team") }, label = { Text("تیم") })
@@ -886,6 +934,7 @@ private fun PlayerPreviewPanel(
         if (!error.isNullOrBlank()) Text(error, color = if (error.contains("ذخیره شد") || error.contains("بررسی ارسال")) Color(0xFFBFA0F4) else Color(0xFFFFA2A2), modifier = Modifier.padding(vertical = 8.dp))
         when (activeTab) {
             "profile" -> ProfilePreviewPanel(profile = profile, onSave = onSaveProfile)
+            "explore" -> ExplorePreviewPanel(explorePlayers, exploreQuery, onExploreQuery, onSearchExplore, onOpenPublicProfile)
             "wallet" -> WalletPreviewPanel(wallet = wallet)
             "notifications" -> NotificationsPreviewPanel(notifications, teamBusy, onMarkNotificationRead, onDeleteNotification)
             "support" -> SupportPreviewPanel(supportMessages, supportHint, supportError, supportHandoff, supportBusy, supportSendRevision, onNewSupport, onSendSupport)
@@ -936,14 +985,126 @@ private fun PlayerPreviewPanel(
 }
 
 @Composable
+private fun ExplorePreviewPanel(
+    players: List<NativePublicProfile>,
+    query: String,
+    onQuery: (String) -> Unit,
+    onSearch: () -> Unit,
+    onOpenProfile: (String) -> Unit
+) {
+    Column(
+        Modifier.fillMaxWidth().heightIn(max = 560.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text("اکسپلور بازیکنان", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text("بازیکنان جامعه EX1 را پیدا کن و بیوگرافی‌شان را ببین.", color = Color(0xFF9B91AA), fontSize = 12.sp)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = onQuery,
+                modifier = Modifier.weight(1f),
+                label = { Text("نام یا نام کاربری") },
+                singleLine = true
+            )
+            Button(onClick = onSearch) { Text("جست‌وجو") }
+        }
+        if (players.isEmpty()) {
+            Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
+                Text("بازیکنی پیدا نشد. نامی جست‌وجو کن.", color = Color(0xFF9B91AA))
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(players, key = { it.id }) { player ->
+                    Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
+                        Row(
+                            Modifier.fillMaxWidth().padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Box(
+                                Modifier.size(42.dp).background(Color(0xFF392450), CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text((player.displayName ?: "EX").take(1), fontWeight = FontWeight.Bold)
+                            }
+                            Column(Modifier.weight(1f)) {
+                                Text(player.displayName ?: "بازیکن", fontWeight = FontWeight.Bold)
+                                Text(player.username?.let { "@$it" } ?: "بازیکن EX1", color = Color(0xFFBBA8D8), fontSize = 11.sp)
+                                if (!player.bio.isNullOrBlank()) {
+                                    Text(player.bio, color = Color(0xFF9B91AA), fontSize = 11.sp, maxLines = 2)
+                                }
+                            }
+                            TextButton(onClick = { onOpenProfile(player.id) }) { Text("پروفایل") }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PublicProfileDialog(
+    profile: NativePublicProfile?,
+    loading: Boolean,
+    error: String?,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = { if (!loading) onDismiss() },
+        title = { Text("پروفایل بازیکن") },
+        text = {
+            Column(
+                Modifier.fillMaxWidth().heightIn(max = 440.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                if (loading) {
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+                if (!error.isNullOrBlank()) Text(error, color = Color(0xFFFFA2A2))
+                if (profile != null) {
+                    Box(
+                        Modifier.size(68.dp).background(Color(0xFF392450), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text((profile.displayName ?: "EX").take(1), fontSize = 24.sp, fontWeight = FontWeight.Black)
+                    }
+                    Text(profile.displayName ?: "بازیکن", fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                    Text(profile.username?.let { "@$it" } ?: "بازیکن EX1", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+                    profile.roleBadge?.let {
+                        Text(if (it == "owner") "✦ مالک EX1" else "◆ مدیر EX1", color = Color(0xFFC9A5FF), fontSize = 11.sp)
+                    }
+                    if (!profile.gameName.isNullOrBlank()) {
+                        Text("نام داخل بازی: ${profile.gameName}", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+                    }
+                    Text("بیوگرافی", fontWeight = FontWeight.Bold)
+                    Text(
+                        profile.bio?.takeIf { it.isNotBlank() } ?: "این بازیکن هنوز بیوگرافی ننوشته است.",
+                        color = Color(0xFFD8D0E4),
+                        fontSize = 13.sp
+                    )
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss, enabled = !loading) { Text("بستن") } }
+    )
+}
+
+@Composable
 private fun ProfilePreviewPanel(
     profile: NativeProfile?,
-    onSave: (String, String, String, String) -> Unit
+    onSave: (String, String, String, String, String) -> Unit
 ) {
     var displayName by remember(profile?.id, profile?.displayName) { mutableStateOf(profile?.displayName.orEmpty()) }
     var username by remember(profile?.id, profile?.username) { mutableStateOf(profile?.username.orEmpty()) }
     var gameUid by remember(profile?.id, profile?.gameUid) { mutableStateOf(profile?.gameUid.orEmpty()) }
     var gameName by remember(profile?.id, profile?.gameName) { mutableStateOf(profile?.gameName.orEmpty()) }
+    var bio by remember(profile?.id, profile?.bio) { mutableStateOf(profile?.bio.orEmpty()) }
     Column(
         Modifier.fillMaxWidth().heightIn(max = 560.dp).verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -953,9 +1114,19 @@ private fun ProfilePreviewPanel(
         OutlinedTextField(username, { username = it }, label = { Text("نام کاربری") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
         OutlinedTextField(gameUid, { gameUid = it }, label = { Text("UID کالاف") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
         OutlinedTextField(gameName, { gameName = it }, label = { Text("نام داخل بازی") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-        Text("تغییرات از مسیر امن سرور بررسی می‌شوند؛ ممکن است بعضی تغییرها نیازمند تأیید مالک باشند.", color = Color(0xFF9B91AA), fontSize = 12.sp)
+        OutlinedTextField(
+            bio,
+            { bio = it.take(500) },
+            label = { Text("بیوگرافی عمومی") },
+            placeholder = { Text("کمی درباره خودت و سبک بازیت بنویس...") },
+            modifier = Modifier.fillMaxWidth(),
+            minLines = 3,
+            maxLines = 6,
+            supportingText = { Text("${bio.length}/500") }
+        )
+        Text("بیوگرافی پس از بررسی ایمنی در پروفایل عمومی نمایش داده می‌شود.", color = Color(0xFF9B91AA), fontSize = 12.sp)
         Button(
-            onClick = { onSave(displayName, username, gameUid, gameName) },
+            onClick = { onSave(displayName, username, gameUid, gameName, bio) },
             enabled = displayName.trim().length >= 2,
             modifier = Modifier.fillMaxWidth()
         ) { Text("ذخیره پروفایل") }
