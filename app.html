@@ -1231,9 +1231,12 @@ function roomGameCategory(room){
  return "uncategorized";
 }
 function roomPriceCategory(room){
+ const fee=Number(room?.entry_demo_points||0);
+ if(fee<=0)return "free";
  const explicit=String(room?.price_category||"").toLowerCase();
- if(["free","economy","expensive"].includes(explicit))return explicit;
- return Number(room?.entry_demo_points||0)===0?"free":"economy";
+ if(explicit==="expensive")return "expensive";
+ if(explicit==="economy")return "economy";
+ return "economy";
 }
 function roomImagePosition(room){const x=Math.max(0,Math.min(100,Number(room?.room_image_focus_x??50)));const y=Math.max(0,Math.min(100,Number(room?.room_image_focus_y??55)));return x+"% "+y+"%";}
 function formatRoomStart(value){if(!value)return "اعلام نشده";const d=new Date(value);if(Number.isNaN(d.getTime()))return "اعلام نشده";const now=new Date();const today=d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d.getDate()===now.getDate();const time=d.toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"});return today?"امروز ساعت "+time:d.toLocaleDateString("fa-IR",{weekday:"long"})+" ساعت "+time;}
