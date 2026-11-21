@@ -17,7 +17,7 @@ Deno.serve(async (req: Request) => {
   const anon = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
   const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
   const key = Deno.env.get("OPENAI_API_KEY") ?? "";
-  const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\\s+/i, "");
+  const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
   if (!url || !anon || !service || !token) return reply(401, { error: "ابتدا وارد حساب شو." });
   if (!key) return reply(503, { error: "کلید OPENAI_API_KEY برای بررسی ایمنی پروفایل در تنظیمات امن Supabase ثبت نشده است؛ پروفایل بدون بررسی ذخیره نمی‌شود." });
 
@@ -57,7 +57,7 @@ Deno.serve(async (req: Request) => {
     return reply(400, { error: "اطلاعات پروفایل معتبر نیست. UID کالاف نباید ایمیل باشد و بیوگرافی حداکثر ۵۰۰ نویسه است." });
   }
 
-  const content = [displayName, username, gameName, bio].filter(Boolean).join("\\n");
+  const content = [displayName, username, gameName, bio].filter(Boolean).join("\n");
   const response = await fetch("https://api.openai.com/v1/moderations", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
