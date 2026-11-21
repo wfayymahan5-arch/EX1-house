@@ -1682,13 +1682,13 @@ private fun AdminPreviewPanel(
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.weight(1f)) {
                 Text("EX1 LEGEND", fontWeight = FontWeight.Black, fontSize = 23.sp)
-                Text("پنل مالک · پیش‌نمایش Native", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+                Text("پنل مدیریت · پیش‌نمایش Native", color = Color(0xFFBBA8D8), fontSize = 12.sp)
             }
             Button(onClick = onRefresh) { Text("به‌روزرسانی") }
         }
         Spacer(Modifier.height(12.dp))
         if (ownerAccessDenied) {
-            Text("این بخش فقط برای حساب مالک اصلی در دسترس است.", color = Color(0xFFFFA2A2))
+            Text("این حساب مجوز دسترسی به پنل مدیریت را ندارد.", color = Color(0xFFFFA2A2))
         } else {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
