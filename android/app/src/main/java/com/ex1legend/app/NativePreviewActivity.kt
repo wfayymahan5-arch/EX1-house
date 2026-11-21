@@ -93,6 +93,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var wallet by remember { mutableStateOf<NativeWallet?>(null) }
     var permissions by remember { mutableStateOf<List<String>>(emptyList()) }
     var team by remember { mutableStateOf<NativeTeam?>(null) }
+    var notifications by remember { mutableStateOf<List<NativeNotification>>(emptyList()) }
     var teamInvites by remember { mutableStateOf<List<NativeTeamInvite>>(emptyList()) }
     var sentTeamInvites by remember { mutableStateOf<List<NativeSentTeamInvite>>(emptyList()) }
     var teamMessage by remember { mutableStateOf<String?>(null) }
@@ -374,6 +375,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                     "profile" -> profile = NativeEx1Api.profile(current)
                                     "wallet" -> wallet = NativeEx1Api.wallet(current)
                                     "team" -> refreshTeam(current)
+                                    "notifications" -> notifications = NativeEx1Api.notifications(current)
                                 }
                                 error = null
                             } catch (e: Exception) {
@@ -386,6 +388,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 },
                 onOpenRoom = openRoom,
                 team = team,
+                notifications = notifications,
                 teamBusy = busy,
                 teamInvites = teamInvites,
                 sentTeamInvites = sentTeamInvites,
@@ -694,6 +697,9 @@ private fun PlayerPreviewPanel(
     activeTab: String,
     onTab: (String) -> Unit,
     onOpenRoom: (NativeRoom) -> Unit,
+    notifications: List<NativeNotification>,
+    onMarkNotificationRead: (String) -> Unit,
+    onDeleteNotification: (String) -> Unit,
     team: NativeTeam?,
     teamBusy: Boolean,
     teamInvites: List<NativeTeamInvite>,
@@ -730,12 +736,14 @@ private fun PlayerPreviewPanel(
             FilterChip(selected = activeTab == "profile", onClick = { onTab("profile") }, label = { Text("پروفایل") })
             FilterChip(selected = activeTab == "wallet", onClick = { onTab("wallet") }, label = { Text("کیف پول مجازی") })
             FilterChip(selected = activeTab == "team", onClick = { onTab("team") }, label = { Text("تیم") })
+            FilterChip(selected = activeTab == "notifications", onClick = { onTab("notifications") }, label = { Text("اعلان‌ها") })
             FilterChip(selected = activeTab == "settings", onClick = { onTab("settings") }, label = { Text("تنظیمات") })
         }
         if (!error.isNullOrBlank()) Text(error, color = if (error.contains("ذخیره شد") || error.contains("بررسی ارسال")) Color(0xFFBFA0F4) else Color(0xFFFFA2A2), modifier = Modifier.padding(vertical = 8.dp))
         when (activeTab) {
             "profile" -> ProfilePreviewPanel(profile = profile, onSave = onSaveProfile)
             "wallet" -> WalletPreviewPanel(wallet = wallet)
+            "notifications" -> NotificationsPreviewPanel(notifications, teamBusy, onMarkNotificationRead, onDeleteNotification)
             "team" -> TeamPreviewPanel(
                 team = team,
                 invites = teamInvites,
@@ -839,6 +847,63 @@ private fun WalletPreviewPanel(wallet: NativeWallet?) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun NotificationsPreviewPanel(
+    notifications: List<NativeNotification>,
+    busy: Boolean,
+    onMarkRead: (String) -> Unit,
+    onDelete: (String) -> Unit
+) {
+    var pendingDelete by remember { mutableStateOf<String?>(null) }
+    Column(
+        Modifier.fillMaxWidth().heightIn(max = 560.dp).verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text("اعلان‌های حساب", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        if (notifications.isEmpty()) {
+            Text("اعلان تازه‌ای وجود ندارد.", color = Color(0xFF9B91AA))
+        } else {
+            notifications.forEach { item ->
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (item.readAt == null) Color(0xFF211831) else Color(0xFF171421)
+                    )
+                ) {
+                    Column(Modifier.fillMaxWidth().padding(12.dp)) {
+                        Text(item.title, fontWeight = FontWeight.Bold)
+                        Text(item.body, color = Color(0xFFC4BBD2), fontSize = 13.sp)
+                        Text(item.createdAt, color = Color(0xFF8E879B), fontSize = 10.sp)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            if (item.readAt == null) {
+                                TextButton(enabled = !busy, onClick = { onMarkRead(item.id) }) { Text("خواندم") }
+                            } else {
+                                Text("خوانده‌شده", color = Color(0xFF8E879B), fontSize = 11.sp, modifier = Modifier.padding(10.dp))
+                            }
+                            TextButton(enabled = !busy, onClick = { pendingDelete = item.id }) { Text("حذف اعلان") }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (pendingDelete != null) {
+        AlertDialog(
+            onDismissRequest = { pendingDelete = null },
+            title = { Text("حذف اعلان") },
+            text = { Text("این اعلان فقط از فهرست حساب خودت حذف شود؟") },
+            confirmButton = {
+                TextButton(enabled = !busy, onClick = {
+                    pendingDelete?.let(onDelete)
+                    pendingDelete = null
+                }) { Text("حذف اعلان") }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDelete = null }) { Text("انصراف") }
+            }
+        )
     }
 }
 
