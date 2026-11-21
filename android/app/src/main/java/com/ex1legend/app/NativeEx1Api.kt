@@ -763,7 +763,7 @@ object NativeEx1Api {
     }
 
     suspend fun publicProfile(session: NativeSession, userId: String): NativePublicProfile? = withContext(Dispatchers.IO) {
-        if (!userId.matches(Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")) throw IllegalArgumentException("شناسه بازیکن معتبر نیست.")
+        if (!userId.matches(Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"))) throw IllegalArgumentException("شناسه بازیکن معتبر نیست.")
         val rows = try {
             request(
                 "GET",
