@@ -15,6 +15,6 @@ class NativeAdminAccessTest {
     }
 
     @Test fun emptyPermissionStringsDoNotGrantAccess() {
-        assertTrue(hasNativeAdminAccess(isOwner = false, permissions = listOf("")))
+        assertFalse(hasNativeAdminAccess(isOwner = false, permissions = listOf("")))
     }
 }
