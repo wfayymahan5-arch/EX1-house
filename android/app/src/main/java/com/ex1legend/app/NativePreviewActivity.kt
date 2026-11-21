@@ -843,6 +843,162 @@ private fun WalletPreviewPanel(wallet: NativeWallet?) {
 }
 
 @Composable
+private fun TeamPreviewPanel(
+    team: NativeTeam?,
+    invites: List<NativeTeamInvite>,
+    sentInvites: List<NativeSentTeamInvite>,
+    message: String?,
+    error: String?,
+    busy: Boolean,
+    onCreateTeam: (String, String, String) -> Unit,
+    onUpdateTeam: (String, String, String) -> Unit,
+    onInvite: (String) -> Unit,
+    onRespondInvite: (String, Boolean) -> Unit,
+    onCancelInvite: (String) -> Unit,
+    onTeamAction: (String, String?) -> Unit
+) {
+    var name by remember(team?.id, team?.name) { mutableStateOf(team?.name.orEmpty()) }
+    var tag by remember(team?.id, team?.tag) { mutableStateOf(team?.tag.orEmpty()) }
+    var description by remember(team?.id, team?.description) { mutableStateOf(team?.description.orEmpty()) }
+    var inviteUsername by remember { mutableStateOf("") }
+    var pendingAction by remember { mutableStateOf<String?>(null) }
+    var pendingUserId by remember { mutableStateOf<String?>(null) }
+
+    Column(
+        Modifier.fillMaxWidth().heightIn(max = 560.dp).verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text("تیم من", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        if (!message.isNullOrBlank()) Text(message, color = Color(0xFF9DE3B2), fontSize = 12.sp)
+        if (!error.isNullOrBlank()) Text(error, color = Color(0xFFFF9B9B), fontSize = 12.sp)
+
+        if (team == null) {
+            Text("هنوز عضو تیمی نیستی. می‌توانی تیم خودت را بسازی.", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+            OutlinedTextField(name, { name = it }, label = { Text("نام تیم") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(tag, { tag = it }, label = { Text("تگ تیم (اختیاری)") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(description, { description = it }, label = { Text("توضیحات (اختیاری)") }, modifier = Modifier.fillMaxWidth())
+            Button(
+                onClick = { onCreateTeam(name, tag, description) },
+                enabled = !busy && name.trim().length >= 2,
+                modifier = Modifier.fillMaxWidth()
+            ) { Text(if (busy) "در حال ساخت..." else "ساخت تیم") }
+        } else {
+            Text(team.name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            if (!team.tag.isNullOrBlank()) Text("تگ: ${team.tag}", color = Color(0xFFBBA8D8))
+            Text(team.description ?: "تیم بازیکنان EX1", color = Color(0xFF9B91AA), fontSize = 12.sp)
+            Text("${team.members.size} از ۴ عضو", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+            team.members.forEach { member ->
+                Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
+                    Row(
+                        Modifier.fillMaxWidth().padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(member.displayName, fontWeight = FontWeight.Bold)
+                            Text(
+                                if (member.userId == team.captainId) "کاپیتان" else "عضو تیم",
+                                color = Color(0xFF9B91AA),
+                                fontSize = 11.sp
+                            )
+                        }
+                        if (team.isCaptain && member.userId != team.captainId) {
+                            TextButton(enabled = !busy, onClick = {
+                                pendingUserId = member.userId
+                                pendingAction = "remove"
+                            }) { Text("اخراج") }
+                        }
+                    }
+                }
+            }
+            if (team.isCaptain) {
+                Text("مدیریت تیم", fontWeight = FontWeight.Bold)
+                OutlinedTextField(name, { name = it }, label = { Text("نام تیم") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(tag, { tag = it }, label = { Text("تگ تیم") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(description, { description = it }, label = { Text("توضیحات") }, modifier = Modifier.fillMaxWidth())
+                Button(
+                    onClick = { onUpdateTeam(name, tag, description) },
+                    enabled = !busy && name.trim().length >= 2,
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("ذخیره تغییرات تیم") }
+                OutlinedTextField(
+                    inviteUsername,
+                    { inviteUsername = it },
+                    label = { Text("نام کاربری بازیکن برای دعوت") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                Button(
+                    onClick = { onInvite(inviteUsername); inviteUsername = "" },
+                    enabled = !busy && inviteUsername.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("ارسال دعوت تیم") }
+                if (sentInvites.isNotEmpty()) {
+                    Text("دعوت‌های در انتظار پاسخ", fontWeight = FontWeight.Bold)
+                    sentInvites.forEach { invite ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text(invite.displayName)
+                                Text(invite.username?.let { "@$it" } ?: "بدون نام کاربری", color = Color(0xFF9B91AA), fontSize = 11.sp)
+                            }
+                            TextButton(enabled = !busy, onClick = { onCancelInvite(invite.id) }) { Text("لغو") }
+                        }
+                    }
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                TextButton(enabled = !busy, onClick = { pendingAction = "leave" }) { Text("خروج از تیم") }
+                if (team.isCaptain) {
+                    TextButton(enabled = !busy, onClick = { pendingAction = "delete" }) { Text("حذف کامل تیم") }
+                }
+            }
+        }
+
+        if (invites.isNotEmpty()) {
+            Text("دعوت‌های دریافتی", fontWeight = FontWeight.Bold)
+            invites.forEach { invite ->
+                Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF211831))) {
+                    Column(Modifier.fillMaxWidth().padding(12.dp)) {
+                        Text(invite.teamName, fontWeight = FontWeight.Bold)
+                        Text("دعوت از ${invite.inviterName}", color = Color(0xFFBBA8D8), fontSize = 11.sp)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            TextButton(enabled = !busy, onClick = { onRespondInvite(invite.id, true) }) { Text("پذیرش") }
+                            TextButton(enabled = !busy, onClick = { onRespondInvite(invite.id, false) }) { Text("رد دعوت") }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (pendingAction != null) {
+        val action = pendingAction!!
+        AlertDialog(
+            onDismissRequest = { pendingAction = null; pendingUserId = null },
+            title = { Text(when (action) { "leave" -> "خروج از تیم"; "delete" -> "حذف تیم"; else -> "حذف عضو" }) },
+            text = {
+                Text(
+                    when (action) {
+                        "leave" -> "از تیم خارج می‌شوی؟ انتقال کاپیتانی طبق قوانین سرور انجام می‌شود."
+                        "delete" -> "تیم به‌طور کامل حذف شود؟ سوابق مسابقه‌ای دارای نتیجه قابل حذف نیستند."
+                        else -> "این بازیکن از تیم خارج شود؟"
+                    }
+                )
+            },
+            confirmButton = {
+                TextButton(enabled = !busy, onClick = {
+                    onTeamAction(action, pendingUserId)
+                    pendingAction = null
+                    pendingUserId = null
+                }) { Text("تأیید") }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingAction = null; pendingUserId = null }) { Text("انصراف") }
+            }
+        )
+    }
+}
+
+@Composable
 private fun SettingsPreviewPanel(onDeleteAccount: () -> Unit) {
     Column(
         Modifier.fillMaxWidth().heightIn(max = 560.dp),
