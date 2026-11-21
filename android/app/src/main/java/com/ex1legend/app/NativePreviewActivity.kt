@@ -60,6 +60,38 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 
+private fun parseIsoDate(value: String?): Date? {
+    if (value.isNullOrBlank()) return null
+    val patterns = listOf(
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+        "yyyy-MM-dd'T'HH:mm:ssXXX",
+        "yyyy-MM-dd'T'HH:mm:ss.SSSX",
+        "yyyy-MM-dd'T'HH:mm:ssX"
+    )
+    for (pattern in patterns) {
+        val parser = SimpleDateFormat(pattern, Locale.US).apply {
+            isLenient = false
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        val parsed = runCatching { parser.parse(value) }.getOrNull()
+        if (parsed != null) return parsed
+    }
+    return null
+}
+
+private fun isRoomFinished(room: NativeRoom): Boolean {
+    if (room.status == "completed") return true
+    val end = parseIsoDate(room.endsAt) ?: return false
+    return System.currentTimeMillis() >= end.time + 2 * 60 * 60 * 1000L
+}
+
+private fun isRoomRegistrationOpen(room: NativeRoom): Boolean {
+    if (room.status != "open") return false
+    val startValue = room.startsAt ?: return true
+    val start = parseIsoDate(startValue) ?: return false
+    return System.currentTimeMillis() < start.time
+}
+
 private fun currentIsoTimestamp(): String =
     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
         .apply { timeZone = TimeZone.getTimeZone("UTC") }
@@ -123,6 +155,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var activeTab by remember { mutableStateOf("rooms") }
     var selectedRoom by remember { mutableStateOf<NativeRoom?>(null) }
     var roomSlots by remember { mutableStateOf<List<NativeRoomSlot>>(emptyList()) }
+    var roomResults by remember { mutableStateOf<List<NativePlayerResult>>(emptyList()) }
     var soloStatus by remember { mutableStateOf<NativeSoloStatus?>(null) }
     var roomAccess by remember { mutableStateOf<NativeRoomAccess?>(null) }
     var roomDetailLoading by remember { mutableStateOf(false) }
@@ -176,6 +209,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     val openRoom: (NativeRoom) -> Unit = { room ->
         selectedRoom = room
         roomSlots = emptyList()
+        roomResults = emptyList()
         soloStatus = null
         roomAccess = null
         roomDetailError = null
@@ -187,10 +221,12 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 val loadedSlots = NativeEx1Api.roomSlots(current, room.id)
                 val loadedSoloStatus = NativeEx1Api.soloStatus(current, room.id)
                 val loadedAccess = NativeEx1Api.roomAccess(current, room.id)
+                val loadedResults = if (isRoomFinished(room)) NativeEx1Api.roomResults(current, room.id) else emptyList()
                 if (selectedRoom?.id == room.id) {
                     roomSlots = loadedSlots
                     soloStatus = loadedSoloStatus
                     roomAccess = loadedAccess
+                    roomResults = loadedResults
                 }
             } catch (e: Exception) {
                 if (selectedRoom?.id == room.id) {
@@ -203,7 +239,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     }
 
     val registerRoom: (NativeRoom, Int, Boolean) -> Unit = { room, slotNumber, solo ->
-        if (room.status != "open") {
+        if (!isRoomRegistrationOpen(room)) {
             roomDetailError = "ثبت‌نام این روم در وضعیت فعلی باز نیست."
         } else {
             scope.launch {
@@ -589,6 +625,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
             RoomDetailDialog(
                 room = selectedRoom!!,
                 slots = roomSlots,
+                results = roomResults,
                 soloStatus = soloStatus,
                 access = roomAccess,
                 loading = roomDetailLoading,
@@ -605,10 +642,12 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                             val loadedSlots = NativeEx1Api.roomSlots(current, room.id)
                             val loadedSoloStatus = NativeEx1Api.soloStatus(current, room.id)
                             val loadedAccess = NativeEx1Api.roomAccess(current, room.id)
+                            val loadedResults = if (isRoomFinished(room)) NativeEx1Api.roomResults(current, room.id) else emptyList()
                             if (selectedRoom?.id == room.id) {
                                 roomSlots = loadedSlots
                                 soloStatus = loadedSoloStatus
                                 roomAccess = loadedAccess
+                                roomResults = loadedResults
                                 roomDetailError = null
                             }
                         } catch (e: Exception) {
@@ -1243,6 +1282,7 @@ private fun SettingsPreviewPanel(onDeleteAccount: () -> Unit) {
 private fun RoomDetailDialog(
     room: NativeRoom,
     slots: List<NativeRoomSlot>,
+    results: List<NativePlayerResult>,
     soloStatus: NativeSoloStatus?,
     access: NativeRoomAccess?,
     loading: Boolean,
@@ -1303,8 +1343,19 @@ private fun RoomDetailDialog(
                 }
                 TextButton(onClick = onRefresh, enabled = !busy && !loading) { Text("به‌روزرسانی وضعیت و اطلاعات روم") }
                 Text("جایگاه‌های تیمی", fontWeight = FontWeight.Bold)
+                if (isRoomFinished(room)) {
+                    Text("نتایج نهایی", fontWeight = FontWeight.Bold)
+                    if (results.isEmpty()) Text("هنوز نتیجه‌ای برای این روم ثبت نشده است.", color = Color(0xFF9B91AA))
+                    else results.forEach { result ->
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Text("#${result.placement ?: "—"}", modifier = Modifier.width(34.dp), fontWeight = FontWeight.Bold)
+                            Text(result.playerName, modifier = Modifier.weight(1f))
+                            Text("کیل ${result.kills} · امتیاز ${result.points}", color = Color(0xFFBBA8D8), fontSize = 11.sp)
+                        }
+                    }
+                }
                 if (maxTeams <= 0) Text("ظرفیت جایگاه‌ها مشخص نیست.")
-                else if (room.status != "open") Text("ثبت‌نام این روم در وضعیت فعلی باز نیست.")
+                else if (!isRoomRegistrationOpen(room)) Text("مهلت ثبت‌نام این روم باز نیست.")
                 else (1..maxTeams).forEach { slotNumber ->
                     val slot = occupied[slotNumber]
                     Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
