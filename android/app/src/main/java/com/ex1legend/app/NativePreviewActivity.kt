@@ -180,6 +180,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var rooms by remember { mutableStateOf<List<NativeRoom>>(emptyList()) }
     var profile by remember { mutableStateOf<NativeProfile?>(null) }
     var explorePlayers by remember { mutableStateOf<List<NativePublicProfile>>(emptyList()) }
+    var socialFollowEdges by remember { mutableStateOf<List<NativeFollowEdge>>(emptyList()) }
     var rankingPlayers by remember { mutableStateOf<List<NativeRankedPlayer>>(emptyList()) }
     var exploreQuery by remember { mutableStateOf("") }
     var selectedPublicProfile by remember { mutableStateOf<NativePublicProfile?>(null) }
@@ -536,12 +537,30 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                 rankingPlayers = rankingPlayers,
                 exploreQuery = exploreQuery,
                 onExploreQuery = { exploreQuery = it },
+                currentUserId = session?.userId ?: "",
+                followEdges = socialFollowEdges,
+                onFollowPlayer = { playerId ->
+                    scope.launch {
+                        val current = session ?: return@launch
+                        loading = true
+                        try {
+                            NativeEx1Api.requestFollow(current, playerId)
+                            socialFollowEdges = NativeEx1Api.followEdges(current)
+                            error = null
+                        } catch (e: Exception) {
+                            error = e.message ?: "درخواست دنبال‌کردن ارسال نشد."
+                        } finally { loading = false }
+                    }
+                },
                 onSearchExplore = {
                     scope.launch {
                         val current = session ?: return@launch
                         loading = true
-                        try { explorePlayers = NativeEx1Api.explorePlayers(current, exploreQuery); error = null }
-                        catch (e: Exception) { error = e.message ?: "جست‌وجوی بازیکنان انجام نشد." }
+                        try {
+                            explorePlayers = NativeEx1Api.explorePlayers(current, exploreQuery)
+                            socialFollowEdges = NativeEx1Api.followEdges(current)
+                            error = null
+                        } catch (e: Exception) { error = e.message ?: "جست‌وجوی بازیکنان انجام نشد." }
                         finally { loading = false }
                     }
                 },
@@ -570,7 +589,10 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                             try {
                                 when (tab) {
                                     "profile" -> profile = NativeEx1Api.profile(current)
-                                    "explore" -> explorePlayers = NativeEx1Api.explorePlayers(current, exploreQuery)
+                                    "explore" -> {
+                                        explorePlayers = NativeEx1Api.explorePlayers(current, exploreQuery)
+                                        socialFollowEdges = NativeEx1Api.followEdges(current)
+                                    }
                                     "messages" -> {
                                         socialBusy = true
                                         socialContacts = NativeEx1Api.mutualFollowContacts(current)
@@ -817,7 +839,10 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                             val current = session ?: return@launch
                             when (activeTab) {
                                 "profile" -> profile = NativeEx1Api.profile(current)
-                                "explore" -> explorePlayers = NativeEx1Api.explorePlayers(current, exploreQuery)
+                                "explore" -> {
+                                    explorePlayers = NativeEx1Api.explorePlayers(current, exploreQuery)
+                                    socialFollowEdges = NativeEx1Api.followEdges(current)
+                                }
                                 "ranking" -> rankingPlayers = NativeEx1Api.rankingPlayers(current)
                                 "wallet" -> wallet = NativeEx1Api.wallet(current)
                                 "team" -> refreshTeam(current)
@@ -1160,6 +1185,9 @@ private fun PlayerPreviewPanel(
     onExploreQuery: (String) -> Unit,
     onSearchExplore: () -> Unit,
     onOpenPublicProfile: (String) -> Unit,
+    currentUserId: String,
+    followEdges: List<NativeFollowEdge>,
+    onFollowPlayer: (String) -> Unit,
     wallet: NativeWallet?,
     activeTab: String,
     onTab: (String) -> Unit,
@@ -1251,7 +1279,7 @@ private fun PlayerPreviewPanel(
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when (activeTab) {
                 "profile" -> ProfilePreviewPanel(profile = profile, onSave = onSaveProfile)
-                "explore" -> ExplorePreviewPanel(explorePlayers, exploreQuery, onExploreQuery, onSearchExplore, onOpenPublicProfile)
+                "explore" -> ExplorePreviewPanel(explorePlayers, exploreQuery, onExploreQuery, onSearchExplore, onOpenPublicProfile, currentUserId, followEdges, onFollowPlayer)
                 "ranking" -> RankingPreviewPanel(rankingPlayers, onOpenPublicProfile)
                 "wallet" -> WalletPreviewPanel(wallet = wallet)
                 "notifications" -> NotificationsPreviewPanel(notifications, teamBusy, onMarkNotificationRead, onDeleteNotification)
@@ -1432,7 +1460,10 @@ private fun ExplorePreviewPanel(
     query: String,
     onQuery: (String) -> Unit,
     onSearch: () -> Unit,
-    onOpenProfile: (String) -> Unit
+    onOpenProfile: (String) -> Unit,
+    currentUserId: String,
+    followEdges: List<NativeFollowEdge>,
+    onFollow: (String) -> Unit
 ) {
     Column(
         Modifier.fillMaxWidth().heightIn(max = 560.dp),
@@ -1479,7 +1510,19 @@ private fun ExplorePreviewPanel(
                                     Text(player.bio, color = Color(0xFF9B91AA), fontSize = 11.sp, maxLines = 2)
                                 }
                             }
-                            TextButton(onClick = { onOpenProfile(player.id) }) { Text("پروفایل") }
+                            Column(horizontalAlignment = Alignment.End) {
+                                TextButton(onClick = { onOpenProfile(player.id) }) { Text("پروفایل") }
+                                val mine = followEdges.firstOrNull { it.followerId == currentUserId && it.followedId == player.id }
+                                val followLabel = when (mine?.status) {
+                                    "accepted" -> "دنبال می‌کنی"
+                                    "pending" -> "درخواست ارسال شد"
+                                    else -> "دنبال‌کردن"
+                                }
+                                TextButton(
+                                    onClick = { onFollow(player.id) },
+                                    enabled = currentUserId.isNotBlank() && mine == null
+                                ) { Text(followLabel, fontSize = 10.sp) }
+                            }
                         }
                     }
                 }
