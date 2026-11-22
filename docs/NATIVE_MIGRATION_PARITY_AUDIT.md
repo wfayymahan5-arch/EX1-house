@@ -243,3 +243,37 @@ A feature is complete only when all applicable checks pass:
 - Phase 6: only after explicit acceptance, prepare a release candidate. Production remains untouched until separate explicit authorization.
 
 This audit is a living checklist. Do not mark an item complete based only on compilation or the presence of a Compose screen.
+
+
+## Phase 2 — verified Native coverage snapshot (2026-11-22)
+
+### Immutable reference inputs
+The following root reference files were re-read from `feature/native-parity-rebuild`; these SHA values are the inputs for this phase's comparison:
+- `app.html`: `f3148982dde554b78b18d04cdcd0519f8cf98d80` (183,611 characters; 161 IDs; 7 forms).
+- `admin.html`: `189ddd1e418e59d74e44389fc607366f6908e935` (94,888 characters; 132 IDs; 6 forms).
+- `manager.html`: `19e37663bf7eba457c7e29ba31c483cf80a7fe38` (87,760 characters; 127 IDs; 6 forms).
+
+The admin and manager references are similar, not interchangeable. The admin variant has five additional IDs in the current comparison: `ex1-room-fx-admin-toggle`, `rf_game_category`, `rf_price_category`, `rf_room_effects_enabled`, and `roomEffectsSchemaNotice`. Their differences must remain represented in separate Native routes and permission-aware controls.
+
+### Native API surface present in this snapshot
+The current `NativeEx1Api.kt` blob is `567ba1f7d5f1e80829ae2639a768b8db00175f31`. Its declared API surface includes session/authentication, room discovery and registration, room access/results, player profile lookup/update, explore/ranking, wallet, support messaging, notifications, team workflows, account deletion, owner checks, manager permission lookup, and a permission-filtered admin snapshot.
+
+This is an API-surface inventory only. A method existing in Kotlin does not prove that the matching reference workflow is fully wired, visually equivalent, or tested. In particular, the inspected Native preview does not expose player-to-player conversation UI or complete follow/unfollow, follow-request, block-list, avatar/cover upload, and profile media editing flows. Support messaging is not a substitute for player-to-player chat.
+
+### Current player-home slice
+`NativePlayerHomeScreen.kt` blob: `fdadf31a5c35e9180d5e1d4b09468da2a7222e93`.
+This is a standalone Compose prototype slice with placeholder empty states and callback-based navigation. It is not yet connected as the application launcher, does not establish player workflow parity, and must not be counted as a completed screen. Do not replace `MainActivity` or the WebView launcher based on this preview.
+
+### Permission and security review notes
+- `adminSnapshot` currently gates its five data groups using explicit permission codes: `tournaments.view`, `registrations.view_all`, `teams.view`, `users.view` / `profiles.view_all`, and `wallet.view_all`. Each future admin operation still needs its own source-to-native permission mapping and must be enforced by the backend as well as the UI.
+- The helper `hasNativeAdminAccess(isOwner, permissions)` returns true when any non-empty permission exists. This is too broad to authorize a particular operation. It must not be used as a substitute for operation-specific permission checks; inspect its call sites before any integration.
+- Keep the Android Keystore AES/GCM session vault intact. Do not weaken token storage or move privileged secrets to the client.
+
+### Phase 2 status and next implementation gate
+- Reference-file measurements and distinct admin/manager variants: verified.
+- Native API declarations and currently visible preview composables: inventoried, but workflow wiring is not yet proven.
+- Player social/chat/media parity: incomplete in the inspected preview.
+- Full admin/manager operation and permission parity: not yet verified.
+- Visual parity, animation mapping, accessibility, and device interaction parity: not yet verified.
+
+Before implementing a workflow, extract its source event/action, input validation, backend call and payload, state transitions, success/error/empty/loading states, and permission rule. Then implement that workflow independently in Kotlin/Compose and add matching tests. No production, database, main-branch, or release changes are authorized by this audit.
