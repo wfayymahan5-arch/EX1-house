@@ -832,7 +832,7 @@ object NativeEx1Api {
     }
 
     suspend fun followEdges(session: NativeSession): List<NativeFollowEdge> = withContext(Dispatchers.IO) {
-        val rows = request("GET", "/rest/v1/user_follows?select=follower_id,followed_id,status&or=(follower_id.eq.\${session.userId},followed_id.eq.\${session.userId})", session) as? JSONArray ?: JSONArray()
+        val rows = request("GET", "/rest/v1/user_follows?select=follower_id,followed_id,status&or=(follower_id.eq.${session.userId},followed_id.eq.${session.userId})", session) as? JSONArray ?: JSONArray()
         (0 until rows.length()).mapNotNull { i ->
             val row = rows.optJSONObject(i) ?: return@mapNotNull null
             NativeFollowEdge(row.optString("follower_id"), row.optString("followed_id"), row.optString("status"))
@@ -846,7 +846,7 @@ object NativeEx1Api {
     }
 
     suspend fun pendingFollowRequests(session: NativeSession): List<NativeFollowRequest> = withContext(Dispatchers.IO) {
-        val rows = request("GET", "/rest/v1/user_follows?select=follower_id,created_at&followed_id=eq.\${session.userId}&status=eq.pending&order=created_at.desc", session) as? JSONArray ?: JSONArray()
+        val rows = request("GET", "/rest/v1/user_follows?select=follower_id,created_at&followed_id=eq.${session.userId}&status=eq.pending&order=created_at.desc", session) as? JSONArray ?: JSONArray()
         (0 until rows.length()).mapNotNull { i ->
             val row = rows.optJSONObject(i) ?: return@mapNotNull null
             val id = row.optString("follower_id")
@@ -856,7 +856,7 @@ object NativeEx1Api {
 
     suspend fun approveFollowRequest(session: NativeSession, followerId: String) = withContext(Dispatchers.IO) {
         requireValidUserId(followerId)
-        request("PATCH", "/rest/v1/user_follows?follower_id=eq.$followerId&followed_id=eq.\${session.userId}&status=eq.pending",
+        request("PATCH", "/rest/v1/user_follows?follower_id=eq.$followerId&followed_id=eq.${session.userId}&status=eq.pending",
             session, JSONObject().put("status", "accepted"))
     }
 
@@ -865,11 +865,11 @@ object NativeEx1Api {
         require(targetUserId != session.userId) { "نمی‌توانی حساب خودت را مسدود کنی." }
         request("POST", "/rest/v1/user_blocks", session,
             JSONObject().put("blocker_id", session.userId).put("blocked_id", targetUserId))
-        request("DELETE", "/rest/v1/user_follows?or=(and(follower_id.eq.\${session.userId},followed_id.eq.$targetUserId),and(follower_id.eq.$targetUserId,followed_id.eq.\${session.userId}))", session)
+        request("DELETE", "/rest/v1/user_follows?or=(and(follower_id.eq.${session.userId},followed_id.eq.$targetUserId),and(follower_id.eq.$targetUserId,followed_id.eq.${session.userId}))", session)
     }
 
     suspend fun blockedUsers(session: NativeSession): List<NativePublicProfile> = withContext(Dispatchers.IO) {
-        val rows = request("GET", "/rest/v1/user_blocks?select=blocked_id&blocker_id=eq.\${session.userId}&order=created_at.desc", session) as? JSONArray ?: JSONArray()
+        val rows = request("GET", "/rest/v1/user_blocks?select=blocked_id&blocker_id=eq.${session.userId}&order=created_at.desc", session) as? JSONArray ?: JSONArray()
         (0 until rows.length()).mapNotNull { i ->
             val id = rows.optJSONObject(i)?.optString("blocked_id") ?: return@mapNotNull null
             runCatching { publicProfile(session, id) }.getOrNull()
@@ -878,7 +878,7 @@ object NativeEx1Api {
 
     suspend fun unblockUser(session: NativeSession, targetUserId: String) = withContext(Dispatchers.IO) {
         requireValidUserId(targetUserId)
-        request("DELETE", "/rest/v1/user_blocks?blocker_id=eq.\${session.userId}&blocked_id=eq.$targetUserId", session)
+        request("DELETE", "/rest/v1/user_blocks?blocker_id=eq.${session.userId}&blocked_id=eq.$targetUserId", session)
     }
 
     suspend fun mutualFollowContacts(session: NativeSession): List<NativePublicProfile> = withContext(Dispatchers.IO) {
@@ -896,11 +896,11 @@ object NativeEx1Api {
             edges.any { it.followerId == otherUserId && it.followedId == session.userId }) {
             "برای شروع گفت‌وگو باید دنبال‌کردن دوطرفه تأیید شده باشد."
         }
-        val mine = request("GET", "/rest/v1/social_conversation_members?select=conversation_id&user_id=eq.\${session.userId}", session) as? JSONArray ?: JSONArray()
+        val mine = request("GET", "/rest/v1/social_conversation_members?select=conversation_id&user_id=eq.${session.userId}", session) as? JSONArray ?: JSONArray()
         val ids = (0 until mine.length()).mapNotNull { mine.optJSONObject(it)?.optString("conversation_id") }
             .filter { it.matches(UUID_PATTERN) }
         if (ids.isNotEmpty()) {
-            val members = request("GET", "/rest/v1/social_conversation_members?select=conversation_id&user_id=eq.$otherUserId&conversation_id=in.(\${ids.joinToString(",")})&limit=1", session) as? JSONArray ?: JSONArray()
+            val members = request("GET", "/rest/v1/social_conversation_members?select=conversation_id&user_id=eq.$otherUserId&conversation_id=in.(${ids.joinToString(",")})&limit=1", session) as? JSONArray ?: JSONArray()
             if (members.length() > 0) return@withContext NativeSocialConversation(members.getJSONObject(0).optString("conversation_id"), otherUserId)
         }
         val created = request("POST", "/rest/v1/social_conversations?select=id", session,
