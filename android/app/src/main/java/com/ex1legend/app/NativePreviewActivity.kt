@@ -198,6 +198,14 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
     var supportHandoff by remember { mutableStateOf(false) }
     var supportBusy by remember { mutableStateOf(false) }
     var supportSendRevision by remember { mutableStateOf(0) }
+    var socialContacts by remember { mutableStateOf<List<NativePublicProfile>>(emptyList()) }
+    var socialConversation by remember { mutableStateOf<NativeSocialConversation?>(null) }
+    var socialMessages by remember { mutableStateOf<List<NativeSocialMessage>>(emptyList()) }
+    var socialDraft by remember { mutableStateOf("") }
+    var socialBusy by remember { mutableStateOf(false) }
+    var socialSending by remember { mutableStateOf(false) }
+    var socialError by remember { mutableStateOf<String?>(null) }
+    var socialNotice by remember { mutableStateOf<String?>(null) }
     var teamInvites by remember { mutableStateOf<List<NativeTeamInvite>>(emptyList()) }
     var sentTeamInvites by remember { mutableStateOf<List<NativeSentTeamInvite>>(emptyList()) }
     var teamMessage by remember { mutableStateOf<String?>(null) }
@@ -563,6 +571,10 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                 when (tab) {
                                     "profile" -> profile = NativeEx1Api.profile(current)
                                     "explore" -> explorePlayers = NativeEx1Api.explorePlayers(current, exploreQuery)
+                                    "messages" -> {
+                                        socialContacts = NativeEx1Api.mutualFollowContacts(current)
+                                        socialError = null
+                                    }
                                     "ranking" -> rankingPlayers = NativeEx1Api.rankingPlayers(current)
                                     "wallet" -> wallet = NativeEx1Api.wallet(current)
                                     "team" -> refreshTeam(current)
@@ -622,6 +634,66 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                         } finally {
                             supportBusy = false
                         }
+                    }
+                },
+                socialContacts = socialContacts,
+                socialConversation = socialConversation,
+                socialMessages = socialMessages,
+                socialDraft = socialDraft,
+                socialBusy = socialBusy,
+                socialSending = socialSending,
+                socialError = socialError,
+                socialNotice = socialNotice,
+                onRefreshSocial = {
+                    scope.launch {
+                        val current = session ?: return@launch
+                        socialBusy = true
+                        socialError = null
+                        try {
+                            socialContacts = NativeEx1Api.mutualFollowContacts(current)
+                            socialConversation?.let { socialMessages = NativeEx1Api.socialMessages(current, it.id) }
+                        } catch (e: Exception) {
+                            socialError = e.message ?: "دریافت گفت‌وگوها انجام نشد."
+                        } finally { socialBusy = false }
+                    }
+                },
+                onSelectSocialContact = { person ->
+                    scope.launch {
+                        val current = session ?: return@launch
+                        socialBusy = true
+                        socialError = null
+                        socialNotice = null
+                        try {
+                            socialConversation = NativeEx1Api.openSocialConversation(current, person.id)
+                            socialMessages = NativeEx1Api.socialMessages(current, socialConversation!!.id)
+                            socialDraft = ""
+                        } catch (e: Exception) {
+                            socialError = e.message ?: "بازکردن گفت‌وگو انجام نشد."
+                        } finally { socialBusy = false }
+                    }
+                },
+                onSocialDraftChange = { socialDraft = it.take(2000) },
+                onSendSocialMessage = {
+                    scope.launch {
+                        val current = session ?: return@launch
+                        val conversation = socialConversation ?: return@launch
+                        socialSending = true
+                        socialError = null
+                        socialNotice = null
+                        try {
+                            val result = NativeEx1Api.sendSocialMessage(current, conversation.id, socialDraft)
+                            if (result.optBoolean("pending_review")) {
+                                socialDraft = ""
+                                socialNotice = result.optString("message").ifBlank { "پیام برای بررسی نگه داشته شد و هنوز ارسال نشده است." }
+                            } else if (!result.optBoolean("success")) {
+                                throw IllegalStateException(result.optString("error").ifBlank { "ارسال پیام ناموفق بود." })
+                            } else {
+                                socialDraft = ""
+                                socialMessages = NativeEx1Api.socialMessages(current, conversation.id)
+                            }
+                        } catch (e: Exception) {
+                            socialError = e.message ?: "ارسال پیام انجام نشد."
+                        } finally { socialSending = false }
                     }
                 },
                 onMarkNotificationRead = { notificationId ->
@@ -748,6 +820,10 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                 "wallet" -> wallet = NativeEx1Api.wallet(current)
                                 "team" -> refreshTeam(current)
                                 "notifications" -> notifications = NativeEx1Api.notifications(current)
+                                "messages" -> {
+                                    socialContacts = NativeEx1Api.mutualFollowContacts(current)
+                                    socialConversation?.let { socialMessages = NativeEx1Api.socialMessages(current, it.id) }
+                                }
                                 "support" -> {
                                     val activeConversation = supportConversationId
                                     supportMessages = if (supportFresh || activeConversation == null) emptyList() else NativeEx1Api.supportMessages(current, activeConversation)
@@ -1095,6 +1171,18 @@ private fun PlayerPreviewPanel(
     supportSendRevision: Int,
     onNewSupport: () -> Unit,
     onSendSupport: (String) -> Unit,
+    socialContacts: List<NativePublicProfile>,
+    socialConversation: NativeSocialConversation?,
+    socialMessages: List<NativeSocialMessage>,
+    socialDraft: String,
+    socialBusy: Boolean,
+    socialSending: Boolean,
+    socialError: String?,
+    socialNotice: String?,
+    onRefreshSocial: () -> Unit,
+    onSelectSocialContact: (NativePublicProfile) -> Unit,
+    onSocialDraftChange: (String) -> Unit,
+    onSendSocialMessage: () -> Unit,
     onMarkNotificationRead: (String) -> Unit,
     onDeleteNotification: (String) -> Unit,
     team: NativeTeam?,
@@ -1192,7 +1280,7 @@ private fun PlayerPreviewPanel(
                             .background(Ex1DesignTokens.Player.Surface, RoundedCornerShape(22.dp)).padding(5.dp),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        listOf("explore" to "اکسپلور بازیکنان", "support" to "چت").forEach { (key, label) ->
+                        listOf("explore" to "اکسپلور بازیکنان", "messages" to "چت").forEach { (key, label) ->
                             Box(
                                 Modifier.weight(1f).background(
                                     if (activeTab == key) Color(0xFF34313F) else Color.Transparent,
@@ -1223,6 +1311,24 @@ private fun PlayerPreviewPanel(
                     if (activeTab == "explore") {
                         Column(Modifier.weight(1f).padding(horizontal = 16.dp, vertical = 12.dp)) {
                             ExplorePreviewPanel(explorePlayers, exploreQuery, onExploreQuery, onSearchExplore, onOpenPublicProfile)
+                        }
+                    } else if (activeTab == "messages") {
+                        Column(Modifier.weight(1f).padding(horizontal = 16.dp, vertical = 12.dp)) {
+                            NativeSocialPanel(
+                                currentUserId = profile?.id ?: "",
+                                contacts = socialContacts,
+                                conversation = socialConversation,
+                                messages = socialMessages,
+                                draft = socialDraft,
+                                loading = socialBusy,
+                                sending = socialSending,
+                                error = socialError,
+                                notice = socialNotice,
+                                onRefresh = onRefreshSocial,
+                                onSelectContact = onSelectSocialContact,
+                                onDraftChange = onSocialDraftChange,
+                                onSend = onSendSocialMessage
+                            )
                         }
                     } else {
                         Column(Modifier.weight(1f).padding(horizontal = 16.dp, vertical = 12.dp)) {
