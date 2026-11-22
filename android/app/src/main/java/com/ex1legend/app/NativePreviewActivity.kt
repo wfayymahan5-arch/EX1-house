@@ -42,6 +42,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
@@ -115,6 +116,11 @@ class NativePreviewActivity : ComponentActivity() {
                     background = Ex1DesignTokens.Player.Background,
                     surface = Ex1DesignTokens.Player.Surface,
                     onSurface = Ex1DesignTokens.Player.Text
+                ),
+                shapes = Shapes(
+                    small = RoundedCornerShape(Ex1DesignTokens.Corners.Button),
+                    medium = RoundedCornerShape(Ex1DesignTokens.Corners.Medium),
+                    large = RoundedCornerShape(Ex1DesignTokens.Corners.Card)
                 )
             ) {
                     NativePreviewRoot(isAdmin = BuildConfig.IS_ADMIN)
