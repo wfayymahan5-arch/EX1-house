@@ -1340,12 +1340,21 @@ private fun PlayerPreviewPanel(
                     }
                     if (activeTab == "explore") {
                         Column(Modifier.weight(1f).padding(horizontal = 16.dp, vertical = 12.dp)) {
-                            ExplorePreviewPanel(explorePlayers, exploreQuery, onExploreQuery, onSearchExplore, onOpenPublicProfile)
+                            ExplorePreviewPanel(
+                                players = explorePlayers,
+                                query = exploreQuery,
+                                onQuery = onExploreQuery,
+                                onSearch = onSearchExplore,
+                                onOpenProfile = onOpenPublicProfile,
+                                currentUserId = currentUserId,
+                                followEdges = followEdges,
+                                onFollow = onFollowPlayer
+                            )
                         }
                     } else if (activeTab == "messages") {
                         Column(Modifier.weight(1f).padding(horizontal = 16.dp, vertical = 12.dp)) {
                             NativeSocialPanel(
-                                currentUserId = session?.userId ?: "",
+                                currentUserId = currentUserId,
                                 contacts = socialContacts,
                                 conversation = socialConversation,
                                 messages = socialMessages,
