@@ -1,6 +1,7 @@
 package com.ex1legend.app
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -271,10 +272,9 @@ private fun HeaderIcon(
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = Modifier.size(38.dp).clickable(onClick = onClick),
+        modifier = Modifier.size(38.dp).border(androidx.compose.foundation.BorderStroke(1.dp, Ex1Stroke), RoundedCornerShape(12.dp)).clickable(onClick = onClick),
         color = Color(0xFF151226),
         shape = RoundedCornerShape(12.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Ex1Stroke)
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(icon, contentDescription = description, tint = Color(0xFFCFC5E2), modifier = Modifier.size(19.dp))
@@ -285,10 +285,9 @@ private fun HeaderIcon(
 @Composable
 private fun SmallOutlineAction(text: String, onClick: () -> Unit) {
     Surface(
-        modifier = Modifier.clickable(onClick = onClick),
+        modifier = Modifier.border(androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF59466F)), RoundedCornerShape(11.dp)).clickable(onClick = onClick),
         color = Color(0xFF29223D),
         shape = RoundedCornerShape(11.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF59466F))
     ) {
         Text(text, color = Ex1Text, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 11.dp, vertical = 9.dp))
     }
@@ -342,10 +341,9 @@ private fun ShortcutCard(
 @Composable
 private fun EmptyStateCard(message: String) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().border(androidx.compose.foundation.BorderStroke(1.dp, Color(0x55625176)), RoundedCornerShape(16.dp)),
         color = Color(0x99211A34),
         shape = RoundedCornerShape(16.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x55625176))
     ) {
         Text(message, color = Color(0xFFB8AECb), fontSize = 11.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(22.dp))
     }
