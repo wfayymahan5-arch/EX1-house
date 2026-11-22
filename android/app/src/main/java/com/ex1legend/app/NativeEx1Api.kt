@@ -290,7 +290,7 @@ object NativeEx1Api {
         method: String,
         path: String,
         session: NativeSession? = null,
-        payload: JSONObject? = null,
+        payload: Any? = null,
         prefer: String? = null
     ): Any? {
         val builder = Request.Builder()
