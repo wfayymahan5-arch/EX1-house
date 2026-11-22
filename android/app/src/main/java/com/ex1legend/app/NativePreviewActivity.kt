@@ -58,12 +58,48 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+
+private fun Modifier.ex1AmbientBackground(): Modifier = drawBehind {
+    // Mirrors the final shared EX1 CSS background layer: deep navy base with
+    // restrained violet, cyan and magenta ambient light pools.
+    drawRect(
+        brush = Brush.linearGradient(
+            colors = listOf(Color(0xFF080711), Color(0xFF0C1020), Color(0xFF090713)),
+            start = Offset(0f, 0f),
+            end = Offset(size.width, size.height)
+        )
+    )
+    drawRect(
+        brush = Brush.radialGradient(
+            colors = listOf(Color(0x3B8237FF), Color.Transparent),
+            center = Offset(size.width * 0.08f, size.height * 0.12f),
+            radius = size.maxDimension * 0.72f
+        )
+    )
+    drawRect(
+        brush = Brush.radialGradient(
+            colors = listOf(Color(0x2900DAFF), Color.Transparent),
+            center = Offset(size.width * 0.92f, size.height * 0.09f),
+            radius = size.maxDimension * 0.62f
+        )
+    )
+    drawRect(
+        brush = Brush.radialGradient(
+            colors = listOf(Color(0x1FD530FF), Color.Transparent),
+            center = Offset(size.width * 0.5f, size.height),
+            radius = size.maxDimension * 0.78f
+        )
+    )
+}
 
 private fun parseIsoDate(value: String?): Date? {
     if (value.isNullOrBlank()) return null
@@ -898,7 +934,7 @@ private fun GuestNativeHome(
         "uncategorized" to "دسته‌بندی نشده"
     )
     val visibleRooms = rooms.filter { category == "all" || it.gameCategory == category }
-    Column(Modifier.fillMaxSize().background(Ex1DesignTokens.Player.Background)) {
+    Column(Modifier.fillMaxSize().ex1AmbientBackground()) {
         Row(
             Modifier.fillMaxWidth().background(Color(0xF00A0818)).padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
