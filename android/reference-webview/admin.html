@@ -1,0 +1,1100 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<script>window.EX1_NATIVE_APP=new URLSearchParams(location.search).get("ex1_native")==="1";window.EX1_UPDATE_CHANNEL=new URLSearchParams(location.search).get("ex1_channel")||"web";</script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#090910"><link rel="icon" type="image/svg+xml" href="/ex1-legend-mark.svg">
+<title>پنل مدیریت | EX1 LEGEND</title>
+<style>
+:root{color-scheme:dark;--bg:#090910;--panel:#12121d;--line:#27273a;--text:#f4f3ff;--muted:#9998b2;--purple:#8b5cf6;--cyan:#22d3ee;--green:#34d399}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#24134a 0,transparent 38%),var(--bg);color:var(--text);font-family:system-ui,Tahoma,Arial,sans-serif}button,input{font:inherit}a{color:inherit;text-decoration:none}
+.wrap{max-width:1200px;margin:auto;padding:22px}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:22px}.brand{font-weight:900;font-size:21px;letter-spacing:1px}.brand span{color:var(--cyan)}
+.btn{border:1px solid var(--line);background:#171725;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer}.btn.primary{background:linear-gradient(110deg,#6d3bd1,#276d91);border:0}.btn:disabled{opacity:.5;cursor:not-allowed}
+.hero,.card,.section,.authbox{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:18px}.hero{background:linear-gradient(120deg,#21143c,#111522);border-color:#39304f;margin-bottom:16px}.hero h1{margin:0 0 8px;font-size:24px}.muted{color:var(--muted);font-size:13px;line-height:1.8}.notice{margin-top:12px;padding:11px 13px;border-radius:12px;background:#382b16;border:1px solid #705326;color:#fbd38d;font-size:13px}
+.authbox{max-width:430px;margin:9vh auto}.authbox h2{margin-top:0}.field{display:block;width:100%;margin:9px 0 13px;padding:13px;border-radius:10px;border:1px solid var(--line);background:#0d0d16;color:white}.authbox .btn{width:100%;margin-top:8px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.stat small{color:var(--muted)}.stat strong{display:block;font-size:27px;margin-top:7px}
+.layout{display:grid;grid-template-columns:205px 1fr;gap:14px}.nav{display:flex;flex-direction:column;gap:7px;height:max-content}.nav button{background:transparent;border:1px solid transparent;color:var(--muted);text-align:right;padding:12px;border-radius:11px;cursor:pointer}.nav button.active,.nav button:hover{background:#211a35;border-color:#49366e;color:white}
+.section h2{font-size:18px;margin:0 0 15px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.tablewrap{overflow:auto}.manager-form{margin:14px 0;padding:15px;border:1px solid #39304f;border-radius:14px;background:#0e0e18}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.manager-form label{display:block;color:var(--muted);font-size:12px}.manager-form input,.manager-form select,.manager-form textarea{display:block;width:100%;margin-top:6px;padding:11px;border:1px solid var(--line);border-radius:9px;background:#090910;color:var(--text);font:inherit}.manager-form textarea{min-height:82px;resize:vertical}.manager-form .wide{grid-column:1/-1}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.action-btn{padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:#1a1928;color:white;cursor:pointer;font-size:12px}.action-btn.danger{border-color:#713b4a;color:#ffb4c2}@media(max-width:620px){.formgrid{grid-template-columns:1fr}.manager-form .wide{grid-column:auto}}.room-image-field input[type="file"][hidden],.room-image-field input[type="hidden"]{display:none!important}.room-image-field{padding:12px;border:1px solid var(--line);border-radius:12px;background:#090910}.room-image-actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.room-image-preview-wrap{max-width:520px;margin-top:10px}.room-image-preview{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:13px;border:1px solid #7655a4;background:#111;cursor:crosshair;touch-action:pan-y}.room-image-preview img{width:100%;height:100%;display:block;object-fit:cover;pointer-events:none}.room-image-focus-control{display:block;margin-top:12px;color:var(--muted);font-size:13px}.room-image-focus-control span{display:block;margin-bottom:7px}.room-image-focus-control input[type="range"]{display:block;width:100%;height:34px;margin:0;padding:0;border:0;background:transparent;accent-color:#9b73ed;cursor:ew-resize;touch-action:none;user-select:none;-webkit-user-select:none;overscroll-behavior:contain}.room-image-preview{touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:default}.room-image-preview.is-dragging{cursor:grabbing}.room-image-field{overscroll-behavior:contain}.room-image-preview-wrap.hidden{display:none}table{width:100%;border-collapse:collapse;min-width:550px}th,td{text-align:right;padding:11px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-weight:600}
+.tag{display:inline-block;padding:4px 9px;border-radius:20px;background:#1d3b34;color:#8ff0c9;font-size:11px}.empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed #38384c;border-radius:12px}.hidden{display:none}.colorgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.colorfield{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px}.colorfield input{width:48px;height:38px;border:0;background:transparent}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.toast{position:fixed;bottom:18px;left:18px;background:#222035;border:1px solid #5c477e;padding:12px 16px;border-radius:12px;display:none;z-index:10}.toast.show{display:block}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.nav{display:grid;grid-template-columns:repeat(3,1fr)}.nav button{text-align:center;padding:9px;font-size:12px}.wrap{padding:14px}.colorgrid{grid-template-columns:1fr}}
+
+/* EX1 LEGEND gaming visual restoration: neon atmosphere, motion and responsive feedback */
+:root{--ex1-glow-purple:rgba(139,92,246,.34);--ex1-glow-cyan:rgba(34,211,238,.22)}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(ellipse at 12% 8%,rgba(116,55,201,.24),transparent 34%),radial-gradient(ellipse at 88% 18%,rgba(12,145,171,.17),transparent 32%),radial-gradient(ellipse at 52% 100%,rgba(93,37,145,.16),transparent 42%),#090910;background-attachment:fixed}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.22;background-image:linear-gradient(rgba(139,92,246,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.06) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,black,transparent 88%);animation:ex1GridDrift 26s linear infinite}
+.top,.hero,.card,.section,.authbox{box-shadow:0 12px 38px rgba(0,0,0,.22),0 0 0 1px rgba(139,92,246,.035);transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease,background-color .28s ease}
+.hero{position:relative;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.28),0 0 34px var(--ex1-glow-purple);background:linear-gradient(115deg,rgba(44,25,75,.96),rgba(12,20,34,.96));}
+.hero:after{content:"";position:absolute;inset:-80% auto -80% -35%;width:28%;transform:rotate(24deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.075),transparent);animation:ex1HeroSweep 8s ease-in-out infinite;pointer-events:none}
+.card,.section{background:linear-gradient(145deg,rgba(23,21,42,.96),rgba(13,16,29,.96));border-color:rgba(113,91,157,.36)}
+.card:hover,.section:hover{border-color:rgba(139,92,246,.62);box-shadow:0 14px 38px rgba(0,0,0,.28),0 0 22px rgba(139,92,246,.11)}
+.stat{animation:ex1RiseIn .55s both}
+.stat:nth-child(2){animation-delay:.07s}.stat:nth-child(3){animation-delay:.14s}.stat:nth-child(4){animation-delay:.21s}
+.btn,.action-btn,.nav button{transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease,background .2s ease,color .2s ease}
+.btn:hover,.action-btn:hover{transform:translateY(-2px);border-color:rgba(34,211,238,.65);box-shadow:0 7px 22px rgba(34,211,238,.12),0 0 14px rgba(139,92,246,.12)}
+.btn.primary{background:linear-gradient(110deg,#7544d4,#167f98);box-shadow:0 5px 20px rgba(117,68,212,.22)}
+.btn.primary:hover{box-shadow:0 8px 28px rgba(117,68,212,.38),0 0 18px rgba(34,211,238,.2)}
+.nav button.active{box-shadow:inset 3px 0 0 var(--cyan),0 0 18px rgba(139,92,246,.13)}
+.tag{box-shadow:0 0 13px rgba(52,211,153,.09)}
+.brand span{text-shadow:0 0 16px rgba(34,211,238,.42)}
+.toast.show{animation:ex1ToastIn .24s ease-out}
+@keyframes ex1GridDrift{to{background-position:42px 42px,42px 42px}}
+@keyframes ex1HeroSweep{0%,55%{left:-38%;opacity:0}65%{opacity:1}90%,100%{left:125%;opacity:0}}
+@keyframes ex1RiseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ex1ToastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+</style>
+<style id="ex1-admin-gaming-motion-v1">
+:root{--bg:#0B0B12;--panel:#171725;--purple:#8B5CF6;--cyan:#8B5CF6}
+body{position:relative;isolation:isolate;background:radial-gradient(ellipse at 80% 0%,#5226a044 0,transparent 42%),radial-gradient(ellipse at 10% 85%,#32144d33 0,transparent 38%),#0B0B12!important}
+body:before{content:"";position:fixed;inset:-28%;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 28% 35%,#8B5CF622,transparent 38%),radial-gradient(ellipse at 75% 65%,#28c4d411,transparent 36%);filter:blur(25px);animation:ex1AdminAmbient 30s ease-in-out infinite alternate}
+.top{border-bottom:1px solid #8B5CF633;padding-bottom:14px}
+.brand span{color:#b99aff;text-shadow:0 0 15px #8B5CF655}
+.hero,.card,.section,.authbox{background:linear-gradient(145deg,#211a34f2,#151326f5);border-color:#8B5CF644;box-shadow:0 12px 30px #0004,inset 0 1px #ffffff0a}
+.hero{position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 20%,#ffffff0b 45%,transparent 70%);transform:translateX(-110%);animation:ex1AdminSweep 10s ease-in-out infinite}
+.btn.primary{background:linear-gradient(110deg,#8B5CF6,#5525a7);box-shadow:0 7px 22px #8B5CF644}
+.btn,.action-btn,.nav button,.colorfield{transition:transform .2s ease,box-shadow .25s ease,border-color .25s ease,filter .25s ease}
+.btn:active,.action-btn:active{transform:scale(.97)}
+.card:hover,.section:hover{border-color:#a78bfa77;box-shadow:0 14px 32px #0005,0 0 18px #8B5CF622}
+.tag{background:#8B5CF622;color:#d9c7ff;border:1px solid #8B5CF655}
+input:focus,select:focus,textarea:focus{outline:1px solid #a78bfa;box-shadow:0 0 0 3px #8B5CF622}
+@keyframes ex1AdminAmbient{0%{transform:translate3d(-2%,0,0) scale(1)}100%{transform:translate3d(2%,2%,0) scale(1.06)}}
+@keyframes ex1AdminSweep{0%,68%,100%{transform:translateX(-110%)}84%{transform:translateX(110%)}}
+@media(hover:hover){.btn:hover,.action-btn:hover{filter:brightness(1.12);box-shadow:0 8px 24px #8B5CF644}}
+@media(prefers-reduced-motion:reduce){body:before,.hero:after{animation:none!important}.btn,.action-btn,.nav button,.colorfield{transition:none!important}.card:hover,.section:hover{transform:none!important}}
+</style>
+
+<style id="ex1-neon-motion-v2">
+
+/* EX1 Neon Motion v2 — vivid but lightweight */
+:root{--ex1-neon:#b66cff;--ex1-cyan:#45dff2}
+.hero{position:relative;overflow:hidden;isolation:isolate;box-shadow:0 12px 30px #0007,0 0 24px rgba(151,78,235,.24)}
+.hero:after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(112deg,transparent 8%,rgba(190,126,255,.2) 38%,rgba(65,220,245,.12) 52%,transparent 76%);transform:translateX(-120%);animation:ex1AdminNeonSweep 7s ease-in-out infinite}
+.hero>*{position:relative;z-index:1}
+.card,.section,.stat,.colorfield,.nav button,.btn,.action-btn{transition:transform .22s ease,border-color .25s ease,box-shadow .25s ease,filter .25s ease}
+.card,.section,.stat{box-shadow:0 9px 24px #0006,0 0 0 1px rgba(177,112,255,.08)}
+.btn.primary,.action-btn{box-shadow:0 0 0 1px rgba(211,165,255,.3),0 7px 22px rgba(143,72,220,.3),0 0 18px rgba(153,83,255,.22)}
+.btn:active,.action-btn:active,.nav button:active{transform:scale(.97)}
+.nav button.active{box-shadow:inset 3px 0 0 #b66cff,0 0 17px rgba(166,91,255,.22);filter:brightness(1.15)}
+.tag{box-shadow:0 0 12px rgba(171,105,255,.2)}
+.colorfield:focus-within{border-color:#b98aff;box-shadow:0 0 0 2px rgba(166,91,255,.18),0 0 18px rgba(166,91,255,.2)}
+@keyframes ex1AdminNeonSweep{0%,60%,100%{transform:translateX(-120%)}80%{transform:translateX(120%)}}
+@media(hover:hover){
+ .card:hover,.section:hover,.stat:hover{transform:translateY(-3px);border-color:rgba(194,133,255,.7);box-shadow:0 14px 30px #0008,0 0 22px rgba(161,91,255,.28)}
+ .btn:hover,.action-btn:hover{filter:brightness(1.16);box-shadow:0 0 24px rgba(172,103,255,.48)}
+ .nav button:hover{transform:translateX(-2px);border-color:rgba(190,130,255,.3)}
+}
+@media(prefers-reduced-motion:reduce){
+ .hero:after{animation:none!important}
+ .card,.section,.stat,.colorfield,.nav button,.btn,.action-btn{transition:none!important}
+ .card:hover,.section:hover,.stat:hover,.nav button:hover{transform:none!important}
+}
+
+</style>
+<style id="ex1-room-fx-admin-toggle">.ex1-room-fx-toggle{display:flex!important;align-items:center;gap:10px;padding:12px;border:1px solid #7752a8;border-radius:12px;background:#201634;color:#eee}.ex1-room-fx-toggle input{width:20px!important;height:20px;accent-color:#a66cff}</style>
+<style id="ex1-full-project-admin-motion">
+@keyframes ex1AdminTabEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.section.tab:not(.hidden){animation:ex1AdminTabEnter .26s ease-out both}
+.manager-form:not(.hidden){animation:ex1AdminTabEnter .28s ease-out both}
+#tournamentForm,#roomForm{border-color:#9a6ce0;background:linear-gradient(145deg,#211832,#10101b);box-shadow:inset 0 1px #ffffff0a,0 10px 28px #0006,0 0 20px #8b5cf622}
+@media(prefers-reduced-motion:reduce){.section.tab:not(.hidden),.manager-form:not(.hidden){animation:none!important}}
+</style><style id="ex1-ultra-neon-motion">
+/* EX1 LEGEND ULTRA NEON MOTION LAYER */
+:root{--ex1-violet:#9b5cff;--ex1-cyan:#27e6f2;--ex1-pink:#ec4fff;--ex1-blue:#536dff;--ex1-glow:rgba(155,92,255,.5)}
+html{scroll-behavior:smooth}
+body{isolation:isolate;background-image:radial-gradient(ellipse at 8% 12%,rgba(130,55,255,.23),transparent 32%),radial-gradient(ellipse at 92% 9%,rgba(0,218,255,.16),transparent 29%),radial-gradient(ellipse at 50% 100%,rgba(213,48,255,.12),transparent 38%),linear-gradient(145deg,#080711,#0c1020 52%,#090713)!important;background-attachment:fixed!important}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.32;background-image:linear-gradient(rgba(139,92,246,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.075) 1px,transparent 1px);background-size:46px 46px;mask-image:radial-gradient(ellipse at center,#000 12%,transparent 88%);animation:ex1MatrixDrift 32s linear infinite}
+body:after{content:"";position:fixed;inset:-35%;z-index:-1;pointer-events:none;background:conic-gradient(from 0deg,transparent 0 68%,rgba(132,76,255,.055) 76%,transparent 84%);filter:blur(48px);animation:ex1AmbientSpin 42s linear infinite}
+:is(.card,.room-card,.match-card,.tournament-card,.stat,.panel,.section,.box,.modal-content,.dialog,.auth-card,.profile-card,.wallet-card,.hero,.top,.sidebar,.nav,.tab-content,.admin-card,[class*="card"],[class*="panel"],[class*="widget"]){position:relative;isolation:isolate;transition:transform .32s cubic-bezier(.2,.8,.2,1),border-color .3s ease,box-shadow .3s ease,filter .3s ease}
+:is(.card,.room-card,.match-card,.tournament-card,.stat,.panel,.section,.box,.modal-content,.dialog,.auth-card,.profile-card,.wallet-card,.hero,.admin-card,[class*="card"],[class*="panel"],[class*="widget"]):not(.modal):hover{transform:translateY(-4px);border-color:rgba(39,230,242,.65)!important;box-shadow:0 12px 38px rgba(0,0,0,.34),0 0 0 1px rgba(155,92,255,.25),0 0 24px rgba(155,92,255,.22),inset 0 0 22px rgba(39,230,242,.035)!important;filter:saturate(1.12)}
+:is(.card,.room-card,.match-card,.tournament-card,.stat,.panel,.section,.box,.modal-content,.dialog,.auth-card,.profile-card,.wallet-card,.hero,.admin-card,[class*="card"],[class*="panel"],[class*="widget"]):after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;opacity:.42;background:linear-gradient(125deg,rgba(39,230,242,.5),transparent 28%,rgba(155,92,255,.5) 66%,transparent);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:ex1BorderPulse 5s ease-in-out infinite}
+:is(button,.btn,a[role="button"],input[type="submit"],.nav-item,.tab,.action-btn){transition:transform .2s ease,box-shadow .25s ease,filter .25s ease,border-color .25s ease!important}
+:is(button,.btn,a[role="button"],input[type="submit"],.nav-item,.tab,.action-btn):hover{filter:brightness(1.17) saturate(1.2);box-shadow:0 0 14px rgba(39,230,242,.2),0 0 28px rgba(155,92,255,.2)!important}
+:is(button,.btn,a[role="button"],input[type="submit"],.nav-item,.tab,.action-btn):active{transform:scale(.97)}
+:is(input,select,textarea):focus{outline:none!important;border-color:rgba(39,230,242,.85)!important;box-shadow:0 0 0 3px rgba(39,230,242,.12),0 0 22px rgba(155,92,255,.2)!important}
+:is(h1,h2,h3,.brand,.logo,.page-title){text-shadow:0 0 12px rgba(155,92,255,.28),0 0 25px rgba(39,230,242,.12)}
+:is(.hero,.banner,.page-header){overflow:hidden}
+:is(.hero,.banner,.page-header):before{content:"";position:absolute;inset:-80% auto -80% -45%;width:36%;transform:rotate(24deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),rgba(39,230,242,.08),transparent);animation:ex1Shimmer 7s ease-in-out infinite;pointer-events:none}
+:is(.badge,.tag,.status,.pill){box-shadow:0 0 13px rgba(39,230,242,.13),inset 0 0 8px rgba(155,92,255,.08)}
+hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
+@keyframes ex1MatrixDrift{to{background-position:46px 46px,46px 46px}}
+@keyframes ex1AmbientSpin{to{transform:rotate(360deg)}}
+@keyframes ex1BorderPulse{0%,100%{opacity:.22;filter:hue-rotate(0deg)}50%{opacity:.68;filter:hue-rotate(35deg)}}
+@keyframes ex1Shimmer{0%,62%{left:-48%;opacity:0}70%{opacity:1}92%,100%{left:130%;opacity:0}}
+@media(hover:none){:is(.card,.room-card,.match-card,.tournament-card,.stat,.panel,.section,.box,.modal-content,.dialog,.auth-card,.profile-card,.wallet-card,.hero,.admin-card,[class*="card"],[class*="panel"],[class*="widget"]):active{box-shadow:0 0 0 1px rgba(155,92,255,.4),0 0 24px rgba(39,230,242,.15)!important}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style><style id="ex1-compact-manager-form">
+/* Compact, centered manager forms */
+.manager-form{width:min(100%,760px);max-width:760px;margin:16px auto!important;padding:clamp(12px,2vw,20px)!important;box-sizing:border-box}
+.manager-form .formgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.manager-form label{min-width:0}
+.manager-form input,.manager-form select,.manager-form textarea{min-width:0;box-sizing:border-box}
+.manager-form .actions{justify-content:flex-start}
+@media(min-width:1100px){.manager-form{width:min(100%,700px)}}
+@media(max-width:620px){.manager-form{width:100%;margin:12px auto!important}.manager-form .formgrid{grid-template-columns:minmax(0,1fr)}}
+</style>
+<style id="ex1-admin-prevent-accidental-text-selection">
+/* Prevent Android's accidental text-selection toolbar (Google Search / Copy)
+   while keeping form fields and explicitly editable content selectable. */
+#appView, #appView * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+#appView input, #appView textarea, #appView select,
+#appView [contenteditable="true"], #appView .selectable-text {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+</style>
+
+<style id="ex1-notification-multiselect-style">
+.notification-users-list{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:6px;margin-top:8px}
+.notification-user-row{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--line);cursor:pointer}
+.notification-user-row:last-child{border-bottom:0}
+.notification-user-row input{width:18px;height:18px;flex:0 0 auto}
+.notification-user-row span{display:flex;flex-direction:column;min-width:0;gap:3px}
+.notification-user-row small{opacity:.72;overflow-wrap:anywhere;font-size:11px}
+</style><style id="ex1-admin-mobile-scroll-fix">
+/* Mobile-first scrolling: keep the page vertically scrollable and contain wide tables. */
+html{min-height:100%;overflow-x:clip;overflow-y:auto;scrollbar-gutter:stable}
+body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;overscroll-behavior-y:auto;-webkit-overflow-scrolling:touch}
+.wrap{width:100%;min-width:0;max-width:1200px}
+.layout,.layout>* , .section,.hero,.card,.manager-form,.formgrid,.wide{min-width:0;max-width:100%}
+.section{overflow:visible}
+.tablewrap{display:block;width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.tablewrap table{width:max-content;min-width:550px}
+.manager-form input,.manager-form select,.manager-form textarea{max-width:100%;min-width:0}
+.room-image-preview{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.room-image-preview.is-dragging{cursor:grabbing}
+.room-image-preview img{user-select:none;-webkit-user-drag:none}
+.room-image-focus-control input[type=range]{touch-action:pan-x;max-width:100%;min-width:0}
+@media(max-width:760px){
+ html,body{overflow-x:clip}
+ .wrap{padding:10px;width:100%}
+ .layout{display:block;width:100%}
+ .nav{display:flex;flex-direction:row;gap:6px;overflow-x:auto;overflow-y:hidden;max-width:100%;padding:2px 0 8px;white-space:nowrap;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+ .nav button{flex:0 0 auto;min-width:max-content}
+ .tab.section{width:100%;padding:13px;border-radius:14px}
+ .top{align-items:flex-start;flex-wrap:wrap}
+ .hero h1{font-size:20px}
+ .formgrid{grid-template-columns:minmax(0,1fr)}
+ .manager-form .wide{grid-column:1}
+ .room-image-preview-wrap{width:100%;max-width:100%}
+ .room-image-preview{width:100%;touch-action:none}
+ .actions>.btn,.room-image-actions>.btn{max-width:100%}
+}
+</style></head>
+<body><div class="wrap">
+<header class="top"><div class="brand"><img src="/ex1-legend-mark.svg" alt="" width="30" height="30" style="vertical-align:middle;margin-inline-end:7px">EX1 <span>LEGEND</span> <small style="color:#9998b2;font-size:12px">/ مدیریت</small></div><a class="btn" href="/download.html">دانلود اپ اندروید</a><a class="btn" href="/">بازگشت به سایت ↗</a></header>
+<section id="authView" class="authbox"><h2>ورود مدیران EX1 LEGEND</h2><p class="muted">با حساب کاربری تأییدشده وارد شو. ساخت حساب یا اعطای دسترسی مدیریتی از این صفحه ممکن نیست.</p><form id="loginForm"><label class="muted" for="email">ایمیل</label><input class="field" id="email" type="email" autocomplete="username" required maxlength="254"><label class="muted" for="password">رمز عبور</label><input class="field" id="password" type="password" autocomplete="current-password" required maxlength="72"><button class="btn primary" id="loginButton" type="submit">ورود امن</button></form><p id="authMessage" class="muted" aria-live="polite"></p></section>
+<div id="appView" class="hidden">
+<section class="hero"><div class="row"><div><h1>پنل مدیریت EX1 LEGEND</h1><div class="muted" id="identity">در حال بررسی دسترسی...</div></div><button class="btn" id="logoutButton">خروج امن</button></div><div class="notice">پنل به دیتابیس زنده متصل است. هر بخش فقط با مجوز سمت سرور قابل مشاهده است؛ عملیات تغییردهنده تا تکمیل کنترل‌های بیشتر غیرفعال‌اند.</div></section>
+<div class="stats"><div class="card stat"><small>مسابقات</small><strong id="statTournaments">—</strong></div><div class="card stat"><small>ثبت‌نام‌ها</small><strong id="statRegistrations">—</strong></div><div class="card stat"><small>تیم‌ها</small><strong id="statTeams">—</strong></div><div class="card stat"><small>پروفایل‌ها</small><strong id="statUsers">—</strong></div></div>
+<div class="layout"><nav class="card nav" id="nav"></nav><main>
+<section class="section tab" id="overview"><h2>نمای کلی زنده</h2><div class="muted" id="overviewText">آمار از دیتابیس خوانده می‌شود.</div><div class="empty" id="overviewEmpty">در حال دریافت اطلاعات...</div><div class="notice">بخش مالی تا زمان پیاده‌سازی قفل امنیتی مخصوص ورود بزرگسال مسئول، در پنل نمایش داده نمی‌شود.</div></section>
+<section class="section tab hidden" id="tournaments">
+<div class="row"><h2>مسابقات</h2><button class="btn primary" id="addTournamentButton">افزودن مسابقه</button></div>
+<form id="tournamentForm" class="manager-form hidden">
+ <div class="formgrid">
+  <label>عنوان مسابقه<input id="tf_title" maxlength="120" required placeholder="نام مسابقه"></label>
+  <label>بازی<input id="tf_game" maxlength="80" value="Call of Duty Mobile" required></label>
+  <label>حالت بازی<input id="tf_mode" maxlength="80" placeholder="Battle Royale"></label>
+  <label>نقشه<input id="tf_map" maxlength="80" placeholder="Isolated"></label>
+  <label>حداکثر تیم‌ها<input id="tf_max_teams" type="number" min="1" max="500" value="25"></label>
+  <label>زمان شروع<input id="tf_starts_at" type="datetime-local"></label>
+  <label>وضعیت<select id="tf_status"><option value="draft" selected>پیش‌نویس</option><option value="published">منتشرشده</option><option value="registration_open">ثبت‌نام باز</option><option value="ongoing">درحال‌برگزاری</option><option value="completed">پایان‌یافته</option><option value="cancelled">لغوشده</option></select></label>
+  <label>لینک تصویر کاور<input id="tf_cover_image_url" type="url" placeholder="https://..."></label>
+  <label class="wide">توضیحات<textarea id="tf_description" maxlength="3000"></textarea></label>
+  <label class="wide">قوانین مسابقه<textarea id="tf_rules" maxlength="5000"></textarea></label>
+ </div>
+ <p class="muted">مسابقه با امتیازهای مجازی و بدون پرداخت یا جایزهٔ نقدی مدیریت می‌شود.</p>
+ <div class="actions"><button class="btn primary" type="submit" id="saveTournamentButton">ثبت مسابقه</button><button class="btn" type="button" id="cancelTournamentButton">انصراف</button></div>
+</form>
+<div id="tournamentsTable" class="empty">در حال بارگذاری...</div>
+</section>
+<section class="section tab hidden" id="rooms">
+<div class="row"><h2>مدیریت روم‌ها</h2><button class="btn primary" id="addRoomButton">افزودن روم جدید</button></div>
+<form id="roomForm" class="manager-form hidden">
+<input id="rf_id" type="hidden">
+<div class="formgrid">
+<label>مسابقه مرتبط<select id="rf_tournament_id" required></select></label>
+<label>نام روم<input id="rf_title" required maxlength="120"></label>
+<label>بخش بازی در اپ<select id="rf_game_category" required><option value="battle_royale">بتل‌رویال</option><option value="fight">فایت</option><option value="multiplayer">مولتی</option><option value="uncategorized">دسته‌بندی نشده (برای اصلاح روم‌های قدیمی)</option></select></label>
+<label>ردهٔ ورودی<select id="rf_price_category" required><option value="free">رایگان</option><option value="economy">اقتصادی</option><option value="expensive">گران</option></select></label>
+<label>حالت یا توضیح تکمیلی (اختیاری)<input id="rf_game_mode" maxlength="80" placeholder="مثلاً سولو، اسکواد یا حالت ویژه"></label>
+<label>نقشه<input id="rf_map" maxlength="80" placeholder="Isolated"></label>
+<label>تعداد جایگاه‌ها (تعداد تیم‌ها)<input id="rf_max_teams" type="number" min="1" max="25" value="25" required></label>
+<label>تعداد نفرات هر تیم<select id="rf_team_size"><option value="2">۲ نفره (DUO)</option><option value="4" selected>۴ نفره (SQUAD)</option></select></label>
+<label>ظرفیت کل بازیکنان<input id="rf_capacity" type="number" value="100" readonly></label>
+<label>ورودی هر بازیکن (استارز مجازی)<input id="rf_entry_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
+<label>جایزه تیم اول (استارز)<input id="rf_prize_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
+<label>جایزه تیم دوم (استارز)<input id="rf_prize_second_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
+<label>جایزه تیم سوم (استارز)<input id="rf_prize_third_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
+<label>زمان شروع<input id="rf_starts_at" type="datetime-local"></label>
+<label>زمان پایان<input id="rf_ends_at" type="datetime-local"></label>
+<label>وضعیت<select id="rf_status"><option value="open" selected>باز</option><option value="draft">پیش‌نویس</option><option value="full">تکمیل ظرفیت</option><option value="closed">بسته</option><option value="completed">پایان‌یافته</option><option value="cancelled">لغوشده</option></select></label>
+<div class="wide room-image-field">
+ <label>تصویر روم</label>
+ <input id="rf_room_image_url" type="hidden">
+ <input id="rf_image_focus_x" type="hidden" value="50">
+ <input id="rf_image_focus_y" type="hidden" value="55">
+ <input id="rf_room_image_file" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+ <div class="room-image-actions"><button class="btn" type="button" id="chooseRoomImage">＋ انتخاب تصویر از گالری</button><button class="action-btn danger" type="button" id="removeRoomImage">حذف تصویر</button></div>
+ <div id="roomImagePreviewWrap" class="room-image-preview-wrap hidden"><div id="roomImagePreview" class="room-image-preview"><img id="roomImagePreviewImg" alt="پیش‌نمایش تصویر روم"></div><div class="room-image-focus-control"><span>جابه‌جایی افقی کادر</span><input id="rf_image_focus_x_range" type="range" min="0" max="100" value="50" aria-label="جابه‌جایی افقی کادر"></div><div class="room-image-focus-control"><span>جابه‌جایی عمودی کادر</span><input id="rf_image_focus_y_range" type="range" min="0" max="100" value="55" aria-label="جابه‌جایی عمودی کادر"></div></div>
+ <p class="muted">عکس را از گالری انتخاب کن. برش اولیه با توجه به عمودی یا افقی بودن عکس تنظیم می‌شود؛ برای تعیین دقیق بخش مهم، همان قسمت را روی پیش‌نمایش لمس کن یا نوار تنظیم کادر را جابه‌جا کن. تصویر کشیده نمی‌شود.</p>
+ <p id="roomImageUploadStatus" class="muted" aria-live="polite"></p>
+ <label class="wide ex1-room-fx-toggle"><input id="rf_room_effects_enabled" type="checkbox" disabled> افکت نئونی و ذرات متحرک برای تصویر این روم فعال باشد</label>
+ <p class="muted wide">تصویر اصلی ثابت می‌ماند؛ فقط نور و ذرات تزئینی روی آن حرکت می‌کنند. این گزینه برای هر روم جداگانه ذخیره می‌شود و به‌صورت پیش‌فرض خاموش است.</p>
+ <p id="roomEffectsSchemaNotice" class="muted wide" hidden>این قابلیت تا زمان اعمال تغییر تکمیلی پایگاه داده غیرفعال است؛ ساخت و ویرایش عادی روم همچنان فعال می‌ماند.</p>
+</div>
+<label class="wide">قوانین اختصاصی این روم<textarea id="rf_rules" maxlength="5000"></textarea></label>
+<p class="muted wide">ورودی از امتیاز مجازی EX1 کسر می‌شود؛ این امتیاز ارزش نقدی ندارد و قابل خرید، انتقال یا برداشت نیست. ظرفیت کل به‌صورت خودکار از تعداد تیم‌ها × نفرات هر تیم محاسبه می‌شود.</p>
+</div>
+<div class="actions"><button class="btn primary" type="submit" id="saveRoomButton">ذخیره روم</button><button class="btn" type="button" id="cancelRoomButton">انصراف</button></div>
+<div id="roomAccessAdminPanel" class="panel hidden" style="margin-top:14px"><h3>انتشار اطلاعات ورود کالاف</h3><p class="muted">کد و رمز را همین‌جا ثبت کن. تا قبل از زمان شروع مخفی می‌مانند و پس از رسیدن زمان شروع، فقط برای شرکت‌کنندگان ثبت‌نام‌شدهٔ همین روم در اپ نمایش داده می‌شوند.</p><div id="roomAccessAdminStatus" class="notice" aria-live="polite">پس از ذخیره روم، وضعیت زمان‌بندی اینجا نمایش داده می‌شود.</div><label>کد روم کالاف<input id="rf_room_code" maxlength="80" autocomplete="off" placeholder="کد روم خصوصی کالاف"></label><label>رمز روم کالاف<input id="rf_room_password" type="password" maxlength="80" autocomplete="new-password" placeholder="رمز روم خصوصی کالاف"></label><button class="btn primary" id="publishRoomAccessButton" type="button" disabled>ذخیره و زمان‌بندی نمایش خودکار</button><p id="roomAccessPublishMessage" class="muted" aria-live="polite"></p></div>
+</form>
+<div id="roomsTable" class="empty">در حال بارگذاری...</div>
+</section>
+<section class="section tab hidden" id="registrations"><h2>ثبت‌نام‌های تیمی</h2><div id="registrationsTable" class="empty">در حال بارگذاری...</div></section>
+<section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
+<section class="section tab hidden" id="users"><h2>کاربران و پروفایل‌ها</h2><div id="directNotificationPanel" class="manager-form hidden"><h3 style="margin-top:0">ارسال اعلان مدیریتی</h3><form id="directNotificationForm"><div class="formgrid"><div class="wide"><label for="directNotificationSearch">جست‌وجوی کاربران</label><input id="directNotificationSearch" type="search" placeholder="نام نمایشی، نام کالاف یا شناسه کاربر..." autocomplete="off"><div class="actions" style="margin:8px 0"><button class="btn" id="selectVisibleNotificationUsers" type="button">انتخاب نتایج جست‌وجو</button><button class="btn" id="selectAllNotificationUsers" type="button">انتخاب همه کاربران</button><button class="btn" id="clearNotificationUsers" type="button">پاک‌کردن انتخاب</button></div><p class="muted" id="notificationSelectionCount">۰ کاربر انتخاب شده</p><div id="notificationUsersList" class="notification-users-list" aria-label="فهرست کاربران"><p class="muted">ابتدا فهرست کاربران بارگذاری شود.</p></div></div><label>عنوان پیام<input id="directNotificationTitle" maxlength="100" required placeholder="عنوان پیام"></label><label class="wide">متن پیام<textarea id="directNotificationBody" maxlength="1000" required placeholder="متن پیام برای کاربران انتخاب‌شده..."></textarea></label></div><div class="actions"><button class="btn primary" id="sendDirectNotification" type="submit">ارسال اعلان به کاربران انتخاب‌شده</button></div><p class="muted" id="directNotificationStatus" aria-live="polite"></p></form></div><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
+<section class="section tab hidden" id="social"><div class="row"><h2>مدیریت اجتماعی و گزارش‌ها</h2><button class="btn" id="refreshSocialReports" type="button">به‌روزرسانی</button></div><p class="muted">گزارش‌های محتوای اجتماعی فقط برای مدیر دارای مجوز social.moderate نمایش داده می‌شوند. تصمیم‌ها ثبت و قابل پیگیری هستند.</p><div id="socialReportsTable" class="empty">در حال دریافت گزارش‌ها...</div></section>
+<section class="section tab hidden" id="moderation"><div class="row"><h2>پرونده‌های بررسی هوشمند</h2><button class="btn" id="refreshModerationCases" type="button">به‌روزرسانی</button></div><p class="muted">این پرونده‌ها فقط برای مالک اصلی قابل مشاهده و تعیین تکلیف هستند. عکس‌های حساس تا بررسی مالک پنهان می‌مانند؛ سایر موارد مشکوک فوراً نمایش داده می‌شوند و برای بررسی گزارش می‌شوند.</p><div id="moderationCasesTable" class="empty">در حال دریافت پرونده‌ها...</div></section>
+<section class="section tab hidden" id="wallet"><h2>دفترکل استار هدیه</h2><div class="notice">این موجودی فقط امتیاز مجازی EX1 است؛ قابل خرید، انتقال، برداشت یا تبدیل به پول نیست. تغییر موجودی فقط با مجوز مخصوص، ثبت دلیل و سابقهٔ غیرقابل‌حذف انجام می‌شود.</div><div id="walletTable" class="empty">در حال دریافت دفترکل...</div><div id="walletAdjustPanel" class="panel hidden" style="margin-top:16px"><h3 id="walletAdjustTitle">اصلاح امتیاز کاربر</h3><form id="walletAdjustForm" class="manager-form"><input id="wallet_user_id" type="hidden"><div class="formgrid"><label>نوع عملیات<select id="wallet_entry_type"><option value="credit">افزایش امتیاز</option><option value="debit">کاهش امتیاز</option></select></label><label>مقدار امتیاز<input id="wallet_amount" type="number" min="1" max="1000000" required></label><label class="wide">دلیل ثبت<input id="wallet_reason" maxlength="300" minlength="2" required placeholder="دلیل این تغییر را بنویس"></label></div><div class="actions"><button class="btn primary" type="submit" id="walletAdjustSubmit">ثبت تغییر امتیاز</button><button class="btn" type="button" id="walletAdjustCancel">انصراف</button></div></form></div><div id="walletHistory" class="empty" style="margin-top:16px"></div></section>
+<section class="section tab hidden" id="settings"><h2>تنظیمات ظاهری سایت</h2><p class="muted">رنگ‌ها فقط با مجوز settings.manage ذخیره می‌شوند.</p><form id="themeForm"><div class="colorgrid">
+<label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
+</div><button class="btn primary" id="saveTheme" type="submit" style="margin-top:14px">ذخیره تنظیمات</button></form><div id="themeMessage" class="muted" style="margin-top:10px"></div></section>
+</main></div></div><footer>EX1 LEGEND · پنل مدیریت متصل به Supabase</footer></div><div class="toast" id="toast"></div>
+<script src="/supabase-config.js"></script>
+<script>
+(async function bootEx1Admin() {
+  const authMessage = document.getElementById("authMessage");
+  const loadSdk = (src) => new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    const timeout = setTimeout(() => {
+      script.remove();
+      reject(new Error("SDK load timeout"));
+    }, 9000);
+    script.src = src;
+    script.onload = () => { clearTimeout(timeout); resolve(); };
+    script.onerror = () => { clearTimeout(timeout); script.remove(); reject(new Error("SDK load failed")); };
+    document.head.appendChild(script);
+  });
+
+  if (!window.supabase || typeof window.supabase.createClient !== "function") {
+    const sources = [
+      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js",
+      "https://unpkg.com/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"
+    ];
+    for (const src of sources) {
+      try { await loadSdk(src); } catch (_) {}
+      if (window.supabase && typeof window.supabase.createClient === "function") break;
+    }
+  }
+
+  if (!window.supabase || typeof window.supabase.createClient !== "function") {
+    if (authMessage) {
+      authMessage.textContent = "کتابخانهٔ ورود بارگذاری نشد. اتصال اینترنت را بررسی و دوباره تلاش کن.";
+      const retry = document.createElement("button");
+      retry.type = "button";
+      retry.className = "btn";
+      retry.textContent = "تلاش دوباره";
+      retry.style.marginTop = "10px";
+      retry.addEventListener("click", () => {
+        if (window.Ex1Native && window.Ex1Native.reloadApp) window.Ex1Native.reloadApp();
+        else location.reload();
+      });
+      authMessage.appendChild(document.createElement("br"));
+      authMessage.appendChild(retry);
+    }
+    window.EX1_ADMIN_READY = true;
+    return;
+  }
+
+  if (!window.EX1_CONFIG || !window.EX1_CONFIG.url || !window.EX1_CONFIG.publishableKey) {
+    if (authMessage) authMessage.textContent = "تنظیمات اتصال EX1 بارگذاری نشد. صفحه را دوباره بارگذاری کن.";
+    window.EX1_ADMIN_READY = true;
+    return;
+  }
+
+  window.EX1_ADMIN_READY = false;
+const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
+let roomEffectsColumnAvailable=false;
+async function detectRoomEffectsColumn(){
+ const toggle=document.getElementById("rf_room_effects_enabled"),notice=document.getElementById("roomEffectsSchemaNotice");
+ try{const {error}=await sb.from("tournament_rooms").select("room_effects_enabled").limit(1);roomEffectsColumnAvailable=!error;}
+ catch(_){roomEffectsColumnAvailable=false;}
+ if(toggle)toggle.disabled=!roomEffectsColumnAvailable;
+ if(notice)notice.hidden=roomEffectsColumnAvailable;
+}
+// Keep the admin panel from browser pinch-zooming while preserving ordinary one-finger page scrolling.
+document.addEventListener("touchmove",e=>{if(e.touches&&e.touches.length>1)e.preventDefault();},{passive:false});
+document.addEventListener("gesturestart",e=>e.preventDefault(),{passive:false});
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",social:"مدیریت اجتماعی",moderation:"بررسی هوشمند محتوا",wallet:"کیف امتیاز",settings:"تنظیمات"};
+let permissions={},isOwner=false;
+function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200);}
+function table(headers,rows){if(!rows.length)return '<div class="empty">هنوز داده‌ای ثبت نشده است.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';}
+function row(cells){return '<tr>'+cells.map(x=>'<td>'+x+'</td>').join("")+'</tr>';}
+function showTab(id){document.querySelectorAll(".tab").forEach(s=>s.classList.toggle("hidden",s.id!==id));document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));}
+function addNav(id){const b=document.createElement("button");b.type="button";b.dataset.tab=id;b.textContent=labels[id];b.onclick=()=>showTab(id);$("nav").appendChild(b);}
+async function rpc(name,args){const {data,error}=await sb.rpc(name,args||{});if(error)throw error;return data||[];}
+let roomTournamentCache=[];
+function localDateTime(value){
+ if(!value)return "";
+ const d=new Date(value);if(Number.isNaN(d.getTime()))return "";
+ const pad=n=>String(n).padStart(2,"0");
+ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes());
+}
+function isoDate(value){return value?new Date(value).toISOString():null;}
+function updateRoomCapacity(){
+ const teams=Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1));
+ const size=Number($("rf_team_size").value)===2?2:4;
+ $("rf_capacity").value=teams*size;
+}
+let pendingRoomImageFile=null,pendingRoomImageBytes=null,roomImageObjectUrl=null,roomImageManuallyAdjusted=false,roomImagePointerActive=false;
+function setRoomImagePreview(url,x=50,y=55){
+ const wrap=$("roomImagePreviewWrap"),img=$("roomImagePreviewImg");
+ const fx=Math.max(0,Math.min(100,Number(x)||0)),fy=Math.max(0,Math.min(100,Number(y)||0));
+ $("rf_image_focus_x").value=fx;$("rf_image_focus_y").value=fy;
+ $("rf_image_focus_x_range").value=fx;$("rf_image_focus_y_range").value=fy;
+ if(url){img.src=url;img.style.objectPosition=fx+"% "+fy+"%";wrap.classList.remove("hidden");}
+ else{img.removeAttribute("src");wrap.classList.add("hidden");}
+}
+function resetRoomImage(){
+ pendingRoomImageFile=null;pendingRoomImageBytes=null;roomImageManuallyAdjusted=false;roomImagePointerActive=false;
+ if(roomImageObjectUrl){URL.revokeObjectURL(roomImageObjectUrl);roomImageObjectUrl=null;}
+ $("rf_room_image_file").value="";$("rf_room_image_url").value="";
+ $("roomImageUploadStatus").textContent="";setRoomImagePreview("");
+}
+function resetRoomForm(){
+ window.ex1AdminAccessRoomId=null;
+ $("roomForm").reset();$("rf_id").value="";$("rf_game_category").value="battle_royale";$("rf_price_category").value="free";$("rf_max_teams").value=25;$("rf_team_size").value="4";
+ $("rf_capacity").value=100;$("rf_entry_demo_points").value=0;
+ $("rf_prize_demo_points").value=0;$("rf_prize_second_demo_points").value=0;$("rf_prize_third_demo_points").value=0;
+ $("rf_status").value="open";$("rf_room_effects_enabled").checked=false;resetRoomImage();updateRoomCapacity();
+ $("roomAccessAdminPanel").classList.remove("hidden");
+ $("rf_room_code").value="";$("rf_room_password").value="";
+ $("rf_room_code").disabled=true;$("rf_room_password").disabled=true;$("publishRoomAccessButton").disabled=true;
+ $("roomAccessAdminStatus").textContent="ابتدا مشخصات روم را ذخیره کن؛ سپس کد و رمز را ثبت کن.";
+ $("roomAccessPublishMessage").textContent="کد و رمز فقط پس از ذخیره روم قابل ثبت هستند.";
+ $("roomForm").classList.add("hidden");
+}
+async function autoRoomImagePosition(file,img){
+ const w=img.naturalWidth,h=img.naturalHeight,boxRatio=16/9;
+ let fx=.5,fy=h>w*1.12?.65:.5,faceFound=false;
+ if("FaceDetector" in window&&window.createImageBitmap){
+  try{
+   const bitmap=await createImageBitmap(file),detector=new FaceDetector({fastMode:true,maxDetectedFaces:8});
+   const faces=await detector.detect(bitmap);bitmap.close?.();
+   if(faces.length){const face=faces.sort((a,b)=>b.boundingBox.width*b.boundingBox.height-a.boundingBox.width*a.boundingBox.height)[0].boundingBox;fx=(face.x+face.width/2)/w;fy=(face.y+face.height/2)/h;faceFound=true;}
+  }catch(detectError){console.info("EX1 local face focus fallback:",detectError);}
+ }
+ let x=50,y=50;
+ if(w/h>boxRatio+.001)x=Math.max(0,Math.min(100,Math.round((fx*w-(h*boxRatio)/2)/(w-h*boxRatio)*100)));
+ else if(w/h<boxRatio-.001)y=Math.max(0,Math.min(100,Math.round((fy*h-(w/boxRatio)/2)/(h-w/boxRatio)*100)));
+ if(!faceFound&&h>w*1.12)y=65;
+ if(!roomImageManuallyAdjusted)setRoomImagePreview(roomImageObjectUrl,x,y);
+}
+function applyRoomImageFocus(x,y,manual=true){
+ const fx=Math.max(0,Math.min(100,Math.round(Number(x)||0))),fy=Math.max(0,Math.min(100,Math.round(Number(y)||0)));
+ if(manual)roomImageManuallyAdjusted=true;
+ $("rf_image_focus_x").value=fx;$("rf_image_focus_y").value=fy;
+ $("rf_image_focus_x_range").value=fx;$("rf_image_focus_y_range").value=fy;
+ $("roomImagePreviewImg").style.objectPosition=fx+"% "+fy+"%";
+}
+function updateRoomFocusFromPointer(event){
+ const box=$("roomImagePreview").getBoundingClientRect();
+ const x=(event.clientX-box.left)/box.width*100,y=(event.clientY-box.top)/box.height*100;
+ applyRoomImageFocus(x,y,true);
+}
+$("rf_max_teams").addEventListener("input",updateRoomCapacity);
+$("rf_team_size").addEventListener("change",updateRoomCapacity);
+$("chooseRoomImage").onclick=()=>$("rf_room_image_file").click();
+$("removeRoomImage").onclick=resetRoomImage;
+const roomImagePreview=$("roomImagePreview");
+let roomImageSuppressClickUntil=0;
+roomImagePreview.tabIndex=-1;
+roomImagePreview.addEventListener("pointerdown",e=>{
+ if(e.pointerType==="mouse"&&e.button!==0)return;
+ // A previously focused text field (notably the room title) must not regain
+ // focus when Android dispatches a synthetic click after the image gesture.
+ const active=document.activeElement;
+ if(active&&$("roomForm").contains(active)&&active.matches("input,textarea,select"))active.blur();
+ roomImageSuppressClickUntil=Date.now()+900;
+ roomImagePointerActive=true;roomImagePreview.classList.add("is-dragging");
+ try{roomImagePreview.setPointerCapture(e.pointerId);}catch(_){}
+ updateRoomFocusFromPointer(e);
+ e.preventDefault();
+});
+roomImagePreview.addEventListener("pointermove",e=>{
+ if(!roomImagePointerActive)return;
+ updateRoomFocusFromPointer(e);e.preventDefault();
+});
+function endRoomImagePointer(e){
+ if(!roomImagePointerActive)return;
+ roomImagePointerActive=false;roomImagePreview.classList.remove("is-dragging");
+ roomImageSuppressClickUntil=Date.now()+900;
+ if(e?.pointerId!==undefined&&roomImagePreview.hasPointerCapture?.(e.pointerId))roomImagePreview.releasePointerCapture(e.pointerId);
+}
+roomImagePreview.addEventListener("pointerup",endRoomImagePointer);
+roomImagePreview.addEventListener("pointercancel",endRoomImagePointer);
+roomImagePreview.addEventListener("lostpointercapture",endRoomImagePointer);
+roomImagePreview.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();});
+// Android can retarget the compatibility click to the last focused input. Catch it
+// before it reaches the form so releasing the image gesture never opens the keyboard.
+document.addEventListener("click",e=>{
+ if(Date.now()>roomImageSuppressClickUntil||e.detail===0)return;
+ e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+},true);
+// Prevent the touch gesture on the preview from being interpreted as page navigation or a tap on a nearby form field.
+for(const range of [$("rf_image_focus_x_range"),$("rf_image_focus_y_range")]){
+ range.addEventListener("pointerdown",e=>{e.stopPropagation();});
+ range.addEventListener("click",e=>{e.stopPropagation();});
+ range.addEventListener("touchstart",e=>e.stopPropagation(),{passive:true});
+}
+$("rf_image_focus_x_range").addEventListener("input",e=>applyRoomImageFocus(e.target.value,$("rf_image_focus_y").value,true));
+$("rf_image_focus_y_range").addEventListener("input",e=>applyRoomImageFocus($("rf_image_focus_x").value,e.target.value,true));
+$("rf_room_image_file").addEventListener("change",async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ if(!["image/jpeg","image/png","image/webp"].includes(file.type)){toast("فقط تصویر JPG، PNG یا WebP انتخاب کن.");e.target.value="";return;}
+ if(file.size>5*1024*1024){toast("حجم تصویر باید حداکثر ۵ مگابایت باشد.");e.target.value="";return;}
+ if(roomImageObjectUrl)URL.revokeObjectURL(roomImageObjectUrl);
+ pendingRoomImageFile=file;pendingRoomImageBytes=null;roomImageManuallyAdjusted=false;
+ $("rf_room_image_url").value="";$("roomImageUploadStatus").textContent="در حال خواندن امن تصویر...";
+ try{
+  const bytes=await readRoomImageBytes(file);
+  if(!(bytes instanceof ArrayBuffer)||bytes.byteLength!==file.size)throw new Error("خواندن کامل فایل تصویر انجام نشد.");
+  pendingRoomImageBytes=bytes;
+  const imageBlob=new Blob([bytes],{type:file.type});roomImageObjectUrl=URL.createObjectURL(imageBlob);
+  $("roomImageUploadStatus").textContent="تصویر آماده است؛ پس از ذخیره روم بارگذاری می‌شود.";
+  const img=$("roomImagePreviewImg");img.onload=()=>{autoRoomImagePosition(imageBlob,img);};
+  img.src=roomImageObjectUrl;$("roomImagePreviewWrap").classList.remove("hidden");
+ }catch(error){console.error("EX1 room image read:",error);pendingRoomImageFile=null;pendingRoomImageBytes=null;e.target.value="";$("roomImageUploadStatus").textContent="خواندن تصویر ناموفق بود؛ دوباره انتخابش کن.";toast(error.message||"خواندن تصویر انجام نشد.");}
+});
+async function readRoomImageBytes(file){
+ if(typeof file.arrayBuffer==="function")return await file.arrayBuffer();
+ return await new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onload=()=>resolve(reader.result);
+  reader.onerror=()=>reject(reader.error||new Error("خواندن فایل تصویر ناموفق بود."));
+  reader.readAsArrayBuffer(file);
+ });
+}
+async function uploadPendingRoomImage(){
+ if(!pendingRoomImageFile)return $("rf_room_image_url").value.trim()||null;
+ const file=pendingRoomImageFile;
+ const mime=file.type||"image/jpeg";
+ const ext=mime==="image/png"?"png":mime==="image/webp"?"webp":"jpg";
+ if(!["image/jpeg","image/png","image/webp"].includes(mime))throw new Error("نوع تصویر پشتیبانی نمی‌شود؛ JPG، PNG یا WebP انتخاب کن.");
+ if(!file.size||file.size>5*1024*1024)throw new Error("حجم تصویر معتبر نیست؛ حداکثر ۵ مگابایت مجاز است.");
+ const path="rooms/"+(crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(36).slice(2))+"."+ext;
+ $("roomImageUploadStatus").textContent="در حال آماده‌سازی تصویر...";
+ const bytes=pendingRoomImageBytes;
+ if(!(bytes instanceof ArrayBuffer)||bytes.byteLength!==file.size)throw new Error("دادهٔ آمادهٔ تصویر در دسترس نیست؛ تصویر را دوباره انتخاب کن.");
+ $("roomImageUploadStatus").textContent="در حال بارگذاری تصویر...";
+ const {data,error}=await sb.storage.from("tournament-assets").upload(path,bytes,{upsert:false,contentType:mime,cacheControl:"31536000"});
+ if(error){
+  console.error("EX1 room image storage upload:",{message:error.message,statusCode:error.statusCode,error:error.error});
+  throw error;
+ }
+ const url=sb.storage.from("tournament-assets").getPublicUrl(data.path).data.publicUrl;
+ $("rf_room_image_url").value=url;pendingRoomImageFile=null;pendingRoomImageBytes=null;
+ $("roomImageUploadStatus").textContent="تصویر با موفقیت بارگذاری شد.";
+ return url;
+}
+function fillRoomTournamentOptions(selected){
+ $("rf_tournament_id").innerHTML=roomTournamentCache.map(t=>'<option value="'+esc(t.id)+'" '+(t.id===selected?"selected":"")+'>'+esc(t.title)+'</option>').join("");
+}
+async function loadRooms(){
+ const [tournamentsResult,roomsResult]=await Promise.all([
+  sb.from("tournaments").select("id,title").order("created_at",{ascending:false}),
+  sb.from("tournament_rooms").select("*").order("starts_at",{ascending:true})
+ ]);
+ if(tournamentsResult.error)throw tournamentsResult.error;
+ if(roomsResult.error)throw roomsResult.error;
+ roomTournamentCache=tournamentsResult.data||[];
+ const rooms=roomsResult.data||[];
+ fillRoomTournamentOptions(rooms[0]?.tournament_id||roomTournamentCache[0]?.id);
+ const canManage=permissions["rooms.manage"]===true;
+ $("addRoomButton").hidden=!canManage;
+ // Keep the inline room editor open while refreshing the room list.
+ const rows=rooms.map(r=>{
+  const t=roomTournamentCache.find(x=>x.id===r.tournament_id);
+  const actions=canManage?'<button class="action-btn" data-edit-room="'+esc(r.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-room="'+esc(r.id)+'">حذف</button>':"—";
+  const gameLabel=({battle_royale:"بتل‌رویال",fight:"فایت",multiplayer:"مولتی",uncategorized:"دسته‌بندی نشده"})[r.game_category]||"دسته‌بندی نشده";
+  const priceLabel=({free:"رایگان",economy:"اقتصادی",expensive:"گران"})[r.price_category]||"—";
+  return row([esc(r.title),esc(t?.title||"—"),gameLabel,priceLabel,esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.max_teams||25)+" تیم",esc(r.team_size===2?"۲ نفره":"۴ نفره"),esc(r.entry_demo_points||0)+" ⭐", "اول "+esc(r.prize_demo_points||0)+" · دوم "+esc(r.prize_second_demo_points||0)+" · سوم "+esc(r.prize_third_demo_points||0),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
+ });
+ $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","بخش بازی","ردهٔ ورودی","حالت تکمیلی","نقشه","جایگاه‌ها","اندازه تیم","ورودی هر نفر","جوایز رتبه‌ها","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
+}
+async function loadSocialModeration(){
+ const host=$("socialReportsTable");
+ host.innerHTML='<div class="empty">در حال دریافت گزارش‌ها...</div>';
+ const {data:reports,error}=await sb.from("social_reports")
+  .select("id,reporter_id,target_user_id,post_id,comment_id,story_id,message_id,reason,details,status,created_at,reviewed_at")
+  .order("created_at",{ascending:false}).limit(100);
+ if(error)throw error;
+ const reporterIds=[...new Set((reports||[]).map(x=>x.reporter_id).filter(Boolean))];
+ let profiles={};
+ if(reporterIds.length){
+  const p=await sb.from("profiles").select("id,display_name,username").in("id",reporterIds);
+  if(p.error)throw p.error;
+  profiles=Object.fromEntries((p.data||[]).map(x=>[x.id,x]));
+ }
+ let contentByReport={};
+ if(reports?.length){
+  const {data:contentRows,error:contentError}=await sb.rpc("admin_social_reported_content",{
+   p_report_ids:reports.map(x=>x.id)
+  });
+  if(contentError)throw contentError;
+  contentByReport=Object.fromEntries((contentRows||[]).map(x=>[x.report_id,x]));
+ }
+ const statusLabel={open:"باز",reviewing:"در حال بررسی",resolved:"رسیدگی شد",dismissed:"رد شد"};
+ const reasonLabel={spam:"هرزنامه",harassment:"آزار و اذیت",inappropriate:"محتوای نامناسب",impersonation:"جعل هویت",other:"سایر"};
+ const targetLabel={post:"پست",comment:"دیدگاه",story:"استوری",message:"پیام گزارش‌شده",user:"حساب کاربری"};
+ const rows=(reports||[]).map(x=>{
+  const reporter=profiles[x.reporter_id];
+  const target=contentByReport[x.id]||{};
+  const targetName=target.display_name||target.username||target.target_user_id||"—";
+  const preview=target.target_content?String(target.target_content).slice(0,240):"محتوای متنی برای نمایش موجود نیست.";
+  const actions=x.status==="open"||x.status==="reviewing"
+   ?'<button class="action-btn" data-report-status="reviewing" data-report-id="'+esc(x.id)+'">بررسی</button> <button class="action-btn" data-report-status="resolved" data-report-id="'+esc(x.id)+'">رسیدگی شد</button> <button class="action-btn danger" data-report-status="dismissed" data-report-id="'+esc(x.id)+'">رد گزارش</button>'
+   :"—";
+  return row([
+   esc(reporter?.display_name||reporter?.username||x.reporter_id),
+   esc(reasonLabel[x.reason]||x.reason),
+   esc(targetLabel[target.target_type]||"محتوا"),
+   esc(targetName),esc(preview),esc(x.details||"—"),
+   esc(statusLabel[x.status]||x.status),
+   esc(new Date(x.created_at).toLocaleString("fa-IR")),actions
+  ]);
+ });
+ host.innerHTML=reports?.length?table(["گزارش‌دهنده","دلیل","نوع محتوا","صاحب محتوا","پیش‌نمایش محتوای گزارش‌شده","توضیحات گزارش","وضعیت","زمان ثبت","اقدام"],rows):'<div class="empty">گزارش جدیدی ثبت نشده است.</div>';
+}
+async function loadModerationCases(){
+ const host=$("moderationCasesTable");
+ host.innerHTML='<div class="empty">در حال دریافت پرونده‌ها...</div>';
+ const {data:cases,error}=await sb.from("ai_moderation_cases")
+  .select("id,user_id,content_type,source_table,source_id,content_text,original_storage_bucket,original_storage_path,moderation_categories,severity,confidence,model_name,status,owner_note,owner_decision_at,warning_sent_at,ban_applied_at,created_at")
+  .order("created_at",{ascending:false}).limit(100);
+ if(error)throw error;
+ const ids=[...new Set((cases||[]).map(x=>x.user_id).filter(Boolean))];
+ let profiles={};
+ if(ids.length){
+  const p=await sb.from("profiles").select("id,display_name,username").in("id",ids);
+  if(p.error)throw p.error;
+  profiles=Object.fromEntries((p.data||[]).map(x=>[x.id,x]));
+ }
+ const evidenceUrls=Object.fromEntries(await Promise.all((cases||[]).filter(x=>["profile_avatar","profile_cover"].includes(x.content_type)).map(async x=>{
+  try{const {data,error}=await sb.functions.invoke("get-ai-moderation-evidence",{body:{case_id:x.id}});return [x.id,error?null:data?.signed_url||null];}catch(_){return [x.id,null];}
+ })));
+ const rows=(cases||[]).map(x=>{
+  const profile=profiles[x.user_id];
+  const categories=Array.isArray(x.moderation_categories)?x.moderation_categories.map(v=>typeof v==="string"?v:JSON.stringify(v)).join("، "):JSON.stringify(x.moderation_categories||"—");
+  const pending=x.status==="pending_review";
+  const note=pending?'<input class="moderation-note" data-case-note="'+esc(x.id)+'" maxlength="500" placeholder="یادداشت مالک (اختیاری)" value="'+esc(x.owner_note||"")+'">':esc(x.owner_note||"—");
+  const isAvatar=x.content_type==="profile_avatar";
+  const isCover=x.content_type==="profile_cover";
+  const isProfileImage=isAvatar||isCover;
+  const evidence=isProfileImage&&evidenceUrls[x.id]?'<a href="'+esc(evidenceUrls[x.id])+'" target="_blank" rel="noopener"><img src="'+esc(evidenceUrls[x.id])+'" alt="شواهد تصویر پروفایل" style="width:76px;height:76px;object-fit:cover;border-radius:12px;border:1px solid #6b568a"></a>':"—";
+  const actions=pending?(isAvatar?'<button class="action-btn danger" data-case-decision="remove_avatar" data-case-id="'+esc(x.id)+'">حذف عکس پروفایل</button> <button class="action-btn" data-case-decision="warn_only" data-case-id="'+esc(x.id)+'">ارسال اخطار و نگه‌داشتن عکس</button> <button class="action-btn" data-case-decision="dismiss" data-case-id="'+esc(x.id)+'">رد گزارش و انتشار عکس</button>':isCover?'<button class="action-btn danger" data-case-decision="remove_cover" data-case-id="'+esc(x.id)+'">حذف کاور</button> <button class="action-btn" data-case-decision="dismiss" data-case-id="'+esc(x.id)+'">تأیید و انتشار کاور</button> <button class="action-btn" data-case-decision="warn_only" data-case-id="'+esc(x.id)+'">اخطار و انتشار کاور</button> <button class="action-btn danger" data-case-decision="warn_and_ban" data-case-id="'+esc(x.id)+'">اخطار و مسدودسازی</button>':'<button class="action-btn" data-case-decision="dismiss" data-case-id="'+esc(x.id)+'">رد پرونده</button> <button class="action-btn" data-case-decision="warn_only" data-case-id="'+esc(x.id)+'">ارسال اخطار</button> <button class="action-btn danger" data-case-decision="warn_and_ban" data-case-id="'+esc(x.id)+'">اخطار و مسدودسازی</button>'):"—";
+  const statusLabel={pending_review:"در انتظار بررسی",rejected:"ردشده",warning_approved:"اخطار ارسال‌شده",ban_approved:"مسدودسازی تأییدشده",avatar_removed:"عکس حذف شد",cover_removed:"کاور حذف شد"};
+  return row([
+   esc(profile?.display_name||profile?.username||x.user_id),
+   esc(x.content_type||"—"),evidence,esc(x.source_table||"—"),
+   esc(x.severity||"—"),esc(x.confidence==null?"—":Math.round(Number(x.confidence)*100)+"٪"),
+   esc(categories),'<div class="moderation-content">'+esc((x.content_text||"").slice(0,700))+'</div>',
+   esc(statusLabel[x.status]||x.status||"—"),
+   esc(new Date(x.created_at).toLocaleString("fa-IR")),note,actions
+  ]);
+ });
+ host.innerHTML=cases?.length?table(["کاربر","نوع محتوا","شواهد تصویر","منبع","شدت","اطمینان","دسته‌بندی","محتوای بررسی‌شده","وضعیت","زمان","یادداشت مالک","تصمیم"],rows):'<div class="empty">هنوز پرونده‌ای برای بررسی ثبت نشده است.</div>';
+}
+let ownerCanBanUsers=false;
+async function loadAdminUsers(){
+ const {data,error}=await sb.rpc("admin_dashboard_users");
+ if(error)throw error;
+ adminUserCache=data||[];$("statUsers").textContent=adminUserCache.length;
+ const ownerCheck=await sb.rpc("is_current_user_owner");
+ ownerCanBanUsers=!ownerCheck.error&&ownerCheck.data===true;
+ let bannedUsers=[];
+ if(ownerCanBanUsers){
+  const bannedResult=await sb.rpc("admin_list_user_bans");
+  if(bannedResult.error)throw bannedResult.error;
+  bannedUsers=bannedResult.data||[];
+ }
+ const bannedMap=new Map(bannedUsers.map(x=>[x.user_id,x]));
+ let flags=[];
+ if(permissions["profiles.view_all"]||permissions["profiles.manage"]){
+  const result=await sb.from("profile_moderation").select("user_id,moderation_status,note,updated_at");
+  if(result.error)throw result.error;
+  flags=result.data||[];
+ }
+ const flagMap=new Map(flags.map(x=>[x.user_id,x]));
+ const rows=adminUserCache.map(x=>{
+  const flag=flagMap.get(x.user_id);
+  const action=permissions["profiles.manage"]?(flag
+   ?'<button class="action-btn" data-clear-user-flag="'+esc(x.user_id)+'">رفع علامت بررسی</button>'
+   :'<button class="action-btn" data-flag-user="'+esc(x.user_id)+'">ارجاع برای بررسی</button>'):"—";
+  const banned=bannedMap.get(x.user_id);
+  const banAction=ownerCanBanUsers?(banned
+   ?'<button class="action-btn" data-unban-user="'+esc(x.user_id)+'">رفع مسدودیت</button>'
+   :'<button class="action-btn danger" data-ban-user="'+esc(x.user_id)+'">مسدودسازی</button>'):"—";
+  return row([esc(x.display_name||"—"),esc(x.username||"—"),'<small>'+esc(x.user_id)+'</small>',esc(x.created_at?new Date(x.created_at).toLocaleDateString("fa-IR"):"—"),flag?"نیازمند بررسی":"عادی",banned?"مسدود":"فعال",action,banAction]);
+ });
+ $("usersTable").innerHTML='<p class="muted">علامت بررسی برای پیگیری مدیران است. فقط مالک اصلی می‌تواند حساب کاربر را به‌طور دائمی مسدود یا آزاد کند.</p>'+table(["نام نمایشی","نام کاربری","شناسه","ایجاد","وضعیت بررسی","وضعیت حساب","پیگیری","مدیریت مسدودیت"],rows);
+}
+$("usersTable").addEventListener("click",async e=>{
+ const ban=e.target.closest("[data-ban-user]"),unban=e.target.closest("[data-unban-user]");
+ if(ban||unban){
+  if(!ownerCanBanUsers)return toast("فقط مالک اصلی می‌تواند مسدودسازی را مدیریت کند.");
+  const target=(ban||unban).dataset.banUser||(ban||unban).dataset.unbanUser;
+  let reason="";
+  if(ban){
+   if(!confirm("حساب این کاربر مسدود شود؟ ورود او به EX1 متوقف می‌شود."))return;
+   reason=prompt("دلیل مسدودسازی (اختیاری):","")||"";
+  }else if(!confirm("مسدودیت این حساب برداشته شود؟"))return;
+  try{
+   const {data,error}=await sb.functions.invoke("manage-user-ban",{body:{action:ban?"ban":"unban",user_id:target,reason}});
+   if(error)throw error;
+   if(data?.error)throw new Error(data.error);
+   await loadAdminUsers();
+   toast(ban?"حساب کاربر مسدود شد.":"مسدودیت حساب برداشته شد.");
+  }catch(err){toast(err.message||"تغییر وضعیت حساب انجام نشد.");}
+  return;
+ }
+ const flag=e.target.closest("[data-flag-user]"),clear=e.target.closest("[data-clear-user-flag]");
+ const target=flag?.dataset.flagUser||clear?.dataset.clearUserFlag;
+ if(!target||!permissions["profiles.manage"])return;
+ try{
+  if(flag){
+   const {data,error}=await sb.auth.getUser();if(error||!data.user)throw error||new Error("نشست نامعتبر");
+   const result=await sb.from("profile_moderation").insert({user_id:target,moderation_status:"review",note:"ارجاع برای بررسی توسط مدیر",updated_by:data.user.id});
+   if(result.error)throw result.error;
+  }else{
+   const result=await sb.from("profile_moderation").delete().eq("user_id",target);
+   if(result.error)throw result.error;
+  }
+  await loadAdminUsers();toast(flag?"کاربر به صف بررسی اضافه شد.":"علامت بررسی برداشته شد.");
+ }catch(err){toast("تغییر وضعیت بررسی انجام نشد؛ مجوز را بررسی کن.");}
+});
+
+
+async function loadTableData(){
+ const tasks=[];
+ if(permissions["tournaments.view"])tasks.push(rpc("admin_dashboard_tournaments").then(d=>{ $("statTournaments").textContent=d.length;$("tournamentsTable").innerHTML=table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع"],d.map(t=>row([esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—")])));}));
+ if(permissions["registrations.view_all"])tasks.push(rpc("admin_dashboard_registrations").then(d=>{$("statRegistrations").textContent=d.length;$("registrationsTable").innerHTML=table(["مسابقه","تیم","برچسب","وضعیت","زمان"],d.map(x=>row([esc(x.tournament_title),esc(x.team_name),esc(x.team_tag||"—"),esc(x.status),esc(new Date(x.registered_at).toLocaleString("fa-IR"))])));}));
+ if(permissions["teams.view"])tasks.push(rpc("admin_dashboard_teams").then(d=>{$("statTeams").textContent=d.length;$("teamsTable").innerHTML=table(["نام تیم","برچسب","تعداد اعضا","توضیحات"],d.map(x=>row([esc(x.name),esc(x.tag||"—"),esc(x.member_count),esc(x.description||"—")])));}));
+ if(permissions["users.view"]||permissions["profiles.view_all"])tasks.push(loadAdminUsers());
+ if(isOwner)tasks.push((async()=>{$("directNotificationPanel").classList.remove("hidden");const {data,error}=await sb.functions.invoke("admin-list-users-for-notifications");if(error)throw error;if(!data?.success)throw new Error(data?.error||"دریافت فهرست کاربران انجام نشد.");notificationUsers=(data.users||[]).filter(x=>x.user_id);renderNotificationUsers();})());
+ if(permissions["wallet.view_all"])tasks.push(loadWalletOverview());
+ if(permissions["social.moderate"])tasks.push(loadSocialModeration());
+ if(isOwner)tasks.push(loadModerationCases());
+ 
+ const settled=await Promise.allSettled(tasks);
+ const failed=settled.filter(x=>x.status==="rejected");
+ if(permissions["rooms.view"]||permissions["rooms.manage"]){try{await loadRooms();}catch(e){console.error("EX1 rooms load:",e);failed.push({status:"rejected"});const detail=[e?.message,e?.code].filter(Boolean).join(" · ");$("roomsTable").textContent="بارگذاری روم‌ها انجام نشد"+(detail?": "+detail:".");}}
+ if(failed.length)toast("بعضی بخش‌ها به‌دلیل محدودیت دسترسی یا خطای ارتباط بارگذاری نشدند.");
+ const counts=["statTournaments","statRegistrations","statTeams","statUsers"].map(id=>$(id).textContent).filter(x=>x!=="—");
+ $("overviewEmpty").textContent=counts.length?"داده‌های مجاز از دیتابیس بارگذاری شدند. برای جزئیات، بخش مربوطه را باز کن.":"برای این حساب، مجوز مشاهده داده‌های مدیریتی ثبت نشده است.";
+}
+async function loadWalletOverview(){
+ if(!permissions["wallet.view_all"]){$("walletTable").innerHTML='<div class="empty">مجوز مشاهده امتیازهای کاربران را نداری.</div>';return;}
+ const data=await rpc("admin_wallet_demo_overview_v2",{p_limit:200});
+ const canAdjust=isOwner||permissions["wallet.demo_adjust"]===true;
+ const rows=(data||[]).map(x=>row([
+  esc(x.display_name||"—"),esc(x.game_name||"ثبت نشده"),'<small>'+esc(x.user_id)+'</small>',
+  '<strong>'+Number(x.balance_units||0).toLocaleString("fa-IR")+' ⭐</strong>',
+  esc(x.currency_code||"POINT"),esc(x.wallet_mode||"—"),
+  '<button class="action-btn" data-wallet-history="'+esc(x.user_id)+'">سوابق</button> '+(canAdjust?'<button class="action-btn" data-wallet-adjust="'+esc(x.user_id)+'">اصلاح امتیاز</button>':"—")
+ ]));
+ $("walletTable").innerHTML=rows.length?table(["نام نمایشی","نام کالاف","شناسه کاربر","موجودی استار","نوع دفترکل","وضعیت","عملیات"],rows):'<div class="empty">حساب امتیازی وجود ندارد.</div>';
+}
+$("walletTable").addEventListener("click",async e=>{
+ const history=e.target.closest("[data-wallet-history]"),adjust=e.target.closest("[data-wallet-adjust]");
+ if(history){
+  try{
+   const {data,error}=await sb.rpc("admin_wallet_demo_history",{p_user_id:history.dataset.walletHistory,p_limit:50});
+   if(error)throw error;
+   const entries=Array.isArray(data)?data:[];
+   $("walletHistory").innerHTML=entries.length?table(["نوع","مقدار","موجودی پس از ثبت","دلیل","زمان"],entries.map(x=>row([
+    x.entry_type==="credit"?"افزایش":"کاهش",Number(x.amount_units||0).toLocaleString("fa-IR"),
+    Number(x.balance_after_units||0).toLocaleString("fa-IR"),esc(x.reason),
+    esc(x.created_at?new Date(x.created_at).toLocaleString("fa-IR"):"—")
+   ]))):'<div class="empty">تراکنشی ثبت نشده است.</div>';
+  }catch(err){toast(err.message||"سوابق امتیاز دریافت نشد.");}
+ }
+ if(adjust&&(isOwner||permissions["wallet.demo_adjust"]===true)){
+  $("wallet_user_id").value=adjust.dataset.walletAdjust;
+  $("walletAdjustTitle").textContent="اصلاح امتیاز کاربر";
+  $("walletAdjustPanel").classList.remove("hidden");
+  $("wallet_entry_type").value="credit";$("wallet_amount").value="";$("wallet_reason").value="";
+  $("walletAdjustPanel").scrollIntoView({behavior:"smooth",block:"center"});
+ }
+});
+$("walletAdjustCancel").onclick=()=>{$("walletAdjustPanel").classList.add("hidden");};
+$("walletAdjustForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!(isOwner||permissions["wallet.demo_adjust"]===true))return toast("مجوز اصلاح امتیاز را نداری.");
+ const button=$("walletAdjustSubmit"),amount=Number($("wallet_amount").value),reason=$("wallet_reason").value.trim();
+ if(!Number.isSafeInteger(amount)||amount<1||amount>1000000)return toast("مقدار امتیاز باید عدد صحیح بین ۱ تا ۱٬۰۰۰٬۰۰۰ باشد.");
+ if(reason.length<2||reason.length>300)return toast("دلیل باید بین ۲ تا ۳۰۰ کاراکتر باشد.");
+ button.disabled=true;
+ try{
+  const key="ex1-"+(crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(36).slice(2));
+  const {error}=await sb.rpc("admin_wallet_demo_adjust",{p_user_id:$("wallet_user_id").value,p_entry_type:$("wallet_entry_type").value,p_amount_units:amount,p_reason:reason,p_idempotency_key:key});
+  if(error)throw error;
+  $("walletAdjustPanel").classList.add("hidden");await loadWalletOverview();toast("امتیاز داخلی کاربر به‌روزرسانی شد.");
+ }catch(err){console.error("EX1 wallet adjust:",err);toast(err.message||"ثبت تغییر امتیاز انجام نشد.");}
+ finally{button.disabled=false;}
+});
+function applyAdminTheme(theme, updateInputs=false){
+ if(!theme)return;
+ const root=document.documentElement;
+ root.style.setProperty("--bg",theme.background_color);
+ root.style.setProperty("--panel",theme.surface_color);
+ root.style.setProperty("--line",theme.surface_color);
+ root.style.setProperty("--text",theme.primary_text_color);
+ root.style.setProperty("--muted",theme.secondary_text_color);
+ root.style.setProperty("--purple",theme.accent_color);
+ root.style.setProperty("--cyan",theme.accent_color);
+ if(updateInputs){
+  for(const key of ["background_color","surface_color","primary_text_color","secondary_text_color","accent_color"]){
+   if($(key))$(key).value=theme[key];
+  }
+ }
+}
+async function loadTheme(){
+ const {data,error}=await sb.from("site_theme_settings").select("background_color,surface_color,primary_text_color,secondary_text_color,accent_color").eq("singleton",true).maybeSingle();
+ if(error||!data){$("themeMessage").textContent="خواندن تنظیمات ممکن نشد.";return;}
+ applyAdminTheme(data,true);
+}
+let accessBuildPromise=null,accessBuildUserId=null;
+function applyAccess(user){
+ if(accessBuildPromise&&accessBuildUserId===user.id)return accessBuildPromise;
+ accessBuildUserId=user.id;
+ const pending=applyAccessInternal(user);
+ accessBuildPromise=pending;
+ return pending.finally(()=>{if(accessBuildPromise===pending){accessBuildPromise=null;accessBuildUserId=null;}});
+}
+async function applyAccessInternal(user){
+ let ownerAccess=false;
+ try{ownerAccess=(await rpc("is_current_user_owner"))===true;}catch(e){ownerAccess=false;}
+ if(!ownerAccess){
+  $("appView").classList.add("hidden");$("authView").classList.remove("hidden");
+  $("authView").innerHTML='<h2>دسترسی محدود به مالک</h2><p class="muted">پنل مدیریت EX1 فقط برای حساب مالک اصلی در دسترس است. مدیران می‌توانند وظایف مجاز خود را از داخل اپلیکیشن انجام دهند.</p><a class="btn primary" href="/app.html">بازگشت به اپلیکیشن</a>';
+  return;
+ }
+ isOwner=true;
+ $("authView").classList.add("hidden");$("appView").classList.remove("hidden");$("identity").textContent=user.email||"حساب مالک";
+ $("nav").innerHTML="";permissions={};
+ let list;
+ try{list=await rpc("admin_my_permissions");}catch(e){$("appView").classList.add("hidden");$("authView").classList.remove("hidden");$("authMessage").textContent="دریافت مجوزها ممکن نشد؛ دسترسی رد شد.";return;}
+ list.forEach(p=>permissions[p.permission_code]=p.is_allowed===true);
+ isOwner=true;
+ await detectRoomEffectsColumn();
+ const allowedTabs=["overview"];
+ if(permissions["tournaments.view"]||permissions["tournaments.create"])allowedTabs.push("tournaments");
+ if(permissions["rooms.view"]||permissions["rooms.manage"])allowedTabs.push("rooms");
+ if(permissions["registrations.view_all"])allowedTabs.push("registrations");
+ if(permissions["teams.view"])allowedTabs.push("teams");
+ if(isOwner||permissions["users.view"]||permissions["profiles.view_all"])allowedTabs.push("users");
+ if(permissions["social.moderate"])allowedTabs.push("social");
+ if(isOwner)allowedTabs.push("moderation");
+ if(permissions["wallet.view_all"])allowedTabs.push("wallet");
+ if(permissions["settings.view"]||permissions["settings.manage"])allowedTabs.push("settings");
+ allowedTabs.forEach(addNav);showTab("overview");
+ $("addTournamentButton").hidden=!permissions["tournaments.create"];
+ const count=Object.values(permissions).filter(Boolean).length;
+ if(count===0){$("overviewEmpty").textContent="این حساب دسترسی مدیریتی ندارد. برای امنیت، هیچ داده مدیریتی نمایش داده نمی‌شود.";$("overviewText").textContent="ورود موفق بود، اما مجوز مدیریتی برای این حساب ثبت نشده است.";}
+ if(permissions["settings.manage"]||permissions["settings.view"]){await loadTheme();$("saveTheme").hidden=!permissions["settings.manage"];}
+ await loadTableData();
+}
+let notificationUsers=[],selectedNotificationUserIds=new Set();
+const notificationNumber=n=>Number(n||0).toLocaleString("fa-IR");
+function getVisibleNotificationUsers(){
+ const q=$("directNotificationSearch").value.trim().toLocaleLowerCase();
+ if(!q)return notificationUsers;
+ return notificationUsers.filter(u=>[u.display_name,u.username,u.game_name,u.user_id].some(v=>String(v||"").toLocaleLowerCase().includes(q)));
+}
+function renderNotificationUsers(){
+ const host=$("notificationUsersList"),visible=getVisibleNotificationUsers();
+ $("notificationSelectionCount").textContent=notificationNumber(selectedNotificationUserIds.size)+" نفر از "+notificationNumber(notificationUsers.length)+" کاربر انتخاب شده";
+ host.innerHTML=visible.length?visible.map(u=>'<label class="notification-user-row"><input type="checkbox" data-notification-user="'+esc(u.user_id)+'" '+(selectedNotificationUserIds.has(u.user_id)?"checked":"")+'><span><strong>'+esc(u.display_name||u.username||"کاربر بدون نام")+'</strong><small>'+esc(u.username||u.game_name||"بدون نام کاربری")+' · '+esc(u.user_id)+'</small></span></label>').join(""):'<p class="muted">کاربری با این عبارت پیدا نشد.</p>';
+}
+$("directNotificationSearch").addEventListener("input",renderNotificationUsers);
+$("notificationUsersList").addEventListener("change",e=>{
+ const input=e.target.closest("[data-notification-user]");if(!input)return;
+ const id=input.dataset.notificationUser;
+ if(input.checked)selectedNotificationUserIds.add(id);else selectedNotificationUserIds.delete(id);
+ renderNotificationUsers();
+});
+$("selectVisibleNotificationUsers").addEventListener("click",()=>{
+ getVisibleNotificationUsers().forEach(u=>selectedNotificationUserIds.add(u.user_id));renderNotificationUsers();
+});
+$("selectAllNotificationUsers").addEventListener("click",()=>{
+ notificationUsers.forEach(u=>selectedNotificationUserIds.add(u.user_id));renderNotificationUsers();
+});
+$("clearNotificationUsers").addEventListener("click",()=>{selectedNotificationUserIds.clear();renderNotificationUsers();});
+$("directNotificationForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!isOwner)return toast("فقط مالک اصلی می‌تواند اعلان مستقیم بفرستد.");
+ const userIds=[...selectedNotificationUserIds],title=$("directNotificationTitle").value.trim(),body=$("directNotificationBody").value.trim();
+ if(!userIds.length||!title||!body)return toast("حداقل یک کاربر، عنوان و متن پیام را کامل کن.");
+ if(!window.confirm("این اعلان برای "+userIds.length+" کاربر ارسال شود؟"))return;
+ const button=$("sendDirectNotification");button.disabled=true;
+ let sent=0,failed=0;$("directNotificationStatus").textContent="در حال ارسال برای "+notificationNumber(userIds.length)+" کاربر...";
+ try{
+  for(const userId of userIds){
+   try{
+    const {data,error}=await sb.functions.invoke("admin-send-user-notification",{body:{user_id:userId,title,body}});
+    if(error||!data?.success)throw error||new Error(data?.error||"ارسال ناموفق");
+    sent++;
+   }catch(err){failed++;console.error("EX1 notification failed for user:",userId,err);}
+   $("directNotificationStatus").textContent="ارسال‌شده: "+notificationNumber(sent)+" · ناموفق: "+notificationNumber(failed)+" · کل: "+notificationNumber(userIds.length);
+  }
+  if(failed===0){selectedNotificationUserIds.clear();$("directNotificationForm").reset();renderNotificationUsers();toast("اعلان برای همه کاربران انتخاب‌شده ارسال شد.");}
+  else toast("ارسال تمام شد؛ "+sent+" موفق و "+failed+" ناموفق.");
+ }finally{button.disabled=false;}
+});
+$("refreshModerationCases").onclick=async()=>{
+ if(!isOwner)return toast("فقط مالک اصلی به این بخش دسترسی دارد.");
+ try{await loadModerationCases();toast("پرونده‌ها به‌روزرسانی شدند.");}
+ catch(e){console.error("EX1 moderation cases:",e);toast("دریافت پرونده‌ها انجام نشد.");}
+};
+$("moderationCasesTable").addEventListener("click",async e=>{
+ const btn=e.target.closest("[data-case-decision]");
+ if(!btn||!isOwner)return;
+ const caseId=btn.dataset.caseId,decision=btn.dataset.caseDecision;
+ if(!caseId||!["dismiss","warn_only","warn_and_ban","remove_avatar","remove_cover"].includes(decision))return;
+ if(decision==="warn_and_ban"&&!window.confirm("با تأیید مالک، ابتدا اخطار ارسال و سپس حساب کاربر مسدود می‌شود. ادامه می‌دهی؟"))return;
+ if(decision==="remove_avatar"&&!window.confirm("عکس پروفایل این کاربر حذف شود؟ این کار عکس فعلی را از پروفایل عمومی برمی‌دارد."))return;
+ if(decision==="remove_cover"&&!window.confirm("کاور این کاربر حذف شود؟"))return;
+ const noteInput=$("moderationCasesTable").querySelector('[data-case-note="'+caseId+'"]');
+ btn.disabled=true;
+ try{
+  const {data,error}=await sb.functions.invoke("manage-ai-moderation-case-v2",{body:{case_id:caseId,decision,note:noteInput?.value||""}});
+  if(error)throw error;
+  if(data?.error)throw new Error(data.error);
+  await loadModerationCases();
+  toast(decision==="dismiss"?"تصویر پس از بررسی مالک تأیید و منتشر شد.":decision==="warn_only"?"اخطار ثبت شد و تصویر تأییدشده منتشر شد.":decision==="remove_avatar"?"عکس پروفایل حذف شد.":decision==="remove_cover"?"کاور پروفایل حذف شد.":"اخطار ارسال و حساب مسدود شد.");
+ }catch(err){console.error("EX1 moderation decision:",err);toast(err.message||"ثبت تصمیم انجام نشد.");btn.disabled=false;}
+});
+$("refreshSocialReports").onclick=async()=>{
+ if(!permissions["social.moderate"])return toast("مجوز مدیریت اجتماعی را نداری.");
+ try{await loadSocialModeration();toast("گزارش‌ها به‌روزرسانی شدند.");}
+ catch(e){console.error("EX1 social reports:",e);toast("دریافت گزارش‌ها انجام نشد.");}
+};
+$("socialReportsTable").addEventListener("click",async e=>{
+ const btn=e.target.closest("[data-report-status]");
+ if(!btn||!permissions["social.moderate"])return;
+ const allowed=["reviewing","resolved","dismissed"];
+ const status=btn.dataset.reportStatus,id=btn.dataset.reportId;
+ if(!allowed.includes(status)||!id)return;
+ btn.disabled=true;
+ try{
+  const {data:userData,error:userError}=await sb.auth.getUser();
+  if(userError||!userData.user)throw userError||new Error("auth required");
+  const {error}=await sb.from("social_reports").update({
+   status,reviewed_by:userData.user.id,reviewed_at:new Date().toISOString()
+  }).eq("id",id).select("id").single();
+  if(error)throw error;
+  await loadSocialModeration();toast("وضعیت گزارش ثبت شد.");
+ }catch(err){console.error("EX1 social report update:",err);toast("ثبت تصمیم انجام نشد؛ مجوز و اتصال را بررسی کن.");btn.disabled=false;}
+});
+$("addRoomButton").onclick=()=>{
+ if(!permissions["rooms.manage"])return toast("مجوز مدیریت روم برای این حساب فعال نیست.");
+ if(!roomTournamentCache.length)return toast("برای ساخت روم، ابتدا باید مسابقه‌ای ثبت شده باشد.");
+ resetRoomForm();fillRoomTournamentOptions();$("roomForm").classList.remove("hidden");$("rf_title").focus();
+};
+$("cancelRoomButton").onclick=resetRoomForm;
+$("roomForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!permissions["rooms.manage"])return toast("مجوز مدیریت روم را نداری.");
+ const id=$("rf_id").value;
+ const payload={
+   tournament_id:$("rf_tournament_id").value,title:$("rf_title").value.trim(),
+  game_category:$("rf_game_category").value,
+  price_category:$("rf_price_category").value,
+  game_mode:$("rf_game_mode").value.trim()||null,map:$("rf_map").value.trim()||null,
+  team_size:Number($("rf_team_size").value)===2?2:4,
+  max_teams:Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1)),
+  capacity:Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1))*(Number($("rf_team_size").value)===2?2:4),
+  entry_demo_points:Math.max(0,Math.floor(Number($("rf_entry_demo_points").value)||0)),
+  prize_demo_points:Math.max(0,Math.floor(Number($("rf_prize_demo_points").value)||0)),
+  prize_second_demo_points:Math.max(0,Math.floor(Number($("rf_prize_second_demo_points").value)||0)),
+  prize_third_demo_points:Math.max(0,Math.floor(Number($("rf_prize_third_demo_points").value)||0)),
+  starts_at:isoDate($("rf_starts_at").value),ends_at:isoDate($("rf_ends_at").value),
+  status:$("rf_status").value,room_image_url:$("rf_room_image_url").value.trim()||null,
+  room_image_focus_x:Math.max(0,Math.min(100,Number($("rf_image_focus_x").value)||50)),
+  room_image_focus_y:Math.max(0,Math.min(100,Number($("rf_image_focus_y").value)||55)),
+  rules:$("rf_rules").value.trim()
+ };
+ if(roomEffectsColumnAvailable)payload.room_effects_enabled=$("rf_room_effects_enabled").checked;
+ if(!payload.tournament_id)return toast("مسابقه مرتبط را انتخاب کن.");
+ if(payload.price_category==="free"&&payload.entry_demo_points!==0)return toast("برای ردهٔ رایگان، ورودی باید صفر باشد.");
+ if(payload.price_category!=="free"&&payload.entry_demo_points<=0)return toast("برای روم اقتصادی یا گران، مبلغ ورودی مجازی را بیشتر از صفر وارد کن.");
+ $("saveRoomButton").disabled=true;
+ try{
+  payload.room_image_url=await uploadPendingRoomImage();
+  let result;
+  if(id)result=await sb.from("tournament_rooms").update({...payload,updated_at:new Date().toISOString()}).eq("id",id).select("id").single();
+  else {const {data:userData,error:userError}=await sb.auth.getUser();if(userError)throw userError;result=await sb.from("tournament_rooms").insert({...payload,created_by:userData.user?.id||null}).select("id").single();}
+  if(result.error)throw result.error;
+  $("rf_id").value=result.data.id;
+  $("rf_room_code").disabled=false;$("rf_room_password").disabled=false;$("publishRoomAccessButton").disabled=false;
+  $("roomAccessAdminPanel").classList.remove("hidden");
+  $("roomAccessAdminStatus").textContent="روم ذخیره شد؛ حالا کد و رمز را در همین فرم ثبت کن.";
+  $("roomAccessPublishMessage").textContent="پس از ثبت، اطلاعات در زمان شروع فقط برای شرکت‌کنندگان مجاز نمایش داده می‌شود.";
+  toast("روم ذخیره شد. حالا کد و رمز را همین‌جا وارد کن.");
+  try{await loadRooms();$("roomForm").classList.remove("hidden");await refreshRoomAccessAdminStatus(result.data.id);}catch(refreshError){console.error("EX1 rooms refresh after save:",refreshError);}
+ }catch(err){console.error("EX1 room save:",err);const detail=[err?.message,err?.code,err?.details,err?.hint].filter(Boolean).join(" · ");toast("ذخیره روم انجام نشد"+(detail?": "+detail:"."));}
+ finally{$("saveRoomButton").disabled=false;}
+});
+async function refreshRoomAccessAdminStatus(roomId){
+ window.ex1AdminAccessRoomId=roomId||null;
+ const box=$("roomAccessAdminStatus");if(!box||!roomId){if(box)box.textContent="ابتدا روم را ذخیره کن.";return;}
+ box.textContent="در حال بررسی وضعیت انتشار خودکار...";
+ try{
+  const {data,error}=await sb.rpc("admin_get_tournament_room_access_status",{p_room_id:roomId});
+  if(error)throw error;
+  if(!data?.has_credentials){box.textContent="کد و رمز هنوز ذخیره نشده‌اند. آن‌ها را وارد و ذخیره کن.";return;}
+  if(!data.starts_at){box.textContent="کد و رمز ذخیره شده‌اند، اما زمان شروع روم تعیین نشده است. زمان شروع را مشخص و روم را ذخیره کن.";return;}
+  const startText=new Date(data.starts_at).toLocaleString("fa-IR");
+  if(data.release_due)box.textContent="زمان شروع ("+startText+") فرا رسیده است. نمایش خودکار اطلاعات برای شرکت‌کنندگان ثبت‌نام‌شده فعال است.";
+  else{
+   const total=Math.max(0,Math.floor((new Date(data.starts_at).getTime()-Date.now())/1000)),days=Math.floor(total/86400),hours=Math.floor((total%86400)/3600),mins=Math.floor((total%3600)/60);
+   box.textContent="کد و رمز ذخیره شده‌اند. نمایش خودکار در زمان شروع "+startText+" فعال می‌شود؛ زمان باقی‌مانده: "+(days?days.toLocaleString("fa-IR")+" روز و ":"")+hours.toLocaleString("fa-IR")+" ساعت و "+mins.toLocaleString("fa-IR")+" دقیقه. تا آن زمان اطلاعات در اپ مخفی می‌مانند.";
+  }
+ }catch(err){box.textContent=err.message||"وضعیت انتشار خودکار دریافت نشد.";}
+}
+$("publishRoomAccessButton").addEventListener("click",async()=>{
+ const roomId=$("rf_id").value;if(!roomId)return toast("ابتدا روم را ذخیره کن.");
+ if(!permissions["rooms.manage"])return toast("مجوز مدیریت روم را نداری.");
+ const code=$("rf_room_code").value.trim(),password=$("rf_room_password").value.trim();
+ if(!code||!password||code.length>80||password.length>80)return toast("کد و رمز باید بین ۱ تا ۸۰ کاراکتر باشند.");
+ const btn=$("publishRoomAccessButton");btn.disabled=true;
+ try{
+  const {data,error}=await sb.rpc("admin_publish_tournament_room_access",{p_room_id:roomId,p_room_code:code,p_room_password:password});
+  if(error)throw error;
+  if(data&&data.success===false)throw new Error(data.error||"ذخیره اطلاعات روم تأیید نشد.");
+  $("rf_room_password").value="";
+  $("roomAccessPublishMessage").textContent="کد و رمز ذخیره شدند؛ در زمان شروع به‌طور خودکار فقط برای شرکت‌کنندگان ثبت‌نام‌شده نمایش داده می‌شوند.";
+  await refreshRoomAccessAdminStatus(roomId);toast("اطلاعات ورود روم ذخیره و زمان‌بندی شد.");
+ }catch(err){console.error("EX1 room credentials:",err);$("roomAccessPublishMessage").textContent=err.message||"ذخیره اطلاعات ورود انجام نشد.";}
+ finally{btn.disabled=false;}
+});
+$("roomsTable").addEventListener("click",async e=>{
+ const edit=e.target.closest("[data-edit-room]"),del=e.target.closest("[data-delete-room]");
+ if(edit&&permissions["rooms.manage"]){
+  const {data,error}=await sb.from("tournament_rooms").select("*").eq("id",edit.dataset.editRoom).single();
+  if(error||!data)return toast("اطلاعات روم دریافت نشد.");
+  $("rf_id").value=data.id;fillRoomTournamentOptions(data.tournament_id);$("rf_title").value=data.title||"";
+  $("rf_game_category").value=data.game_category||"uncategorized";
+  $("rf_price_category").value=data.price_category||(Number(data.entry_demo_points||0)===0?"free":"economy");
+  $("rf_game_mode").value=data.game_mode||"";$("rf_map").value=data.map||"";
+  $("rf_max_teams").value=data.max_teams||25;$("rf_team_size").value=String(data.team_size===2?2:4);
+  $("rf_capacity").value=data.capacity||((data.max_teams||25)*(data.team_size||4));
+  $("rf_entry_demo_points").value=data.entry_demo_points||0;
+  $("rf_prize_demo_points").value=data.prize_demo_points||0;
+  $("rf_prize_second_demo_points").value=data.prize_second_demo_points||0;
+  $("rf_prize_third_demo_points").value=data.prize_third_demo_points||0;
+  $("rf_starts_at").value=localDateTime(data.starts_at);$("rf_ends_at").value=localDateTime(data.ends_at);
+  $("rf_status").value=data.status||"draft";$("rf_room_image_url").value=data.room_image_url||"";
+  resetRoomImage();$("rf_room_image_url").value=data.room_image_url||"";
+  setRoomImagePreview(data.room_image_url||"",data.room_image_focus_x??50,data.room_image_focus_y??55);
+  $("rf_room_effects_enabled").checked=data.room_effects_enabled===true;
+  $("rf_rules").value=data.rules||"";
+  $("rf_room_code").value="";$("rf_room_password").value="";
+  $("rf_room_code").disabled=false;$("rf_room_password").disabled=false;$("publishRoomAccessButton").disabled=false;
+  $("roomAccessAdminPanel").classList.remove("hidden");$("roomAccessPublishMessage").textContent="برای تغییر اطلاعات ورود، کد و رمز جدید را وارد و ذخیره کن.";
+  $("roomForm").classList.remove("hidden");await refreshRoomAccessAdminStatus(data.id);$("roomForm").scrollIntoView({behavior:"smooth",block:"start"});
+ }
+ if(del&&permissions["rooms.manage"]){
+  if(!confirm("این روم حذف شود؟ این عملیات قابل بازگشت نیست."))return;
+  const {error}=await sb.from("tournament_rooms").delete().eq("id",del.dataset.deleteRoom);
+  if(error){console.error("EX1 room delete:",error);toast("حذف روم انجام نشد؛ ممکن است وابستگی یا محدودیت دسترسی وجود داشته باشد.");}
+  else{await loadRooms();toast("روم حذف شد.");}
+ }
+});
+
+function resetTournamentForm(){
+ $("tournamentForm").reset();
+ $("tf_game").value="Call of Duty Mobile";
+ $("tf_max_teams").value=25;
+ $("tf_status").value="draft";
+ $("tournamentForm").classList.add("hidden");
+}
+$("addTournamentButton").onclick=()=>{
+ if(!permissions["tournaments.create"])return toast("مجوز افزودن مسابقه را نداری.");
+ resetTournamentForm();
+ $("tournamentForm").classList.remove("hidden");
+ $("tf_title").focus();
+};
+$("cancelTournamentButton").onclick=resetTournamentForm;
+$("tournamentForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ if(!permissions["tournaments.create"])return toast("مجوز افزودن مسابقه را نداری.");
+ const payload={
+  title:$("tf_title").value.trim(),
+  game:$("tf_game").value.trim()||"Call of Duty Mobile",
+  mode:$("tf_mode").value.trim()||null,
+  map:$("tf_map").value.trim()||null,
+  max_teams:Number($("tf_max_teams").value)||null,
+  starts_at:isoDate($("tf_starts_at").value),
+  status:$("tf_status").value,
+  cover_image_url:$("tf_cover_image_url").value.trim()||null,
+  description:$("tf_description").value.trim()||null,
+  rules:$("tf_rules").value.trim()||null
+ };
+ if(!payload.title)return toast("عنوان مسابقه را وارد کن.");
+ $("saveTournamentButton").disabled=true;
+ try{
+  const {data,error}=await sb.from("tournaments").insert(payload).select("id").single();
+  if(error)throw error;
+  resetTournamentForm();
+  if(permissions["tournaments.view"]){
+   const rows=await rpc("admin_dashboard_tournaments");
+   $("statTournaments").textContent=rows.length;
+   $("tournamentsTable").innerHTML=table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع"],rows.map(t=>row([esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—")])));
+  }
+  await loadRoomsIfAllowed();
+  toast("مسابقه با موفقیت ثبت شد؛ حالا می‌توانی برایش روم بسازی.");
+ }catch(err){
+  console.error("EX1 tournament create:",err);
+  toast(err?.message||"ثبت مسابقه انجام نشد؛ مجوز ایجاد مسابقه را بررسی کن.");
+ }finally{$("saveTournamentButton").disabled=false;}
+});
+async function loadRoomsIfAllowed(){
+ if(permissions["rooms.view"]||permissions["rooms.manage"])await loadRooms();
+}
+async function refreshSession(){
+ const {data,error}=await sb.auth.getUser();
+ if(error||!data.user){$("appView").classList.add("hidden");$("authView").classList.remove("hidden");return;}
+ await applyAccess(data.user);
+}
+$("loginForm").addEventListener("submit",async e=>{e.preventDefault();$("loginButton").disabled=true;$("authMessage").textContent="در حال بررسی حساب...";try{const {error}=await sb.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error)throw error;await refreshSession();}catch(err){$("authMessage").textContent="ورود انجام نشد. ایمیل و رمز عبور را بررسی کن."; }finally{$("loginButton").disabled=false;}});
+$("logoutButton").onclick=async()=>{await sb.auth.signOut();permissions={};$("appView").classList.add("hidden");$("authView").classList.remove("hidden");$("password").value="";};
+$("themeForm").addEventListener("submit",async e=>{e.preventDefault();if(!permissions["settings.manage"]){$("themeMessage").textContent="مجوز ذخیره تنظیمات را نداری.";return;}$("saveTheme").disabled=true;try{const keys=["background_color","surface_color","primary_text_color","secondary_text_color","accent_color"];const params={};keys.forEach(k=>params["p_"+k]=$(k).value);await rpc("set_site_theme",params);$("themeMessage").textContent="تنظیمات با موفقیت ذخیره شد.";toast("رنگ‌بندی EX1 LEGEND به‌روزرسانی شد.");}catch(err){$("themeMessage").textContent="ذخیره‌سازی انجام نشد؛ مجوز و اتصال را بررسی کن.";}finally{$("saveTheme").disabled=false;}});
+sb.auth.onAuthStateChange((event,session)=>{if(event==="SIGNED_OUT"||!session){$("appView").classList.add("hidden");$("authView").classList.remove("hidden");}else if(event==="SIGNED_IN")setTimeout(refreshSession,0);});
+sb.channel("ex1-admin-site-theme")
+ .on("postgres_changes",{event:"UPDATE",schema:"public",table:"site_theme_settings",filter:"singleton=eq.true"},payload=>{
+  applyAdminTheme(payload.new,true);
+ })
+ .subscribe(status=>{
+  if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")console.warn("EX1 admin theme realtime:",status);
+ });
+refreshSession();
+
+  window.EX1_ADMIN_READY = true;
+})().catch((error) => {
+  console.error("EX1 admin startup:", error);
+  const message = document.getElementById("authMessage");
+  if (message) message.textContent = "راه‌اندازی پنل مدیریت ناموفق بود. لطفاً دوباره تلاش کن.";
+  window.EX1_ADMIN_READY = true;
+});
+</script></body></html>
