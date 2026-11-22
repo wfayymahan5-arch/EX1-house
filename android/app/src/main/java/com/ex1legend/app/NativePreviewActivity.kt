@@ -1120,7 +1120,7 @@ private fun PlayerPreviewPanel(
     onSignOut: () -> Unit
 ) { 
     val hasUnreadNotifications = notifications.any { it.readAt == null }
-    Column(Modifier.fillMaxSize().background(Ex1DesignTokens.Player.Background)) {
+    Column(Modifier.fillMaxSize().ex1AmbientBackground()) {
         // Header mirrors the existing EX1 web app: brand, connection status and quick actions.
         Row(
             modifier = Modifier.fillMaxWidth().background(Color(0xF00A0818)).padding(horizontal = 16.dp, vertical = 12.dp),
