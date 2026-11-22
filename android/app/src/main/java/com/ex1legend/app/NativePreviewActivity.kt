@@ -104,17 +104,17 @@ private fun currentIsoTimestamp(): String =
 class NativePreviewActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.statusBarColor = android.graphics.Color.rgb(10, 8, 18)
-        window.navigationBarColor = android.graphics.Color.rgb(10, 8, 18)
+        window.statusBarColor = android.graphics.Color.rgb(11, 11, 18)
+        window.navigationBarColor = android.graphics.Color.rgb(11, 11, 18)
         setContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 MaterialTheme(
                     colorScheme = darkColorScheme(
-                    primary = Color(0xFFB58CFF),
-                    secondary = Color(0xFF8D65D6),
-                    background = Color(0xFF0A0812),
-                    surface = Color(0xFF171322),
-                    onSurface = Color(0xFFF4F0FA)
+                    primary = Ex1DesignTokens.Player.Neon,
+                    secondary = Ex1DesignTokens.Player.Violet,
+                    background = Ex1DesignTokens.Player.Background,
+                    surface = Ex1DesignTokens.Player.Surface,
+                    onSurface = Ex1DesignTokens.Player.Text
                 )
             ) {
                     NativePreviewRoot(isAdmin = BuildConfig.IS_ADMIN)
