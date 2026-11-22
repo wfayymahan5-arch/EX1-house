@@ -594,6 +594,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                 error = e.message ?: "دریافت اطلاعات انجام نشد."
                             } finally {
                                 loading = false
+                                socialBusy = false
                             }
                         }
                     }
