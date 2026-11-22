@@ -572,6 +572,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
                                     "profile" -> profile = NativeEx1Api.profile(current)
                                     "explore" -> explorePlayers = NativeEx1Api.explorePlayers(current, exploreQuery)
                                     "messages" -> {
+                                        socialBusy = true
                                         socialContacts = NativeEx1Api.mutualFollowContacts(current)
                                         socialError = null
                                     }
@@ -1315,7 +1316,7 @@ private fun PlayerPreviewPanel(
                     } else if (activeTab == "messages") {
                         Column(Modifier.weight(1f).padding(horizontal = 16.dp, vertical = 12.dp)) {
                             NativeSocialPanel(
-                                currentUserId = profile?.id ?: "",
+                                currentUserId = session?.userId ?: "",
                                 contacts = socialContacts,
                                 conversation = socialConversation,
                                 messages = socialMessages,
