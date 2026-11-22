@@ -23,6 +23,7 @@ on:
     branches:
       - feature/android-shell-current-main
       - feature/native-android-migration
+      - feature/native-parity-rebuild
 
 concurrency:
   group: ex1-android-build-${{ github.ref }}
