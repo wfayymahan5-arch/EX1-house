@@ -354,7 +354,7 @@ private fun NativePreviewRoot(isAdmin: Boolean) {
         }
     }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF0A0812)) {
+    Surface(modifier = Modifier.fillMaxSize(), color = Ex1DesignTokens.Player.Background) {
         if (session == null && !isAdmin && !showAuth) {
             GuestNativeHome(
                 rooms = rooms,
@@ -892,22 +892,22 @@ private fun GuestNativeHome(
         "uncategorized" to "دسته‌بندی نشده"
     )
     val visibleRooms = rooms.filter { category == "all" || it.gameCategory == category }
-    Column(Modifier.fillMaxSize().background(Color(0xFF090817))) {
+    Column(Modifier.fillMaxSize().background(Ex1DesignTokens.Player.Background)) {
         Row(
             Modifier.fillMaxWidth().background(Color(0xF00A0818)).padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(Modifier.weight(1f)) {
                 Text("EX1 LEGEND", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Black)
-                Text("میدان بازیکنان · ورود مهمان", color = Color(0xFFBBA8D8), fontSize = 11.sp)
+                Text("میدان بازیکنان · ورود مهمان", color = Ex1DesignTokens.Player.SecondaryText, fontSize = 11.sp)
             }
-            TextButton(onClick = onRefresh) { Text("↻ تازه‌سازی", color = Color(0xFF8FE9F2)) }
+            TextButton(onClick = onRefresh) { Text("↻ تازه‌سازی", color = Ex1DesignTokens.Player.Cyan) }
         }
         Column(Modifier.weight(1f).padding(horizontal = 16.dp)) {
             Spacer(Modifier.height(18.dp))
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF171128)),
+                colors = CardDefaults.cardColors(containerColor = Ex1DesignTokens.Player.CardAlt),
                 shape = RoundedCornerShape(20.dp)
             ) {
                 Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -956,18 +956,18 @@ private fun GuestNativeHome(
                     items(visibleRooms, key = { it.id }) { room ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF151122)),
+                            colors = CardDefaults.cardColors(containerColor = Ex1DesignTokens.Player.Surface),
                             shape = RoundedCornerShape(16.dp)
                         ) {
                             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                                 Text(room.title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                                 Text(
                                     "\${room.gameCategory}  ·  \${room.priceCategory}  ·  ظرفیت \${room.capacity}",
-                                    color = Color(0xFFBBA8D8), fontSize = 11.sp
+                                    color = Ex1DesignTokens.Player.SecondaryText, fontSize = 11.sp
                                 )
                                 Text(
                                     "ورودی: \${room.entryPoints} امتیاز مجازی  |  جایزه اول: \${room.firstPrize}",
-                                    color = Color(0xFF8FE9F2), fontSize = 11.sp
+                                    color = Ex1DesignTokens.Player.Cyan, fontSize = 11.sp
                                 )
                                 Text("برای ثبت‌نام وارد حساب شو", color = Color(0xFFAAA0BC), fontSize = 10.sp)
                             }
@@ -1001,7 +1001,7 @@ private fun LoginPanel(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("EX1 LEGEND", fontSize = 30.sp, fontWeight = FontWeight.Black, color = Color.White)
-        Text(if (isAdmin) "پنل مدیریت · نسخه Native آزمایشی" else "وارد میدان شو، افسانه شو", color = Color(0xFFBBA8D8))
+        Text(if (isAdmin) "پنل مدیریت · نسخه Native آزمایشی" else "وارد میدان شو، افسانه شو", color = Ex1DesignTokens.Player.SecondaryText)
         Spacer(Modifier.height(28.dp))
         if (isSignUp) {
             OutlinedTextField(value = displayName, onValueChange = onDisplayName, label = { Text("نام نمایشی") }, singleLine = true, modifier = Modifier.fillMaxWidth())
@@ -1078,7 +1078,7 @@ private fun PlayerPreviewPanel(
     onSignOut: () -> Unit
 ) { 
     val hasUnreadNotifications = notifications.any { it.readAt == null }
-    Column(Modifier.fillMaxSize().background(Color(0xFF090817))) {
+    Column(Modifier.fillMaxSize().background(Ex1DesignTokens.Player.Background)) {
         // Header mirrors the existing EX1 web app: brand, connection status and quick actions.
         Row(
             modifier = Modifier.fillMaxWidth().background(Color(0xF00A0818)).padding(horizontal = 16.dp, vertical = 12.dp),
@@ -1100,16 +1100,16 @@ private fun PlayerPreviewPanel(
                 }
             }
             Column(Modifier.weight(1f)) {
-                Text("EX1", color = Color(0xFFC17CFF), fontWeight = FontWeight.Black, fontSize = 22.sp)
+                Text("EX1", color = Ex1DesignTokens.Player.Neon, fontWeight = FontWeight.Black, fontSize = 22.sp)
                 Text("LEGEND", color = Color.White, fontWeight = FontWeight.Black, fontSize = 19.sp)
             }
             Column(
-                modifier = Modifier.background(Color(0xFF17152A), RoundedCornerShape(14.dp)).padding(horizontal = 12.dp, vertical = 8.dp),
+                modifier = Modifier.background(Ex1DesignTokens.Player.Surface, RoundedCornerShape(14.dp)).padding(horizontal = 12.dp, vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Text("●", color = Color(0xFF45D8A1), fontSize = 9.sp)
-                    Text("متصل به", color = Color(0xFFBBA8D8), fontSize = 10.sp)
+                    Text("●", color = Ex1DesignTokens.ControlPanel.Green, fontSize = 9.sp)
+                    Text("متصل به", color = Ex1DesignTokens.Player.SecondaryText, fontSize = 10.sp)
                 }
                 Text("EX1", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
             }
@@ -1147,7 +1147,7 @@ private fun PlayerPreviewPanel(
                     }
                     Row(
                         Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
-                            .background(Color(0xFF17152A), RoundedCornerShape(22.dp)).padding(5.dp),
+                            .background(Ex1DesignTokens.Player.Surface, RoundedCornerShape(22.dp)).padding(5.dp),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         listOf("explore" to "اکسپلور بازیکنان", "support" to "چت").forEach { (key, label) ->
@@ -1170,7 +1170,7 @@ private fun PlayerPreviewPanel(
                                 colors = CardDefaults.cardColors(containerColor = Color(0xFF191629))
                             ) {
                                 Column(Modifier.fillMaxWidth().padding(12.dp)) {
-                                    Text("↗", color = Color(0xFFC17CFF), fontSize = 16.sp)
+                                    Text("↗", color = Ex1DesignTokens.Player.Neon, fontSize = 16.sp)
                                     Spacer(Modifier.height(12.dp))
                                     Text(title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                                     Text(subtitle, color = Color(0xFFAAA2B8), fontSize = 10.sp)
@@ -1189,7 +1189,7 @@ private fun PlayerPreviewPanel(
                             Spacer(Modifier.height(10.dp))
                             if (rooms.isEmpty()) {
                                 Box(
-                                    Modifier.fillMaxWidth().weight(1f).background(Color(0xFF17152A), RoundedCornerShape(20.dp)),
+                                    Modifier.fillMaxWidth().weight(1f).background(Ex1DesignTokens.Player.Surface, RoundedCornerShape(20.dp)),
                                     contentAlignment = Alignment.Center
                                 ) { Text("برای دیدن بازیکنان وارد حساب شو.", color = Color(0xFFD8D1E3), fontSize = 13.sp) }
                             } else {
@@ -1219,8 +1219,8 @@ private fun PlayerPreviewPanel(
                 TextButton(onClick = { onTab(if (key == "home") "rooms" else key) }) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(when (key) { "profile" -> "♙"; "ranking" -> "✦"; "rooms" -> "♜"; else -> "⌂" },
-                            color = if (selected) Color(0xFFC58BFF) else Color(0xFF9C92AD), fontSize = 19.sp)
-                        Text(label, color = if (selected) Color(0xFFC58BFF) else Color(0xFF9C92AD), fontSize = 10.sp)
+                            color = if (selected) Ex1DesignTokens.Player.Neon else Color(0xFF9C92AD), fontSize = 19.sp)
+                        Text(label, color = if (selected) Ex1DesignTokens.Player.Neon else Color(0xFF9C92AD), fontSize = 10.sp)
                     }
                 }
             }
@@ -1245,7 +1245,7 @@ private fun RankingPreviewPanel(
             }
         } else {
             players.forEachIndexed { index, player ->
-                Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
+                Card(colors = CardDefaults.cardColors(containerColor = Ex1DesignTokens.Player.Card)) {
                     Row(
                         Modifier.fillMaxWidth().padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -1262,7 +1262,7 @@ private fun RankingPreviewPanel(
                             )
                             Text(
                                 "جایگاه ${player.placement ?: "—"} · کیل ${player.kills} · امتیاز ${player.points}",
-                                color = Color(0xFFBBA8D8),
+                                color = Ex1DesignTokens.Player.SecondaryText,
                                 fontSize = 11.sp
                             )
                         }
@@ -1310,7 +1310,7 @@ private fun ExplorePreviewPanel(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(players, key = { it.id }) { player ->
-                    Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
+                    Card(colors = CardDefaults.cardColors(containerColor = Ex1DesignTokens.Player.Card)) {
                         Row(
                             Modifier.fillMaxWidth().padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically,
@@ -1324,7 +1324,7 @@ private fun ExplorePreviewPanel(
                             }
                             Column(Modifier.weight(1f)) {
                                 Text(player.displayName ?: "بازیکن", fontWeight = FontWeight.Bold)
-                                Text(player.username?.let { "@$it" } ?: "بازیکن EX1", color = Color(0xFFBBA8D8), fontSize = 11.sp)
+                                Text(player.username?.let { "@$it" } ?: "بازیکن EX1", color = Ex1DesignTokens.Player.SecondaryText, fontSize = 11.sp)
                                 if (!player.bio.isNullOrBlank()) {
                                     Text(player.bio, color = Color(0xFF9B91AA), fontSize = 11.sp, maxLines = 2)
                                 }
@@ -1367,12 +1367,12 @@ private fun PublicProfileDialog(
                         Text((profile.displayName ?: "EX").take(1), fontSize = 24.sp, fontWeight = FontWeight.Black)
                     }
                     Text(profile.displayName ?: "بازیکن", fontSize = 19.sp, fontWeight = FontWeight.Bold)
-                    Text(profile.username?.let { "@$it" } ?: "بازیکن EX1", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+                    Text(profile.username?.let { "@$it" } ?: "بازیکن EX1", color = Ex1DesignTokens.Player.SecondaryText, fontSize = 12.sp)
                     profile.roleBadge?.let {
                         Text(if (it == "owner") "✦ مالک EX1" else "◆ مدیر EX1", color = Color(0xFFC9A5FF), fontSize = 11.sp)
                     }
                     if (!profile.gameName.isNullOrBlank()) {
-                        Text("نام داخل بازی: ${profile.gameName}", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+                        Text("نام داخل بازی: ${profile.gameName}", color = Ex1DesignTokens.Player.SecondaryText, fontSize = 12.sp)
                     }
                     Text("بیوگرافی", fontWeight = FontWeight.Bold)
                     Text(
@@ -1432,7 +1432,7 @@ private fun WalletPreviewPanel(wallet: NativeWallet?) {
         Spacer(Modifier.height(8.dp))
         Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF211831))) {
             Column(Modifier.fillMaxWidth().padding(18.dp)) {
-                Text("موجودی امتیاز مجازی", color = Color(0xFFBBA8D8), fontSize = 13.sp)
+                Text("موجودی امتیاز مجازی", color = Ex1DesignTokens.Player.SecondaryText, fontSize = 13.sp)
                 Text(wallet?.balance?.toString() ?: "—", fontSize = 28.sp, fontWeight = FontWeight.Black)
                 Text("این امتیازها فقط داخل EX1 کاربرد دارند و ارزش نقدی یا امکان برداشت ندارند.", color = Color(0xFF9B91AA), fontSize = 11.sp)
             }
@@ -1444,7 +1444,7 @@ private fun WalletPreviewPanel(wallet: NativeWallet?) {
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.heightIn(max = 420.dp)) {
                 items(wallet!!.history) { entry ->
-                    Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
+                    Card(colors = CardDefaults.cardColors(containerColor = Ex1DesignTokens.Player.Card)) {
                         Column(Modifier.fillMaxWidth().padding(12.dp)) {
                             Text(if (entry.type == "credit") "افزایش امتیاز" else "کسر امتیاز", fontWeight = FontWeight.Bold)
                             Text("مقدار: ${entry.amount}  ·  موجودی پس از ثبت: ${entry.balanceAfter}", color = Color(0xFFC4BBD2), fontSize = 12.sp)
@@ -1494,7 +1494,7 @@ private fun SupportPreviewPanel(
                 ) {
                     Card(
                         colors = CardDefaults.cardColors(
-                            containerColor = if (item.senderRole == "user") Color(0xFF382653) else Color(0xFF191426)
+                            containerColor = if (item.senderRole == "user") Color(0xFF382653) else Ex1DesignTokens.Player.Card
                         )
                     ) {
                         Text(item.body, modifier = Modifier.padding(12.dp), color = Color(0xFFF4F0FA))
@@ -1613,7 +1613,7 @@ private fun TeamPreviewPanel(
         if (!error.isNullOrBlank()) Text(error, color = Color(0xFFFF9B9B), fontSize = 12.sp)
 
         if (team == null) {
-            Text("هنوز عضو تیمی نیستی. می‌توانی تیم خودت را بسازی.", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+            Text("هنوز عضو تیمی نیستی. می‌توانی تیم خودت را بسازی.", color = Ex1DesignTokens.Player.SecondaryText, fontSize = 12.sp)
             OutlinedTextField(name, { name = it }, label = { Text("نام تیم") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             OutlinedTextField(tag, { tag = it }, label = { Text("تگ تیم (اختیاری)") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             OutlinedTextField(description, { description = it }, label = { Text("توضیحات (اختیاری)") }, modifier = Modifier.fillMaxWidth())
@@ -1624,11 +1624,11 @@ private fun TeamPreviewPanel(
             ) { Text(if (busy) "در حال ساخت..." else "ساخت تیم") }
         } else {
             Text(team.name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            if (!team.tag.isNullOrBlank()) Text("تگ: ${team.tag}", color = Color(0xFFBBA8D8))
+            if (!team.tag.isNullOrBlank()) Text("تگ: ${team.tag}", color = Ex1DesignTokens.Player.SecondaryText)
             Text(team.description ?: "تیم بازیکنان EX1", color = Color(0xFF9B91AA), fontSize = 12.sp)
-            Text("${team.members.size} از ۴ عضو", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+            Text("${team.members.size} از ۴ عضو", color = Ex1DesignTokens.Player.SecondaryText, fontSize = 12.sp)
             team.members.forEach { member ->
-                Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
+                Card(colors = CardDefaults.cardColors(containerColor = Ex1DesignTokens.Player.Card)) {
                     Row(
                         Modifier.fillMaxWidth().padding(10.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -1699,7 +1699,7 @@ private fun TeamPreviewPanel(
                 Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF211831))) {
                     Column(Modifier.fillMaxWidth().padding(12.dp)) {
                         Text(invite.teamName, fontWeight = FontWeight.Bold)
-                        Text("دعوت از ${invite.inviterName}", color = Color(0xFFBBA8D8), fontSize = 11.sp)
+                        Text("دعوت از ${invite.inviterName}", color = Ex1DesignTokens.Player.SecondaryText, fontSize = 11.sp)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             TextButton(enabled = !busy, onClick = { onRespondInvite(invite.id, true) }) { Text("پذیرش") }
                             TextButton(enabled = !busy, onClick = { onRespondInvite(invite.id, false) }) { Text("رد دعوت") }
@@ -1779,7 +1779,7 @@ private fun RoomDetailDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text("ورودی: ${room.entryPoints} امتیاز مجازی · ظرفیت: ${room.capacity}")
-                Text("جایزه اول: ${room.firstPrize} امتیاز مجازی · هر تیم: ${room.teamSize} نفر", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+                Text("جایزه اول: ${room.firstPrize} امتیاز مجازی · هر تیم: ${room.teamSize} نفر", color = Ex1DesignTokens.Player.SecondaryText, fontSize = 12.sp)
                 if (loading) CircularProgressIndicator()
                 if (!message.isNullOrBlank()) Text(message, color = Color(0xFF9DE3B2))
                 if (!error.isNullOrBlank()) Text(error, color = Color(0xFFFF9B9B))
@@ -1813,7 +1813,7 @@ private fun RoomDetailDialog(
                         }
                     }
                 } else if (access?.waitingForStart == true || access?.waitingForAdmin == true) {
-                    Text("اطلاعات خصوصی روم پس از زمان‌بندی و تأیید مدیر برای شرکت‌کنندگان مجاز نمایش داده می‌شود.", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+                    Text("اطلاعات خصوصی روم پس از زمان‌بندی و تأیید مدیر برای شرکت‌کنندگان مجاز نمایش داده می‌شود.", color = Ex1DesignTokens.Player.SecondaryText, fontSize = 12.sp)
                 }
                 TextButton(onClick = onRefresh, enabled = !busy && !loading) { Text("به‌روزرسانی وضعیت و اطلاعات روم") }
                 Text("جایگاه‌های تیمی", fontWeight = FontWeight.Bold)
@@ -1824,7 +1824,7 @@ private fun RoomDetailDialog(
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                             Text("#${result.placement ?: "—"}", modifier = Modifier.width(34.dp), fontWeight = FontWeight.Bold)
                             Text(result.playerName, modifier = Modifier.weight(1f))
-                            Text("کیل ${result.kills} · امتیاز ${result.points}", color = Color(0xFFBBA8D8), fontSize = 11.sp)
+                            Text("کیل ${result.kills} · امتیاز ${result.points}", color = Ex1DesignTokens.Player.SecondaryText, fontSize = 11.sp)
                         }
                     }
                 }
@@ -1832,7 +1832,7 @@ private fun RoomDetailDialog(
                 else if (!isRoomRegistrationOpen(room)) Text("مهلت ثبت‌نام این روم باز نیست.")
                 else (1..maxTeams).forEach { slotNumber ->
                     val slot = occupied[slotNumber]
-                    Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
+                    Card(colors = CardDefaults.cardColors(containerColor = Ex1DesignTokens.Player.Card)) {
                         Column(Modifier.fillMaxWidth().padding(10.dp)) {
                             Text(
                                 when {
@@ -1843,7 +1843,7 @@ private fun RoomDetailDialog(
                                 fontWeight = FontWeight.Bold
                             )
                             if (slot != null && slot.players.isNotEmpty()) {
-                                Text(slot.players.joinToString("، "), color = Color(0xFFBBA8D8), fontSize = 11.sp)
+                                Text(slot.players.joinToString("، "), color = Ex1DesignTokens.Player.SecondaryText, fontSize = 11.sp)
                             }
                             if (slot == null || slot.status == "waiting") {
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1865,7 +1865,7 @@ private fun RoomPreviewCard(room: NativeRoom, onOpen: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = if (isRoomFinished(room)) Color(0xFF121018) else Color(0xFF191426))
+        colors = CardDefaults.cardColors(containerColor = if (isRoomFinished(room)) Color(0xFF121018) else Ex1DesignTokens.Player.Card)
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1906,7 +1906,7 @@ private fun AdminPreviewPanel(
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.weight(1f)) {
                 Text("EX1 LEGEND", fontWeight = FontWeight.Black, fontSize = 23.sp)
-                Text("پنل مدیریت · پیش‌نمایش Native", color = Color(0xFFBBA8D8), fontSize = 12.sp)
+                Text("پنل مدیریت · پیش‌نمایش Native", color = Ex1DesignTokens.Player.SecondaryText, fontSize = 12.sp)
             }
             Button(onClick = onRefresh) { Text("به‌روزرسانی") }
         }
@@ -1987,9 +1987,9 @@ private fun AdminPreviewPanel(
 
 @Composable
 private fun AdminMetricCard(label: String, value: Int) {
-    Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
+    Card(colors = CardDefaults.cardColors(containerColor = Ex1DesignTokens.Player.Card)) {
         Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(label, modifier = Modifier.weight(1f), color = Color(0xFFBBA8D8))
+            Text(label, modifier = Modifier.weight(1f), color = Ex1DesignTokens.Player.SecondaryText)
             Text(value.toString(), fontWeight = FontWeight.Black, fontSize = 20.sp)
         }
     }
@@ -2013,13 +2013,13 @@ private fun AdminDataPanel(title: String, rows: List<org.json.JSONObject>, field
             Text("داده‌ای برای نمایش وجود ندارد.", color = Color(0xFF9B91AA))
         } else {
             rows.forEach { row ->
-                Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191426))) {
+                Card(colors = CardDefaults.cardColors(containerColor = Ex1DesignTokens.Player.Card)) {
                     Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         fields.forEachIndexed { index, field ->
                             val value = row.optString(field.second).takeIf { it.isNotBlank() && it != "null" } ?: "—"
                             Text(
                                 "${field.first}: $value",
-                                color = if (index == 0) Color.White else Color(0xFFBBA8D8),
+                                color = if (index == 0) Color.White else Ex1DesignTokens.Player.SecondaryText,
                                 fontSize = if (index == 0) 14.sp else 11.sp,
                                 fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal
                             )
