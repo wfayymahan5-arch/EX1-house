@@ -166,6 +166,11 @@ data class NativePublicProfile(
     val roleBadge: String?
 )
 
+data class NativeFollowEdge(val followerId: String, val followedId: String, val status: String)
+data class NativeFollowRequest(val followerId: String, val createdAt: String, val profile: NativePublicProfile?)
+data class NativeSocialMessage(val id: String, val senderId: String, val body: String, val createdAt: String, val deletedAt: String?)
+data class NativeSocialConversation(val id: String, val otherUserId: String)
+
 data class NativeRankedPlayer(
     val userId: String?,
     val playerName: String,
@@ -285,12 +290,14 @@ object NativeEx1Api {
         method: String,
         path: String,
         session: NativeSession? = null,
-        payload: JSONObject? = null
+        payload: JSONObject? = null,
+        prefer: String? = null
     ): Any? {
         val builder = Request.Builder()
             .url(BuildConfig.SUPABASE_URL.trimEnd('/') + path)
             .header("apikey", BuildConfig.SUPABASE_PUBLISHABLE_KEY)
             .header("Accept", "application/json")
+        if (!prefer.isNullOrBlank()) builder.header("Prefer", prefer)
         if (session != null) builder.header("Authorization", "Bearer ${session.accessToken}")
         val body = payload?.toString()?.toRequestBody(jsonType)
         when (method) {
@@ -816,6 +823,115 @@ object NativeEx1Api {
             optional("bio"),
             badge
         )
+    }
+
+    private val UUID_PATTERN = Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
+
+    private fun requireValidUserId(value: String) {
+        require(value.matches(UUID_PATTERN)) { "شناسه کاربر معتبر نیست." }
+    }
+
+    suspend fun followEdges(session: NativeSession): List<NativeFollowEdge> = withContext(Dispatchers.IO) {
+        val rows = request("GET", "/rest/v1/user_follows?select=follower_id,followed_id,status&or=(follower_id.eq.\${session.userId},followed_id.eq.\${session.userId})", session) as? JSONArray ?: JSONArray()
+        (0 until rows.length()).mapNotNull { i ->
+            val row = rows.optJSONObject(i) ?: return@mapNotNull null
+            NativeFollowEdge(row.optString("follower_id"), row.optString("followed_id"), row.optString("status"))
+        }
+    }
+
+    suspend fun requestFollow(session: NativeSession, targetUserId: String) = withContext(Dispatchers.IO) {
+        requireValidUserId(targetUserId)
+        request("POST", "/rest/v1/user_follows", session,
+            JSONObject().put("follower_id", session.userId).put("followed_id", targetUserId).put("status", "pending"))
+    }
+
+    suspend fun pendingFollowRequests(session: NativeSession): List<NativeFollowRequest> = withContext(Dispatchers.IO) {
+        val rows = request("GET", "/rest/v1/user_follows?select=follower_id,created_at&followed_id=eq.\${session.userId}&status=eq.pending&order=created_at.desc", session) as? JSONArray ?: JSONArray()
+        (0 until rows.length()).mapNotNull { i ->
+            val row = rows.optJSONObject(i) ?: return@mapNotNull null
+            val id = row.optString("follower_id")
+            NativeFollowRequest(id, row.optString("created_at"), runCatching { publicProfile(session, id) }.getOrNull())
+        }
+    }
+
+    suspend fun approveFollowRequest(session: NativeSession, followerId: String) = withContext(Dispatchers.IO) {
+        requireValidUserId(followerId)
+        request("PATCH", "/rest/v1/user_follows?follower_id=eq.$followerId&followed_id=eq.\${session.userId}&status=eq.pending",
+            session, JSONObject().put("status", "accepted"))
+    }
+
+    suspend fun blockUser(session: NativeSession, targetUserId: String) = withContext(Dispatchers.IO) {
+        requireValidUserId(targetUserId)
+        require(targetUserId != session.userId) { "نمی‌توانی حساب خودت را مسدود کنی." }
+        request("POST", "/rest/v1/user_blocks", session,
+            JSONObject().put("blocker_id", session.userId).put("blocked_id", targetUserId))
+        request("DELETE", "/rest/v1/user_follows?or=(and(follower_id.eq.\${session.userId},followed_id.eq.$targetUserId),and(follower_id.eq.$targetUserId,followed_id.eq.\${session.userId}))", session)
+    }
+
+    suspend fun blockedUsers(session: NativeSession): List<NativePublicProfile> = withContext(Dispatchers.IO) {
+        val rows = request("GET", "/rest/v1/user_blocks?select=blocked_id&blocker_id=eq.\${session.userId}&order=created_at.desc", session) as? JSONArray ?: JSONArray()
+        (0 until rows.length()).mapNotNull { i ->
+            val id = rows.optJSONObject(i)?.optString("blocked_id") ?: return@mapNotNull null
+            runCatching { publicProfile(session, id) }.getOrNull()
+        }
+    }
+
+    suspend fun unblockUser(session: NativeSession, targetUserId: String) = withContext(Dispatchers.IO) {
+        requireValidUserId(targetUserId)
+        request("DELETE", "/rest/v1/user_blocks?blocker_id=eq.\${session.userId}&blocked_id=eq.$targetUserId", session)
+    }
+
+    suspend fun mutualFollowContacts(session: NativeSession): List<NativePublicProfile> = withContext(Dispatchers.IO) {
+        val edges = followEdges(session).filter { it.status == "accepted" }
+        val outgoing = edges.filter { it.followerId == session.userId }.map { it.followedId }.toSet()
+        val incoming = edges.filter { it.followedId == session.userId }.map { it.followerId }.toSet()
+        (outgoing intersect incoming).mapNotNull { id -> runCatching { publicProfile(session, id) }.getOrNull() }
+    }
+
+    suspend fun openSocialConversation(session: NativeSession, otherUserId: String): NativeSocialConversation = withContext(Dispatchers.IO) {
+        requireValidUserId(otherUserId)
+        require(otherUserId != session.userId) { "گفت‌وگو با حساب خودت امکان‌پذیر نیست." }
+        val edges = followEdges(session).filter { it.status == "accepted" }
+        require(edges.any { it.followerId == session.userId && it.followedId == otherUserId } &&
+            edges.any { it.followerId == otherUserId && it.followedId == session.userId }) {
+            "برای شروع گفت‌وگو باید دنبال‌کردن دوطرفه تأیید شده باشد."
+        }
+        val mine = request("GET", "/rest/v1/social_conversation_members?select=conversation_id&user_id=eq.\${session.userId}", session) as? JSONArray ?: JSONArray()
+        val ids = (0 until mine.length()).mapNotNull { mine.optJSONObject(it)?.optString("conversation_id") }
+            .filter { it.matches(UUID_PATTERN) }
+        if (ids.isNotEmpty()) {
+            val members = request("GET", "/rest/v1/social_conversation_members?select=conversation_id&user_id=eq.$otherUserId&conversation_id=in.(\${ids.joinToString(",")})&limit=1", session) as? JSONArray ?: JSONArray()
+            if (members.length() > 0) return@withContext NativeSocialConversation(members.getJSONObject(0).optString("conversation_id"), otherUserId)
+        }
+        val created = request("POST", "/rest/v1/social_conversations?select=id", session,
+            JSONObject().put("created_by", session.userId), "return=representation") as? JSONArray ?: JSONArray()
+        if (created.length() == 0) throw IllegalStateException("گفت‌وگو ایجاد نشد.")
+        val conversationId = created.getJSONObject(0).optString("id")
+        val members = JSONArray()
+            .put(JSONObject().put("conversation_id", conversationId).put("user_id", session.userId))
+            .put(JSONObject().put("conversation_id", conversationId).put("user_id", otherUserId))
+        request("POST", "/rest/v1/social_conversation_members", session, members)
+        NativeSocialConversation(conversationId, otherUserId)
+    }
+
+    suspend fun socialMessages(session: NativeSession, conversationId: String): List<NativeSocialMessage> = withContext(Dispatchers.IO) {
+        requireValidUserId(conversationId)
+        val rows = request("GET", "/rest/v1/social_messages?select=id,sender_id,body,created_at,deleted_at&conversation_id=eq.$conversationId&order=created_at.asc&limit=100", session) as? JSONArray ?: JSONArray()
+        (0 until rows.length()).mapNotNull { i ->
+            val row = rows.optJSONObject(i) ?: return@mapNotNull null
+            NativeSocialMessage(row.optString("id"), row.optString("sender_id"), row.optString("body"),
+                row.optString("created_at"), row.optString("deleted_at").takeIf { it.isNotBlank() && it != "null" })
+        }
+    }
+
+    suspend fun sendSocialMessage(session: NativeSession, conversationId: String, body: String): JSONObject = withContext(Dispatchers.IO) {
+        requireValidUserId(conversationId)
+        val clean = body.trim()
+        require(clean.isNotEmpty()) { "متن پیام خالی است." }
+        require(clean.length <= 2000) { "پیام بیش از حد طولانی است." }
+        request("POST", "/functions/v1/send-social-message", session,
+            JSONObject().put("conversation_id", conversationId).put("body", clean)) as? JSONObject
+            ?: throw IllegalStateException("پاسخ ارسال پیام معتبر نیست.")
     }
 
     suspend fun rankingPlayers(session: NativeSession): List<NativeRankedPlayer> = withContext(Dispatchers.IO) {
