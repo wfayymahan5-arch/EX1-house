@@ -269,7 +269,7 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 </style>
 </head>
 <body>
-<header><div class="topbar"><div class="header-actions"><button class="btn ghost small" type="button" aria-label="جست‌وجو" onclick="switchPage('tournaments')">⌕</button><button class="btn ghost small" type="button" aria-label="وضعیت اتصال"><span id="connectionStatus" class="connection-status"><i></i></span> ◉</button></div><a class="brand" href="#home" aria-label="EX1 LEGEND"><span><b>EX1</b> LEGEND</span></a><div class="header-actions"><button class="btn ghost small ex1-notification-bell" id="openNotifications" type="button" aria-label="اعلان‌ها" aria-haspopup="dialog" aria-controls="notificationsModal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span id="notificationUnreadBadge" class="ex1-unread-badge" hidden>۰</span></button><button class="btn ghost small" id="openSettings" type="button" aria-label="تنظیمات">⚙</button><span id="headerUser" class="muted"></span><button class="btn secondary small" id="headerAuth" type="button">ورود</button></div></div></header>
+<header><div class="topbar"><div class="header-actions"><span class="btn ghost small" aria-hidden="true" title="جست‌وجو">⌕</span></div><a class="brand" href="#home" aria-label="EX1 LEGEND"><span><b>EX1</b> LEGEND</span></a><div class="header-actions"><button class="btn ghost small ex1-notification-bell" id="openNotifications" type="button" aria-label="اعلان‌ها" aria-haspopup="dialog" aria-controls="notificationsModal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span id="notificationUnreadBadge" class="ex1-unread-badge" hidden>۰</span></button><button class="btn ghost small" id="openSettings" type="button" aria-label="تنظیمات">⚙</button><span id="headerUser" class="muted"></span><button class="btn secondary small" id="headerAuth" type="button">ورود</button></div></div></header>
 <div class="modal notifications-modal" id="notificationsModal" role="dialog" aria-modal="true" aria-labelledby="notificationsTitle" aria-hidden="true"><div class="dialog notifications-dialog"><div class="notifications-dialog-head"><div><h3 id="notificationsTitle">اعلان‌های حساب</h3><p class="muted">پیام‌ها و اطلاع‌رسانی‌های EX1</p></div><button class="btn ghost small" id="closeNotifications" type="button" aria-label="بستن اعلان‌ها">✕</button></div><div id="userNotifications" class="user-list notifications-list"><div class="empty">برای مشاهده اعلان‌ها وارد حساب شو.</div></div></div></div>
 <main class="wrap">
 <section class="page active" id="page-home">
@@ -624,7 +624,7 @@ function scheduleRoomAccessRelease(room){
  roomStartReleaseTimer=setTimeout(check,Math.max(0,releaseAt-Date.now()+250));
 }
 document.addEventListener("visibilitychange",()=>{if(!document.hidden){if(activeRoomDetail)refreshRoomAccess(activeRoomDetail.id).catch(()=>{});refreshEx1LivePanels();}});
-window.addEventListener("online",()=>{refreshEx1LivePanels();checkConnection();});
+window.addEventListener("online",()=>{refreshEx1LivePanels();});
 function roomHasStarted(room,now=Date.now()){if(!room?.starts_at)return false;const start=new Date(room.starts_at).getTime();return Number.isFinite(start)&&now>=start;}
 function roomExpiryTimestamp(room){const raw=room?.ends_at||room?.starts_at||(["closed","completed"].includes(room?.status)?room?.created_at:null);const t=raw?new Date(raw).getTime():NaN;return Number.isFinite(t)?t+86400000:null;}
 function roomHasEnded(room,now=Date.now()){const raw=room?.ends_at||room?.starts_at||(["closed","completed"].includes(room?.status)?room?.created_at:null);const t=raw?new Date(raw).getTime():NaN;return Number.isFinite(t)&&now>=t;}
@@ -1210,11 +1210,13 @@ function applyRoomCategory(category){
  const rooms=allRooms.filter(r=>(category==="all"||roomCategory(r.game_category)===category)&&(!q||[r.title,r.map,r.game_mode].some(v=>String(v||"").toLocaleLowerCase().includes(q))));
  $("roomCategoryTitle").textContent=({all:"روم‌های پیشنهادی",fight:"روم‌های فایت",br:"روم‌های بتل‌رویال",multi:"روم‌های مولتی"})[category]||"روم‌های پیشنهادی";
  const labels=[["free","رایگان","ورودی صفر استارز"],["economy","اقتصادی","دستهٔ اقتصادی"],["expensive","گران","دستهٔ گران"]];
+ const hasAny=labels.some(([key])=>rooms.some(r=>roomTier(r)===key));
  $("roomCards").innerHTML=labels.map(([key,label,sub])=>{
   const items=rooms.filter(r=>roomTier(r)===key);
-  return '<section class="room-tier-section" aria-label="روم‌های '+label+'"><div class="room-tier-heading"><strong>'+label+'</strong><small>'+sub+' · '+items.length.toLocaleString("fa-IR")+' روم</small><i></i></div><div class="room-tier-track">'+(items.length?items.map(roomCardMarkup).join(""):'<div class="room-tier-empty">در این دسته فعلاً رومی وجود ندارد.</div>')+'</div></section>';
+  if(!items.length)return '<section class="room-tier-section room-tier-empty-state"><div class="room-tier-heading"><strong>'+label+'</strong><i></i></div><p class="room-tier-empty">در این دسته رومی نیست.</p></section>';
+  return '<section class="room-tier-section" aria-label="روم‌های '+label+'"><div class="room-tier-heading"><strong>'+label+'</strong><small>'+sub+' · '+items.length.toLocaleString("fa-IR")+' روم</small><i></i></div><div class="room-tier-track">'+items.map(roomCardMarkup).join("")+'</div></section>';
  }).join("");
- if($("roomCategoryEmpty"))$("roomCategoryEmpty").hidden=rooms.length>0;
+ if(!hasAny)$("roomCards").innerHTML='<div class="empty">در این دسته رومی نیست.</div>'; if($("roomCategoryEmpty"))$("roomCategoryEmpty").hidden=rooms.length>0;
 }
 document.querySelectorAll("[data-room-category]").forEach(b=>b.onclick=()=>applyRoomCategory(b.dataset.roomCategory));
 $("roomSearch").addEventListener("input",()=>applyRoomCategory(window.ex1ActiveRoomCategory||"all"));
@@ -1367,21 +1369,10 @@ async function loadRanking(){
  $("ranking").innerHTML=teamHtml+playerHtml||( '<div class="empty">هنوز نتیجه‌ای برای رتبه‌بندی ثبت نشده است.</div>');
  applyRankingSearch();
 }
-async function checkConnection(){
- const el=$("connectionStatus");if(!el)return;
- try{
-  const {error}=await sb.from("tournaments").select("id").limit(1);
-  if(error)throw error;
-  el.innerHTML='<i></i> متصل به EX1';el.classList.add("connected");el.classList.remove("disconnected");
- }catch{
-  el.innerHTML='<i></i> موقتاً در دسترس نیست';el.classList.add("disconnected");el.classList.remove("connected");
- }
-}
-(()=>{const params=new URLSearchParams(window.location.hash.slice(1));const code=params.get("error_code");if(code){const description=params.get("error_description")||"";const message=code==="otp_expired"?"لینک بازیابی رمز منقضی شده یا قبلاً استفاده شده است. از صفحه ورود یک لینک تازه درخواست کن.":"ورود از طریق ایمیل انجام نشد: "+description;history.replaceState(null,"",window.location.pathname+window.location.search);setTimeout(()=>{openAuth();toast(message);},0);}})();
+(()=>{const params=new URLSearchParams(window.location.hash.slice(1));(()=>{const params=new URLSearchParams(window.location.hash.slice(1));const code=params.get("error_code");if(code){const description=params.get("error_description")||"";const message=code==="otp_expired"?"لینک بازیابی رمز منقضی شده یا قبلاً استفاده شده است. از صفحه ورود یک لینک تازه درخواست کن.":"ورود از طریق ایمیل انجام نشد: "+description;history.replaceState(null,"",window.location.pathname+window.location.search);setTimeout(()=>{openAuth();toast(message);},0);}})();
 sb.auth.onAuthStateChange((event)=>{if(event==="PASSWORD_RECOVERY")showPasswordRecovery();setTimeout(authState,0);});
 if(EX1_AUTH_RETURN.recovery){sb.auth.getSession().then(({data,error})=>{if(error)console.warn("EX1 recovery session:",error.message);if(data?.session)showPasswordRecovery();else toast("نشست بازیابی رمز تأیید نشد؛ از صفحه ورود یک لینک تازه درخواست کن.");});}
 if(EX1_AUTH_RETURN.errorCode){setTimeout(()=>{openAuth();toast(EX1_AUTH_RETURN.errorCode==="otp_expired"?"لینک بازیابی منقضی شده یا قبلاً استفاده شده است. لینک تازه درخواست کن.":("خطای ورود ایمیلی: "+(EX1_AUTH_RETURN.errorDescription||EX1_AUTH_RETURN.errorCode)));},0);}
-checkConnection();
 authState();
 document.addEventListener("contextmenu",event=>{if(!event.target.closest("input,textarea,select,[contenteditable=true],.allow-select"))event.preventDefault();});
 document.addEventListener("selectstart",event=>{if(!event.target.closest("input,textarea,select,[contenteditable=true],.allow-select"))event.preventDefault();});
