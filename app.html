@@ -228,7 +228,95 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 .chat-messages{border-radius:14px;background:radial-gradient(ellipse at 10% 0%,rgba(155,92,255,.09),transparent 45%),linear-gradient(145deg,rgba(8,10,24,.58),rgba(20,14,36,.55));border:1px solid rgba(155,92,255,.18)}
 .chat-send{border-top:1px solid rgba(39,230,242,.2)!important;padding-top:12px!important}.searchbar{align-items:center}
 @media(prefers-reduced-motion:reduce){.searchbar .field,.chat-send .field,#chatText,#supportText{transition:none!important}}
-</style></head>
+</style>
+<style id="ex1-codm-tournament-theme">
+/* EX1 CODM TACTICAL TOURNAMENT BANNER — high-contrast, readable treatment */
+#page-tournaments .tournament-banner{
+ position:relative;isolation:isolate;min-height:286px;overflow:hidden;
+ border:1px solid rgba(190,157,91,.62);border-top:0;
+ border-radius:0 0 22px 22px;
+ background:
+  radial-gradient(ellipse at 82% 18%,rgba(176,139,67,.20),transparent 34%),
+  radial-gradient(ellipse at 8% 86%,rgba(53,83,78,.22),transparent 38%),
+  repeating-linear-gradient(135deg,rgba(255,255,255,.018) 0 2px,transparent 2px 13px),
+  linear-gradient(118deg,#111820 0%,#17212a 54%,#10171d 100%);
+ box-shadow:inset 0 1px rgba(255,255,255,.07),0 16px 34px rgba(0,0,0,.36);
+}
+#page-tournaments .tournament-banner:before{
+ content:"";position:absolute;inset:13px;right:13px;left:13px;z-index:0;
+ width:auto;height:auto;border:1px solid rgba(203,170,105,.24);border-radius:12px;
+ box-shadow:inset 0 0 0 5px rgba(255,255,255,.012),0 0 26px rgba(0,0,0,.16);
+ pointer-events:none;
+}
+#page-tournaments .tournament-banner:after{
+ content:"";position:absolute;z-index:0;top:0;bottom:0;left:0;width:5px;
+ background:linear-gradient(180deg,#e0bd70,#80643a 55%,transparent);
+ box-shadow:0 0 18px rgba(201,163,91,.28);pointer-events:none;
+}
+#page-tournaments .tournament-banner-copy{z-index:2;max-width:75%}
+#page-tournaments .tournament-banner-copy>span{
+ display:inline-flex;align-items:center;gap:8px;padding:7px 10px;
+ border:1px solid rgba(211,177,108,.5);border-radius:5px;
+ background:rgba(8,13,18,.78);color:#f1d79e;
+ font-size:10px;font-weight:900;letter-spacing:1.6px;
+}
+#page-tournaments .tournament-banner-copy>span:before{
+ content:"";width:7px;height:7px;border-radius:50%;background:#d9b66f;
+ box-shadow:0 0 9px rgba(217,182,111,.7)
+}
+#page-tournaments .tournament-banner h1{
+ color:#fff;font-size:clamp(29px,7vw,36px);font-weight:1000;
+ line-height:1.35;letter-spacing:-.5px;
+ text-shadow:0 2px 12px rgba(0,0,0,.8);margin:13px 0 8px
+}
+#page-tournaments .tournament-banner p{
+ color:#e2e7eb;font-size:12px;font-weight:600;line-height:2;
+ max-width:260px;text-shadow:0 1px 5px #000;margin:0
+}
+#page-tournaments .tournament-banner-mark{
+ z-index:1;left:19px;top:54px;color:rgba(229,207,160,.10);
+ font-size:clamp(58px,15vw,82px);font-style:italic;letter-spacing:-7px;
+ text-shadow:0 0 24px rgba(209,174,105,.08)
+}
+#page-tournaments .banner-bottom{
+ z-index:2;bottom:19px;right:22px;left:22px;min-height:58px;
+ padding:12px 14px;gap:10px;flex-wrap:wrap;
+ background:rgba(5,10,14,.94);border:1px solid rgba(204,171,104,.52);
+ border-right:3px solid #c5a15f;border-radius:7px;
+ box-shadow:0 8px 22px rgba(0,0,0,.32)
+}
+#page-tournaments .banner-bottom b{color:#fff;font-size:12px;font-weight:900}
+#page-tournaments .banner-bottom small{
+ color:#d5dce1;font-size:11px;font-weight:600;line-height:1.8
+}
+#page-tournaments .tournament-filter button{
+ border:1px solid #59636a;background:#151d24;color:#e3e8eb;
+ border-radius:6px;font-weight:800
+}
+#page-tournaments .tournament-filter button.active{
+ background:linear-gradient(110deg,#8e713f,#5d4b2e);
+ border-color:#d2b16e;color:#fff;box-shadow:0 4px 15px rgba(157,125,68,.24)
+}
+#page-tournaments .section-head h2{color:#fff}
+#page-tournaments .section-head p{color:#c5cdd3}
+#page-tournaments .searchbar .field{
+ background:#10171d;border-color:#59636a;color:#fff
+}
+#page-tournaments .searchbar .field::placeholder{color:#aeb8bf;opacity:1}
+#page-tournaments .searchbar .field:focus{
+ border-color:#d2b16e!important;box-shadow:0 0 0 3px rgba(210,177,110,.16)!important
+}
+@media(max-width:380px){
+ #page-tournaments .tournament-banner{min-height:300px}
+ #page-tournaments .tournament-banner-copy{max-width:82%}
+ #page-tournaments .banner-bottom{align-items:flex-start;flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){
+ #page-tournaments .tournament-banner:before{animation:none!important}
+}
+</style>
+
+</head>
 <style id="ex1-full-project-soft-entry">
 @keyframes ex1PageSoftEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ex1DialogSoftEnter{from{opacity:0;transform:translateY(13px) scale(.985);filter:brightness(.82)}to{opacity:1;transform:translateY(0) scale(1);filter:brightness(1)}}
