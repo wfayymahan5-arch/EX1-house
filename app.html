@@ -207,7 +207,9 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 .bottom-nav button.active span:not(.rank-icon){text-shadow:0 0 8px rgba(155,92,255,.85),0 0 14px rgba(39,230,242,.45)}
 .bottom-nav button:active{transform:scale(.96);background:transparent!important;border:0!important;box-shadow:none!important}
 .bottom-nav svg{overflow:visible}
-</style><style id="ex1-room-date-readability-v1">.room-date-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0 2px}.room-date-item{min-width:0;padding:11px 12px;border:1px solid #b98be866;border-radius:13px;background:linear-gradient(135deg,#ffffff16,#ffffff08);box-shadow:inset 0 1px #ffffff14}.room-date-item small{display:block;margin-bottom:6px;color:#c9a8ee;font-size:10px;font-weight:800}.room-date-item strong{display:block;color:#fff;font-size:11px;line-height:1.9;overflow-wrap:anywhere;direction:rtl;text-align:right}@media(max-width:360px){.room-date-grid{grid-template-columns:1fr;gap:7px}}</style></head>
+</style><style id="ex1-room-date-readability-v1">.room-date-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0 2px}.room-date-item{min-width:0;padding:11px 12px;border:1px solid #b98be866;border-radius:13px;background:linear-gradient(135deg,#ffffff16,#ffffff08);box-shadow:inset 0 1px #ffffff14}.room-date-item small{display:block;margin-bottom:6px;color:#c9a8ee;font-size:10px;font-weight:800}.room-date-item strong{display:block;color:#fff;font-size:11px;line-height:1.9;overflow-wrap:anywhere;direction:rtl;text-align:right}@media(max-width:360px){.room-date-grid{grid-template-columns:1fr;gap:7px}}#openNotifications{position:relative;min-width:38px;font-size:17px}.ex1-unread-badge{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:99px;display:grid;place-items:center;background:#e34f79;color:#fff;border:2px solid #0a0818;font-size:9px;font-weight:900;line-height:1}.ex1-unread-badge[hidden]{display:none!important}.notification-card,.room-card,.user-row,.chat-contact{content-visibility:auto;contain-intrinsic-size:auto 110px}html{scroll-padding-top:76px}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}}
+</style>
+</head>
 <style id="ex1-full-project-soft-entry">
 @keyframes ex1PageSoftEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ex1DialogSoftEnter{from{opacity:0;transform:translateY(13px) scale(.985);filter:brightness(.82)}to{opacity:1;transform:translateY(0) scale(1);filter:brightness(1)}}
@@ -237,7 +239,7 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 </style>
 </head>
 <body>
-<header><div class="topbar"><div class="header-actions"><button class="btn ghost small" type="button" aria-label="جست‌وجو" onclick="switchPage('tournaments')">⌕</button><button class="btn ghost small" type="button" aria-label="وضعیت اتصال"><span id="connectionStatus" class="connection-status"><i></i></span> ◉</button></div><a class="brand" href="#home" aria-label="EX1 LEGEND"><span><b>EX1</b> LEGEND</span></a><div class="header-actions"><button class="btn ghost small" id="openSettings" type="button" aria-label="تنظیمات">⚙</button><span id="headerUser" class="muted"></span><button class="btn secondary small" id="headerAuth" type="button">ورود</button></div></div></header>
+<header><div class="topbar"><div class="header-actions"><button class="btn ghost small" type="button" aria-label="جست‌وجو" onclick="switchPage('tournaments')">⌕</button><button class="btn ghost small" type="button" aria-label="وضعیت اتصال"><span id="connectionStatus" class="connection-status"><i></i></span> ◉</button></div><a class="brand" href="#home" aria-label="EX1 LEGEND"><span><b>EX1</b> LEGEND</span></a><div class="header-actions"><button class="btn ghost small ex1-notification-bell" id="openNotifications" type="button" aria-label="اعلان‌های خوانده‌نشده">♢<span id="notificationUnreadBadge" class="ex1-unread-badge" hidden>۰</span></button><button class="btn ghost small" id="openSettings" type="button" aria-label="تنظیمات">⚙</button><span id="headerUser" class="muted"></span><button class="btn secondary small" id="headerAuth" type="button">ورود</button></div></div></header>
 <main class="wrap">
 <section class="page active" id="page-home">
  <div class="home-top-title"><div><span class="eyebrow">EX1 LEGEND COMMUNITY</span><h1>میدان بازیکنان</h1></div><button class="btn ghost small" type="button" onclick="switchPage('profile')">پروفایل من</button></div>
@@ -253,10 +255,10 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
  <div class="wallet-card" role="button" tabindex="0" id="walletOpen"><div><span class="wallet-kicker">استار</span><strong id="walletCardBalance" class="wallet-balance">۰ <small>امتیاز</small></strong><span class="wallet-note">مشاهده موجودی و تاریخچه استار</span></div><span class="wallet-icon">✦</span></div>
  
  <section class="panel" id="supportPanel" style="margin:16px 0;padding:16px">
-  <div class="section-head"><div><h2>پشتیبانی هوشمند EX1</h2><p>برای سؤال درباره ورود، مسابقات، روم‌ها و امکانات اپ</p></div><button class="btn small secondary" type="button" id="supportNew">گفت‌وگوی تازه</button></div>
+  <div class="section-head"><div><h2>پشتیبانی EX1</h2><p>راهنمای خودکار قوانین و امکانات؛ موارد نامطمئن به پشتیبان انسانی ارجاع می‌شوند.</p></div><button class="btn small secondary" type="button" id="supportNew">گفت‌وگوی تازه</button></div>
   <div id="supportMessages" class="chat-messages" style="min-height:100px;max-height:300px"><div class="empty">برای شروع، پیام خودت را بنویس.</div></div>
   <form id="supportForm" class="chat-send"><input id="supportText" class="field" maxlength="3000" placeholder="سؤالت را بنویس..." required><button class="btn small" type="submit" id="supportSend">ارسال</button></form>
-  <p class="muted" id="supportHint">اگر پاسخ قطعی نباشد، گفت‌وگو برای پشتیبان انسانی علامت‌گذاری می‌شود.</p>
+  <p class="muted" id="supportHint">پاسخ‌گو از راهنمای تأییدشده EX1 استفاده می‌کند و در موارد نامطمئن، گفت‌وگو را به پشتیبان انسانی ارجاع می‌دهد.</p>
  </section>
  <section class="panel" id="userNotificationsPanel" style="margin:16px 0;padding:16px">
   <div class="section-head"><div><h2>اعلان‌های حساب</h2><p>اخطارها و پیام‌های مهم حساب</p></div></div>
@@ -594,7 +596,8 @@ function scheduleRoomAccessRelease(room){
  };
  roomStartReleaseTimer=setTimeout(check,Math.max(0,releaseAt-Date.now()+250));
 }
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&activeRoomDetail)refreshRoomAccess(activeRoomDetail.id).catch(()=>{});});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){if(activeRoomDetail)refreshRoomAccess(activeRoomDetail.id).catch(()=>{});refreshEx1LivePanels();}});
+window.addEventListener("online",()=>{refreshEx1LivePanels();checkConnection();});
 function roomHasStarted(room,now=Date.now()){if(!room?.starts_at)return false;const start=new Date(room.starts_at).getTime();return Number.isFinite(start)&&now>=start;}
 function roomPhase(room){if(!room?.ends_at)return 'scheduled';const end=new Date(room.ends_at).getTime(),now=Date.now();if(!Number.isFinite(end))return 'scheduled';if(now<end)return 'scheduled';if(now<end+3600000)return 'running';if(now<end+7200000)return 'pending';return 'completed';}
 function roomPhaseLabel(room){const p=roomPhase(room);if(p==='running')return '● در حال برگزاری';if(p==='pending')return '● در انتظار ثبت نتایج';if(p==='completed')return '● تمام شده';return room.status==='open'?'● ثبت‌نام فعال':room.status==='full'?'● ظرفیت تکمیل':'● غیرفعال';}
@@ -746,8 +749,8 @@ async function authState(){
  }
  $("headerUser").textContent=currentUser?"آنلاین":"";
  $("headerAuth").textContent=currentUser?"حساب من":"ورود / ثبت‌نام";
- if(currentUser){await loadUserSettings();await loadProfile();await loadExplore();}
- else $("exploreUsers").innerHTML='<div class="empty">برای دیدن بازیکنان وارد حساب شو.</div>';
+ if(currentUser){await loadUserSettings();await loadProfile();await loadExplore();await refreshNotificationBadge();}
+ else {$("exploreUsers").innerHTML='<div class="empty">برای دیدن بازیکنان وارد حساب شو.</div>';await refreshNotificationBadge();}
 }
 $("authSwitch").onclick=()=>{authMode=authMode==="login"?"signup":"login";$("authTitle").textContent=authMode==="login"?"ورود به EX1 LEGEND":"ساخت حساب EX1";$("authHint").textContent=authMode==="login"?"ایمیل و رمز عبورت را وارد کن.":"نام نمایشی، ایمیل و رمز عبور را وارد کن. رمز باید حداقل ۸ نویسه باشد.";$("authName").hidden=authMode!=="signup";$("authName").required=authMode==="signup";$("authPassword").hidden=false;$("authPassword").required=true;$("authPassword").autocomplete=authMode==="signup"?"new-password":"current-password";$("authSubmit").textContent=authMode==="login"?"ورود":"ساخت حساب";$("authSwitch").textContent=authMode==="login"?"ساخت حساب جدید":"بازگشت به ورود";$("forgotPasswordButton").hidden=authMode!=="login";};
 $("forgotPasswordButton").onclick=async()=>{const email=$("authEmail").value.trim();if(!email){$("authEmail").focus();toast("اول ایمیل حساب EX1 را وارد کن.");return;}const button=$("forgotPasswordButton");button.disabled=true;try{const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+"/"});if(error)throw error;toast("اگر این ایمیل در EX1 ثبت شده باشد، لینک بازیابی برایت ارسال می‌شود. پوشه هرزنامه را هم بررسی کن.");}catch(err){console.error("EX1 password reset request:",err);toast(err?.message||"ارسال لینک بازیابی انجام نشد.");}finally{button.disabled=false;}};
@@ -1047,11 +1050,19 @@ function ex1Confirm(title,message,acceptLabel="تأیید"){
   $("ex1ConfirmCancel").focus();
  });
 }
+async function refreshNotificationBadge(){
+ const badge=$("notificationUnreadBadge");if(!badge)return;
+ if(!currentUser){badge.hidden=true;badge.textContent="۰";return;}
+ const {count,error}=await sb.from("user_notifications").select("id",{count:"exact",head:true}).eq("user_id",currentUser.id).is("read_at",null);
+ if(error){console.warn("EX1 unread notification count:",error.message);return;}
+ const n=Number(count||0);badge.textContent=n>99?"۹۹+":n.toLocaleString("fa-IR");badge.hidden=n===0;
+}
 async function loadUserNotifications(){
  const box=$("userNotifications");
- if(!currentUser){box.innerHTML='<div class="empty">برای مشاهده اعلان‌ها وارد حساب شو.</div>';return;}
+ if(!currentUser){box.innerHTML='<div class="empty">برای مشاهده اعلان‌ها وارد حساب شو.</div>';await refreshNotificationBadge();return;}
  const {data,error}=await sb.from("user_notifications").select("id,title,body,notification_type,read_at,created_at").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(20);
- if(error){box.innerHTML='<div class="empty">اعلان‌ها دریافت نشدند.</div>';return;}
+ if(error){box.innerHTML='<div class="empty">اعلان‌ها دریافت نشدند.</div>';await refreshNotificationBadge();return;}
+ await refreshNotificationBadge();
  if(!data?.length){box.innerHTML='<div class="empty">اعلان تازه‌ای وجود ندارد.</div>';return;}
  box.innerHTML=data.map(n=>'<article class="panel notification-card" tabindex="0" aria-label="اعلان؛ برای نمایش گزینه حذف چند لحظه نگه دارید" data-notification-card="'+esc(n.id)+'" style="padding:12px;margin:8px 0;opacity:'+(n.read_at?"0.72":"1")+'"><b>'+esc(n.title)+'</b><p>'+esc(n.body)+'</p><small class="muted">'+new Date(n.created_at).toLocaleString("fa-IR")+'</small><div class="notification-actions">'+(n.read_at?"":' <button class="btn small secondary" data-notification-read="'+esc(n.id)+'" type="button">خواندم</button>')+' <button class="btn small secondary notification-delete" data-notification-delete="'+esc(n.id)+'" type="button">حذف اعلان</button></div></article>').join("");
 }
@@ -1089,10 +1100,16 @@ userNotificationsBox.addEventListener("click",async e=>{
 let supportConversationId=null;
 function supportStorageKey(){return currentUser?"ex1_support_"+currentUser.id:null;}
 function supportFreshKey(){return currentUser?"ex1_support_fresh_"+currentUser.id:null;}
+let lastSupportRenderKey="";
 function renderSupportMessages(rows){
  const box=$("supportMessages");
- box.innerHTML=(rows||[]).map(m=>'<div class="bubble '+(m.sender_role==="user"?"mine":"")+'">'+esc(m.body)+'</div>').join("")||'<div class="empty">برای شروع، پیام خودت را بنویس.</div>';
- box.scrollTop=box.scrollHeight;
+ const unique=[...new Map((rows||[]).map((m,i)=>[m.id||((m.created_at||"")+":"+i+":"+m.sender_role+":"+m.body),m])).values()];
+ const key=unique.map(m=>m.id||((m.created_at||"")+":"+m.sender_role+":"+m.body)).join("|");
+ if(key===lastSupportRenderKey)return;
+ const nearBottom=box.scrollHeight-box.scrollTop-box.clientHeight<72;
+ lastSupportRenderKey=key;
+ box.innerHTML=unique.map(m=>'<div class="bubble '+(m.sender_role==="user"?"mine":"")+'">'+esc(m.body)+'</div>').join("")||'<div class="empty">برای شروع، پیام خودت را بنویس.</div>';
+ if(nearBottom)box.scrollTop=box.scrollHeight;
 }
 async function loadSupportConversation(){
  if(!currentUser){supportConversationId=null;$("supportMessages").innerHTML='<div class="empty">برای استفاده از پشتیبانی وارد حساب شو.</div>';return;}
@@ -1112,7 +1129,7 @@ async function loadSupportConversation(){
   supportConversationId=latest.id;
   localStorage.setItem(storageKey,supportConversationId);
  }
- const {data:messages,error}=await sb.from("support_messages").select("sender_role,body,created_at").eq("conversation_id",supportConversationId).order("created_at",{ascending:true}).limit(100);
+ const {data:messages,error}=await sb.from("support_messages").select("id,sender_role,body,created_at").eq("conversation_id",supportConversationId).order("created_at",{ascending:true}).limit(100);
  if(error){$("supportMessages").innerHTML='<div class="empty">پیام‌های این گفت‌وگو دریافت نشدند؛ تاریخچه حذف نشده است. دوباره تلاش کن.</div>';return;}
  renderSupportMessages(messages||[]);
 }
@@ -1136,7 +1153,21 @@ $("supportForm").addEventListener("submit",async e=>{
  }catch(err){$("supportHint").textContent=err?.message||"پشتیبانی موقتاً در دسترس نیست.";}
  finally{$("supportSend").disabled=false;}
 });
-setInterval(()=>{if(currentUser&&!document.hidden&&$("page-profile")?.classList.contains("active"))loadSupportConversation().catch(()=>{});},10000);
+let ex1LiveRefreshBusy=false;
+async function refreshEx1LivePanels(){
+ if(!currentUser||document.hidden||ex1LiveRefreshBusy)return;
+ ex1LiveRefreshBusy=true;
+ try{
+  await refreshNotificationBadge();
+  if($("page-profile")?.classList.contains("active"))await Promise.allSettled([loadSupportConversation(),loadUserNotifications()]);
+ }finally{ex1LiveRefreshBusy=false;}
+}
+setInterval(refreshEx1LivePanels,7000);
+$("openNotifications").addEventListener("click",async()=>{
+ if(!currentUser){openAuth();return;}
+ switchPage("profile");
+ setTimeout(async()=>{await loadUserNotifications();$("userNotificationsPanel")?.scrollIntoView({behavior:"smooth",block:"start"});},220);
+});
 function roomCategory(mode){const m=String(mode||"").toLowerCase();if(/fight|1v1|solo|فایت|تک/.test(m))return "fight";if(/battle|br|بتل|رویال/.test(m))return "br";if(/multi|mp|مولتی/.test(m))return "multi";return "all";}
 function roomImagePosition(room){const x=Math.max(0,Math.min(100,Number(room?.room_image_focus_x??50)));const y=Math.max(0,Math.min(100,Number(room?.room_image_focus_y??55)));return x+"% "+y+"%";}
 function formatRoomStart(value){if(!value)return "اعلام نشده";const d=new Date(value);if(Number.isNaN(d.getTime()))return "اعلام نشده";const now=new Date();const today=d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d.getDate()===now.getDate();const time=d.toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"});return today?"امروز ساعت "+time:d.toLocaleDateString("fa-IR",{weekday:"long"})+" ساعت "+time;}
