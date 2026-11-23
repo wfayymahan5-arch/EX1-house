@@ -44,6 +44,13 @@ Deno.serve(async (req: Request) => {
   const admin = createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+  const { data: runtimeConfig, error: runtimeConfigError } = await admin.rpc("ai_support_runtime_config");
+  if (runtimeConfigError) return reply(503, { error: "تنظیمات پاسخ‌گو در دسترس نیست؛ کمی بعد دوباره تلاش کن." });
+  const aiSettings = runtimeConfig?.settings ?? {};
+  const aiEnabled = aiSettings.enabled !== false;
+  const allowFaqAnswers = aiSettings.allow_faq_answers !== false;
+  const allowHandoff = aiSettings.allow_handoff !== false;
+  const faqRules = Array.isArray(runtimeConfig?.faq_rules) ? runtimeConfig.faq_rules : [];
   const since = new Date(Date.now() - 60_000).toISOString();
   const { data: ownedConversations, error: conversationsError } = await admin
     .from("support_conversations").select("id").eq("user_id", authData.user.id);
@@ -95,7 +102,10 @@ Deno.serve(async (req: Request) => {
 
   let answer = "";
   let handoff = false;
-  const normalized = message.replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))).replace(/[\u200c\s]+/g, " ").trim().toLowerCase();
+  const normalizeText = (value: string) => value.replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))).replace(/[\u200c\s]+/g, " ").trim().toLowerCase();
+  const normalized = normalizeText(message);
+  const matchedFaq = faqRules.find((rule: { trigger_terms?: string[]; is_active?: boolean }) => rule.is_active !== false && Array.isArray(rule.trigger_terms) && rule.trigger_terms.some((term) => { const normalizedTerm = normalizeText(String(term ?? "")); return normalizedTerm.length >= 2 && normalized.includes(normalizedTerm); }));
+  let matchedFaqId: string | null = null;
   const explicitHumanRequest = /(?:وصل|ارتباط|ارجاع|صحبت).{0,24}(?:پشتیبان|انسان|اپراتور|مدیر)|(?:پشتیبان|اپراتور|مدیر).{0,24}(?:می.?خوام|می.?خواهم|وصل|صحبت)/i.test(message);
 
   // Once handed to a human, keep all follow-up messages in the same human-owned thread.
@@ -103,10 +113,19 @@ Deno.serve(async (req: Request) => {
     answer = "پیامت به همان گفت‌وگوی پشتیبانی اضافه شد. درخواستت همچنان در صف پشتیبان انسانی است و پاسخ بعدی در همین چت نمایش داده می‌شود.";
     handoff = true;
   } else if (explicitHumanRequest) {
-    answer = "درخواستت برای پیگیری به پشتیبان انسانی ارجاع شد. پاسخ پشتیبان در همین گفت‌وگو نمایش داده می‌شود.";
-    handoff = true;
+    if (allowHandoff) { answer = "درخواستت برای پیگیری به پشتیبان انسانی ارجاع شد. پاسخ پشتیبان در همین گفت‌وگو نمایش داده می‌شود."; handoff = true; }
+    else { answer = aiSettings.fallback_message || "در حال حاضر امکان ارجاع به پشتیبان انسانی فعال نیست."; }
+  } else if (!aiEnabled) {
+    answer = "پاسخ‌گوی خودکار فعلاً غیرفعال است. پیام تو ثبت شد.";
+    handoff = allowHandoff;
   } else if (/^(سلام|درود|hi|hello|hey|سلام خوبی|سلام خوبی؟|خوبی؟?|وقت بخیر|صبح بخیر|شب بخیر)[!.؟\s]*$/i.test(normalized)) {
-    answer = "سلام! 👋 خوش اومدی به پشتیبانی EX1 LEGEND. درباره ورود، ثبت‌نام، روم‌ها، قوانین یا پروفایلت سؤالی داری؟";
+    answer = aiSettings.welcome_message || "سلام! 👋 خوش اومدی به پشتیبانی EX1 LEGEND. درباره ورود، ثبت‌نام، روم‌ها، قوانین یا پروفایلت سؤالی داری؟";
+  } else if (allowFaqAnswers && matchedFaq) {
+    answer = matchedFaq.answer;
+    matchedFaqId = matchedFaq.id ?? null;
+  } else if (!allowFaqAnswers) {
+    answer = aiSettings.fallback_message || "برای این سؤال پاسخ تأییدشده‌ای ندارم.";
+    handoff = allowHandoff;
   } else if (/(ثبت.?نام|شرکت در مسابقه|ورود به مسابقه|عضویت در روم|ثبت نام روم)/i.test(normalized)) {
     answer = "برای ثبت‌نام، وارد بخش مسابقات یا روم‌ها شو، مسابقهٔ موردنظرت رو باز کن و شرایط و قوانین همون مسابقه رو بخون. اگر گزینهٔ ثبت‌نام فعال بود، مراحل داخل اپ رو انجام بده. اگر ثبت‌نام انجام نشد، نام مسابقه و متن خطا رو برای پشتیبان انسانی بفرست.";
   } else if (/(قانون|قوانین|شرایط مسابقه|مجاز|ممنوع|تخلف|مقررات)/i.test(normalized)) {
@@ -134,8 +153,13 @@ Deno.serve(async (req: Request) => {
   } else if (/(ورود|لاگین|رمز عبور|کد ورود|ایمیل|فراموشی رمز|بازیابی رمز|ثبت نام حساب)/i.test(normalized)) {
     answer = "اگر برای ورود مشکل داری، ایمیل حساب و اتصال اینترنت رو بررسی کن و از گزینهٔ بازیابی یا ارسال دوبارهٔ کد در خود اپ استفاده کن. کد ورود یا رمزت رو برای هیچ‌کس نفرست. اگر مشکل ادامه داشت، پشتیبان انسانی باید بررسی کنه.";
   } else {
-    answer = "پیامت ثبت شد، اما برای این سؤال پاسخ مطمئن و تأییدشده‌ای در راهنمای رایگان من ندارم. درخواستت به صف پشتیبانی انسانی فرستاده شد و پاسخ پشتیبان در همین گفت‌وگو نمایش داده می‌شه.";
-    handoff = true;
+    answer = aiSettings.fallback_message || "پیامت ثبت شد، اما برای این سؤال پاسخ مطمئن و تأییدشده‌ای در راهنمای من ندارم.";
+    handoff = allowHandoff;
+  }
+
+  if (!conversationWasWaitingForHuman && handoff && !allowHandoff) {
+    handoff = false;
+    answer = aiSettings.fallback_message || "در حال حاضر امکان ارجاع به پشتیبان انسانی فعال نیست.";
   }
 
   const { error: saveError } = await admin.from("support_messages").insert({
@@ -147,6 +171,15 @@ Deno.serve(async (req: Request) => {
     status: conversationWasWaitingForHuman || handoff ? "waiting_for_human" : "open",
     updated_at: new Date().toISOString(),
   }).eq("id", conversationId);
+
+  const eventType = !aiEnabled ? "ai_disabled" : handoff ? "human_handoff" : matchedFaqId ? "faq_match" : "auto_answer";
+  const { error: logError } = await admin.rpc("ai_support_log_event", {
+    p_conversation_id: conversationId,
+    p_user_id: authData.user.id,
+    p_event_type: eventType,
+    p_details: { matched_faq_id: matchedFaqId, handoff, ai_enabled: aiEnabled },
+  });
+  if (logError) console.error("EX1 AI support event log failed:", logError.message);
 
   return reply(200, { success: true, conversation_id: conversationId, answer, handoff });
 });
