@@ -346,7 +346,7 @@ begin
     fallback_message=excluded.fallback_message,
     updated_by=excluded.updated_by,
     updated_at=now()
-  returning to_jsonb(private.ai_support_settings) into v_settings;
+  returning jsonb_build_object('enabled',enabled,'allow_faq_answers',allow_faq_answers,'allow_handoff',allow_handoff,'welcome_message',welcome_message,'fallback_message',fallback_message,'updated_by',updated_by,'updated_at',updated_at) into v_settings;
 
   insert into private.ai_support_event_logs(event_type,user_id,details)
   values ('settings_updated',auth.uid(),jsonb_build_object(
@@ -477,12 +477,12 @@ revoke all on function public.ai_support_log_event(uuid,uuid,text,jsonb) from pu
 grant execute on function public.ai_support_runtime_config() to service_role;
 grant execute on function public.ai_support_log_event(uuid,uuid,text,jsonb) to service_role;
 
-revoke all on function public.admin_ai_get_settings() from public, anon, service_role;
-revoke all on function public.admin_ai_save_settings(boolean,boolean,boolean,text,text) from public, anon, service_role;
-revoke all on function public.admin_ai_list_faq_rules() from public, anon, service_role;
-revoke all on function public.admin_ai_upsert_faq_rule(uuid,text[],text,integer,boolean) from public, anon, service_role;
-revoke all on function public.admin_ai_delete_faq_rule(uuid) from public, anon, service_role;
-revoke all on function public.admin_ai_list_logs(integer) from public, anon, service_role;
+revoke all on function public.admin_ai_get_settings() from public, anon, authenticated, service_role;
+revoke all on function public.admin_ai_save_settings(boolean,boolean,boolean,text,text) from public, anon, authenticated, service_role;
+revoke all on function public.admin_ai_list_faq_rules() from public, anon, authenticated, service_role;
+revoke all on function public.admin_ai_upsert_faq_rule(uuid,text[],text,integer,boolean) from public, anon, authenticated, service_role;
+revoke all on function public.admin_ai_delete_faq_rule(uuid) from public, anon, authenticated, service_role;
+revoke all on function public.admin_ai_list_logs(integer) from public, anon, authenticated, service_role;
 grant execute on function public.admin_ai_get_settings() to authenticated;
 grant execute on function public.admin_ai_save_settings(boolean,boolean,boolean,text,text) to authenticated;
 grant execute on function public.admin_ai_list_faq_rules() to authenticated;
