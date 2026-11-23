@@ -223,11 +223,13 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
 <label>مسابقه مرتبط<select id="rf_tournament_id" required></select></label>
 <label>نام روم<input id="rf_title" required maxlength="120"></label>
 <label>حالت بازی<input id="rf_game_mode" maxlength="80" placeholder="Battle Royale"></label>
+<label>دستهٔ نوع بازی<select id="rf_game_category" required><option value="battle_royale">بتل‌رویال</option><option value="fight">فایت</option><option value="multiplayer">مولتی‌پلیر</option><option value="uncategorized">بدون دسته‌بندی</option></select></label>
 <label>نقشه<input id="rf_map" maxlength="80" placeholder="Isolated"></label>
 <label>تعداد جایگاه‌ها (تعداد تیم‌ها)<input id="rf_max_teams" type="number" min="1" max="25" value="25" required></label>
 <label>تعداد نفرات هر تیم<select id="rf_team_size"><option value="2">۲ نفره (DUO)</option><option value="4" selected>۴ نفره (SQUAD)</option></select></label>
 <label>ظرفیت کل بازیکنان<input id="rf_capacity" type="number" value="100" readonly></label>
 <label>ورودی هر بازیکن (استارز مجازی)<input id="rf_entry_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
+<label>نام دسته‌بندی قیمت<input id="rf_price_category" type="text" maxlength="32" placeholder="نام دلخواه دسته را وارد کن؛ مثلاً اقتصادی" required></label>
 <label>جایزه تیم اول (استارز)<input id="rf_prize_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
 <label>جایزه تیم دوم (استارز)<input id="rf_prize_second_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
 <label>جایزه تیم سوم (استارز)<input id="rf_prize_third_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
@@ -310,7 +312,7 @@ function resetRoomImage(){
 function resetRoomForm(){
  window.ex1AdminAccessRoomId=null;
  $("roomForm").reset();$("rf_id").value="";$("rf_max_teams").value=25;$("rf_team_size").value="4";
- $("rf_capacity").value=100;$("rf_entry_demo_points").value=0;
+ $("rf_capacity").value=100;$("rf_entry_demo_points").value=0;$("rf_game_category").value="battle_royale";$("rf_price_category").value="";
  $("rf_prize_demo_points").value=0;$("rf_prize_second_demo_points").value=0;$("rf_prize_third_demo_points").value=0;
  $("rf_status").value="open";resetRoomImage();updateRoomCapacity();
  $("roomAccessAdminPanel").classList.remove("hidden");
@@ -436,9 +438,9 @@ async function loadRooms(){
  const rows=rooms.map(r=>{
   const t=roomTournamentCache.find(x=>x.id===r.tournament_id);
   const actions=canManage?'<button class="action-btn" data-edit-room="'+esc(r.id)+'">ویرایش</button> <button class="action-btn danger" data-delete-room="'+esc(r.id)+'">حذف</button>':"—";
-  return row([esc(r.title),esc(t?.title||"—"),esc(r.game_mode||"—"),esc(r.map||"—"),esc(r.max_teams||25)+" تیم",esc(r.team_size===2?"۲ نفره":"۴ نفره"),esc(r.entry_demo_points||0)+" ⭐", "اول "+esc(r.prize_demo_points||0)+" · دوم "+esc(r.prize_second_demo_points||0)+" · سوم "+esc(r.prize_third_demo_points||0),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
+  return row([esc(r.title),esc(t?.title||"—"),esc(r.game_mode||"—"),esc(r.game_category||"uncategorized"),esc(r.price_category||"free"),esc(r.map||"—"),esc(r.max_teams||25)+" تیم",esc(r.team_size===2?"۲ نفره":"۴ نفره"),esc(r.entry_demo_points||0)+" ⭐", "اول "+esc(r.prize_demo_points||0)+" · دوم "+esc(r.prize_second_demo_points||0)+" · سوم "+esc(r.prize_third_demo_points||0),esc(r.status),esc(r.starts_at?new Date(r.starts_at).toLocaleString("fa-IR"):"—"),actions]);
  });
- $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","نقشه","جایگاه‌ها","اندازه تیم","ورودی هر نفر","جوایز رتبه‌ها","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
+ $("roomsTable").innerHTML=rooms.length?table(["نام روم","مسابقه","حالت","دستهٔ بازی","دستهٔ قیمت","نقشه","جایگاه‌ها","اندازه تیم","ورودی هر نفر","جوایز رتبه‌ها","وضعیت","شروع","عملیات"],rows):'<div class="empty">هنوز رومی ساخته نشده است.</div>';
 }
 async function loadSocialModeration(){
  const host=$("socialReportsTable");
@@ -823,7 +825,7 @@ $("roomForm").addEventListener("submit",async e=>{
  const id=$("rf_id").value;
  const payload={
    tournament_id:$("rf_tournament_id").value,title:$("rf_title").value.trim(),
-  game_mode:$("rf_game_mode").value.trim()||null,map:$("rf_map").value.trim()||null,
+  game_mode:$("rf_game_mode").value.trim()||null,game_category:$("rf_game_category").value,price_category:$("rf_price_category").value.trim(),map:$("rf_map").value.trim()||null,
   team_size:Number($("rf_team_size").value)===2?2:4,
   max_teams:Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1)),
   capacity:Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1))*(Number($("rf_team_size").value)===2?2:4),
@@ -838,6 +840,7 @@ $("roomForm").addEventListener("submit",async e=>{
   rules:$("rf_rules").value.trim()
  };
  if(!payload.tournament_id)return toast("مسابقه مرتبط را انتخاب کن.");
+ if(!payload.price_category)return toast("نام دسته‌بندی قیمت را خودت مشخص کن.");
  $("saveRoomButton").disabled=true;
  try{
   payload.room_image_url=await uploadPendingRoomImage();
@@ -894,7 +897,7 @@ $("roomsTable").addEventListener("click",async e=>{
   const {data,error}=await sb.from("tournament_rooms").select("*").eq("id",edit.dataset.editRoom).single();
   if(error||!data)return toast("اطلاعات روم دریافت نشد.");
   $("rf_id").value=data.id;fillRoomTournamentOptions(data.tournament_id);$("rf_title").value=data.title||"";
-  $("rf_game_mode").value=data.game_mode||"";$("rf_map").value=data.map||"";
+  $("rf_game_mode").value=data.game_mode||"";$("rf_game_category").value=data.game_category||"uncategorized";$("rf_price_category").value=data.price_category||"";$("rf_map").value=data.map||"";
   $("rf_max_teams").value=data.max_teams||25;$("rf_team_size").value=String(data.team_size===2?2:4);
   $("rf_capacity").value=data.capacity||((data.max_teams||25)*(data.team_size||4));
   $("rf_entry_demo_points").value=data.entry_demo_points||0;

@@ -237,9 +237,40 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 .user-row:active,.chat-contact:active,.team-slot:active{transform:scale(.99);filter:brightness(1.08)}
 @media(prefers-reduced-motion:reduce){.profile-stats,.profile-stats>div,#profileAvatar,.profile-tabs button,.avatar-upload-btn{transition:none!important}}
 </style>
+<style id="ex1-room-notifications-fix-v1">
+#openNotifications{display:grid;place-items:center;width:40px;height:38px;padding:7px;overflow:visible}
+#roomCards.room-grid{display:block!important}
+#openNotifications svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.notifications-dialog{width:min(520px,100%);max-height:min(78vh,720px);display:flex;flex-direction:column;overflow:hidden;padding:17px}
+.notifications-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid #ffffff18}
+.notifications-dialog-head h3{margin:0 0 4px}
+.notifications-list{overflow-y:auto;overscroll-behavior:contain;padding:8px 2px 3px;min-height:90px}
+.notifications-list .notification-card{flex:0 0 auto}
+.room-tier-section{margin:18px 0 22px;min-width:0}
+.room-tier-heading{display:flex;align-items:center;gap:9px;margin:0 2px 10px}
+.room-tier-heading strong{font-size:12px;color:#f2e8ff}
+.room-tier-heading small{font-size:9px;color:#9f94b4}
+.room-tier-heading i{height:1px;flex:1;background:linear-gradient(90deg,#a66be755,transparent)}
+.room-tier-track{display:flex;gap:11px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 13px;scroll-snap-type:x proximity;overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#74519a #171327}
+.room-tier-track>.room-card{flex:0 0 min(78vw,275px);width:min(78vw,275px);min-width:220px;scroll-snap-align:start}
+.room-card{border-radius:17px}
+.room-card>img,.room-card>video,.room-card-fallback{height:126px}
+.room-card-body{padding:11px}
+.room-card h3{font-size:12px;margin:8px 0 7px;line-height:1.6}
+.room-meta{font-size:9px;gap:5px;line-height:1.7}
+.room-date-grid{gap:6px;margin:9px 0 0}
+.room-date-item{padding:8px}
+.room-date-item small{font-size:8px}
+.room-date-item strong{font-size:9px}
+.room-open-btn{margin-top:10px;padding:10px;font-size:10px}
+.room-tier-empty{flex:1;min-width:100%;padding:12px;border:1px dashed #625176;border-radius:12px;color:#9e94b2;font-size:10px;text-align:center}
+@media(min-width:650px){.room-tier-track>.room-card{flex-basis:260px;width:260px}}
+@media(prefers-reduced-motion:reduce){.room-tier-track{scroll-behavior:auto}}
+</style>
 </head>
 <body>
-<header><div class="topbar"><div class="header-actions"><button class="btn ghost small" type="button" aria-label="جست‌وجو" onclick="switchPage('tournaments')">⌕</button><button class="btn ghost small" type="button" aria-label="وضعیت اتصال"><span id="connectionStatus" class="connection-status"><i></i></span> ◉</button></div><a class="brand" href="#home" aria-label="EX1 LEGEND"><span><b>EX1</b> LEGEND</span></a><div class="header-actions"><button class="btn ghost small ex1-notification-bell" id="openNotifications" type="button" aria-label="اعلان‌های خوانده‌نشده">♢<span id="notificationUnreadBadge" class="ex1-unread-badge" hidden>۰</span></button><button class="btn ghost small" id="openSettings" type="button" aria-label="تنظیمات">⚙</button><span id="headerUser" class="muted"></span><button class="btn secondary small" id="headerAuth" type="button">ورود</button></div></div></header>
+<header><div class="topbar"><div class="header-actions"><span class="btn ghost small" aria-hidden="true" title="جست‌وجو">⌕</span></div><a class="brand" href="#home" aria-label="EX1 LEGEND"><span><b>EX1</b> LEGEND</span></a><div class="header-actions"><button class="btn ghost small ex1-notification-bell" id="openNotifications" type="button" aria-label="اعلان‌ها" aria-haspopup="dialog" aria-controls="notificationsModal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span id="notificationUnreadBadge" class="ex1-unread-badge" hidden>۰</span></button><button class="btn ghost small" id="openSettings" type="button" aria-label="تنظیمات">⚙</button><span id="headerUser" class="muted"></span><button class="btn secondary small" id="headerAuth" type="button">ورود</button></div></div></header>
+<div class="modal notifications-modal" id="notificationsModal" role="dialog" aria-modal="true" aria-labelledby="notificationsTitle" aria-hidden="true"><div class="dialog notifications-dialog"><div class="notifications-dialog-head"><div><h3 id="notificationsTitle">اعلان‌های حساب</h3><p class="muted">پیام‌ها و اطلاع‌رسانی‌های EX1</p></div><button class="btn ghost small" id="closeNotifications" type="button" aria-label="بستن اعلان‌ها">✕</button></div><div id="userNotifications" class="user-list notifications-list"><div class="empty">برای مشاهده اعلان‌ها وارد حساب شو.</div></div></div></div>
 <main class="wrap">
 <section class="page active" id="page-home">
  <div class="home-top-title"><div><span class="eyebrow">EX1 LEGEND COMMUNITY</span><h1>میدان بازیکنان</h1></div><button class="btn ghost small" type="button" onclick="switchPage('profile')">پروفایل من</button></div>
@@ -259,10 +290,6 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
   <div id="supportMessages" class="chat-messages" style="min-height:100px;max-height:300px"><div class="empty">برای شروع، پیام خودت را بنویس.</div></div>
   <form id="supportForm" class="chat-send"><input id="supportText" class="field" maxlength="3000" placeholder="سؤالت را بنویس..." required><button class="btn small" type="submit" id="supportSend">ارسال</button></form>
   <p class="muted" id="supportHint">پاسخ‌گو از راهنمای تأییدشده EX1 استفاده می‌کند و در موارد نامطمئن، گفت‌وگو را به پشتیبان انسانی ارجاع می‌دهد.</p>
- </section>
- <section class="panel" id="userNotificationsPanel" style="margin:16px 0;padding:16px">
-  <div class="section-head"><div><h2>اعلان‌های حساب</h2><p>اخطارها و پیام‌های مهم حساب</p></div></div>
-  <div id="userNotifications" class="user-list"><div class="empty">برای مشاهده اعلان‌ها وارد حساب شو.</div></div>
  </section>
  <div class="profile-tabs"><button class="active" type="button" data-profile-tab="matches" aria-controls="profileMatches">مسابقات من</button><button type="button" data-profile-tab="team" aria-controls="profileTeam">تیم من</button></div><section id="profileMatches"><div class="section-head"><div><h2>روم‌های من و جوایز</h2><p>سوابق ثبت‌نام و جوایز نمایشی</p></div></div><div id="myMatches" class="user-list"><div class="empty">برای مشاهده سوابق وارد حساب شو.</div></div></section><section id="profileTeam" hidden><div class="section-head"><div><h2>تیم من</h2><p>مدیریت اعضا، دعوت بازیکن و تنظیمات تیم</p></div></div><div id="myTeam" class="user-list"></div><div id="createTeamWrap" class="panel team-create-wrap" hidden><h3>ساخت تیم جدید</h3><form id="createTeamForm"><input id="newTeamName" class="field" maxlength="40" placeholder="نام تیم" required><input id="newTeamTag" class="field" maxlength="8" placeholder="تگ کوتاه تیم (اختیاری)"><textarea id="newTeamDescription" class="field" maxlength="240" rows="2" placeholder="توضیح کوتاه درباره تیم (اختیاری)"></textarea><button class="btn" type="submit">ساخت تیم</button></form></div><div id="teamSettingsPanel" class="panel" hidden><h3>تنظیمات تیم</h3><form id="teamSettingsForm"><label>نام تیم<input id="teamSettingsName" class="field" maxlength="40" required></label><label>تگ تیم<input id="teamSettingsTag" class="field" maxlength="8"></label><label>توضیحات<textarea id="teamSettingsDescription" class="field" maxlength="240" rows="3"></textarea></label><button class="btn" type="submit">ذخیره تنظیمات تیم</button></form><label>لوگوی تیم<input id="teamLogoFile" class="field" type="file" accept="image/jpeg,image/png,image/webp" disabled></label><button class="btn secondary" id="uploadTeamLogo" type="button" disabled>بارگذاری لوگو موقتاً غیرفعال است</button><p class="muted">بارگذاری تصویر تا تکمیل مسیر بررسی خصوصی و تأیید مالک موقتاً متوقف شده است.</p><p id="teamSettingsMessage" class="muted"></p><hr><h3>دعوت بازیکن</h3><form id="teamInviteForm"><input id="teamInviteUsername" class="field" maxlength="24" placeholder="نام کاربری بازیکن" required><button class="btn" type="submit">ارسال دعوت</button></form><div id="teamSentInvites" class="user-list"></div></div><div id="incomingTeamInvites" class="user-list"></div></section>
  <div class="section-head"><div><h2>درخواست‌های دنبال‌کردن</h2><p>درخواست‌هایی که منتظر تأیید تو هستند</p></div></div><div id="followRequests" class="user-list"><div class="empty">درخواستی وجود ندارد.</div></div>
@@ -597,8 +624,10 @@ function scheduleRoomAccessRelease(room){
  roomStartReleaseTimer=setTimeout(check,Math.max(0,releaseAt-Date.now()+250));
 }
 document.addEventListener("visibilitychange",()=>{if(!document.hidden){if(activeRoomDetail)refreshRoomAccess(activeRoomDetail.id).catch(()=>{});refreshEx1LivePanels();}});
-window.addEventListener("online",()=>{refreshEx1LivePanels();checkConnection();});
+window.addEventListener("online",()=>{refreshEx1LivePanels();});
 function roomHasStarted(room,now=Date.now()){if(!room?.starts_at)return false;const start=new Date(room.starts_at).getTime();return Number.isFinite(start)&&now>=start;}
+function roomExpiryTimestamp(room){const raw=room?.ends_at||room?.starts_at||(["closed","completed"].includes(room?.status)?room?.created_at:null);const t=raw?new Date(raw).getTime():NaN;return Number.isFinite(t)?t+86400000:null;}
+function roomHasEnded(room,now=Date.now()){const raw=room?.ends_at||room?.starts_at||(["closed","completed"].includes(room?.status)?room?.created_at:null);const t=raw?new Date(raw).getTime():NaN;return Number.isFinite(t)&&now>=t;}
 function roomPhase(room){if(!room?.ends_at)return 'scheduled';const end=new Date(room.ends_at).getTime(),now=Date.now();if(!Number.isFinite(end))return 'scheduled';if(now<end)return 'scheduled';if(now<end+3600000)return 'running';if(now<end+7200000)return 'pending';return 'completed';}
 function roomPhaseLabel(room){const p=roomPhase(room);if(p==='running')return '● در حال برگزاری';if(p==='pending')return '● در انتظار ثبت نتایج';if(p==='completed')return '● تمام شده';return room.status==='open'?'● ثبت‌نام فعال':room.status==='full'?'● ظرفیت تکمیل':'● غیرفعال';}
 async function loadRoomResults(roomId){const box=$('roomResultsContent');if(!box)return;box.innerHTML='<div class="muted">در حال دریافت نتایج...</div>';const {data,error}=await sb.from('tournament_player_results').select('placement,kills,points,profiles(display_name,username,game_name)').eq('room_id',roomId).order('placement',{ascending:true,nullsFirst:false}).order('points',{ascending:false}).order('kills',{ascending:false});if(error){box.innerHTML='<div class="muted">نتایج فعلاً در دسترس نیست.</div>';return;}const rows=data||[];box.innerHTML=rows.length?rows.map(x=>'<div class="room-results-row"><strong>#'+Number(x.placement||0).toLocaleString('fa-IR')+'</strong><span>'+esc(x.profiles?.game_name||x.profiles?.display_name||x.profiles?.username||'بازیکن')+'</span><span>کیل: '+Number(x.kills||0).toLocaleString('fa-IR')+'</span><span>امتیاز: '+Number(x.points||0).toLocaleString('fa-IR')+'</span></div>').join(''):'<div class="muted">هنوز نتیجه‌ای برای این روم ثبت نشده است.</div>';}
@@ -645,7 +674,7 @@ async function showRoomDetail(room){
  $("roomDetail").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
-let profileCacheUserId=null,profileDataLoaded=false,supportDataLoaded=false,notificationsDataLoaded=false;
+let profileCacheUserId=null,profileDataLoaded=false,supportDataLoaded=false;
 const ex1PageLoadState={tournaments:{at:0,promise:null},ranking:{at:0,promise:null}};
 function ex1LoadPageData(key,loader){
  const state=ex1PageLoadState[key],now=Date.now();
@@ -665,11 +694,10 @@ function switchPage(page){
  document.querySelectorAll(".bottom-nav [data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
  if(page==="profile"){
   const uid=currentUser?.id||null;
-  if(uid!==profileCacheUserId){profileCacheUserId=uid;profileDataLoaded=false;supportDataLoaded=false;notificationsDataLoaded=false;}
+  if(uid!==profileCacheUserId){profileCacheUserId=uid;profileDataLoaded=false;supportDataLoaded=false;}
   if(currentUser&&!profileDataLoaded){profileDataLoaded=true;loadProfile().catch(()=>profileDataLoaded=false);}
   // Non-critical panels load after the profile becomes visible, so they do not block navigation.
   if(currentUser&&!supportDataLoaded){supportDataLoaded=true;setTimeout(()=>{if($("page-profile")?.classList.contains("active"))loadSupportConversation().catch(()=>supportDataLoaded=false);else supportDataLoaded=false;},180);}
-  if(currentUser&&!notificationsDataLoaded){notificationsDataLoaded=true;setTimeout(()=>{if($("page-profile")?.classList.contains("active"))loadUserNotifications().catch(()=>notificationsDataLoaded=false);else notificationsDataLoaded=false;},260);}
  }
  if(page==="tournaments")ex1LoadPageData("tournaments",loadTournaments);
  if(page==="ranking")ex1LoadPageData("ranking",loadRanking);
@@ -684,7 +712,7 @@ function switchHome(tab){
 }
 document.querySelectorAll("[data-home-tab]").forEach(b=>b.addEventListener("click",()=>switchHome(b.dataset.homeTab)));
 $("headerAuth").onclick=()=>currentUser?switchPage("profile"):openAuth();
-async function signOutCurrentAccount(){const {error}=await sb.auth.signOut();if(error)throw error;currentUser=null;activeConversation=null;activeConversationUser=null;profileCacheUserId=null;profileDataLoaded=false;supportDataLoaded=false;notificationsDataLoaded=false;await authState();switchPage("home");}
+async function signOutCurrentAccount(){const {error}=await sb.auth.signOut();if(error)throw error;currentUser=null;activeConversation=null;activeConversationUser=null;profileCacheUserId=null;profileDataLoaded=false;supportDataLoaded=false;await authState();switchPage("home");}
 async function confirmedSignOut(){
  if(!currentUser)return;
  if(!(await ex1Confirm("خروج از حساب","آیا می‌خواهید از حساب کاربری خود خارج شوید؟","خروج")))return false;
@@ -1058,7 +1086,7 @@ async function refreshNotificationBadge(){
  const n=Number(count||0);badge.textContent=n>99?"۹۹+":n.toLocaleString("fa-IR");badge.hidden=n===0;
 }
 async function loadUserNotifications(){
- const box=$("userNotifications");
+ const box=$("userNotifications");if(!box)return;
  if(!currentUser){box.innerHTML='<div class="empty">برای مشاهده اعلان‌ها وارد حساب شو.</div>';await refreshNotificationBadge();return;}
  const {data,error}=await sb.from("user_notifications").select("id,title,body,notification_type,read_at,created_at").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(20);
  if(error){box.innerHTML='<div class="empty">اعلان‌ها دریافت نشدند.</div>';await refreshNotificationBadge();return;}
@@ -1067,15 +1095,10 @@ async function loadUserNotifications(){
  box.innerHTML=data.map(n=>'<article class="panel notification-card" tabindex="0" aria-label="اعلان؛ برای نمایش گزینه حذف چند لحظه نگه دارید" data-notification-card="'+esc(n.id)+'" style="padding:12px;margin:8px 0;opacity:'+(n.read_at?"0.72":"1")+'"><b>'+esc(n.title)+'</b><p>'+esc(n.body)+'</p><small class="muted">'+new Date(n.created_at).toLocaleString("fa-IR")+'</small><div class="notification-actions">'+(n.read_at?"":' <button class="btn small secondary" data-notification-read="'+esc(n.id)+'" type="button">خواندم</button>')+' <button class="btn small secondary notification-delete" data-notification-delete="'+esc(n.id)+'" type="button">حذف اعلان</button></div></article>').join("");
 }
 const userNotificationsBox=$("userNotifications");
-let notificationLongPressTimer=null;
-let notificationLongPressTarget=null;
+let notificationLongPressTimer=null,notificationLongPressTarget=null;
 function clearNotificationLongPress(){if(notificationLongPressTimer)clearTimeout(notificationLongPressTimer);notificationLongPressTimer=null;notificationLongPressTarget=null;}
 function revealNotificationDelete(card){if(!card)return;userNotificationsBox.querySelectorAll(".notification-delete-visible").forEach(x=>{if(x!==card)x.classList.remove("notification-delete-visible");});card.classList.add("notification-delete-visible");}
-userNotificationsBox.addEventListener("pointerdown",e=>{
- const card=e.target.closest("[data-notification-card]");if(!card||e.target.closest("button"))return;
- clearNotificationLongPress();notificationLongPressTarget=card;
- notificationLongPressTimer=setTimeout(()=>{revealNotificationDelete(notificationLongPressTarget);clearNotificationLongPress();},600);
-});
+userNotificationsBox.addEventListener("pointerdown",e=>{const card=e.target.closest("[data-notification-card]");if(!card||e.target.closest("button"))return;clearNotificationLongPress();notificationLongPressTarget=card;notificationLongPressTimer=setTimeout(()=>{revealNotificationDelete(notificationLongPressTarget);clearNotificationLongPress();},600);});
 ["pointerup","pointercancel","pointerleave"].forEach(name=>userNotificationsBox.addEventListener(name,clearNotificationLongPress));
 userNotificationsBox.addEventListener("contextmenu",e=>{const card=e.target.closest("[data-notification-card]");if(!card)return;e.preventDefault();revealNotificationDelete(card);});
 userNotificationsBox.addEventListener("keydown",e=>{if(e.key==="ContextMenu"||(e.shiftKey&&e.key==="F10")){const card=e.target.closest("[data-notification-card]");if(card){e.preventDefault();revealNotificationDelete(card);}}});
@@ -1097,6 +1120,9 @@ userNotificationsBox.addEventListener("click",async e=>{
  if(error){toast("ثبت وضعیت اعلان انجام نشد.");b.disabled=false;return;}
  await loadUserNotifications();
 });
+$("closeNotifications").addEventListener("click",()=>{$("notificationsModal").classList.remove("show");$("notificationsModal").setAttribute("aria-hidden","true");});
+$("notificationsModal").addEventListener("click",e=>{if(e.target===$("notificationsModal")){$("notificationsModal").classList.remove("show");$("notificationsModal").setAttribute("aria-hidden","true");}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("notificationsModal").classList.contains("show")){$("notificationsModal").classList.remove("show");$("notificationsModal").setAttribute("aria-hidden","true");}});
 let supportConversationId=null;
 function supportStorageKey(){return currentUser?"ex1_support_"+currentUser.id:null;}
 function supportFreshKey(){return currentUser?"ex1_support_fresh_"+currentUser.id:null;}
@@ -1159,30 +1185,55 @@ async function refreshEx1LivePanels(){
  ex1LiveRefreshBusy=true;
  try{
   await refreshNotificationBadge();
-  if($("page-profile")?.classList.contains("active"))await Promise.allSettled([loadSupportConversation(),loadUserNotifications()]);
+  if($("page-profile")?.classList.contains("active"))await loadSupportConversation();
+  if($("notificationsModal")?.classList.contains("show"))await loadUserNotifications();
  }finally{ex1LiveRefreshBusy=false;}
 }
 setInterval(refreshEx1LivePanels,7000);
 $("openNotifications").addEventListener("click",async()=>{
  if(!currentUser){openAuth();return;}
- switchPage("profile");
- setTimeout(async()=>{await loadUserNotifications();$("userNotificationsPanel")?.scrollIntoView({behavior:"smooth",block:"start"});},220);
+ $("notificationsModal").classList.add("show");$("notificationsModal").setAttribute("aria-hidden","false");
+ await loadUserNotifications();$("closeNotifications").focus();
 });
-function roomCategory(mode){const m=String(mode||"").toLowerCase();if(/fight|1v1|solo|فایت|تک/.test(m))return "fight";if(/battle|br|بتل|رویال/.test(m))return "br";if(/multi|mp|مولتی/.test(m))return "multi";return "all";}
+function roomCategory(category){const c=String(category||"").toLowerCase();if(c==="fight")return "fight";if(c==="battle_royale"||c==="br")return "br";if(c==="multiplayer"||c==="multi")return "multi";return "all";}
 function roomImagePosition(room){const x=Math.max(0,Math.min(100,Number(room?.room_image_focus_x??50)));const y=Math.max(0,Math.min(100,Number(room?.room_image_focus_y??55)));return x+"% "+y+"%";}
 function formatRoomStart(value){if(!value)return "اعلام نشده";const d=new Date(value);if(Number.isNaN(d.getTime()))return "اعلام نشده";const now=new Date();const today=d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d.getDate()===now.getDate();const time=d.toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"});return today?"امروز ساعت "+time:d.toLocaleDateString("fa-IR",{weekday:"long"})+" ساعت "+time;}
-function applyRoomCategory(category){window.ex1ActiveRoomCategory=category;document.querySelectorAll("[data-room-category]").forEach(b=>b.classList.toggle("active",b.dataset.roomCategory===category));const rooms=window.ex1Rooms||[];const q=($("roomSearch")?.value||"").trim().toLocaleLowerCase();const filtered=rooms.filter(r=>(category==="all"||roomCategory(r.game_mode)===category)&&(!q||[r.title,r.map,r.game_mode].some(v=>String(v||"").toLocaleLowerCase().includes(q))));$("roomCategoryTitle").textContent=({all:"روم‌های پیشنهادی",fight:"روم‌های فایت",br:"روم‌های بتل‌رویال",multi:"روم‌های مولتی"})[category];$("roomCards").querySelectorAll("[data-open-room]").forEach(b=>{b.closest(".room-card").hidden=!filtered.some(r=>r.id===b.dataset.openRoom);});if($("roomCategoryEmpty"))$("roomCategoryEmpty").hidden=rooms.length===0||filtered.length>0;}
+function roomTier(room){return String(room?.price_category||"").trim()||"بدون دسته‌بندی";}
+function roomCardMarkup(r){
+ const endValue=r.ends_at||r.starts_at||"";
+ return '<article class="panel room-card '+(roomHasEnded(r)?"room-card-completed":"")+'" data-room-end-at="'+esc(endValue)+'" data-room-expiry-at="'+(roomExpiryTimestamp(r)||"")+'">'+(r.room_media_type==="video"&&r.room_video_url?'<video muted playsinline preload="metadata" src="'+esc(r.room_video_url)+'"></video>':((r.room_image_url||r.tournaments?.cover_image_url)?'<img style="object-position:'+roomImagePosition(r)+'" src="'+esc(r.room_image_url||r.tournaments.cover_image_url)+'" alt="تصویر مسابقه">':'<div class="room-card-fallback"><img src="/room-arena-art.svg" alt="تصویر میدان رقابت EX1"><span>ARENA ROOM</span></div>'))+'<div class="room-card-body"><div class="room-card-top"><span class="room-phase-tag '+roomPhase(r)+'">'+roomPhaseLabel(r)+'</span><span class="room-card-mode">'+(r.team_size===2?"DUO":"SQUAD")+'</span></div><h3>'+esc(r.title)+'</h3><div class="room-meta"><span>'+Number(r.max_teams||25)+' تیم</span><span>·</span><span>ورودی مجازی: '+Number(r.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</span><span>·</span><span>جایزه: '+"اول "+Number(r.prize_demo_points||0).toLocaleString("fa-IR")+" / دوم "+Number(r.prize_second_demo_points||0).toLocaleString("fa-IR")+" / سوم "+Number(r.prize_third_demo_points||0).toLocaleString("fa-IR")+' استارز</span></div><div class="room-date-grid"><div class="room-date-item"><small>زمان شروع</small><strong>'+formatRoomStart(r.starts_at)+'</strong></div><div class="room-date-item"><small>ورودی مجازی</small><strong>'+Number(r.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div><button class="room-open-btn" type="button" data-open-room="'+esc(r.id)+'">مشاهده جزئیات روم <span>←</span></button></div></article>';
+}
+function applyRoomCategory(category){
+ window.ex1ActiveRoomCategory=category;
+ document.querySelectorAll("[data-room-category]").forEach(b=>b.classList.toggle("active",b.dataset.roomCategory===category));
+ const allRooms=window.ex1Rooms||[],q=($("roomSearch")?.value||"").trim().toLocaleLowerCase();
+ const rooms=allRooms.filter(r=>(category==="all"||roomCategory(r.game_category)===category)&&(!q||[r.title,r.map,r.game_mode].some(v=>String(v||"").toLocaleLowerCase().includes(q))));
+ $("roomCategoryTitle").textContent=({all:"روم‌های پیشنهادی",fight:"روم‌های فایت",br:"روم‌های بتل‌رویال",multi:"روم‌های مولتی"})[category]||"روم‌های پیشنهادی";
+ const labels=[...new Set(allRooms.map(roomTier))].sort((x,y)=>x.localeCompare(y,"fa"));
+ const hasAny=rooms.length>0;
+ $("roomCards").innerHTML=labels.length?labels.map(label=>{
+  const items=rooms.filter(r=>roomTier(r)===label);
+  if(!items.length)return '<section class="room-tier-section room-tier-empty-state"><div class="room-tier-heading"><strong>'+esc(label)+'</strong><i></i></div><p class="room-tier-empty">در این دسته رومی نیست.</p></section>';
+  return '<section class="room-tier-section" aria-label="روم‌های '+esc(label)+'"><div class="room-tier-heading"><strong>'+esc(label)+'</strong><small>'+items.length.toLocaleString("fa-IR")+' روم</small><i></i></div><div class="room-tier-track">'+items.map(roomCardMarkup).join("")+'</div></section>';
+ }).join(""):'<div class="empty">در این دسته رومی نیست.</div>';
+ if($("roomCategoryEmpty"))$("roomCategoryEmpty").hidden=rooms.length>0;
+}
 document.querySelectorAll("[data-room-category]").forEach(b=>b.onclick=()=>applyRoomCategory(b.dataset.roomCategory));
 $("roomSearch").addEventListener("input",()=>applyRoomCategory(window.ex1ActiveRoomCategory||"all"));
+$("roomCards").addEventListener("click",e=>{
+ const button=e.target.closest("[data-open-room]");if(!button)return;
+ const room=(window.ex1Rooms||[]).find(x=>String(x.id)===button.dataset.openRoom);if(room)showRoomDetail(room);
+});
 function applyRankingSearch(){const q=$("rankingSearch").value.trim().toLocaleLowerCase();$("ranking").querySelectorAll("[data-ranking-item]").forEach(item=>{item.hidden=!!q&&!item.textContent.toLocaleLowerCase().includes(q);});}
 $("rankingSearch").addEventListener("input",applyRankingSearch);
 async function loadTournaments(){
-  const {data:rooms,error:re}=await sb.from("tournament_rooms").select("id,tournament_id,title,game_mode,map,capacity,team_size,max_teams,entry_demo_points,prize_demo_points,prize_second_demo_points,prize_third_demo_points,starts_at,ends_at,status,room_image_url,room_image_focus_x,room_image_focus_y,room_media_type,room_video_url,rules,tournaments(cover_image_url)").in("status",["open","full"]).order("starts_at",{ascending:true,nullsFirst:false});
+ const {data:rooms,error:re}=await sb.from("tournament_rooms").select("id,tournament_id,title,game_mode,game_category,price_category,map,capacity,team_size,max_teams,entry_demo_points,prize_demo_points,prize_second_demo_points,prize_third_demo_points,starts_at,ends_at,created_at,status,room_image_url,room_image_focus_x,room_image_focus_y,room_media_type,room_video_url,rules,tournaments(cover_image_url)").in("status",["open","full","closed","completed"]).order("created_at",{ascending:false,nullsFirst:false});
  if(re){$("roomCards").innerHTML='<div class="empty">مسابقات فعلاً بارگذاری نشدند. کمی بعد دوباره تلاش کن.<br><button class="btn small" type="button" id="retryRoomList">تلاش دوباره</button></div>';$("retryRoomList").onclick=loadTournaments;return;}
- const rr=(rooms||[]).filter(r=>!r.ends_at||Date.now()<new Date(r.ends_at).getTime()+86400000);window.ex1Rooms=rr;$("roomNoData").hidden=true;$("roomCards").innerHTML=rr.map(r=>'<article class="panel room-card '+(roomHasStarted(r)?"room-card-completed":"")+'" data-room-start-at="'+esc(r.starts_at||"")+'">'+(r.room_media_type==="video"&&r.room_video_url?'<video muted playsinline preload="metadata" src="'+esc(r.room_video_url)+'"></video>':((r.room_image_url||r.tournaments?.cover_image_url)?'<img style="object-position:'+roomImagePosition(r)+'" src="'+esc(r.room_image_url||r.tournaments.cover_image_url)+'" alt="تصویر مسابقه">':'<div class="room-card-fallback"><img src="/room-arena-art.svg" alt="تصویر میدان رقابت EX1"><span>ARENA ROOM</span></div>'))+'<div class="room-card-body"><div class="room-card-top"><span class="room-phase-tag '+roomPhase(r)+'">'+roomPhaseLabel(r)+'</span><span class="room-card-mode">'+(r.team_size===2?"DUO":"SQUAD")+'</span></div><h3>'+esc(r.title)+'</h3><div class="room-meta"><span>'+Number(r.max_teams||25)+' تیم</span><span>·</span><span>ورودی هر بازیکن: '+Number(r.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</span><span>·</span><span>جایزه: '+"اول "+Number(r.prize_demo_points||0).toLocaleString("fa-IR")+" / دوم "+Number(r.prize_second_demo_points||0).toLocaleString("fa-IR")+" / سوم "+Number(r.prize_third_demo_points||0).toLocaleString("fa-IR")+' استارز</span></div><div class="room-date-grid"><div class="room-date-item"><small>زمان شروع</small><strong>'+formatRoomStart(r.starts_at)+'</strong></div><div class="room-date-item"><small>ورودی هر بازیکن</small><strong>'+Number(r.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div><button class="room-open-btn" type="button" data-open-room="'+esc(r.id)+'">مشاهده جزئیات روم <span>←</span></button></div></article>').join("")||'<div class="empty">هنوز رومی برای نمایش وجود ندارد.</div>';
- $("roomCards").querySelectorAll("[data-open-room]").forEach(button=>button.addEventListener("click",()=>{const room=rr.find(x=>x.id===button.dataset.openRoom);if(room)showRoomDetail(room);}));
- applyRoomCategory("all");$("roomDetail").hidden=true;
-}async function loadMyMatches(){if(!currentUser)return;$("myMatches").innerHTML='<div class="empty">در حال دریافت سابقه...</div>';const {data,error}=await sb.from("tournament_room_registrations").select("id,room_id,tournament_id,team_id,slot_number,status,registered_at,tournament_rooms(title,game_mode)").eq("user_id",currentUser.id).order("registered_at",{ascending:false}).limit(30);if(error){$("myMatches").innerHTML='<div class="empty">سابقهٔ روم‌ها دریافت نشد.</div>';return;}const rows=data||[];const teamIds=[...new Set(rows.map(x=>x.team_id).filter(Boolean))];let resultsByKey={};if(teamIds.length){const {data:results}=await sb.from("tournament_results").select("team_id,tournament_id,placement,points").in("team_id",teamIds);(results||[]).forEach(x=>resultsByKey[x.team_id+":"+x.tournament_id]=x);} $("myMatches").innerHTML=rows.map(x=>{const result=resultsByKey[x.team_id+":"+x.tournament_id];const reward=result?"جایگاه "+Number(result.placement)+" · امتیاز نتیجه: "+Number(result.points||0).toLocaleString("fa-IR"):"هنوز نتیجه‌ای ثبت نشده است";return '<div class="panel user-row"><div class="user-info"><strong>'+esc(x.tournament_rooms?.title||"روم EX1")+'</strong><small>'+esc(x.tournament_rooms?.game_mode||"مسابقه")+' · جایگاه روم '+Number(x.slot_number||0)+' · '+esc(x.status)+'</small><small>'+esc(reward)+'</small></div></div>';}).join("")||'<div class="empty">هنوز در رومی ثبت‌نام نکرده‌ای.</div>';}
+ const now=Date.now(),rr=(rooms||[]).filter(r=>{const expiry=roomExpiryTimestamp(r);return expiry===null||now<expiry;});
+ window.ex1Rooms=rr;$("roomNoData").hidden=true;
+ applyRoomCategory(window.ex1ActiveRoomCategory||"all");$("roomDetail").hidden=true;
+}
+async function loadMyMatches(){if(!currentUser)return;$("myMatches").innerHTML='<div class="empty">در حال دریافت سابقه...</div>';const {data,error}=await sb.from("tournament_room_registrations").select("id,room_id,tournament_id,team_id,slot_number,status,registered_at,tournament_rooms(title,game_mode)").eq("user_id",currentUser.id).order("registered_at",{ascending:false}).limit(30);if(error){$("myMatches").innerHTML='<div class="empty">سابقهٔ روم‌ها دریافت نشد.</div>';return;}const rows=data||[];const teamIds=[...new Set(rows.map(x=>x.team_id).filter(Boolean))];let resultsByKey={};if(teamIds.length){const {data:results}=await sb.from("tournament_results").select("team_id,tournament_id,placement,points").in("team_id",teamIds);(results||[]).forEach(x=>resultsByKey[x.team_id+":"+x.tournament_id]=x);} $("myMatches").innerHTML=rows.map(x=>{const result=resultsByKey[x.team_id+":"+x.tournament_id];const reward=result?"جایگاه "+Number(result.placement)+" · امتیاز نتیجه: "+Number(result.points||0).toLocaleString("fa-IR"):"هنوز نتیجه‌ای ثبت نشده است";return '<div class="panel user-row"><div class="user-info"><strong>'+esc(x.tournament_rooms?.title||"روم EX1")+'</strong><small>'+esc(x.tournament_rooms?.game_mode||"مسابقه")+' · جایگاه روم '+Number(x.slot_number||0)+' · '+esc(x.status)+'</small><small>'+esc(reward)+'</small></div></div>';}).join("")||'<div class="empty">هنوز در رومی ثبت‌نام نکرده‌ای.</div>';}
 let currentTeamId=null;
 async function loadTeamInvites(){
  const box=$("incomingTeamInvites");if(!box)return;
@@ -1318,25 +1369,19 @@ async function loadRanking(){
  $("ranking").innerHTML=teamHtml+playerHtml||( '<div class="empty">هنوز نتیجه‌ای برای رتبه‌بندی ثبت نشده است.</div>');
  applyRankingSearch();
 }
-async function checkConnection(){
- const el=$("connectionStatus");if(!el)return;
- try{
-  const {error}=await sb.from("tournaments").select("id").limit(1);
-  if(error)throw error;
-  el.innerHTML='<i></i> متصل به EX1';el.classList.add("connected");el.classList.remove("disconnected");
- }catch{
-  el.innerHTML='<i></i> موقتاً در دسترس نیست';el.classList.add("disconnected");el.classList.remove("connected");
- }
-}
 (()=>{const params=new URLSearchParams(window.location.hash.slice(1));const code=params.get("error_code");if(code){const description=params.get("error_description")||"";const message=code==="otp_expired"?"لینک بازیابی رمز منقضی شده یا قبلاً استفاده شده است. از صفحه ورود یک لینک تازه درخواست کن.":"ورود از طریق ایمیل انجام نشد: "+description;history.replaceState(null,"",window.location.pathname+window.location.search);setTimeout(()=>{openAuth();toast(message);},0);}})();
 sb.auth.onAuthStateChange((event)=>{if(event==="PASSWORD_RECOVERY")showPasswordRecovery();setTimeout(authState,0);});
 if(EX1_AUTH_RETURN.recovery){sb.auth.getSession().then(({data,error})=>{if(error)console.warn("EX1 recovery session:",error.message);if(data?.session)showPasswordRecovery();else toast("نشست بازیابی رمز تأیید نشد؛ از صفحه ورود یک لینک تازه درخواست کن.");});}
 if(EX1_AUTH_RETURN.errorCode){setTimeout(()=>{openAuth();toast(EX1_AUTH_RETURN.errorCode==="otp_expired"?"لینک بازیابی منقضی شده یا قبلاً استفاده شده است. لینک تازه درخواست کن.":("خطای ورود ایمیلی: "+(EX1_AUTH_RETURN.errorDescription||EX1_AUTH_RETURN.errorCode)));},0);}
-checkConnection();
 authState();
 document.addEventListener("contextmenu",event=>{if(!event.target.closest("input,textarea,select,[contenteditable=true],.allow-select"))event.preventDefault();});
 document.addEventListener("selectstart",event=>{if(!event.target.closest("input,textarea,select,[contenteditable=true],.allow-select"))event.preventDefault();});
-setInterval(()=>{const now=Date.now();document.querySelectorAll("[data-room-start-at]").forEach(card=>{const start=new Date(card.dataset.roomStartAt).getTime();card.classList.toggle("room-card-completed",Number.isFinite(start)&&now>=start);});},15000);
+setInterval(()=>{
+ const now=Date.now();
+ document.querySelectorAll("[data-room-end-at]").forEach(card=>{const end=new Date(card.dataset.roomEndAt).getTime();card.classList.toggle("room-card-completed",Number.isFinite(end)&&now>=end);});
+ const rooms=window.ex1Rooms||[],remaining=rooms.filter(room=>{const expiry=roomExpiryTimestamp(room);return expiry===null||now<expiry;});
+ if(remaining.length!==rooms.length){window.ex1Rooms=remaining;applyRoomCategory(window.ex1ActiveRoomCategory||"all");}
+},15000);
 setInterval(()=>{if(activeRoomDetail&&!$("roomDetail").hidden&&!document.hidden)refreshRoomAccess(activeRoomDetail.id);},15000);
 </script>
 <script>
