@@ -411,6 +411,21 @@ sb.channel("ex1-site-theme-settings")
   if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")console.warn("EX1 theme realtime:",status);
  });
 loadSiteTheme();
+let ex1RoomRealtimeTimer=null;
+function scheduleEx1RoomRealtimeRefresh(){
+ if(!$("page-tournaments")?.classList.contains("active"))return;
+ if(ex1RoomRealtimeTimer)clearTimeout(ex1RoomRealtimeTimer);
+ ex1RoomRealtimeTimer=setTimeout(()=>{
+  ex1RoomRealtimeTimer=null;
+  loadTournaments().catch(err=>console.warn("EX1 live room refresh:",err));
+ },250);
+}
+sb.channel("ex1-live-room-updates")
+ .on("postgres_changes",{event:"*",schema:"public",table:"tournament_rooms"},scheduleEx1RoomRealtimeRefresh)
+ .on("postgres_changes",{event:"*",schema:"public",table:"tournaments"},scheduleEx1RoomRealtimeRefresh)
+ .subscribe(status=>{
+  if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")console.warn("EX1 room realtime:",status);
+ });
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let currentUser=null,authMode="login",activeConversation=null,activeConversationUser=null;
 
@@ -1198,17 +1213,24 @@ $("supportForm").addEventListener("submit",async e=>{
  }catch(err){$("supportHint").textContent=err?.message||"پشتیبانی موقتاً در دسترس نیست.";}
  finally{$("supportSend").disabled=false;}
 });
-let ex1LiveRefreshBusy=false;
+let ex1LiveRefreshBusy=false,ex1SupportPollBusy=false,ex1RankingPollBusy=false;
 async function refreshEx1LivePanels(){
  if(!currentUser||document.hidden||ex1LiveRefreshBusy)return;
  ex1LiveRefreshBusy=true;
  try{
-  await refreshNotificationBadge();
-  if($("page-profile")?.classList.contains("active"))await loadSupportConversation();
   if($("notificationsModal")?.classList.contains("show"))await loadUserNotifications();
+  else await refreshNotificationBadge();
+  if($("page-profile")?.classList.contains("active")&&!ex1SupportPollBusy){
+   ex1SupportPollBusy=true;
+   try{await loadSupportConversation();}finally{ex1SupportPollBusy=false;}
+  }
+  if($("page-ranking")?.classList.contains("active")&&!ex1RankingPollBusy){
+   ex1RankingPollBusy=true;
+   try{await loadRanking();}finally{ex1RankingPollBusy=false;}
+  }
  }finally{ex1LiveRefreshBusy=false;}
 }
-setInterval(refreshEx1LivePanels,7000);
+setInterval(refreshEx1LivePanels,3000);
 $("openNotifications").addEventListener("click",async()=>{
  if(!currentUser){openAuth();return;}
  $("notificationsModal").classList.add("show");$("notificationsModal").setAttribute("aria-hidden","false");
@@ -1402,7 +1424,47 @@ setInterval(()=>{
 setInterval(()=>{if(activeRoomDetail&&!$("roomDetail").hidden&&!document.hidden)refreshRoomAccess(activeRoomDetail.id);},15000);
 </script>
 <script>
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js"));}
+if("serviceWorker" in navigator){
+ window.addEventListener("load",async()=>{
+  const hadController=!!navigator.serviceWorker.controller;
+  const style=document.createElement("style");
+  style.textContent="#ex1-update-banner{position:fixed;z-index:9999;right:12px;left:12px;bottom:calc(86px + env(safe-area-inset-bottom));max-width:720px;margin:auto;padding:12px 14px;border:1px solid #9c68d8;border-radius:16px;background:linear-gradient(110deg,#25163d,#132c3b);box-shadow:0 8px 28px #0009;display:flex;align-items:center;justify-content:space-between;gap:12px;color:#fff;font:12px Tahoma,Arial,sans-serif}#ex1-update-banner button{border:0;border-radius:11px;padding:10px 13px;background:linear-gradient(110deg,#a452e8,#347d91);color:#fff;font-weight:900;white-space:nowrap}";
+  document.head.appendChild(style);
+  let updateBanner=null;
+  const showUpdate=()=>{
+   if(updateBanner||!document.body)return;
+   updateBanner=document.createElement("div");
+   updateBanner.id="ex1-update-banner";
+   updateBanner.setAttribute("role","status");
+   const label=document.createElement("span");
+   label.textContent="نسخهٔ جدید EX1 آماده است.";
+   const button=document.createElement("button");
+   button.type="button";button.textContent="به‌روزرسانی";
+   button.addEventListener("click",()=>location.reload());
+   updateBanner.append(label,button);document.body.appendChild(updateBanner);
+  };
+  let initialVersionTag=null;
+  const checkPageVersion=async()=>{
+   const response=await fetch("/app.html",{method:"HEAD",cache:"no-store"});
+   if(!response.ok)return;
+   const tag=response.headers.get("etag")||response.headers.get("last-modified")||response.headers.get("content-length");
+   if(!tag)return;
+   if(initialVersionTag===null)initialVersionTag=tag;
+   else if(tag!==initialVersionTag)showUpdate();
+  };
+  try{
+   const registration=await navigator.serviceWorker.register("/sw.js",{updateViaCache:"none"});
+   if(hadController)navigator.serviceWorker.addEventListener("controllerchange",showUpdate,{once:true});
+   await checkPageVersion().catch(()=>{});
+   const checkForUpdates=()=>{
+    registration.update().catch(()=>{});
+    checkPageVersion().catch(()=>{});
+   };
+   setInterval(checkForUpdates,60000);
+   document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkForUpdates();});
+  }catch(error){console.warn("EX1 PWA update check:",error);}
+ });
+}
 </script>
 
 <script>
