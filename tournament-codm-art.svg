@@ -31,26 +31,28 @@
  <rect x="-137" y="112" width="23" height="62" rx="9" fill="#1b2232" stroke="#a78bfa" stroke-width="4"/>
  <rect x="114" y="112" width="23" height="62" rx="9" fill="#1b2232" stroke="#a78bfa" stroke-width="4"/>
 </g>
-<!-- small stylized in-game weapon emblems, intentionally graphic/game-like -->
-<g stroke="#cbb7ff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
- <g transform="translate(105 185) rotate(-8)">
-  <path d="M0 18h58l15-8h56v14h-24l-8 10H62l-7 19H40l3-19H0z" fill="#262b43"/>
-  <path d="M70 10v-8h30v8M20 18v-8h18v8M112 24l12 9h-18" fill="#8d6fc4"/>
-  <path d="M10 23h120" stroke="#5fe2e8" opacity=".7"/>
- </g>
- <g transform="translate(245 405) rotate(11) scale(.72)">
-  <path d="M0 18h58l15-8h56v14h-24l-8 10H62l-7 19H40l3-19H0z" fill="#292d45"/>
-  <path d="M70 10v-8h30v8M20 18v-8h18v8M112 24l12 9h-18" fill="#9a73d7"/>
- </g>
- <g transform="translate(1000 430) rotate(-15) scale(.7)">
-  <path d="M0 18h58l15-8h56v14h-24l-8 10H62l-7 19H40l3-19H0z" fill="#292d45"/>
-  <path d="M70 10v-8h30v8M20 18v-8h18v8M112 24l12 9h-18" fill="#9a73d7"/>
- </g>
+<!-- non-weapon CODM-style arena HUD details -->
+<g transform="translate(105 175)" opacity=".9">
+ <rect x="0" y="0" width="170" height="112" rx="8" fill="#111a2b" fill-opacity=".78" stroke="#8b70c7" stroke-width="3"/>
+ <path d="M14 18h142M14 32h65M14 46h105" stroke="#b9a2f2" stroke-width="3" opacity=".6"/>
+ <circle cx="122" cy="77" r="22" stroke="#5fe2e8" stroke-width="2" fill="none"/>
+ <path d="M122 48v58M93 77h58M102 57l40 40m0-40-40 40" stroke="#5fe2e8" stroke-width="1.5" opacity=".7"/>
+ <circle cx="122" cy="77" r="4" fill="#c4b5fd"/>
 </g>
-<g font-family="Arial,sans-serif" font-weight="800" letter-spacing="2">
- <text x="105" y="165" fill="#d9c8ff" font-size="13">AK117</text>
- <text x="250" y="390" fill="#b6e9f4" font-size="12">BY15</text>
- <text x="1000" y="415" fill="#d9c8ff" font-size="12">CODM</text>
+<g transform="translate(170 405)" opacity=".9">
+ <path d="M0 0h110l14 14v72H0z" fill="#141b2d" stroke="#9b78db" stroke-width="3"/>
+ <path d="M15 18h80M15 34h55M15 50h70" stroke="#b9a2f2" stroke-width="3" opacity=".6"/>
+ <circle cx="92" cy="68" r="9" fill="#5fe2e8" fill-opacity=".8"/>
+</g>
+<g transform="translate(1000 420)" opacity=".92">
+ <circle cx="48" cy="42" r="42" fill="#151b30" stroke="#c4b5fd" stroke-width="3"/>
+ <path d="M48 8l10 21 23 3-17 16 4 23-20-11-20 11 4-23-17-16 23-3z" fill="#8b70c7" fill-opacity=".65" stroke="#d9c8ff" stroke-width="2"/>
+ <circle cx="48" cy="42" r="8" fill="#5fe2e8"/>
+</g>
+<g font-family="Arial,sans-serif" font-weight="800" letter-spacing="2" fill="#d9c8ff">
+ <text x="105" y="160" font-size="12">TACTICAL MAP</text>
+ <text x="170" y="395" font-size="11">MATCH STATUS</text>
+ <text x="1000" y="405" font-size="11">ELITE MEDAL</text>
 </g>
 <!-- game HUD accents -->
 <g stroke="#9b78db" stroke-width="3" opacity=".75">
