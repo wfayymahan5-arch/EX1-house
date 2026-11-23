@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 650" fill="none">
+<defs>
+ <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#100b20"/><stop offset=".5" stop-color="#25204b"/><stop offset="1" stop-color="#090d1b"/></linearGradient>
+ <radialGradient id="violet"><stop stop-color="#8b5cf6" stop-opacity=".65"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></radialGradient>
+ <linearGradient id="armor" x2="1" y2="1"><stop stop-color="#9ca3af"/><stop offset=".45" stop-color="#4b5563"/><stop offset="1" stop-color="#111827"/></linearGradient>
+ <linearGradient id="shade" x2="0" y2="1"><stop stop-color="#070817" stop-opacity=".04"/><stop offset="1" stop-color="#070817" stop-opacity=".65"/></linearGradient>
+</defs>
+<path fill="url(#bg)" d="M0 0h1200v650H0z"/>
+<circle cx="900" cy="230" r="420" fill="url(#violet)"/>
+<path d="M0 410 160 300l135 78 145-165 190 195 155-120 160 112 160-100 95 55v295H0z" fill="#171b37"/>
+<path d="m0 515 190-100 160 70 180-110 190 100 160-70 160 70 160-55v230H0z" fill="#090e1c"/>
+<g opacity=".65" fill="#080d1a" stroke="#8b7bca" stroke-width="4"><path d="M130 160h150l35 22-15 13H160l-45-20z"/><path d="M200 155l18-32h8l-7 32m-34-32h70" stroke-linecap="round"/><path d="M960 190h120l28 18-15 12H985l-35-18z"/></g>
+<g transform="translate(760 45)">
+ <path d="M-112 175q10-112 112-124 102 12 112 124l-25 76h-174z" fill="#111827" stroke="#8b7bca" stroke-width="7"/>
+ <path d="M-86 159q16-72 86-82 72 10 86 82l-17 46h-138z" fill="url(#armor)" stroke="#a78bfa" stroke-width="5"/>
+ <path d="M-62 164q62-34 124 0l-13 37h-98z" fill="#111827" stroke="#7c6bb5" stroke-width="5"/>
+ <path d="M-150 252q150-82 300 0l90 250h-480z" fill="url(#armor)" stroke="#7466a7" stroke-width="7"/>
+ <path d="M-95 255h190l42 230h-274z" fill="#30384b" stroke="#8b7bca" stroke-width="5"/>
+ <path d="M-150 290q-70 45-105 155l55 48 120-135zM150 290q70 45 105 155l-55 48-120-135z" fill="#30384b" stroke="#8b7bca" stroke-width="6"/>
+ <path d="M-35 275h70v130h-70z" fill="#161d31" stroke="#a78bfa" stroke-width="4"/>
+</g>
+<g fill="#c4b5fd"><circle cx="170" cy="220" r="4"/><circle cx="1050" cy="125" r="5"/><circle cx="950" cy="410" r="3"/></g>
+<path fill="url(#shade)" d="M0 0h1200v650H0z"/>
+<path d="M60 70h220M60 70v50M1140 70H920m220 0v50" stroke="#8b5cf6" stroke-width="4" opacity=".65"/>
+<text x="66" y="585" fill="#f5f3ff" font-family="Arial,sans-serif" font-size="30" font-weight="700" letter-spacing="6">EX1 LEGEND · BATTLE ARENA</text>
+</svg>
