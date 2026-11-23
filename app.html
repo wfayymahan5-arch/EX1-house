@@ -596,7 +596,8 @@ function scheduleRoomAccessRelease(room){
  };
  roomStartReleaseTimer=setTimeout(check,Math.max(0,releaseAt-Date.now()+250));
 }
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&activeRoomDetail)refreshRoomAccess(activeRoomDetail.id).catch(()=>{});});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){if(activeRoomDetail)refreshRoomAccess(activeRoomDetail.id).catch(()=>{});refreshEx1LivePanels();}});
+window.addEventListener("online",()=>{refreshEx1LivePanels();checkConnection();});
 function roomHasStarted(room,now=Date.now()){if(!room?.starts_at)return false;const start=new Date(room.starts_at).getTime();return Number.isFinite(start)&&now>=start;}
 function roomPhase(room){if(!room?.ends_at)return 'scheduled';const end=new Date(room.ends_at).getTime(),now=Date.now();if(!Number.isFinite(end))return 'scheduled';if(now<end)return 'scheduled';if(now<end+3600000)return 'running';if(now<end+7200000)return 'pending';return 'completed';}
 function roomPhaseLabel(room){const p=roomPhase(room);if(p==='running')return '● در حال برگزاری';if(p==='pending')return '● در انتظار ثبت نتایج';if(p==='completed')return '● تمام شده';return room.status==='open'?'● ثبت‌نام فعال':room.status==='full'?'● ظرفیت تکمیل':'● غیرفعال';}
