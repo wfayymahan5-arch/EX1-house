@@ -104,7 +104,7 @@ Deno.serve(async (req: Request) => {
   let handoff = false;
   const normalizeText = (value: string) => value.replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))).replace(/[\u200c\s]+/g, " ").trim().toLowerCase();
   const normalized = normalizeText(message);
-  const matchedFaq = faqRules.find((rule: { trigger_terms?: string[]; is_active?: boolean }) => rule.is_active !== false && Array.isArray(rule.trigger_terms) && rule.trigger_terms.some((term) => { const normalizedTerm = normalizeText(String(term ?? "")); return normalizedTerm.length >= 2 && normalized.includes(normalizedTerm); }));
+  const matchedFaq = faqRules.find((rule: { id?: string; answer?: string; trigger_terms?: string[]; is_active?: boolean }) => rule.is_active !== false && Array.isArray(rule.trigger_terms) && rule.trigger_terms.some((term) => { const normalizedTerm = normalizeText(String(term ?? "")); return normalizedTerm.length >= 2 && normalized.includes(normalizedTerm); }));
   let matchedFaqId: string | null = null;
   const explicitHumanRequest = /(?:وصل|ارتباط|ارجاع|صحبت).{0,24}(?:پشتیبان|انسان|اپراتور|مدیر)|(?:پشتیبان|اپراتور|مدیر).{0,24}(?:می.?خوام|می.?خواهم|وصل|صحبت)/i.test(message);
 
@@ -121,7 +121,7 @@ Deno.serve(async (req: Request) => {
   } else if (/^(سلام|درود|hi|hello|hey|سلام خوبی|سلام خوبی؟|خوبی؟?|وقت بخیر|صبح بخیر|شب بخیر)[!.؟\s]*$/i.test(normalized)) {
     answer = aiSettings.welcome_message || "سلام! 👋 خوش اومدی به پشتیبانی EX1 LEGEND. درباره ورود، ثبت‌نام، روم‌ها، قوانین یا پروفایلت سؤالی داری؟";
   } else if (allowFaqAnswers && matchedFaq) {
-    answer = matchedFaq.answer;
+    answer = String(matchedFaq.answer ?? "");
     matchedFaqId = matchedFaq.id ?? null;
   } else if (!allowFaqAnswers) {
     answer = aiSettings.fallback_message || "برای این سؤال پاسخ تأییدشده‌ای ندارم.";
