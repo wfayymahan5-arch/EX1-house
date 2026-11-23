@@ -214,6 +214,7 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
  <div class="actions"><button class="btn primary" type="submit" id="saveTournamentButton">ثبت مسابقه</button><button class="btn" type="button" id="cancelTournamentButton">انصراف</button></div>
 </form>
 <div id="tournamentsTable" class="empty">در حال بارگذاری...</div>
+<div id="deletedTournamentsPanel" class="manager-form" hidden><div class="row"><h3>مسابقات حذف‌شده</h3><button class="btn" type="button" id="refreshDeletedTournaments">به‌روزرسانی</button></div><p class="muted">حذف مسابقه دائمی نیست؛ ثبت‌نام‌ها، نتایج و روم‌های مرتبط حفظ می‌شوند و امکان بازیابی وجود دارد.</p><div id="deletedTournamentsTable" class="empty">در حال بارگذاری...</div></div>
 </section>
 <section class="section tab hidden" id="rooms">
 <div class="row"><h2>مدیریت روم‌ها</h2><button class="btn primary" id="addRoomButton">افزودن روم جدید</button></div>
@@ -258,6 +259,11 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
 <section class="section tab hidden" id="users"><h2>کاربران و پروفایل‌ها</h2><div id="directNotificationPanel" class="manager-form hidden"><h3 style="margin-top:0">ارسال اعلان مدیریتی</h3><form id="directNotificationForm"><div class="formgrid"><div class="wide"><label for="directNotificationSearch">جست‌وجوی کاربران</label><input id="directNotificationSearch" type="search" placeholder="نام نمایشی، نام کالاف یا شناسه کاربر..." autocomplete="off"><div class="actions" style="margin:8px 0"><button class="btn" id="selectVisibleNotificationUsers" type="button">انتخاب نتایج جست‌وجو</button><button class="btn" id="selectAllNotificationUsers" type="button">انتخاب همه کاربران</button><button class="btn" id="clearNotificationUsers" type="button">پاک‌کردن انتخاب</button></div><p class="muted" id="notificationSelectionCount">۰ کاربر انتخاب شده</p><div id="notificationUsersList" class="notification-users-list" aria-label="فهرست کاربران"><p class="muted">ابتدا فهرست کاربران بارگذاری شود.</p></div></div><label>عنوان پیام<input id="directNotificationTitle" maxlength="100" required placeholder="عنوان پیام"></label><label class="wide">متن پیام<textarea id="directNotificationBody" maxlength="1000" required placeholder="متن پیام برای کاربران انتخاب‌شده..."></textarea></label></div><div class="actions"><button class="btn primary" id="sendDirectNotification" type="submit">ارسال اعلان به کاربران انتخاب‌شده</button></div><p class="muted" id="directNotificationStatus" aria-live="polite"></p></form></div><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="social"><div class="row"><h2>مدیریت اجتماعی و گزارش‌ها</h2><button class="btn" id="refreshSocialReports" type="button">به‌روزرسانی</button></div><p class="muted">گزارش‌های محتوای اجتماعی فقط برای مدیر دارای مجوز social.moderate نمایش داده می‌شوند. تصمیم‌ها ثبت و قابل پیگیری هستند.</p><div id="socialReportsTable" class="empty">در حال دریافت گزارش‌ها...</div></section>
 <section class="section tab hidden" id="moderation"><div class="row"><h2>پرونده‌های بررسی هوشمند</h2><button class="btn" id="refreshModerationCases" type="button">به‌روزرسانی</button></div><p class="muted">این پرونده‌ها فقط برای مالک اصلی قابل مشاهده و تعیین تکلیف هستند. عکس‌های حساس تا بررسی مالک پنهان می‌مانند؛ سایر موارد مشکوک فوراً نمایش داده می‌شوند و برای بررسی گزارش می‌شوند.</p><div id="moderationCasesTable" class="empty">در حال دریافت پرونده‌ها...</div></section>
+<section class="section tab hidden" id="aiSupport"><h2>کنترل و نظارت هوش مصنوعی</h2><p class="muted">این نسخه از پاسخ‌گوی قانون‌محور استفاده می‌کند. می‌توانی پاسخ‌های آماده، سؤال‌های تشخیصی و وظایف مجازش را تنظیم کنی؛ دستور آزاد زبانی یا اجرای خودکار عملیات مدیریتی در این نسخه فعال نیست.</p>
+<form id="aiSupportSettingsForm" class="manager-form"><div class="formgrid"><label class="wide"><span><input id="aiEnabled" type="checkbox"> پاسخ‌گوی خودکار فعال باشد</span></label><label><span><input id="aiAllowFaq" type="checkbox"> پاسخ‌گویی به سؤال‌های راهنمایی‌شده</span></label><label><span><input id="aiAllowHandoff" type="checkbox"> ارجاع سؤال‌های نامطمئن به پشتیبان انسانی</span></label><label class="wide">پیام خوشامدگویی<textarea id="aiWelcomeMessage" maxlength="1200" required></textarea></label><label class="wide">پاسخ پیش‌فرض برای سؤال‌های ناشناخته<textarea id="aiFallbackMessage" maxlength="1200" required></textarea></label></div><div class="actions"><button class="btn primary" type="submit" id="saveAiSupportSettings">ذخیره تنظیمات</button></div></form>
+<div class="manager-form"><div class="row"><h3>قواعد سؤال و پاسخ اختصاصی</h3><button class="btn" type="button" id="resetAiFaqForm">قاعده جدید</button></div><p class="muted">برای هر قاعده، چند عبارت کلیدی و پاسخ دقیق بنویس. اگر پیام کاربر یکی از عبارت‌ها را داشته باشد، پاسخ ثبت‌شده استفاده می‌شود.</p><form id="aiFaqForm"><input id="aiFaqId" type="hidden"><div class="formgrid"><label>عبارت‌های کلیدی (با ویرگول جدا کن)<input id="aiFaqTerms" maxlength="1000" required placeholder="مثلاً: ثبت نام، شرکت در مسابقه"></label><label>اولویت<input id="aiFaqPriority" type="number" min="0" max="1000" value="100"></label><label class="wide">پاسخ اختصاصی<textarea id="aiFaqAnswer" maxlength="3000" required></textarea></label><label><span><input id="aiFaqActive" type="checkbox" checked> قاعده فعال باشد</span></label></div><div class="actions"><button class="btn primary" type="submit" id="saveAiFaq">ذخیره قاعده</button></div></form><div id="aiFaqRulesTable" class="empty">در حال دریافت قواعد...</div></div>
+<div class="manager-form"><div class="row"><h3>گفت‌وگوهای پشتیبانی</h3><button class="btn" type="button" id="refreshAiSupportInbox">به‌روزرسانی</button></div><div id="aiSupportInboxTable" class="empty">در حال دریافت گفت‌وگوها...</div><div id="aiSupportMessages" class="empty" style="margin-top:12px">برای مشاهده پیام‌ها، یک گفت‌وگو را انتخاب کن.</div></div>
+<div class="manager-form"><div class="row"><h3>گزارش فعالیت هوش مصنوعی</h3><button class="btn" type="button" id="refreshAiSupportLogs">به‌روزرسانی</button></div><div id="aiSupportLogsTable" class="empty">در حال دریافت گزارش‌ها...</div></div></section>
 <section class="section tab hidden" id="wallet"><h2>دفترکل استار هدیه</h2><div class="notice">این موجودی فقط امتیاز مجازی EX1 است؛ قابل خرید، انتقال، برداشت یا تبدیل به پول نیست. تغییر موجودی فقط با مجوز مخصوص، ثبت دلیل و سابقهٔ غیرقابل‌حذف انجام می‌شود.</div><div id="walletTable" class="empty">در حال دریافت دفترکل...</div><div id="walletAdjustPanel" class="panel hidden" style="margin-top:16px"><h3 id="walletAdjustTitle">اصلاح امتیاز کاربر</h3><form id="walletAdjustForm" class="manager-form"><input id="wallet_user_id" type="hidden"><div class="formgrid"><label>نوع عملیات<select id="wallet_entry_type"><option value="credit">افزایش امتیاز</option><option value="debit">کاهش امتیاز</option></select></label><label>مقدار امتیاز<input id="wallet_amount" type="number" min="1" max="1000000" required></label><label class="wide">دلیل ثبت<input id="wallet_reason" maxlength="300" minlength="2" required placeholder="دلیل این تغییر را بنویس"></label></div><div class="actions"><button class="btn primary" type="submit" id="walletAdjustSubmit">ثبت تغییر امتیاز</button><button class="btn" type="button" id="walletAdjustCancel">انصراف</button></div></form></div><div id="walletHistory" class="empty" style="margin-top:16px"></div></section>
 <section class="section tab hidden" id="settings"><h2>تنظیمات ظاهری سایت</h2><p class="muted">رنگ‌ها فقط با مجوز settings.manage ذخیره می‌شوند.</p><form id="themeForm"><div class="colorgrid">
 <label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
@@ -271,7 +277,7 @@ document.addEventListener("touchmove",e=>{if(e.touches&&e.touches.length>1)e.pre
 document.addEventListener("gesturestart",e=>e.preventDefault(),{passive:false});
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",social:"مدیریت اجتماعی",moderation:"بررسی هوشمند محتوا",wallet:"کیف امتیاز",settings:"تنظیمات"};
+const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",social:"مدیریت اجتماعی",moderation:"بررسی هوشمند محتوا",aiSupport:"مدیریت هوش مصنوعی",wallet:"کیف امتیاز",settings:"تنظیمات"};
 let permissions={},isOwner=false;
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200);}
 function table(headers,rows){if(!rows.length)return '<div class="empty">هنوز داده‌ای ثبت نشده است.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';}
@@ -593,9 +599,140 @@ $("usersTable").addEventListener("click",async e=>{
 });
 
 
+
+let aiFaqCache=[],selectedAiSupportConversationId=null;
+function formatAdminDate(value){return value?new Date(value).toLocaleString("fa-IR"):"—";}
+async function loadTournamentAdminLists(){
+ const canDelete=isOwner||permissions["tournaments.delete"]===true;
+ const active=await rpc("admin_dashboard_tournaments");
+ $("statTournaments").textContent=active.length;
+ $("tournamentsTable").innerHTML=table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع","اقدامات"],active.map(t=>row([
+  esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(formatAdminDate(t.starts_at)),
+  canDelete?'<button class="action-btn danger" type="button" data-delete-tournament="'+esc(t.id)+'">حذف مسابقه</button>':"—"
+ ])));
+ $("deletedTournamentsPanel").hidden=!canDelete;
+ if(canDelete){
+  const deleted=await rpc("admin_dashboard_deleted_tournaments");
+  $("deletedTournamentsTable").innerHTML=table(["عنوان","بازی","وضعیت قبلی","زمان حذف","اقدام"],deleted.map(t=>row([
+   esc(t.title),esc(t.game),esc(t.deleted_previous_status||t.status),esc(formatAdminDate(t.deleted_at)),
+   '<button class="action-btn" type="button" data-restore-tournament="'+esc(t.id)+'">بازیابی</button>'
+  ])));
+ }
+}
+async function loadAiSupportAdmin(){
+ if(!isOwner)return;
+ const [settings,rules,logs]=await Promise.all([
+  rpc("admin_ai_get_settings"),rpc("admin_ai_list_faq_rules"),rpc("admin_ai_list_logs",{p_limit:100})
+ ]);
+ $("aiEnabled").checked=settings.enabled!==false;
+ $("aiAllowFaq").checked=settings.allow_faq_answers!==false;
+ $("aiAllowHandoff").checked=settings.allow_handoff!==false;
+ $("aiWelcomeMessage").value=settings.welcome_message||"سلام! خوش اومدی به پشتیبانی EX1 LEGEND.";
+ $("aiFallbackMessage").value=settings.fallback_message||"برای این سؤال پاسخ تأییدشده‌ای ندارم. لطفاً منتظر پشتیبان انسانی باش.";
+ aiFaqCache=Array.isArray(rules)?rules:[];
+ renderAiFaqRules();
+ renderAiSupportLogs(Array.isArray(logs)?logs:[]);
+ await loadAiSupportInbox();
+}
+function renderAiFaqRules(){
+ $("aiFaqRulesTable").innerHTML=table(["عبارت‌های کلیدی","پاسخ","اولویت","وضعیت","اقدام"],aiFaqCache.map(rule=>row([
+  esc((rule.trigger_terms||[]).join("، ")),esc(rule.answer),esc(rule.priority),rule.is_active?"فعال":"غیرفعال",
+  '<button class="action-btn" type="button" data-edit-ai-faq="'+esc(rule.id)+'">ویرایش</button> <button class="action-btn danger" type="button" data-disable-ai-faq="'+esc(rule.id)+'">غیرفعال‌سازی</button>'
+ ])));
+}
+function renderAiSupportLogs(logs){
+ $("aiSupportLogsTable").innerHTML=table(["رویداد","کاربر","جزئیات","زمان"],logs.map(item=>row([
+  esc(({auto_answer:"پاسخ خودکار",faq_match:"پاسخ قاعده اختصاصی",human_handoff:"ارجاع به پشتیبان",ai_disabled:"پاسخ‌گو غیرفعال",settings_updated:"تغییر تنظیمات",faq_rule_saved:"ذخیره قاعده",faq_rule_disabled:"غیرفعال‌سازی قاعده"})[item.event_type]||item.event_type),
+  esc(item.user_id||"—"),esc(JSON.stringify(item.details||{})),esc(formatAdminDate(item.created_at))
+ ])));
+}
+async function loadAiSupportInbox(){
+ if(!isOwner)return;
+ const {data,error}=await sb.from("support_conversations").select("id,user_id,subject,status,created_at,updated_at").order("updated_at",{ascending:false}).limit(100);
+ if(error)throw error;
+ const conversations=data||[];
+ $("aiSupportInboxTable").innerHTML=table(["موضوع","شناسه کاربر","وضعیت","آخرین به‌روزرسانی","اقدام"],conversations.map(c=>row([
+  esc(c.subject||"پشتیبانی EX1"),esc(c.user_id),esc(c.status),esc(formatAdminDate(c.updated_at)),
+  '<button class="action-btn" type="button" data-open-ai-conversation="'+esc(c.id)+'">مشاهده پیام‌ها</button>'
+ ])));
+}
+async function loadAiSupportConversation(id){
+ if(!isOwner)return;
+ selectedAiSupportConversationId=id;
+ const {data,error}=await sb.from("support_messages").select("id,sender_role,body,created_at").eq("conversation_id",id).order("created_at",{ascending:true}).limit(300);
+ if(error)throw error;
+ $("aiSupportMessages").innerHTML=(data||[]).length?(data||[]).map(m=>'<div class="manager-form"><strong>'+esc(m.sender_role==="assistant"?"پاسخ‌گوی خودکار":m.sender_role==="user"?"کاربر":"پشتیبان")+'</strong><p>'+esc(m.body)+'</p><small class="muted">'+esc(formatAdminDate(m.created_at))+'</small></div>').join(""):'<div class="empty">پیامی در این گفت‌وگو ثبت نشده است.</div>';
+}
+function resetAiFaqForm(){
+ $("aiFaqForm").reset();$("aiFaqId").value="";$("aiFaqPriority").value=100;$("aiFaqActive").checked=true;
+}
+$("tournamentsTable").addEventListener("click",async e=>{
+ const button=e.target.closest("[data-delete-tournament]");if(!button)return;
+ if(!(isOwner||permissions["tournaments.delete"]===true))return toast("مجوز حذف مسابقه را نداری.");
+ if(!window.confirm("این مسابقه از فهرست عمومی و پنل فعال حذف شود؟ سوابق ثبت‌نام، نتایج و روم‌ها حفظ می‌شوند و امکان بازیابی وجود دارد."))return;
+ button.disabled=true;
+ try{await rpc("admin_soft_delete_tournament",{p_tournament_id:button.dataset.deleteTournament,p_reason:"حذف نرم از پنل مدیریت"});await loadTournamentAdminLists();toast("مسابقه حذف شد؛ سوابق آن حفظ شده‌اند.");}
+ catch(err){toast(err?.message||"حذف مسابقه انجام نشد.");button.disabled=false;}
+});
+$("deletedTournamentsTable").addEventListener("click",async e=>{
+ const button=e.target.closest("[data-restore-tournament]");if(!button)return;
+ if(!window.confirm("مسابقه به فهرست فعال بازگردد؟"))return;
+ button.disabled=true;
+ try{await rpc("admin_restore_tournament",{p_tournament_id:button.dataset.restoreTournament});await loadTournamentAdminLists();toast("مسابقه بازیابی شد.");}
+ catch(err){toast(err?.message||"بازیابی مسابقه انجام نشد.");button.disabled=false;}
+});
+$("refreshDeletedTournaments").addEventListener("click",()=>loadTournamentAdminLists().catch(err=>toast(err?.message||"بارگذاری انجام نشد.")));
+$("aiSupportSettingsForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!isOwner)return toast("فقط مالک اصلی می‌تواند تنظیمات هوش مصنوعی را تغییر دهد.");
+ const button=$("saveAiSupportSettings");button.disabled=true;
+ try{
+  await rpc("admin_ai_save_settings",{
+   p_enabled:$("aiEnabled").checked,p_allow_faq_answers:$("aiAllowFaq").checked,
+   p_allow_handoff:$("aiAllowHandoff").checked,p_welcome_message:$("aiWelcomeMessage").value.trim(),
+   p_fallback_message:$("aiFallbackMessage").value.trim()
+  });
+  await loadAiSupportAdmin();toast("تنظیمات هوش مصنوعی ذخیره شد.");
+ }catch(err){toast(err?.message||"ذخیره تنظیمات انجام نشد.");}
+ finally{button.disabled=false;}
+});
+$("aiFaqForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!isOwner)return toast("فقط مالک اصلی می‌تواند قواعد را تغییر دهد.");
+ const terms=$("aiFaqTerms").value.split(/[,،؛;\n]+/).map(x=>x.trim()).filter(Boolean);
+ const button=$("saveAiFaq");button.disabled=true;
+ try{
+  await rpc("admin_ai_upsert_faq_rule",{
+   p_id:$("aiFaqId").value||null,p_trigger_terms:terms,p_answer:$("aiFaqAnswer").value.trim(),
+   p_priority:Number($("aiFaqPriority").value)||0,p_is_active:$("aiFaqActive").checked
+  });
+  resetAiFaqForm();await loadAiSupportAdmin();toast("قاعده پاسخ ذخیره شد.");
+ }catch(err){toast(err?.message||"ذخیره قاعده انجام نشد.");}
+ finally{button.disabled=false;}
+});
+$("aiFaqRulesTable").addEventListener("click",async e=>{
+ const edit=e.target.closest("[data-edit-ai-faq]");
+ if(edit){
+  const rule=aiFaqCache.find(x=>x.id===edit.dataset.editAiFaq);if(!rule)return;
+  $("aiFaqId").value=rule.id;$("aiFaqTerms").value=(rule.trigger_terms||[]).join("، ");
+  $("aiFaqAnswer").value=rule.answer;$("aiFaqPriority").value=rule.priority;
+  $("aiFaqActive").checked=rule.is_active===true;$("aiFaqForm").scrollIntoView({behavior:"smooth",block:"center"});return;
+ }
+ const disable=e.target.closest("[data-disable-ai-faq]");if(!disable)return;
+ if(!window.confirm("این قاعده غیرفعال شود؟"))return;
+ disable.disabled=true;
+ try{await rpc("admin_ai_delete_faq_rule",{p_id:disable.dataset.disableAiFaq});await loadAiSupportAdmin();toast("قاعده غیرفعال شد.");}
+ catch(err){toast(err?.message||"غیرفعال‌سازی انجام نشد.");disable.disabled=false;}
+});
+$("resetAiFaqForm").addEventListener("click",resetAiFaqForm);
+$("refreshAiSupportInbox").addEventListener("click",()=>loadAiSupportInbox().catch(err=>toast(err?.message||"بارگذاری گفت‌وگوها انجام نشد.")));
+$("refreshAiSupportLogs").addEventListener("click",()=>rpc("admin_ai_list_logs",{p_limit:100}).then(renderAiSupportLogs).catch(err=>toast(err?.message||"بارگذاری گزارش‌ها انجام نشد.")));
+$("aiSupportInboxTable").addEventListener("click",e=>{
+ const button=e.target.closest("[data-open-ai-conversation]");if(!button)return;
+ loadAiSupportConversation(button.dataset.openAiConversation).catch(err=>toast(err?.message||"خواندن پیام‌ها انجام نشد."));
+});
+
 async function loadTableData(){
  const tasks=[];
- if(permissions["tournaments.view"])tasks.push(rpc("admin_dashboard_tournaments").then(d=>{ $("statTournaments").textContent=d.length;$("tournamentsTable").innerHTML=table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع"],d.map(t=>row([esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—")])));}));
+ if(permissions["tournaments.view"])tasks.push(loadTournamentAdminLists());
  if(permissions["registrations.view_all"])tasks.push(rpc("admin_dashboard_registrations").then(d=>{$("statRegistrations").textContent=d.length;$("registrationsTable").innerHTML=table(["مسابقه","تیم","برچسب","وضعیت","زمان"],d.map(x=>row([esc(x.tournament_title),esc(x.team_name),esc(x.team_tag||"—"),esc(x.status),esc(new Date(x.registered_at).toLocaleString("fa-IR"))])));}));
  if(permissions["teams.view"])tasks.push(rpc("admin_dashboard_teams").then(d=>{$("statTeams").textContent=d.length;$("teamsTable").innerHTML=table(["نام تیم","برچسب","تعداد اعضا","توضیحات"],d.map(x=>row([esc(x.name),esc(x.tag||"—"),esc(x.member_count),esc(x.description||"—")])));}));
  if(permissions["users.view"]||permissions["profiles.view_all"])tasks.push(loadAdminUsers());
@@ -603,6 +740,7 @@ async function loadTableData(){
  if(permissions["wallet.view_all"])tasks.push(loadWalletOverview());
  if(permissions["social.moderate"])tasks.push(loadSocialModeration());
  if(isOwner)tasks.push(loadModerationCases());
+ if(isOwner)tasks.push(loadAiSupportAdmin());
  
  const settled=await Promise.allSettled(tasks);
  const failed=settled.filter(x=>x.status==="rejected");
@@ -712,6 +850,7 @@ async function applyAccessInternal(user){
  if(isOwner||permissions["users.view"]||permissions["profiles.view_all"])allowedTabs.push("users");
  if(permissions["social.moderate"])allowedTabs.push("social");
  if(isOwner)allowedTabs.push("moderation");
+ if(isOwner)allowedTabs.push("aiSupport");
  if(permissions["wallet.view_all"])allowedTabs.push("wallet");
  if(permissions["settings.view"]||permissions["settings.manage"])allowedTabs.push("settings");
  allowedTabs.forEach(addNav);showTab("overview");
