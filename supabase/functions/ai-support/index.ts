@@ -95,7 +95,7 @@ Deno.serve(async (req: Request) => {
 
   let answer = "";
   let handoff = false;
-  const normalized = message.replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))).replace(/[\\u200c\\s]+/g, " ").trim().toLowerCase();
+  const normalized = message.replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))).replace(/[\u200c\s]+/g, " ").trim().toLowerCase();
   const explicitHumanRequest = /(?:وصل|ارتباط|ارجاع|صحبت).{0,24}(?:پشتیبان|انسان|اپراتور|مدیر)|(?:پشتیبان|اپراتور|مدیر).{0,24}(?:می.?خوام|می.?خواهم|وصل|صحبت)/i.test(message);
 
   // Once handed to a human, keep all follow-up messages in the same human-owned thread.
