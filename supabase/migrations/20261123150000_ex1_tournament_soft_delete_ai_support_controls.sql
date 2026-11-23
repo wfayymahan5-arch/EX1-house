@@ -44,6 +44,13 @@ using (
   )
 );
 
+drop policy if exists "Authorized staff can update tournaments" on public.tournaments;
+create policy "Authorized staff can update tournaments"
+on public.tournaments
+for update
+using (deleted_at is null and private.has_permission('tournaments.update'))
+with check (deleted_at is null and private.has_permission('tournaments.update'));
+
 drop policy if exists "Authorized staff can delete tournaments" on public.tournaments;
 revoke delete on table public.tournaments from anon, authenticated;
 
