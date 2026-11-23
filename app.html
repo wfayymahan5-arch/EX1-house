@@ -209,7 +209,26 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 .bottom-nav svg{overflow:visible}
 </style><style id="ex1-room-date-readability-v1">.room-date-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0 2px}.room-date-item{min-width:0;padding:11px 12px;border:1px solid #b98be866;border-radius:13px;background:linear-gradient(135deg,#ffffff16,#ffffff08);box-shadow:inset 0 1px #ffffff14}.room-date-item small{display:block;margin-bottom:6px;color:#c9a8ee;font-size:10px;font-weight:800}.room-date-item strong{display:block;color:#fff;font-size:11px;line-height:1.9;overflow-wrap:anywhere;direction:rtl;text-align:right}@media(max-width:360px){.room-date-grid{grid-template-columns:1fr;gap:7px}}#openNotifications{position:relative;min-width:38px;font-size:17px}.ex1-unread-badge{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:99px;display:grid;place-items:center;background:#e34f79;color:#fff;border:2px solid #0a0818;font-size:9px;font-weight:900;line-height:1}.ex1-unread-badge[hidden]{display:none!important}.notification-card,.room-card,.user-row,.chat-contact{content-visibility:auto;contain-intrinsic-size:auto 110px}html{scroll-padding-top:76px}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}}
 </style>
-</head>
+<style id="ex1-neon-search-chat-fields-v1">
+/* Neon treatment for search and chat composer fields */
+.searchbar .field,.chat-send .field,#chatText,#supportText{
+ width:100%;min-width:0;color:#f8f4ff!important;border:1px solid transparent!important;border-radius:15px!important;
+ background:linear-gradient(145deg,#100e20,#19132d) padding-box,linear-gradient(115deg,rgba(39,230,242,.72),rgba(155,92,255,.9),rgba(236,79,255,.62)) border-box!important;
+ box-shadow:0 0 0 1px rgba(155,92,255,.12),0 5px 18px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.07),0 0 13px rgba(155,92,255,.12)!important;
+ padding:13px 15px!important;min-height:46px;transition:border-color .25s ease,box-shadow .25s ease,transform .25s ease!important
+}
+.searchbar .field::placeholder,.chat-send .field::placeholder,#chatText::placeholder,#supportText::placeholder{color:#a99bbf!important;opacity:1}
+.searchbar .field:hover,.chat-send .field:hover,#chatText:hover:not(:disabled),#supportText:hover{box-shadow:0 0 0 1px rgba(39,230,242,.2),0 0 17px rgba(39,230,242,.12),0 0 22px rgba(155,92,255,.18)!important}
+.searchbar .field:focus,.chat-send .field:focus,#chatText:focus:not(:disabled),#supportText:focus{
+ border-color:transparent!important;background:linear-gradient(145deg,#0e1022,#1c1534) padding-box,linear-gradient(115deg,#27e6f2,#9b5cff,#ec4fff) border-box!important;
+ box-shadow:0 0 0 3px rgba(39,230,242,.11),0 0 17px rgba(39,230,242,.24),0 0 30px rgba(155,92,255,.3),inset 0 1px rgba(255,255,255,.09)!important;transform:translateY(-1px)
+}
+.searchbar .field:disabled,.chat-send .field:disabled,#chatText:disabled{opacity:.55;cursor:not-allowed}
+.chat-window{border-color:rgba(155,92,255,.48)!important;box-shadow:0 12px 30px rgba(0,0,0,.28),0 0 22px rgba(155,92,255,.1),inset 0 1px rgba(39,230,242,.06)!important}
+.chat-messages{border-radius:14px;background:radial-gradient(ellipse at 10% 0%,rgba(155,92,255,.09),transparent 45%),linear-gradient(145deg,rgba(8,10,24,.58),rgba(20,14,36,.55));border:1px solid rgba(155,92,255,.18)}
+.chat-send{border-top:1px solid rgba(39,230,242,.2)!important;padding-top:12px!important}.searchbar{align-items:center}
+@media(prefers-reduced-motion:reduce){.searchbar .field,.chat-send .field,#chatText,#supportText{transition:none!important}}
+</style></head>
 <style id="ex1-full-project-soft-entry">
 @keyframes ex1PageSoftEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ex1DialogSoftEnter{from{opacity:0;transform:translateY(13px) scale(.985);filter:brightness(.82)}to{opacity:1;transform:translateY(0) scale(1);filter:brightness(1)}}
@@ -1209,14 +1228,12 @@ function applyRoomCategory(category){
  const allRooms=window.ex1Rooms||[],q=($("roomSearch")?.value||"").trim().toLocaleLowerCase();
  const rooms=allRooms.filter(r=>(category==="all"||roomCategory(r.game_category)===category)&&(!q||[r.title,r.map,r.game_mode].some(v=>String(v||"").toLocaleLowerCase().includes(q))));
  $("roomCategoryTitle").textContent=({all:"روم‌های پیشنهادی",fight:"روم‌های فایت",br:"روم‌های بتل‌رویال",multi:"روم‌های مولتی"})[category]||"روم‌های پیشنهادی";
- const labels=[...new Set(allRooms.map(roomTier))].sort((x,y)=>x.localeCompare(y,"fa"));
- const hasAny=rooms.length>0;
- $("roomCards").innerHTML=labels.length?labels.map(label=>{
+ const labels=[...new Set(rooms.map(roomTier))].sort((x,y)=>x.localeCompare(y,"fa"));
+ $("roomCards").innerHTML=rooms.length?labels.map(label=>{
   const items=rooms.filter(r=>roomTier(r)===label);
-  if(!items.length)return '<section class="room-tier-section room-tier-empty-state"><div class="room-tier-heading"><strong>'+esc(label)+'</strong><i></i></div><p class="room-tier-empty">در این دسته رومی نیست.</p></section>';
   return '<section class="room-tier-section" aria-label="روم‌های '+esc(label)+'"><div class="room-tier-heading"><strong>'+esc(label)+'</strong><small>'+items.length.toLocaleString("fa-IR")+' روم</small><i></i></div><div class="room-tier-track">'+items.map(roomCardMarkup).join("")+'</div></section>';
- }).join(""):'<div class="empty">در این دسته رومی نیست.</div>';
- if($("roomCategoryEmpty"))$("roomCategoryEmpty").hidden=rooms.length>0;
+ }).join(""):'<div class="empty">فعلاً رومی وجود ندارد.</div>';
+ if($("roomCategoryEmpty"))$("roomCategoryEmpty").hidden=true;
 }
 document.querySelectorAll("[data-room-category]").forEach(b=>b.onclick=()=>applyRoomCategory(b.dataset.roomCategory));
 $("roomSearch").addEventListener("input",()=>applyRoomCategory(window.ex1ActiveRoomCategory||"all"));
