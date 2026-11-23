@@ -1234,7 +1234,7 @@ async function refreshEx1LivePanels(){
   }
  }finally{ex1LiveRefreshBusy=false;}
 }
-setInterval(refreshEx1LivePanels,3000);
+setInterval(refreshEx1LivePanels,1000);
 $("openNotifications").addEventListener("click",async()=>{
  if(!currentUser){openAuth();return;}
  $("notificationsModal").classList.add("show");$("notificationsModal").setAttribute("aria-hidden","false");
