@@ -1122,7 +1122,7 @@ userNotificationsBox.addEventListener("click",async e=>{
 $("closeNotifications").addEventListener("click",()=>{$("notificationsModal").classList.remove("show");$("notificationsModal").setAttribute("aria-hidden","true");});
 $("notificationsModal").addEventListener("click",e=>{if(e.target===$("notificationsModal")){$("notificationsModal").classList.remove("show");$("notificationsModal").setAttribute("aria-hidden","true");}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("notificationsModal").classList.contains("show")){$("notificationsModal").classList.remove("show");$("notificationsModal").setAttribute("aria-hidden","true");}});
-let supportConversationId=null;let supportConversationId=null;
+let supportConversationId=null;
 function supportStorageKey(){return currentUser?"ex1_support_"+currentUser.id:null;}
 function supportFreshKey(){return currentUser?"ex1_support_fresh_"+currentUser.id:null;}
 let lastSupportRenderKey="";
