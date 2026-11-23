@@ -1,26 +1,65 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 650" fill="none">
 <defs>
- <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#100b20"/><stop offset=".5" stop-color="#25204b"/><stop offset="1" stop-color="#090d1b"/></linearGradient>
- <radialGradient id="violet"><stop stop-color="#8b5cf6" stop-opacity=".65"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></radialGradient>
- <linearGradient id="armor" x2="1" y2="1"><stop stop-color="#9ca3af"/><stop offset=".45" stop-color="#4b5563"/><stop offset="1" stop-color="#111827"/></linearGradient>
- <linearGradient id="shade" x2="0" y2="1"><stop stop-color="#070817" stop-opacity=".04"/><stop offset="1" stop-color="#070817" stop-opacity=".65"/></linearGradient>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#100b20"/><stop offset=".52" stop-color="#29204e"/><stop offset="1" stop-color="#07111e"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#9b5cff" stop-opacity=".62"/><stop offset="1" stop-color="#9b5cff" stop-opacity="0"/></radialGradient>
+ <linearGradient id="armor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9ca3af"/><stop offset=".42" stop-color="#50576b"/><stop offset="1" stop-color="#151a2a"/></linearGradient>
+ <linearGradient id="mask" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e5e7eb"/><stop offset="1" stop-color="#7b8190"/></linearGradient>
+ <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#070817" stop-opacity=".02"/><stop offset="1" stop-color="#070817" stop-opacity=".72"/></linearGradient>
+ <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
 </defs>
 <path fill="url(#bg)" d="M0 0h1200v650H0z"/>
-<circle cx="900" cy="230" r="420" fill="url(#violet)"/>
+<circle cx="900" cy="230" r="440" fill="url(#glow)"/>
+<circle cx="270" cy="360" r="170" fill="#6d3bb8" opacity=".12" filter="url(#soft)"/>
 <path d="M0 410 160 300l135 78 145-165 190 195 155-120 160 112 160-100 95 55v295H0z" fill="#171b37"/>
 <path d="m0 515 190-100 160 70 180-110 190 100 160-70 160 70 160-55v230H0z" fill="#090e1c"/>
-<g opacity=".65" fill="#080d1a" stroke="#8b7bca" stroke-width="4"><path d="M130 160h150l35 22-15 13H160l-45-20z"/><path d="M200 155l18-32h8l-7 32m-34-32h70" stroke-linecap="round"/><path d="M960 190h120l28 18-15 12H985l-35-18z"/></g>
-<g transform="translate(760 45)">
- <path d="M-112 175q10-112 112-124 102 12 112 124l-25 76h-174z" fill="#111827" stroke="#8b7bca" stroke-width="7"/>
- <path d="M-86 159q16-72 86-82 72 10 86 82l-17 46h-138z" fill="url(#armor)" stroke="#a78bfa" stroke-width="5"/>
- <path d="M-62 164q62-34 124 0l-13 37h-98z" fill="#111827" stroke="#7c6bb5" stroke-width="5"/>
- <path d="M-150 252q150-82 300 0l90 250h-480z" fill="url(#armor)" stroke="#7466a7" stroke-width="7"/>
- <path d="M-95 255h190l42 230h-274z" fill="#30384b" stroke="#8b7bca" stroke-width="5"/>
- <path d="M-150 290q-70 45-105 155l55 48 120-135zM150 290q70 45 105 155l-55 48-120-135z" fill="#30384b" stroke="#8b7bca" stroke-width="6"/>
- <path d="M-35 275h70v130h-70z" fill="#161d31" stroke="#a78bfa" stroke-width="4"/>
+<!-- Ghost-inspired masked operator -->
+<g transform="translate(825 35)">
+ <path d="M-126 178q4-115 126-135 122 20 126 135l-26 77h-200z" fill="#111827" stroke="#9a78d5" stroke-width="7"/>
+ <path d="M-92 156q8-83 92-99 84 16 92 99l-15 39h-154z" fill="#34394a" stroke="#c2a8f5" stroke-width="5"/>
+ <path d="M-77 154q77-34 154 0l-8 72q-17 48-69 54-52-6-69-54z" fill="url(#mask)" stroke="#d5c5ef" stroke-width="4"/>
+ <!-- skull-like face markings -->
+ <path d="M-61 169l28-9 18 13-9 19-29-3zM61 169l-28-9-18 13 9 19 29-3z" fill="#111827"/>
+ <path d="M-17 188h34l-7 23H-10z" fill="#222638"/>
+ <path d="M-44 229q44 25 88 0l-8 29q-36 23-72 0z" fill="#252a3a"/>
+ <path d="M-35 233v19m18-14v22m18-22v22m18-27v19" stroke="#d8dce5" stroke-width="5" stroke-linecap="round"/>
+ <path d="M-151 260q151-82 302 0l89 270h-480z" fill="url(#armor)" stroke="#8b70c7" stroke-width="7"/>
+ <path d="M-103 267h206l42 230h-290z" fill="#30384b" stroke="#9c83d4" stroke-width="5"/>
+ <path d="M-150 290q-74 48-111 158l58 48 126-142zM150 290q74 48 111 158l-58 48-126-142z" fill="#30384b" stroke="#8b70c7" stroke-width="6"/>
+ <path d="M-39 280h78v144h-78z" fill="#161d31" stroke="#b59af0" stroke-width="4"/>
+ <path d="M-88 330h176M-78 360h156M-65 390h130" stroke="#151a29" stroke-width="9" opacity=".8"/>
+ <path d="M-118 468h236" stroke="#b89aff" stroke-width="4" opacity=".5"/>
+ <rect x="-137" y="112" width="23" height="62" rx="9" fill="#1b2232" stroke="#a78bfa" stroke-width="4"/>
+ <rect x="114" y="112" width="23" height="62" rx="9" fill="#1b2232" stroke="#a78bfa" stroke-width="4"/>
 </g>
-<g fill="#c4b5fd"><circle cx="170" cy="220" r="4"/><circle cx="1050" cy="125" r="5"/><circle cx="950" cy="410" r="3"/></g>
+<!-- small stylized in-game weapon emblems, intentionally graphic/game-like -->
+<g stroke="#cbb7ff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+ <g transform="translate(105 185) rotate(-8)">
+  <path d="M0 18h58l15-8h56v14h-24l-8 10H62l-7 19H40l3-19H0z" fill="#262b43"/>
+  <path d="M70 10v-8h30v8M20 18v-8h18v8M112 24l12 9h-18" fill="#8d6fc4"/>
+  <path d="M10 23h120" stroke="#5fe2e8" opacity=".7"/>
+ </g>
+ <g transform="translate(245 405) rotate(11) scale(.72)">
+  <path d="M0 18h58l15-8h56v14h-24l-8 10H62l-7 19H40l3-19H0z" fill="#292d45"/>
+  <path d="M70 10v-8h30v8M20 18v-8h18v8M112 24l12 9h-18" fill="#9a73d7"/>
+ </g>
+ <g transform="translate(1000 430) rotate(-15) scale(.7)">
+  <path d="M0 18h58l15-8h56v14h-24l-8 10H62l-7 19H40l3-19H0z" fill="#292d45"/>
+  <path d="M70 10v-8h30v8M20 18v-8h18v8M112 24l12 9h-18" fill="#9a73d7"/>
+ </g>
+</g>
+<g font-family="Arial,sans-serif" font-weight="800" letter-spacing="2">
+ <text x="105" y="165" fill="#d9c8ff" font-size="13">AK117</text>
+ <text x="250" y="390" fill="#b6e9f4" font-size="12">BY15</text>
+ <text x="1000" y="415" fill="#d9c8ff" font-size="12">CODM</text>
+</g>
+<!-- game HUD accents -->
+<g stroke="#9b78db" stroke-width="3" opacity=".75">
+ <path d="M62 70h220M62 70v50M1138 70H918m220 0v50"/>
+ <path d="M75 275h34m-17-17v34M1090 185h34m-17-17v34"/>
+ <circle cx="190" cy="290" r="28" stroke-dasharray="4 7"/>
+ <circle cx="1060" cy="300" r="36" stroke-dasharray="3 8"/>
+</g>
+<g fill="#c4b5fd"><circle cx="170" cy="220" r="4"/><circle cx="1050" cy="125" r="5"/><circle cx="950" cy="410" r="3"/><circle cx="330" cy="130" r="3"/><circle cx="1090" cy="520" r="4"/></g>
 <path fill="url(#shade)" d="M0 0h1200v650H0z"/>
-<path d="M60 70h220M60 70v50M1140 70H920m220 0v50" stroke="#8b5cf6" stroke-width="4" opacity=".65"/>
 <text x="66" y="585" fill="#f5f3ff" font-family="Arial,sans-serif" font-size="30" font-weight="700" letter-spacing="6">EX1 LEGEND · BATTLE ARENA</text>
 </svg>
