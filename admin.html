@@ -229,7 +229,7 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
 <label>تعداد نفرات هر تیم<select id="rf_team_size"><option value="2">۲ نفره (DUO)</option><option value="4" selected>۴ نفره (SQUAD)</option></select></label>
 <label>ظرفیت کل بازیکنان<input id="rf_capacity" type="number" value="100" readonly></label>
 <label>ورودی هر بازیکن (استارز مجازی)<input id="rf_entry_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
-<label>دستهٔ قیمت روم<select id="rf_price_category" required><option value="free">رایگان</option><option value="economy">اقتصادی</option><option value="expensive">گران</option></select></label>
+<label>نام دسته‌بندی قیمت<input id="rf_price_category" type="text" maxlength="32" placeholder="نام دلخواه دسته را وارد کن؛ مثلاً اقتصادی" required></label>
 <label>جایزه تیم اول (استارز)<input id="rf_prize_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
 <label>جایزه تیم دوم (استارز)<input id="rf_prize_second_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
 <label>جایزه تیم سوم (استارز)<input id="rf_prize_third_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
@@ -312,7 +312,7 @@ function resetRoomImage(){
 function resetRoomForm(){
  window.ex1AdminAccessRoomId=null;
  $("roomForm").reset();$("rf_id").value="";$("rf_max_teams").value=25;$("rf_team_size").value="4";
- $("rf_capacity").value=100;$("rf_entry_demo_points").value=0;$("rf_game_category").value="battle_royale";$("rf_price_category").value="free";
+ $("rf_capacity").value=100;$("rf_entry_demo_points").value=0;$("rf_game_category").value="battle_royale";$("rf_price_category").value="";
  $("rf_prize_demo_points").value=0;$("rf_prize_second_demo_points").value=0;$("rf_prize_third_demo_points").value=0;
  $("rf_status").value="open";resetRoomImage();updateRoomCapacity();
  $("roomAccessAdminPanel").classList.remove("hidden");
@@ -352,7 +352,6 @@ function updateRoomFocusFromPointer(event){
 }
 $("rf_max_teams").addEventListener("input",updateRoomCapacity);
 $("rf_team_size").addEventListener("change",updateRoomCapacity);
-$("rf_price_category").addEventListener("change",()=>{if($("rf_price_category").value==="free")$("rf_entry_demo_points").value="0";});
 $("chooseRoomImage").onclick=()=>$("rf_room_image_file").click();
 $("removeRoomImage").onclick=resetRoomImage;
 const roomImagePreview=$("roomImagePreview");
@@ -826,7 +825,7 @@ $("roomForm").addEventListener("submit",async e=>{
  const id=$("rf_id").value;
  const payload={
    tournament_id:$("rf_tournament_id").value,title:$("rf_title").value.trim(),
-  game_mode:$("rf_game_mode").value.trim()||null,game_category:$("rf_game_category").value,price_category:$("rf_price_category").value,map:$("rf_map").value.trim()||null,
+  game_mode:$("rf_game_mode").value.trim()||null,game_category:$("rf_game_category").value,price_category:$("rf_price_category").value.trim(),map:$("rf_map").value.trim()||null,
   team_size:Number($("rf_team_size").value)===2?2:4,
   max_teams:Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1)),
   capacity:Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1))*(Number($("rf_team_size").value)===2?2:4),
@@ -841,8 +840,7 @@ $("roomForm").addEventListener("submit",async e=>{
   rules:$("rf_rules").value.trim()
  };
  if(!payload.tournament_id)return toast("مسابقه مرتبط را انتخاب کن.");
- if(payload.price_category==="free"&&payload.entry_demo_points!==0)return toast("برای دستهٔ رایگان، ورودی باید صفر استارز باشد.");
- if(payload.price_category!=="free"&&payload.entry_demo_points===0)return toast("برای دستهٔ اقتصادی یا گران، مبلغ استارز مجازی را وارد کن.");
+ if(!payload.price_category)return toast("نام دسته‌بندی قیمت را خودت مشخص کن.");
  $("saveRoomButton").disabled=true;
  try{
   payload.room_image_url=await uploadPendingRoomImage();
@@ -899,7 +897,7 @@ $("roomsTable").addEventListener("click",async e=>{
   const {data,error}=await sb.from("tournament_rooms").select("*").eq("id",edit.dataset.editRoom).single();
   if(error||!data)return toast("اطلاعات روم دریافت نشد.");
   $("rf_id").value=data.id;fillRoomTournamentOptions(data.tournament_id);$("rf_title").value=data.title||"";
-  $("rf_game_mode").value=data.game_mode||"";$("rf_game_category").value=data.game_category||"uncategorized";$("rf_price_category").value=data.price_category||(Number(data.entry_demo_points||0)>0?"economy":"free");$("rf_map").value=data.map||"";
+  $("rf_game_mode").value=data.game_mode||"";$("rf_game_category").value=data.game_category||"uncategorized";$("rf_price_category").value=data.price_category||"";$("rf_map").value=data.map||"";
   $("rf_max_teams").value=data.max_teams||25;$("rf_team_size").value=String(data.team_size===2?2:4);
   $("rf_capacity").value=data.capacity||((data.max_teams||25)*(data.team_size||4));
   $("rf_entry_demo_points").value=data.entry_demo_points||0;
