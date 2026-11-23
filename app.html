@@ -1198,7 +1198,7 @@ $("openNotifications").addEventListener("click",async()=>{
 function roomCategory(category){const c=String(category||"").toLowerCase();if(c==="fight")return "fight";if(c==="battle_royale"||c==="br")return "br";if(c==="multiplayer"||c==="multi")return "multi";return "all";}
 function roomImagePosition(room){const x=Math.max(0,Math.min(100,Number(room?.room_image_focus_x??50)));const y=Math.max(0,Math.min(100,Number(room?.room_image_focus_y??55)));return x+"% "+y+"%";}
 function formatRoomStart(value){if(!value)return "اعلام نشده";const d=new Date(value);if(Number.isNaN(d.getTime()))return "اعلام نشده";const now=new Date();const today=d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d.getDate()===now.getDate();const time=d.toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"});return today?"امروز ساعت "+time:d.toLocaleDateString("fa-IR",{weekday:"long"})+" ساعت "+time;}
-function roomTier(room){const category=String(room?.price_category||"").toLowerCase();if(["free","economy","expensive"].includes(category))return category;return Number(room?.entry_demo_points||0)>0?"economy":"free";}
+function roomTier(room){return String(room?.price_category||"").trim()||"بدون دسته‌بندی";}
 function roomCardMarkup(r){
  const endValue=r.ends_at||r.starts_at||"";
  return '<article class="panel room-card '+(roomHasEnded(r)?"room-card-completed":"")+'" data-room-end-at="'+esc(endValue)+'" data-room-expiry-at="'+(roomExpiryTimestamp(r)||"")+'">'+(r.room_media_type==="video"&&r.room_video_url?'<video muted playsinline preload="metadata" src="'+esc(r.room_video_url)+'"></video>':((r.room_image_url||r.tournaments?.cover_image_url)?'<img style="object-position:'+roomImagePosition(r)+'" src="'+esc(r.room_image_url||r.tournaments.cover_image_url)+'" alt="تصویر مسابقه">':'<div class="room-card-fallback"><img src="/room-arena-art.svg" alt="تصویر میدان رقابت EX1"><span>ARENA ROOM</span></div>'))+'<div class="room-card-body"><div class="room-card-top"><span class="room-phase-tag '+roomPhase(r)+'">'+roomPhaseLabel(r)+'</span><span class="room-card-mode">'+(r.team_size===2?"DUO":"SQUAD")+'</span></div><h3>'+esc(r.title)+'</h3><div class="room-meta"><span>'+Number(r.max_teams||25)+' تیم</span><span>·</span><span>ورودی مجازی: '+Number(r.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</span><span>·</span><span>جایزه: '+"اول "+Number(r.prize_demo_points||0).toLocaleString("fa-IR")+" / دوم "+Number(r.prize_second_demo_points||0).toLocaleString("fa-IR")+" / سوم "+Number(r.prize_third_demo_points||0).toLocaleString("fa-IR")+' استارز</span></div><div class="room-date-grid"><div class="room-date-item"><small>زمان شروع</small><strong>'+formatRoomStart(r.starts_at)+'</strong></div><div class="room-date-item"><small>ورودی مجازی</small><strong>'+Number(r.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div><button class="room-open-btn" type="button" data-open-room="'+esc(r.id)+'">مشاهده جزئیات روم <span>←</span></button></div></article>';
@@ -1209,14 +1209,14 @@ function applyRoomCategory(category){
  const allRooms=window.ex1Rooms||[],q=($("roomSearch")?.value||"").trim().toLocaleLowerCase();
  const rooms=allRooms.filter(r=>(category==="all"||roomCategory(r.game_category)===category)&&(!q||[r.title,r.map,r.game_mode].some(v=>String(v||"").toLocaleLowerCase().includes(q))));
  $("roomCategoryTitle").textContent=({all:"روم‌های پیشنهادی",fight:"روم‌های فایت",br:"روم‌های بتل‌رویال",multi:"روم‌های مولتی"})[category]||"روم‌های پیشنهادی";
- const labels=[["free","رایگان","ورودی صفر استارز"],["economy","اقتصادی","دستهٔ اقتصادی"],["expensive","گران","دستهٔ گران"]];
- const hasAny=labels.some(([key])=>rooms.some(r=>roomTier(r)===key));
- $("roomCards").innerHTML=labels.map(([key,label,sub])=>{
-  const items=rooms.filter(r=>roomTier(r)===key);
-  if(!items.length)return '<section class="room-tier-section room-tier-empty-state"><div class="room-tier-heading"><strong>'+label+'</strong><i></i></div><p class="room-tier-empty">در این دسته رومی نیست.</p></section>';
-  return '<section class="room-tier-section" aria-label="روم‌های '+label+'"><div class="room-tier-heading"><strong>'+label+'</strong><small>'+sub+' · '+items.length.toLocaleString("fa-IR")+' روم</small><i></i></div><div class="room-tier-track">'+items.map(roomCardMarkup).join("")+'</div></section>';
- }).join("");
- if(!hasAny)$("roomCards").innerHTML='<div class="empty">در این دسته رومی نیست.</div>'; if($("roomCategoryEmpty"))$("roomCategoryEmpty").hidden=rooms.length>0;
+ const labels=[...new Set(allRooms.map(roomTier))].sort((x,y)=>x.localeCompare(y,"fa"));
+ const hasAny=rooms.length>0;
+ $("roomCards").innerHTML=labels.length?labels.map(label=>{
+  const items=rooms.filter(r=>roomTier(r)===label);
+  if(!items.length)return '<section class="room-tier-section room-tier-empty-state"><div class="room-tier-heading"><strong>'+esc(label)+'</strong><i></i></div><p class="room-tier-empty">در این دسته رومی نیست.</p></section>';
+  return '<section class="room-tier-section" aria-label="روم‌های '+esc(label)+'"><div class="room-tier-heading"><strong>'+esc(label)+'</strong><small>'+items.length.toLocaleString("fa-IR")+' روم</small><i></i></div><div class="room-tier-track">'+items.map(roomCardMarkup).join("")+'</div></section>';
+ }).join(""):'<div class="empty">در این دسته رومی نیست.</div>';
+ if($("roomCategoryEmpty"))$("roomCategoryEmpty").hidden=rooms.length>0;
 }
 document.querySelectorAll("[data-room-category]").forEach(b=>b.onclick=()=>applyRoomCategory(b.dataset.roomCategory));
 $("roomSearch").addEventListener("input",()=>applyRoomCategory(window.ex1ActiveRoomCategory||"all"));
