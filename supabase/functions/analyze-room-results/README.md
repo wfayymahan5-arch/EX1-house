@@ -1,25 +1,40 @@
 # EX1 LEGEND room-result image analysis
 
-This Edge Function is a guarded Gemini vision adapter. It extracts candidate fields from a batch of result screenshots and returns them with `status: review_required`. It does **not** write to `tournament_player_results`, link game identities to EX1 accounts, or publish official statistics.
+This Supabase Edge Function is a guarded Gemini vision adapter. It extracts candidate fields from a batch of Call of Duty Mobile result screenshots and returns them with `status: review_required`.
+
+It does **not** write official results, update profile statistics, change Stars/points balances, or publish results. Every extraction must be reviewed separately.
 
 ## Default safety state
 
-The provider is disabled unless all of these server-side secrets are set:
+The provider remains disabled unless all three server-side settings are present:
 
 - `EX1_RESULTS_AI_ENABLED=true`
 - `EX1_RESULTS_AI_DATA_TERMS_APPROVED=true`
-- `GEMINI_API_KEY` (secret; never place it in client code)
-- `EX1_RESULTS_WORKER_SECRET` (secret shared only with the trusted backend worker)
+- `GEMINI_API_KEY` (secret; never put this in client code or Git)
 
-Optional:
+The function also needs the normal Supabase Edge Function environment values `SUPABASE_URL` and `SUPABASE_ANON_KEY` (or `SUPABASE_PUBLISHABLE_KEY`).
 
-- `GEMINI_RESULTS_MODEL=gemini-3.5-flash-lite`
+Optional settings:
 
-The project owner must review Google's current Gemini API Free Tier terms and approve sending result screenshots to Google before enabling the data-terms flag. Google's Free Tier documentation says submitted content may be used to improve Google products. Do not enable this for real player screenshots until the owner has reviewed the privacy implications and obtained any required notice/consent.
+- `GEMINI_RESULTS_MODEL=gemini-3.1-flash-lite`
+- `EX1_RESULTS_ALLOWED_ORIGINS=https://your-preview-host.example` (comma-separated; production EX1 origin is already allowed)
+
+The project owner must review Google's current Gemini API Free Tier terms and the privacy implications before approving screenshot transfer. The Free Tier pricing page indicates submitted content may be used to improve Google products. Do not enable processing of real player screenshots until the owner has reviewed the terms and arranged any required player notice/consent.
+
+## Authorization and validation
+
+- The Edge Function must keep platform JWT verification enabled.
+- The caller must have a valid Supabase Auth session.
+- The caller must have `results.manage` and either `rooms.view` or `rooms.manage`.
+- The requested room must be visible to the caller and completed (or have an elapsed `ends_at`).
+- Only JPEG, PNG, and WebP are accepted; maximum 8 images per request and 4 MiB per image.
+- Duplicate images in one request are rejected by SHA-256 hash.
+- The function never returns the Gemini provider's raw error body.
+- The response is an untrusted review candidate and explicitly reports `official_write_performed: false`.
 
 ## Request
 
-The caller must use a valid Supabase JWT (the platform's default Edge Function JWT verification) and the private `x-ex1-results-worker` header. The body is:
+Send a signed-in user's JWT through the Authorization header and call the function with:
 
 ```json
 {
@@ -30,17 +45,17 @@ The caller must use a valid Supabase JWT (the platform's default Edge Function J
 }
 ```
 
-Limits: 8 images per request, 4 MiB per image; JPEG, PNG, and WebP only.
+## Still required before end-to-end completion
 
-## Response and downstream requirements
+1. Add a dedicated **private** Storage bucket for room result originals. Do not use the existing public `tournament-assets` bucket for these screenshots.
+2. Add and verify Storage RLS rules that limit reads to participants of the exact room and authorized staff; upload must require `results.manage`.
+3. Add a result-image manifest and review queue with room ID, object path, image hash, extraction payload, confidence, status, timestamps, and reviewer audit fields.
+4. Add idempotent approval/rejection RPCs. Approval must verify room/user membership, match game UID before game name, prevent duplicate `(room_id,user_id)` results, and reject self-approval by the uploader.
+5. Only approved rows may be written to `tournament_player_results` and included in profile performance statistics.
+6. Add the admin/manager upload and review interface, and the participant-only room results gallery.
+7. Add a bounded retry mechanism for transient provider failures. Do not add a paid scheduler or paid database branch.
+8. Run Deno type/lint checks, migration validation, Supabase Security Advisor, and end-to-end tests with synthetic screenshots before any production deployment.
 
-Successful responses are marked `review_required` and explicitly include `official_write_performed: false`. Treat all extracted fields as untrusted candidates. Before official results can be saved, a separate workflow still needs to:
+## Current implementation boundary
 
-1. verify that the room is completed and the caller is authorized for that room;
-2. deduplicate overlapping screenshots and repeated player rows;
-3. match game UID first, then game name only as a secondary signal;
-4. route low-confidence, unknown, and conflicting matches to human review;
-5. require owner approval before official result writes and profile-stat updates;
-6. store originals in a private room-scoped bucket and enforce participant-only read access.
-
-No database migration, bucket, scheduler, or deployment is created by this adapter alone.
+The current code only authenticates and authorizes the analysis request, checks room completion, validates image input, calls Gemini, hashes images, deduplicates identical UID rows, and returns a review-required candidate payload. It does not persist originals or extraction records. No database migration, Storage bucket, scheduler, secret, or deployment is created by this GitHub change.
