@@ -231,6 +231,33 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 </style>
 
 
+
+<style id="ex1-settings-design-system-v1">
+:root{--ex1-surface:rgba(20,18,39,.88);--ex1-surface-2:rgba(28,24,51,.92);--ex1-border:rgba(177,132,255,.22);--ex1-violet:#a66bff;--ex1-cyan:#39d8ee;--ex1-pink:#e56bfa;--ex1-text:#f4efff;--ex1-muted:#a99fbd}
+body{color:var(--ex1-text)}
+.panel,.settings-card,.settings-sidebar{border-color:var(--ex1-border)}
+.ex1-settings-page{padding:18px 0 34px}
+.settings-page-head{display:flex;align-items:flex-start;gap:14px;margin:8px 0 22px}
+.settings-page-head>div{min-width:0}.settings-page-head h1{font-size:24px;margin:5px 0}.settings-page-head p{font-size:11px;color:var(--ex1-muted);margin:0}
+.settings-layout{display:grid;grid-template-columns:minmax(210px,.78fr) minmax(0,1.7fr);gap:15px;align-items:start}
+.settings-sidebar{display:grid;gap:7px;padding:10px;position:sticky;top:14px;background:var(--ex1-surface)}
+.settings-nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:12px 10px;text-align:right;color:var(--ex1-text);background:transparent;border:1px solid transparent;border-radius:14px;cursor:pointer}
+.settings-nav-item>span:nth-child(2){flex:1;min-width:0}.settings-nav-item b,.settings-nav-item small{display:block}.settings-nav-item b{font-size:11px}.settings-nav-item small{font-size:9px;color:var(--ex1-muted);margin-top:4px;line-height:1.6}.settings-nav-item i{font-style:normal;color:#bda4e8}
+.settings-nav-item.active{background:linear-gradient(110deg,rgba(151,86,238,.22),rgba(43,183,211,.09));border-color:rgba(178,132,255,.42);box-shadow:inset 0 0 18px rgba(148,91,255,.08)}
+.settings-nav-icon,.settings-symbol{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:12px;font-size:17px;background:rgba(166,107,255,.14);color:#d7baff}
+.settings-nav-icon.cyan,.settings-symbol.cyan{background:rgba(57,216,238,.13);color:#70e8f4}.settings-nav-icon.pink,.settings-symbol.pink{background:rgba(229,107,250,.13);color:#f0a4fa}.settings-nav-icon.amber{background:rgba(244,190,91,.14);color:#ffd58b}.settings-nav-icon.red{background:rgba(239,93,125,.14);color:#ff9bb0}.settings-nav-icon.green{background:rgba(73,218,157,.13);color:#8ceac0}
+.settings-content{min-width:0}.settings-view{display:grid;gap:13px}.settings-view[hidden]{display:none!important}
+.settings-view-title{display:flex;align-items:center;gap:12px;margin-bottom:2px}.settings-view-title h2{font-size:17px;margin:0}.settings-view-title p{font-size:10px;color:var(--ex1-muted);margin:5px 0 0;line-height:1.8}.settings-title-icon{display:grid;place-items:center;width:43px;height:43px;border-radius:14px;background:linear-gradient(135deg,rgba(166,107,255,.24),rgba(57,216,238,.14));border:1px solid var(--ex1-border);font-size:20px;color:#e4caff}
+.settings-card{padding:16px;border-radius:19px;background:linear-gradient(145deg,rgba(30,25,52,.94),rgba(14,19,35,.94));box-shadow:0 12px 28px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.04)}
+.settings-card-heading{display:flex;align-items:center;gap:10px;margin-bottom:14px}.settings-card-heading h3{font-size:13px;margin:0}.settings-card-heading small{display:block;font-size:9px;color:var(--ex1-muted);margin-top:4px}
+.settings-info-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07)}.settings-info-row span{font-size:10px;color:var(--ex1-muted)}.settings-info-row strong{font-size:11px;overflow-wrap:anywhere}
+.settings-email-form{margin-top:13px}.settings-email-form>label,.settings-form-grid>label{display:block;font-size:10px;color:#d8cdea;margin-bottom:8px}.settings-input-row{display:flex;gap:8px}.settings-input-row input{flex:1;min-width:0}.settings-email-form .muted,.settings-form-message{font-size:9px;line-height:1.8;margin:8px 0 0}
+.settings-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.settings-form-grid select{margin-top:7px}.settings-form-grid button{grid-column:1/-1}.settings-form-grid .settings-form-message{grid-column:1/-1}
+.settings-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-top:1px solid rgba(255,255,255,.08)}.settings-toggle-row b{display:block;font-size:11px}.settings-toggle-row small{display:block;color:var(--ex1-muted);font-size:9px;margin-top:5px;line-height:1.7}
+.ex1-switch{position:relative;display:inline-flex;flex:0 0 48px;width:48px;height:27px}.ex1-switch input{position:absolute;opacity:0;width:1px;height:1px}.ex1-switch span{width:48px;height:27px;border-radius:99px;background:#343047;border:1px solid #686079;transition:.2s;cursor:pointer}.ex1-switch span:before{content:"";display:block;width:19px;height:19px;margin:3px;border-radius:50%;background:#ddd5ec;transition:.2s;box-shadow:0 2px 5px #0006}.ex1-switch input:checked+span{background:linear-gradient(100deg,#8c4de0,#25aebe);border-color:#b88bff;box-shadow:0 0 13px rgba(153,91,255,.3)}.ex1-switch input:checked+span:before{transform:translateX(21px);background:white}.ex1-switch input:focus-visible+span{outline:2px solid #a9eaf3;outline-offset:3px}
+@media(max-width:700px){.settings-layout{grid-template-columns:1fr}.settings-sidebar{position:static;grid-template-columns:1fr 1fr}.settings-nav-item{padding:10px 8px}.settings-nav-item small{display:none}.settings-nav-item b{font-size:10px}.settings-nav-icon{width:31px;height:31px;flex-basis:31px}.settings-nav-item i{display:none}}
+@media(max-width:390px){.settings-sidebar{grid-template-columns:1fr}.settings-form-grid{grid-template-columns:1fr}.settings-form-grid button,.settings-form-grid .settings-form-message{grid-column:1}.settings-input-row{flex-direction:column}.settings-input-row .btn{width:100%}}
+</style>
 </head>
 <style id="ex1-full-project-soft-entry">
 @keyframes ex1PageSoftEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
@@ -324,6 +351,55 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 <section class="page" id="page-ranking">
  <div class="section-head"><div><h2>برترین‌ها</h2><p>رتبه‌بندی فقط بر اساس نتایج تأییدشده‌ی مسابقات</p></div></div><label class="searchbar"><input id="rankingSearch" class="field" type="search" maxlength="80" placeholder="جست‌وجوی بازیکن، تیم یا مسابقه..."></label>
  <div id="ranking" class="panel"><div class="empty">هنوز نتیجه‌ی تأییدشده‌ای ثبت نشده است.</div></div>
+</section>
+
+<section class="page ex1-settings-page" id="page-settings" aria-labelledby="settingsPageTitle">
+ <div class="settings-page-head">
+  <button class="btn ghost small" type="button" id="settingsBackButton" aria-label="بازگشت">← بازگشت</button>
+  <div><span class="eyebrow">EX1 LEGEND · ACCOUNT CENTER</span><h1 id="settingsPageTitle">تنظیمات</h1><p>مدیریت حساب و تجربه کاربری</p></div>
+ </div>
+ <div class="settings-layout">
+  <nav class="settings-sidebar panel" aria-label="دسته‌بندی تنظیمات">
+   <button type="button" class="settings-nav-item active" data-settings-view="account"><span class="settings-nav-icon violet">♙</span><span><b>اطلاعات حساب کاربری و امنیت</b><small>ایمیل، سن، جنسیت و حریم خصوصی</small></span><i>‹</i></button>
+   <button type="button" class="settings-nav-item" data-settings-view="invite"><span class="settings-nav-icon cyan">↗</span><span><b>دعوت از دوستان</b><small>لینک دعوت و کد معرف</small></span><i>‹</i></button>
+   <button type="button" class="settings-nav-item" data-settings-view="about"><span class="settings-nav-icon pink">✦</span><span><b>درباره EX1 LEGEND</b><small>معرفی و اطلاعات برنامه</small></span><i>‹</i></button>
+   <button type="button" class="settings-nav-item" id="settingsNotificationsButton"><span class="settings-nav-icon amber">♢</span><span><b>اعلان‌ها</b><small>پیام‌ها و اطلاع‌رسانی‌ها</small></span><i>‹</i></button>
+   <button type="button" class="settings-nav-item" id="settingsLogoutButton"><span class="settings-nav-icon red">⇥</span><span><b>خروج از حساب</b><small>خروج امن از حساب کاربری</small></span><i>‹</i></button>
+   <button type="button" class="settings-nav-item" id="settingsClearCacheButton"><span class="settings-nav-icon green">⟳</span><span><b>پاک کردن کش</b><small>تازه‌سازی فایل‌های ذخیره‌شده</small></span><i>‹</i></button>
+  </nav>
+  <div class="settings-content">
+   <section class="settings-view active" id="settings-view-account">
+    <div class="settings-view-title"><span class="settings-title-icon">♙</span><div><h2>اطلاعات حساب کاربری و امنیت</h2><p>اطلاعات پایه و تنظیمات دسترسی حساب خود را مدیریت کن.</p></div></div>
+    <div class="settings-card panel">
+     <div class="settings-card-heading"><span class="settings-symbol violet">✉</span><div><h3>ایمیل حساب</h3><small>ایمیل متصل به حساب EX1 LEGEND</small></div></div>
+     <div class="settings-info-row"><span>ایمیل فعلی</span><strong id="accountCurrentEmail" dir="ltr">—</strong></div>
+     <form id="accountEmailForm" class="settings-email-form">
+      <label for="accountNewEmail">تغییر ایمیل</label>
+      <div class="settings-input-row"><input class="field" id="accountNewEmail" type="email" autocomplete="email" maxlength="254" placeholder="ایمیل جدید"><button class="btn small" id="accountEmailSubmit" type="submit">درخواست تغییر</button></div>
+      <p class="muted" id="accountEmailMessage">برای ثبت ایمیل جدید، تأیید آن از طریق ایمیل لازم است.</p>
+     </form>
+    </div>
+    <div class="settings-card panel">
+     <div class="settings-card-heading"><span class="settings-symbol cyan">◎</span><div><h3>مشخصات فردی</h3><small>این اطلاعات را می‌توانی هر زمان ویرایش کنی.</small></div></div>
+     <form id="accountPersonalForm" class="settings-form-grid">
+      <label>جنسیت<select class="field" id="accountGender"><option value="">انتخاب نشده</option><option value="female">زن</option><option value="male">مرد</option><option value="prefer_not_to_say">ترجیح می‌دهم نگویم</option></select></label>
+      <label>سن<select class="field" id="accountAge"><option value="">انتخاب سن</option></select></label>
+      <button class="btn" type="submit" id="accountPersonalSave">ذخیره اطلاعات</button>
+      <p class="muted settings-form-message" id="accountPersonalMessage">اطلاعات فردی فقط در تنظیمات حساب ذخیره می‌شود.</p>
+     </form>
+    </div>
+    <div class="settings-card panel">
+     <div class="settings-card-heading"><span class="settings-symbol pink">◈</span><div><h3>حریم خصوصی</h3><small>کنترل کن دیگران چه راهی برای ارتباط و مشاهده وضعیتت داشته باشند.</small></div></div>
+     <div class="settings-toggle-row"><div><b>دریافت پیام</b><small>اجازه بده سایر بازیکنان برایت پیام بفرستند.</small></div><label class="ex1-switch"><input type="checkbox" id="privacyReceiveMessages" checked><span></span></label></div>
+     <div class="settings-toggle-row"><div><b>مخفی کردن آخرین بازدید</b><small>آخرین زمان فعالیتت برای دیگران نمایش داده نشود.</small></div><label class="ex1-switch"><input type="checkbox" id="privacyHideLastSeen"><span></span></label></div>
+     <button class="btn small" type="button" id="savePrivacySettings">ذخیره حریم خصوصی</button>
+     <p class="muted settings-form-message" id="privacySettingsMessage">تنظیمات در حساب ذخیره می‌شوند؛ اعمال کامل آن‌ها در پیام‌رسانی و نمایش وضعیت به تکمیل کنترل‌های سمت سرور نیاز دارد.</p>
+    </div>
+   </section>
+   <section class="settings-view" id="settings-view-invite" hidden><div class="settings-view-title"><span class="settings-title-icon">↗</span><div><h2>دعوت از دوستان</h2><p>جزئیات لینک دعوت و کد معرف در مرحله بعد تکمیل می‌شود.</p></div></div></section>
+   <section class="settings-view" id="settings-view-about" hidden><div class="settings-view-title"><span class="settings-title-icon">✦</span><div><h2>درباره EX1 LEGEND</h2><p>محتوای این بخش پس از دریافت جزئیات تکمیل می‌شود.</p></div></div></section>
+  </div>
+ </div>
 </section>
 </main>
 <nav class="bottom-nav" aria-label="منوی اصلی">
@@ -924,7 +1000,57 @@ $("removeCoverButton").onclick=async()=>{
 };
 
 document.querySelectorAll("[data-profile-tab]").forEach(b=>b.onclick=()=>{const nav=document.querySelector(".profile-tabs");const navTop=nav.getBoundingClientRect().top;document.querySelectorAll("[data-profile-tab]").forEach(x=>x.classList.toggle("active",x===b));["matches","team"].forEach(k=>{$("profile"+k[0].toUpperCase()+k.slice(1)).hidden=k!==b.dataset.profileTab;});const restore=()=>{const delta=nav.getBoundingClientRect().top-navTop;if(Math.abs(delta)>1){const root=document.documentElement,old=root.style.scrollBehavior;root.style.scrollBehavior="auto";window.scrollBy(0,delta);root.style.scrollBehavior=old;}};requestAnimationFrame(()=>{restore();requestAnimationFrame(restore);});if(b.dataset.profileTab==="team")loadMyTeam().finally(()=>setTimeout(restore,80));});
-$("openSettings").onclick=()=>{$("settingsModal").classList.add("show");$("appearanceSettings").hidden=false;$("blockedSettings").hidden=true;$("userSettingsMessage").textContent=currentUser?"در حال دریافت تنظیمات ذخیره‌شده...":"برای ذخیره بین دستگاه‌ها وارد حساب شو." ;loadUserSettings();};
+$("openSettings").onclick=()=>{if(!currentUser){openAuth();return;}switchPage("settings");loadAccountSecuritySettings();};
+$("settingsBackButton").onclick=()=>switchPage("profile");
+document.querySelectorAll("[data-settings-view]").forEach(button=>button.addEventListener("click",()=>{
+ const view=button.dataset.settingsView;
+ document.querySelectorAll("[data-settings-view]").forEach(item=>item.classList.toggle("active",item===button));
+ document.querySelectorAll(".settings-view").forEach(section=>{const active=section.id==="settings-view-"+view;section.hidden=!active;section.classList.toggle("active",active);});
+}));
+$("settingsNotificationsButton").onclick=()=>{$("notificationsModal").classList.add("show");refreshNotifications().catch(()=>{});};
+$("settingsLogoutButton").onclick=async()=>{try{await confirmedSignOut();}catch(error){toast(error?.message||"خروج انجام نشد.");}};
+$("settingsClearCacheButton").onclick=async()=>{
+ if(!(await ex1Confirm("پاک کردن کش","فایل‌های موقت ذخیره‌شده روی این دستگاه پاک شوند؟ ممکن است بارگذاری بعدی کمی بیشتر طول بکشد.","پاک کردن کش")))return;
+ try{if("caches" in window){const keys=await caches.keys();await Promise.all(keys.map(key=>caches.delete(key)));}localStorage.removeItem("ex1-explore-cache");toast("کش‌های ذخیره‌شده پاک شدند؛ برنامه دوباره بارگذاری می‌شود.");setTimeout(()=>location.reload(),450);}
+ catch(error){toast("پاک کردن کش کامل نشد: "+(error?.message||"خطای نامشخص"));}
+};
+for(let age=5;age<=70;age++){const option=document.createElement("option");option.value=String(age);option.textContent=age.toLocaleString("fa-IR")+" سال";$("accountAge").append(option);}
+async function loadAccountSecuritySettings(){
+ if(!currentUser)return;
+ const metadata=currentUser.user_metadata||{};
+ $("accountCurrentEmail").textContent=currentUser.email||"ثبت نشده";
+ $("accountNewEmail").value="";
+ $("accountEmailMessage").textContent="برای ثبت ایمیل جدید، تأیید آن از طریق ایمیل لازم است.";
+ $("accountGender").value=metadata.ex1_profile_gender||"";
+ $("accountAge").value=metadata.ex1_profile_age?String(metadata.ex1_profile_age):"";
+ $("privacyReceiveMessages").checked=metadata.ex1_privacy_receive_messages!==false;
+ $("privacyHideLastSeen").checked=metadata.ex1_privacy_hide_last_seen===true;
+}
+$("accountEmailForm").addEventListener("submit",async event=>{
+ event.preventDefault();if(!currentUser)return openAuth();
+ const email=$("accountNewEmail").value.trim().toLowerCase();if(!email)return;
+ if(email===String(currentUser.email||"").toLowerCase())return toast("این همان ایمیل فعلی حساب است.");
+ const button=$("accountEmailSubmit");button.disabled=true;button.textContent="در حال ارسال...";
+ try{const {data,error}=await sb.auth.updateUser({email});if(error)throw error;$("accountEmailMessage").textContent="درخواست تغییر ایمیل ارسال شد. صندوق ورودی ایمیل جدید را برای تأیید بررسی کن.";$("accountNewEmail").value="";toast("درخواست تأیید ایمیل ارسال شد.");if(data?.user)currentUser=data.user;}
+ catch(error){$("accountEmailMessage").textContent=error?.message||"درخواست تغییر ایمیل انجام نشد.";toast(error?.message||"تغییر ایمیل انجام نشد.");}
+ finally{button.disabled=false;button.textContent="درخواست تغییر";}
+});
+$("accountPersonalForm").addEventListener("submit",async event=>{
+ event.preventDefault();if(!currentUser)return openAuth();
+ const gender=$("accountGender").value,age=$("accountAge").value;
+ if(!gender||!age)return toast("جنسیت و سن را انتخاب کن.");
+ const button=$("accountPersonalSave");button.disabled=true;
+ try{const {data,error}=await sb.auth.updateUser({data:{ex1_profile_gender:gender,ex1_profile_age:Number(age)}});if(error)throw error;currentUser=data.user;$("accountPersonalMessage").textContent="اطلاعات فردی در حساب ذخیره شد." ;toast("اطلاعات حساب به‌روزرسانی شد.");}
+ catch(error){$("accountPersonalMessage").textContent=error?.message||"ذخیره اطلاعات انجام نشد.";toast(error?.message||"ذخیره اطلاعات انجام نشد.");}
+ finally{button.disabled=false;}
+});
+$("savePrivacySettings").onclick=async()=>{
+ if(!currentUser)return openAuth();
+ const button=$("savePrivacySettings");button.disabled=true;
+ try{const {data,error}=await sb.auth.updateUser({data:{ex1_privacy_receive_messages:$("privacyReceiveMessages").checked,ex1_privacy_hide_last_seen:$("privacyHideLastSeen").checked}});if(error)throw error;currentUser=data.user;$("privacySettingsMessage").textContent="ترجیحات حریم خصوصی در حساب ذخیره شد. اعمال سمت سرور این گزینه‌ها در مرحله امنیتی بعدی تکمیل می‌شود.";toast("تنظیمات حریم خصوصی ذخیره شد.");}
+ catch(error){$("privacySettingsMessage").textContent=error?.message||"ذخیره حریم خصوصی انجام نشد.";toast(error?.message||"ذخیره حریم خصوصی انجام نشد.");}
+ finally{button.disabled=false;}
+};
 $("showAppearanceSettings").onclick=()=>{$("appearanceSettings").hidden=!$("appearanceSettings").hidden;};
 $("showBlockedSettings").onclick=()=>{$("blockedSettings").hidden=!$("blockedSettings").hidden;if(!$("blockedSettings").hidden)loadBlockedUsers();};
 document.querySelectorAll("[data-close-modal]").forEach(b=>b.onclick=()=>$(b.dataset.closeModal).classList.remove("show"));
