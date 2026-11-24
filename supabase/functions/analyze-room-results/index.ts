@@ -2,7 +2,7 @@
 // Extracts candidate data only. It never writes official results, wallets, or profile stats.
 // Keep disabled until the project owner reviews Google's current data terms.
 
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.119.0";
 
 const MAX_IMAGES = 8;
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
