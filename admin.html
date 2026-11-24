@@ -328,7 +328,7 @@ function resetRoomForm(){
  $("roomAccessPublishMessage").textContent="کد و رمز فقط پس از ذخیره روم قابل ثبت هستند.";
  $("roomForm").classList.add("hidden");
 }
-async function autoRoomImagePosition(file,img){
+async function autoRoomImagePosition(file,img,previewUrl=img.currentSrc||img.src){
  const w=img.naturalWidth,h=img.naturalHeight,boxRatio=16/9;
  let fx=.5,fy=h>w*1.12?.65:.5,faceFound=false;
  if("FaceDetector" in window&&window.createImageBitmap){
@@ -342,7 +342,7 @@ async function autoRoomImagePosition(file,img){
  if(w/h>boxRatio+.001)x=Math.max(0,Math.min(100,Math.round((fx*w-(h*boxRatio)/2)/(w-h*boxRatio)*100)));
  else if(w/h<boxRatio-.001)y=Math.max(0,Math.min(100,Math.round((fy*h-(w/boxRatio)/2)/(h-w/boxRatio)*100)));
  if(!faceFound&&h>w*1.12)y=65;
- if(!roomImageManuallyAdjusted)setRoomImagePreview(roomImageObjectUrl,x,y);
+ if(!roomImageManuallyAdjusted)setRoomImagePreview(previewUrl,x,y);
 }
 function applyRoomImageFocus(x,y,manual=true){
  const fx=Math.max(0,Math.min(100,Math.round(Number(x)||0))),fy=Math.max(0,Math.min(100,Math.round(Number(y)||0)));
@@ -409,9 +409,23 @@ $("rf_room_image_file").addEventListener("change",e=>{
  if(file.size>5*1024*1024){toast("حجم تصویر باید حداکثر ۵ مگابایت باشد.");e.target.value="";return;}
  if(roomImageObjectUrl)URL.revokeObjectURL(roomImageObjectUrl);
  roomImageObjectUrl=URL.createObjectURL(file);pendingRoomImageFile=file;roomImageManuallyAdjusted=false;
- $("rf_room_image_url").value="";$("roomImageUploadStatus").textContent="تصویر انتخاب شد؛ پس از ذخیره روم بارگذاری می‌شود.";
- const img=$("roomImagePreviewImg");img.onload=()=>{autoRoomImagePosition(file,img);};
- img.src=roomImageObjectUrl;$("roomImagePreviewWrap").classList.remove("hidden");
+ $("rf_room_image_url").value="";$("roomImageUploadStatus").textContent="در حال آماده‌سازی پیش‌نمایش تصویر...";
+ const img=$("roomImagePreviewImg"),previewWrap=$("roomImagePreviewWrap"),objectUrl=roomImageObjectUrl;
+ previewWrap.classList.remove("hidden");
+ img.onload=()=>{if(img.naturalWidth&&img.naturalHeight){$("roomImageUploadStatus").textContent="تصویر انتخاب شد؛ پس از ذخیره روم بارگذاری می‌شود.";autoRoomImagePosition(file,img,objectUrl);}else{img.onerror();}};
+ img.onerror=()=>{
+  const reader=new FileReader();
+  reader.onload=()=>{
+   const dataUrl=String(reader.result||"");
+   if(!dataUrl.startsWith("data:image/")){$("roomImageUploadStatus").textContent="مرورگر نتوانست تصویر را پیش‌نمایش کند؛ یک تصویر دیگر انتخاب کن.";return;}
+   img.onload=()=>{if(img.naturalWidth&&img.naturalHeight){$("roomImageUploadStatus").textContent="تصویر آماده است؛ پس از ذخیره روم بارگذاری می‌شود.";autoRoomImagePosition(file,img,dataUrl);}else{$("roomImageUploadStatus").textContent="خواندن تصویر ناموفق بود؛ لطفاً تصویر دیگری انتخاب کن.";}};
+   img.onerror=()=>{$("roomImageUploadStatus").textContent="نمایش این فایل تصویری ممکن نیست؛ لطفاً تصویر دیگری انتخاب کن.";};
+   img.src=dataUrl;
+  };
+  reader.onerror=()=>{$("roomImageUploadStatus").textContent="خواندن فایل تصویر ناموفق بود؛ دوباره انتخابش کن.";};
+  reader.readAsDataURL(file);
+ };
+ img.src=objectUrl;
 });
 async function uploadPendingRoomImage(){
  if(!pendingRoomImageFile)return $("rf_room_image_url").value.trim()||null;
