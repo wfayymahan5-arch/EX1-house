@@ -260,7 +260,9 @@ body{color:var(--ex1-text)}
 </style>
 
 <style id="ex1-settings-horizontal-tabs-v2">.settings-main-tabs{display:flex;gap:9px;width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:rgba(166,107,255,.55) transparent;padding:5px 2px 12px;margin:0 0 19px;border-bottom:1px solid rgba(177,132,255,.2);-webkit-overflow-scrolling:touch}.settings-main-tabs::-webkit-scrollbar{height:4px}.settings-main-tabs::-webkit-scrollbar-thumb{background:rgba(166,107,255,.45);border-radius:9px}.settings-main-tab{display:flex;align-items:center;justify-content:center;gap:8px;flex:0 0 auto;min-height:46px;padding:10px 16px;border:1px solid rgba(177,132,255,.2);border-radius:14px;background:linear-gradient(145deg,rgba(27,24,48,.92),rgba(15,20,36,.94));color:var(--ex1-copy);font-size:11px;white-space:nowrap;cursor:pointer}.settings-main-tab>span{font-size:16px;color:#c69aff}.settings-main-tab.active{background:linear-gradient(110deg,rgba(139,75,217,.34),rgba(40,174,195,.2));border-color:rgba(183,138,255,.7);box-shadow:0 5px 20px rgba(125,74,205,.13)}.settings-action-tab{border-style:dashed;color:#c6bad7}.settings-layout-horizontal{display:block}.settings-layout-horizontal .settings-sidebar{display:none}.settings-layout-horizontal .settings-content{width:100%;max-width:920px;margin:0 auto}.settings-subtabs{display:flex;gap:8px;overflow-x:auto;padding:3px 1px 10px;margin:0 0 8px;scrollbar-width:none}.settings-subtabs::-webkit-scrollbar{display:none}.settings-subtab{flex:0 0 auto;padding:10px 16px;border:1px solid rgba(177,132,255,.2);border-radius:12px;background:rgba(23,21,42,.78);color:#c9bfd9;font-size:10px;white-space:nowrap;cursor:pointer}.settings-subtab.active{color:#fff;background:linear-gradient(110deg,rgba(145,82,225,.3),rgba(44,177,198,.16));border-color:rgba(179,133,255,.58)}.settings-subpanel[hidden]{display:none!important}@media(max-width:700px){.settings-main-tabs{gap:7px;margin-bottom:15px}.settings-main-tab{min-height:43px;padding:9px 13px;font-size:10px}}</style>
-</head>
+<style id="ex1-settings-reference-layout-v1">
+.ex1-settings-page{padding-top:8px}.settings-reference-head{display:flex;align-items:center;gap:14px;margin:8px 0 34px;min-height:42px}.settings-reference-head h1{font-size:25px;margin:0;font-weight:900}.settings-reference-back{width:34px;height:38px;border:0;background:transparent;color:#c9bddb;font-size:34px;line-height:1;display:none;cursor:pointer}.settings-reference-head.is-detail .settings-reference-back{display:block}.settings-reference-group{margin:0 0 40px}.settings-reference-group>h2{font-size:14px;color:#aaa1c0;margin:0 4px 18px;font-weight:800}.settings-reference-card{overflow:hidden;border:1px solid rgba(190,174,218,.2);border-radius:31px;background:linear-gradient(145deg,rgba(22,19,39,.66),rgba(10,13,27,.82));padding:12px 29px;box-shadow:0 8px 28px #0002}.settings-reference-row{width:100%;min-height:120px;display:flex;align-items:center;gap:16px;padding:17px 0;border:0;border-bottom:1px solid rgba(255,255,255,.075);background:transparent;color:#f8f5ff;text-align:right;cursor:pointer}.settings-reference-row:last-child{border-bottom:0}.settings-reference-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:7px}.settings-reference-copy b{font-size:15px;font-weight:800;line-height:1.6}.settings-reference-copy small{font-size:12px;color:#a49bb8;line-height:1.7}.settings-reference-icon{width:69px;height:69px;flex:0 0 69px;border-radius:22px;display:grid;place-items:center;font-size:30px;border:1px solid currentColor;background:color-mix(in srgb,currentColor 13%,transparent);box-shadow:inset 0 0 18px color-mix(in srgb,currentColor 9%,transparent)}.settings-reference-icon.cyan{color:#31c9df}.settings-reference-icon.violet{color:#a75cff}.settings-reference-icon.green{color:#28d88c}.settings-reference-icon.pink{color:#e34c9c}.settings-reference-icon.gold{color:#e9b64d}.settings-reference-icon.neutral{color:#b7aec7}.settings-reference-chevron{font-size:34px;color:#9e91b5;line-height:1;transform:scaleX(.8)}.settings-reference-detail{padding-bottom:24px}.settings-reference-panel>h2{font-size:19px;margin:0 0 20px}.settings-reference-panel .settings-card{margin-bottom:14px}.settings-reference-panel[hidden],.settings-reference-detail[hidden]{display:none!important}.settings-reference-home[hidden]{display:none!important}.settings-reference-row:active{background:#ffffff08}.settings-reference-panel .settings-card{border-radius:22px}@media(max-width:420px){.settings-reference-head{margin-bottom:29px}.settings-reference-group{margin-bottom:34px}.settings-reference-card{padding:9px 19px;border-radius:27px}.settings-reference-row{min-height:106px;gap:13px}.settings-reference-icon{width:58px;height:58px;flex-basis:58px;border-radius:19px;font-size:26px}.settings-reference-copy b{font-size:13px}.settings-reference-copy small{font-size:11px}.settings-reference-chevron{font-size:30px}}
+</style></head>
 <style id="ex1-full-project-soft-entry">
 @keyframes ex1PageSoftEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ex1DialogSoftEnter{from{opacity:0;transform:translateY(13px) scale(.985);filter:brightness(.82)}to{opacity:1;transform:translateY(0) scale(1);filter:brightness(1)}}
@@ -356,45 +358,105 @@ body{color:var(--ex1-text)}
 </section>
 
 <section class="page ex1-settings-page" id="page-settings" aria-labelledby="settingsPageTitle">
- <div class="settings-page-head">
-  <button class="btn ghost small" type="button" id="settingsBackButton" aria-label="بازگشت">← بازگشت</button>
-  <div><span class="eyebrow">EX1 LEGEND · ACCOUNT CENTER</span><h1 id="settingsPageTitle">تنظیمات</h1><p>مدیریت حساب و تجربه کاربری</p></div>
+ <div class="settings-reference-head">
+  <button class="settings-reference-back" type="button" id="settingsBackButton" aria-label="بازگشت">‹</button>
+  <h1 id="settingsPageTitle">تنظیمات</h1>
  </div>
- <div class="settings-layout settings-layout-horizontal">
-  <nav class="settings-main-tabs" aria-label="بخش‌های اصلی تنظیمات"><button type="button" class="settings-main-tab active" data-settings-view="account"><span>♙</span>اطلاعات حساب و امنیت</button><button type="button" class="settings-main-tab" data-settings-view="invite"><span>↗</span>دعوت از دوستان</button><button type="button" class="settings-main-tab" data-settings-view="about"><span>✦</span>درباره EX1 LEGEND</button><button type="button" class="settings-main-tab" id="settingsNotificationsButton"><span>♢</span>اعلان‌ها</button><button type="button" class="settings-main-tab settings-action-tab" id="settingsLogoutButton"><span>⇥</span>خروج از حساب</button><button type="button" class="settings-main-tab settings-action-tab" id="settingsClearCacheButton"><span>⟳</span>پاک کردن کش</button></nav>
-  <div class="settings-content">
-   <section class="settings-view active" id="settings-view-account">
-    <div class="settings-view-title"><span class="settings-title-icon">♙</span><div><h2>اطلاعات حساب کاربری و امنیت</h2><p>اطلاعات پایه و تنظیمات دسترسی حساب خود را مدیریت کن.</p></div></div>
-<nav class="settings-subtabs" aria-label="زیر‌بخش‌های اطلاعات حساب"><button type="button" class="settings-subtab active" data-settings-subview="profile">اطلاعات حساب کاربری</button><button type="button" class="settings-subtab" data-settings-subview="privacy">حریم خصوصی</button></nav>
-        <div class="settings-card panel settings-subpanel" data-settings-subpanel="profile">
-     <div class="settings-card-heading"><span class="settings-symbol violet">✉</span><div><h3>ایمیل حساب</h3><small>ایمیل متصل به حساب EX1 LEGEND</small></div></div>
-     <div class="settings-info-row"><span>ایمیل فعلی</span><strong id="accountCurrentEmail" dir="ltr">—</strong></div>
-     <form id="accountEmailForm" class="settings-email-form">
-      <label for="accountNewEmail">تغییر ایمیل</label>
-      <div class="settings-input-row"><input class="field" id="accountNewEmail" type="email" autocomplete="email" maxlength="254" placeholder="ایمیل جدید"><button class="btn small" id="accountEmailSubmit" type="submit">درخواست تغییر</button></div>
-      <p class="muted" id="accountEmailMessage">برای ثبت ایمیل جدید، تأیید آن از طریق ایمیل لازم است.</p>
-     </form>
-    </div>
-    <div class="settings-card panel settings-subpanel" data-settings-subpanel="profile">
-     <div class="settings-card-heading"><span class="settings-symbol cyan">◎</span><div><h3>مشخصات فردی</h3><small>این اطلاعات را می‌توانی هر زمان ویرایش کنی.</small></div></div>
-     <form id="accountPersonalForm" class="settings-form-grid">
-      <label>جنسیت<select class="field" id="accountGender"><option value="">انتخاب نشده</option><option value="female">زن</option><option value="male">مرد</option><option value="prefer_not_to_say">ترجیح می‌دهم نگویم</option></select></label>
-      <label>سن<select class="field" id="accountAge"><option value="">انتخاب سن</option></select></label>
-      <button class="btn" type="submit" id="accountPersonalSave">ذخیره اطلاعات</button>
-      <p class="muted settings-form-message" id="accountPersonalMessage">اطلاعات فردی فقط در تنظیمات حساب ذخیره می‌شود.</p>
-     </form>
-    </div>
-    <div class="settings-card panel settings-subpanel" data-settings-subpanel="privacy" hidden>
-     <div class="settings-card-heading"><span class="settings-symbol pink">◈</span><div><h3>حریم خصوصی</h3><small>کنترل کن دیگران چه راهی برای ارتباط و مشاهده وضعیتت داشته باشند.</small></div></div>
-     <div class="settings-toggle-row"><div><b>دریافت پیام</b><small>اجازه بده سایر بازیکنان برایت پیام بفرستند.</small></div><label class="ex1-switch"><input type="checkbox" id="privacyReceiveMessages" checked><span></span></label></div>
-     <div class="settings-toggle-row"><div><b>مخفی کردن آخرین بازدید</b><small>آخرین زمان فعالیتت برای دیگران نمایش داده نشود.</small></div><label class="ex1-switch"><input type="checkbox" id="privacyHideLastSeen"><span></span></label></div>
-     <button class="btn small" type="button" id="savePrivacySettings">ذخیره حریم خصوصی</button>
-     <p class="muted settings-form-message" id="privacySettingsMessage">تنظیمات در حساب ذخیره می‌شوند؛ اعمال کامل آن‌ها در پیام‌رسانی و نمایش وضعیت به تکمیل کنترل‌های سمت سرور نیاز دارد.</p>
-    </div>
-   </section>
-   <section class="settings-view" id="settings-view-invite" hidden><div class="settings-view-title"><span class="settings-title-icon">↗</span><div><h2>دعوت از دوستان</h2><p>جزئیات لینک دعوت و کد معرف در مرحله بعد تکمیل می‌شود.</p></div></div></section>
-   <section class="settings-view" id="settings-view-about" hidden><div class="settings-view-title"><span class="settings-title-icon">✦</span><div><h2>درباره EX1 LEGEND</h2><p>محتوای این بخش پس از دریافت جزئیات تکمیل می‌شود.</p></div></div></section>
-  </div>
+ <div class="settings-reference-home" id="settingsReferenceHome">
+  <section class="settings-reference-group">
+   <h2>پشتیبانی</h2>
+   <div class="settings-reference-card">
+    <button class="settings-reference-row" type="button" data-settings-open="support">
+     <span class="settings-reference-icon cyan">♧</span><span class="settings-reference-copy"><b>چت آنلاین با پشتیبانی</b><small>پاسخ‌گویی و راهنمایی کاربران</small></span><span class="settings-reference-chevron">‹</span>
+    </button>
+   </div>
+  </section>
+  <section class="settings-reference-group">
+   <h2>حساب کاربری و امنیت</h2>
+   <div class="settings-reference-card">
+    <button class="settings-reference-row" type="button" data-settings-open="game-account">
+     <span class="settings-reference-icon cyan">♧</span><span class="settings-reference-copy"><b>اطلاعات اکانت بازی</b><small>مدیریت اطلاعات بازی ثبت‌شده</small></span><span class="settings-reference-chevron">‹</span>
+    </button>
+    <button class="settings-reference-row" type="button" data-settings-open="account-security">
+     <span class="settings-reference-icon violet">♧</span><span class="settings-reference-copy"><b>حساب کاربری و امنیت</b><small>ایمیل، مشخصات فردی و حریم خصوصی</small></span><span class="settings-reference-chevron">‹</span>
+    </button>
+    <button class="settings-reference-row" type="button" data-settings-open="verification">
+     <span class="settings-reference-icon green">✿</span><span class="settings-reference-copy"><b>سطح احراز هویت</b><small>تعیین سطح حساب کاربری</small></span><span class="settings-reference-chevron">‹</span>
+    </button>
+   </div>
+  </section>
+  <section class="settings-reference-group">
+   <h2>دعوت از دوستان</h2>
+   <div class="settings-reference-card">
+    <button class="settings-reference-row" type="button" data-settings-open="invite">
+     <span class="settings-reference-icon pink">♧</span><span class="settings-reference-copy"><b>دعوت از دوستان</b><small>کد دعوت، تعداد نفرات و امتیازها</small></span><span class="settings-reference-chevron">‹</span>
+    </button>
+   </div>
+  </section>
+  <section class="settings-reference-group">
+   <h2>درباره</h2>
+   <div class="settings-reference-card">
+    <button class="settings-reference-row" type="button" data-settings-open="tutorials">
+     <span class="settings-reference-icon gold">▣</span><span class="settings-reference-copy"><b>آموزش و قوانین رکورد</b><small>چطور رکورد بگیریم</small></span><span class="settings-reference-chevron">‹</span>
+    </button>
+    <button class="settings-reference-row" type="button" data-settings-open="about-killhouse">
+     <span class="settings-reference-icon neutral">ⓘ</span><span class="settings-reference-copy"><b>درباره کیل هاوس</b><small>معرفی پلتفرم و داستان کیل هاوس</small></span><span class="settings-reference-chevron">‹</span>
+    </button>
+    <button class="settings-reference-row" type="button" data-settings-open="terms">
+     <span class="settings-reference-icon neutral">▤</span><span class="settings-reference-copy"><b>قوانین و شرایط</b><small>قوانین استفاده از EX1 LEGEND</small></span><span class="settings-reference-chevron">‹</span>
+    </button>
+   </div>
+  </section>
+  <section class="settings-reference-group">
+   <h2>سایر تنظیمات</h2>
+   <div class="settings-reference-card">
+    <button class="settings-reference-row" type="button" id="settingsNotificationsButton">
+     <span class="settings-reference-icon cyan">♢</span><span class="settings-reference-copy"><b>اعلان‌ها</b><small>مشاهده اعلان‌های حساب</small></span><span class="settings-reference-chevron">‹</span>
+    </button>
+    <button class="settings-reference-row" type="button" id="settingsLogoutButton">
+     <span class="settings-reference-icon pink">⇥</span><span class="settings-reference-copy"><b>خروج از حساب</b><small>خروج امن از حساب کاربری</small></span><span class="settings-reference-chevron">‹</span>
+    </button>
+    <button class="settings-reference-row" type="button" id="settingsClearCacheButton">
+     <span class="settings-reference-icon neutral">⟳</span><span class="settings-reference-copy"><b>پاک کردن کش</b><small>حذف فایل‌های موقت برنامه</small></span><span class="settings-reference-chevron">‹</span>
+    </button>
+   </div>
+  </section>
+ </div>
+ <div class="settings-reference-detail" id="settingsReferenceDetail" hidden>
+  <section class="settings-reference-panel" data-settings-detail="account-security" hidden>
+   <h2>حساب کاربری و امنیت</h2>
+   <div class="settings-card panel">
+    <div class="settings-card-heading"><span class="settings-symbol violet">✉</span><div><h3>ایمیل حساب</h3><small>ایمیل متصل به حساب EX1 LEGEND</small></div></div>
+    <div class="settings-info-row"><span>ایمیل فعلی</span><strong id="accountCurrentEmail" dir="ltr">—</strong></div>
+    <form id="accountEmailForm" class="settings-email-form">
+     <label for="accountNewEmail">تغییر ایمیل</label><div class="settings-input-row"><input class="field" id="accountNewEmail" type="email" autocomplete="email" maxlength="254" placeholder="ایمیل جدید"><button class="btn small" id="accountEmailSubmit" type="submit">درخواست تغییر</button></div>
+     <p class="muted" id="accountEmailMessage">برای ثبت ایمیل جدید، تأیید آن از طریق ایمیل لازم است.</p>
+    </form>
+   </div>
+   <div class="settings-card panel">
+    <div class="settings-card-heading"><span class="settings-symbol cyan">◎</span><div><h3>مشخصات فردی</h3><small>این اطلاعات را می‌توانی هر زمان ویرایش کنی.</small></div></div>
+    <form id="accountPersonalForm" class="settings-form-grid">
+     <label>جنسیت<select class="field" id="accountGender"><option value="">انتخاب نشده</option><option value="female">زن</option><option value="male">مرد</option><option value="prefer_not_to_say">ترجیح می‌دهم نگویم</option></select></label>
+     <label>سن<select class="field" id="accountAge"><option value="">انتخاب سن</option></select></label>
+     <button class="btn" type="submit" id="accountPersonalSave">ذخیره اطلاعات</button>
+     <p class="muted settings-form-message" id="accountPersonalMessage">اطلاعات فردی فقط در تنظیمات حساب ذخیره می‌شود.</p>
+    </form>
+   </div>
+   <div class="settings-card panel">
+    <div class="settings-card-heading"><span class="settings-symbol pink">◈</span><div><h3>حریم خصوصی</h3><small>کنترل کن دیگران چه راهی برای ارتباط و مشاهده وضعیتت داشته باشند.</small></div></div>
+    <div class="settings-toggle-row"><div><b>دریافت پیام</b><small>اجازه بده سایر بازیکنان برایت پیام بفرستند.</small></div><label class="ex1-switch"><input type="checkbox" id="privacyReceiveMessages" checked><span></span></label></div>
+    <div class="settings-toggle-row"><div><b>مخفی کردن آخرین بازدید</b><small>آخرین زمان فعالیتت برای دیگران نمایش داده نشود.</small></div><label class="ex1-switch"><input type="checkbox" id="privacyHideLastSeen"><span></span></label></div>
+    <button class="btn small" type="button" id="savePrivacySettings">ذخیره حریم خصوصی</button>
+    <p class="muted settings-form-message" id="privacySettingsMessage">تنظیمات در حساب ذخیره می‌شوند؛ اعمال کامل آن‌ها در پیام‌رسانی و نمایش وضعیت به تکمیل کنترل‌های سمت سرور نیاز دارد.</p>
+   </div>
+  </section>
+  <section class="settings-reference-panel" data-settings-detail="support" hidden><h2>چت آنلاین با پشتیبانی</h2><div class="empty">این بخش در حال آماده‌سازی است.</div></section>
+  <section class="settings-reference-panel" data-settings-detail="game-account" hidden><h2>اطلاعات اکانت بازی</h2><div class="empty">مدیریت و نمایش اطلاعات اکانت بازی در مرحلهٔ بعد تکمیل می‌شود.</div></section>
+  <section class="settings-reference-panel" data-settings-detail="verification" hidden><h2>سطح احراز هویت</h2><div class="empty">اطلاعات سطح احراز هویت پس از آماده‌شدن فرایند تأیید نمایش داده می‌شود.</div></section>
+  <section class="settings-reference-panel" data-settings-detail="invite" hidden><h2>دعوت از دوستان</h2><div class="empty">کد دعوت و آمار دعوت‌ها در مرحلهٔ بعد تکمیل می‌شود.</div></section>
+  <section class="settings-reference-panel" data-settings-detail="tutorials" hidden><h2>آموزش و قوانین رکورد</h2><div class="empty">راهنمای ثبت و بررسی رکوردها در این بخش قرار می‌گیرد.</div></section>
+  <section class="settings-reference-panel" data-settings-detail="about-killhouse" hidden><h2>درباره کیل هاوس</h2><div class="empty">معرفی پلتفرم و اطلاعات آن در این بخش قرار می‌گیرد.</div></section>
+  <section class="settings-reference-panel" data-settings-detail="terms" hidden><h2>قوانین و شرایط</h2><div class="empty">متن رسمی قوانین و شرایط پس از نهایی‌شدن نمایش داده می‌شود.</div></section>
  </div>
 </section>
 </main>
@@ -997,13 +1059,11 @@ $("removeCoverButton").onclick=async()=>{
 
 document.querySelectorAll("[data-profile-tab]").forEach(b=>b.onclick=()=>{const nav=document.querySelector(".profile-tabs");const navTop=nav.getBoundingClientRect().top;document.querySelectorAll("[data-profile-tab]").forEach(x=>x.classList.toggle("active",x===b));["matches","team"].forEach(k=>{$("profile"+k[0].toUpperCase()+k.slice(1)).hidden=k!==b.dataset.profileTab;});const restore=()=>{const delta=nav.getBoundingClientRect().top-navTop;if(Math.abs(delta)>1){const root=document.documentElement,old=root.style.scrollBehavior;root.style.scrollBehavior="auto";window.scrollBy(0,delta);root.style.scrollBehavior=old;}};requestAnimationFrame(()=>{restore();requestAnimationFrame(restore);});if(b.dataset.profileTab==="team")loadMyTeam().finally(()=>setTimeout(restore,80));});
 $("openSettings").onclick=()=>{if(!currentUser){openAuth();return;}switchPage("settings");loadAccountSecuritySettings();};
-$("settingsBackButton").onclick=()=>switchPage("profile");
-document.querySelectorAll("[data-settings-view]").forEach(button=>button.addEventListener("click",()=>{
- const view=button.dataset.settingsView;
- document.querySelectorAll("[data-settings-view]").forEach(item=>item.classList.toggle("active",item===button));
- document.querySelectorAll(".settings-view").forEach(section=>{const active=section.id==="settings-view-"+view;section.hidden=!active;section.classList.toggle("active",active);});
-}));
-document.querySelectorAll("[data-settings-subview]").forEach(button=>button.addEventListener("click",()=>{const view=button.dataset.settingsSubview;document.querySelectorAll("[data-settings-subview]").forEach(item=>item.classList.toggle("active",item===button));document.querySelectorAll("[data-settings-subpanel]").forEach(panel=>panel.hidden=panel.dataset.settingsSubpanel!==view);}));
+const settingsHome=$("settingsReferenceHome"),settingsDetail=$("settingsReferenceDetail"),settingsHead=document.querySelector(".settings-reference-head");
+function openSettingsDetail(key){settingsHome.hidden=true;settingsDetail.hidden=false;settingsDetail.querySelectorAll("[data-settings-detail]").forEach(panel=>panel.hidden=panel.dataset.settingsDetail!==key);settingsHead.classList.add("is-detail");const panel=settingsDetail.querySelector('[data-settings-detail="'+key+'"]');$("settingsPageTitle").textContent=panel?.querySelector("h2")?.textContent||"تنظیمات";window.scrollTo({top:0,behavior:"smooth"});if(key==="account-security")loadAccountSecuritySettings();}
+function closeSettingsDetail(){settingsDetail.hidden=true;settingsHome.hidden=false;settingsHead.classList.remove("is-detail");$("settingsPageTitle").textContent="تنظیمات";window.scrollTo({top:0,behavior:"smooth"});}
+document.querySelectorAll("[data-settings-open]").forEach(button=>button.addEventListener("click",()=>openSettingsDetail(button.dataset.settingsOpen)));
+$("settingsBackButton").onclick=()=>{if(!settingsDetail.hidden){closeSettingsDetail();return;}switchPage("profile");};
 $("settingsNotificationsButton").onclick=()=>{$("notificationsModal").classList.add("show");loadUserNotifications();};
 $("settingsLogoutButton").onclick=async()=>{try{await confirmedSignOut();}catch(error){toast(error?.message||"خروج انجام نشد.");}};
 $("settingsClearCacheButton").onclick=async()=>{
