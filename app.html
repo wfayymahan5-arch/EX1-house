@@ -360,15 +360,8 @@ body{color:var(--ex1-text)}
   <button class="btn ghost small" type="button" id="settingsBackButton" aria-label="بازگشت">← بازگشت</button>
   <div><span class="eyebrow">EX1 LEGEND · ACCOUNT CENTER</span><h1 id="settingsPageTitle">تنظیمات</h1><p>مدیریت حساب و تجربه کاربری</p></div>
  </div>
- <div class="settings-layout">
-  <nav class="settings-sidebar panel" aria-label="دسته‌بندی تنظیمات">
-   <button type="button" class="settings-nav-item active" data-settings-view="account"><span class="settings-nav-icon violet">♙</span><span><b>اطلاعات حساب کاربری و امنیت</b><small>ایمیل، سن، جنسیت و حریم خصوصی</small></span><i>‹</i></button>
-   <button type="button" class="settings-nav-item" data-settings-view="invite"><span class="settings-nav-icon cyan">↗</span><span><b>دعوت از دوستان</b><small>لینک دعوت و کد معرف</small></span><i>‹</i></button>
-   <button type="button" class="settings-nav-item" data-settings-view="about"><span class="settings-nav-icon pink">✦</span><span><b>درباره EX1 LEGEND</b><small>معرفی و اطلاعات برنامه</small></span><i>‹</i></button>
-   <button type="button" class="settings-nav-item" id="settingsNotificationsButton"><span class="settings-nav-icon amber">♢</span><span><b>اعلان‌ها</b><small>پیام‌ها و اطلاع‌رسانی‌ها</small></span><i>‹</i></button>
-   <button type="button" class="settings-nav-item" id="settingsLogoutButton"><span class="settings-nav-icon red">⇥</span><span><b>خروج از حساب</b><small>خروج امن از حساب کاربری</small></span><i>‹</i></button>
-   <button type="button" class="settings-nav-item" id="settingsClearCacheButton"><span class="settings-nav-icon green">⟳</span><span><b>پاک کردن کش</b><small>تازه‌سازی فایل‌های ذخیره‌شده</small></span><i>‹</i></button>
-  </nav>
+ <div class="settings-layout settings-layout-horizontal">
+  <nav class="settings-main-tabs" aria-label="بخش‌های اصلی تنظیمات"><button type="button" class="settings-main-tab active" data-settings-view="account"><span>♙</span>اطلاعات حساب و امنیت</button><button type="button" class="settings-main-tab" data-settings-view="invite"><span>↗</span>دعوت از دوستان</button><button type="button" class="settings-main-tab" data-settings-view="about"><span>✦</span>درباره EX1 LEGEND</button><button type="button" class="settings-main-tab" id="settingsNotificationsButton"><span>♢</span>اعلان‌ها</button><button type="button" class="settings-main-tab settings-action-tab" id="settingsLogoutButton"><span>⇥</span>خروج از حساب</button><button type="button" class="settings-main-tab settings-action-tab" id="settingsClearCacheButton"><span>⟳</span>پاک کردن کش</button></nav>
   <div class="settings-content">
    <section class="settings-view active" id="settings-view-account">
     <div class="settings-view-title"><span class="settings-title-icon">♙</span><div><h2>اطلاعات حساب کاربری و امنیت</h2><p>اطلاعات پایه و تنظیمات دسترسی حساب خود را مدیریت کن.</p></div></div>
