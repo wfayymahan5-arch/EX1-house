@@ -1089,8 +1089,8 @@ $("roomResultReviewQueue")?.addEventListener("click",async e=>{
  const batchButton=approve||reject;batchButton.disabled=true;
  try{
   if(approve){
-   const userId=$("[data-match=\""+candidateId+"\"]").value;
-   const placement=Number($("[data-placement=\""+candidateId+"\"]").value),kills=Number($("[data-kills=\""+candidateId+"\"]").value);
+   const userId=document.querySelector(`[data-match="${candidateId}"]`)?.value;
+   const placement=Number(document.querySelector(`[data-placement="${candidateId}"]`)?.value),kills=Number(document.querySelector(`[data-kills="${candidateId}"]`)?.value);
    if(!userId||!Number.isInteger(placement)||placement<1||!Number.isInteger(kills)||kills<0)throw new Error("شرکت‌کننده، جایگاه و کیل را درست انتخاب کن.");
    const {error}=await sb.rpc("approve_room_result_candidate",{p_candidate_id:candidateId,p_matched_user_id:userId,p_placement:placement,p_kills:kills,p_reviewer_note:null});
    if(error)throw error;
