@@ -9,7 +9,7 @@ const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
 const DEFAULT_ORIGINS = ["https://ex1-house.vercel.app"];
 
-type InputImage = { mime_type?: string; data_base64?: string };
+type InputImage = { mime_type?: string; data_base64?: string; object_path?: string };
 type Candidate = {
   game_uid: string | null;
   placement: number | null;
@@ -130,7 +130,7 @@ Deno.serve(async (req: Request) => {
     return json(req, 403, { error: "results_permission_required" });
   }
 
-  let body: { room_id?: string; images?: InputImage[] };
+  let body: { room_id?: string; batch_id?: string; images?: InputImage[] };
   try {
     body = await req.json();
   } catch {
@@ -138,6 +138,9 @@ Deno.serve(async (req: Request) => {
   }
   if (!body.room_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(body.room_id)) {
     return json(req, 400, { error: "invalid_room_id" });
+  }
+  if (!body.batch_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(body.batch_id)) {
+    return json(req, 400, { error: "invalid_batch_id" });
   }
 
   const { data: room, error: roomError } = await supabase
@@ -168,6 +171,7 @@ Deno.serve(async (req: Request) => {
 
   const hashes: string[] = [];
   const seenHashes = new Set<string>();
+  const imageManifest: Array<Record<string, unknown>> = [];
   for (const [index, image] of body.images.entries()) {
     const mime = image?.mime_type ?? "";
     const encoded = image?.data_base64 ?? "";
@@ -180,6 +184,12 @@ Deno.serve(async (req: Request) => {
     if (seenHashes.has(hash)) return json(req, 409, { error: "duplicate_image_in_batch", image_index: index });
     seenHashes.add(hash);
     hashes.push(hash);
+    const extension = mime === "image/jpeg" ? "jpg" : mime === "image/png" ? "png" : "webp";
+    const expectedPath = body.room_id + "/" + body.batch_id + "/" + hash + "." + extension;
+    if (image.object_path !== expectedPath) {
+      return json(req, 400, { error: "invalid_image_object_path", image_index: index });
+    }
+    imageManifest.push({ object_path: expectedPath, sha256: hash, mime_type: mime, byte_size: bytes.byteLength, extension });
     parts.push({ text: "Screenshot index " + index });
     parts.push({ inline_data: { mime_type: mime, data: encoded.replace(/^data:[^,]+,/, "") } });
   }
@@ -250,14 +260,29 @@ Deno.serve(async (req: Request) => {
     }
 
     reviewCandidates.unshift(...byUid.values());
+    const cleanUncertainties = [...new Set(uncertainties)].slice(0, 50);
+    const { data: savedBatchId, error: saveError } = await supabase.rpc("create_room_result_batch", {
+      p_batch_id: body.batch_id,
+      p_room_id: room.id,
+      p_provider: "google-gemini",
+      p_model: model,
+      p_extraction: { screenshots_consistent: extracted.screenshots_consistent === true },
+      p_uncertainties: cleanUncertainties,
+      p_images: imageManifest,
+      p_candidates: reviewCandidates,
+    });
+    if (saveError || savedBatchId !== body.batch_id) {
+      return json(req, 409, { error: "review_batch_persist_failed" });
+    }
     return json(req, 200, {
       status: "review_required",
       provider: "google-gemini",
       model,
       room_id: room.id,
+      batch_id: savedBatchId,
       extracted: {
         players: reviewCandidates,
-        uncertainties: [...new Set(uncertainties)].slice(0, 50),
+        uncertainties: cleanUncertainties,
         screenshots_consistent: extracted.screenshots_consistent === true,
       },
       evidence_image_hashes: hashes,
