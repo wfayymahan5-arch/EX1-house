@@ -1700,5 +1700,16 @@ if("serviceWorker" in navigator){
 .profile-cover h1{margin:5px 0 2px}
 .profile-cover .profile-handle{line-height:1.4}
 </style>
+
+<style id="ex1-shared-neon-theme-v1">
+:root{--ex1-violet:#a66bff;--ex1-cyan:#39d8ee;--ex1-pink:#e56bfa;--ex1-ink:#090b18;--ex1-surface:rgba(20,18,39,.9);--ex1-surface-raised:rgba(29,24,51,.94);--ex1-line:rgba(177,132,255,.24);--ex1-copy:#f4efff;--ex1-copy-muted:#a99fbd}
+body{color:var(--ex1-copy)}
+:is(.panel,.tournament,.room-card,.wallet-card,.team-slot,.home-shortcuts button,.profile-card,.chat-contact,.user-row,.dialog,.settings-card){border-color:var(--ex1-line)}
+:is(.btn:not(.secondary):not(.ghost),.room-open-btn){background:linear-gradient(112deg,#8748d5,#287f99)!important;border-color:rgba(188,145,255,.48)!important}
+:is(.field,input,textarea,select){accent-color:var(--ex1-violet)}
+.field:focus,input:focus,textarea:focus,select:focus{border-color:rgba(57,216,238,.7)!important;box-shadow:0 0 0 3px rgba(57,216,238,.1),0 0 16px rgba(166,107,255,.12)!important;outline:none}
+:is(.muted,.section-head p,.settings-card-heading small,.settings-toggle-row small){color:var(--ex1-copy-muted)}
+@media(prefers-reduced-motion:reduce){:is(.btn,.panel,.room-card,.tournament,.wallet-card,.bottom-nav button){transition:none!important}}
+</style>
 </body>
 </html>
