@@ -1602,10 +1602,10 @@ async function loadTournaments(){
 async function loadProfilePerformanceStats(){
  const ids=["profileMatchesCount","profileWinsCount","profileTopThreeCount","profileKillsCount","accountProfileMatchesCount","accountProfileWinsCount","accountProfileTopThreeCount","accountProfileKillsCount"];
  if(!currentUser){ids.forEach(id=>{if($(id))$(id).textContent="—";});return;}
- const results=await sb.from("tournament_player_results").select("placement,kills").eq("user_id",currentUser.id);
+ const results=await sb.from("tournament_player_results").select("placement,kills",{count:"exact"}).eq("user_id",currentUser.id);
  const fmt=n=>Number(n||0).toLocaleString("fa-IR");
  if(results.error){ids.forEach(id=>{if($(id))$(id).textContent="—";});console.warn("EX1 profile stats:",results.error.message);return;}
- const rows=results.data||[],wins=rows.filter(row=>Number(row.placement)===1).length,topThree=rows.filter(row=>Number(row.placement)>0&&Number(row.placement)<=3).length,kills=rows.reduce((sum,row)=>sum+Math.max(0,Number(row.kills)||0),0),matches=rows.length;
+ const rows=results.data||[],wins=rows.filter(row=>Number(row.placement)===1).length,topThree=rows.filter(row=>Number(row.placement)>0&&Number(row.placement)<=3).length,kills=rows.reduce((sum,row)=>sum+Math.max(0,Number(row.kills)||0),0),matches=results.count??rows.length;
  const values={profileMatchesCount:matches,profileWinsCount:wins,profileTopThreeCount:topThree,profileKillsCount:kills,accountProfileMatchesCount:matches,accountProfileWinsCount:wins,accountProfileTopThreeCount:topThree,accountProfileKillsCount:kills};
  Object.entries(values).forEach(([id,value])=>{if($(id))$(id).textContent=fmt(value);});
 }
