@@ -254,6 +254,17 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
 <div id="roomAccessAdminPanel" class="panel hidden" style="margin-top:14px"><h3>انتشار اطلاعات ورود کالاف</h3><p class="muted">کد و رمز را همین‌جا ثبت کن. تا قبل از زمان شروع مخفی می‌مانند و پس از رسیدن زمان شروع، فقط برای شرکت‌کنندگان ثبت‌نام‌شدهٔ همین روم در اپ نمایش داده می‌شوند.</p><div id="roomAccessAdminStatus" class="notice" aria-live="polite">پس از ذخیره روم، وضعیت زمان‌بندی اینجا نمایش داده می‌شود.</div><label>کد روم کالاف<input id="rf_room_code" maxlength="80" autocomplete="off" placeholder="کد روم خصوصی کالاف"></label><label>رمز روم کالاف<input id="rf_room_password" type="password" maxlength="80" autocomplete="new-password" placeholder="رمز روم خصوصی کالاف"></label><button class="btn primary" id="publishRoomAccessButton" type="button" disabled>ذخیره و زمان‌بندی نمایش خودکار</button><p id="roomAccessPublishMessage" class="muted" aria-live="polite"></p></div>
 </form>
 <div id="roomsTable" class="empty">در حال بارگذاری...</div>
+<div id="roomResultReviewPanel" class="manager-form" style="margin-top:18px">
+ <div class="row"><h3 style="margin:0">تحلیل و بازبینی نتایج مسابقه</h3><button class="action-btn" type="button" id="refreshRoomResultQueue">به‌روزرسانی صف</button></div>
+ <p class="muted">فقط روم پایان‌یافته را انتخاب کن. تصویرهای نتیجه کالاف بارگذاری می‌شوند؛ اطلاعات استخراج‌شده تا زمان تأیید مدیر رسمی نیستند.</p>
+ <div class="formgrid">
+  <label>روم پایان‌یافته<select id="reviewRoomSelect" class="field"><option value="">در حال دریافت روم‌ها...</option></select></label>
+  <label>تصاویر نتیجه (حداکثر ۸ تصویر، هرکدام ۴ مگابایت)<input id="reviewImagesInput" class="field" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
+ </div>
+ <div class="actions"><button class="btn primary" type="button" id="analyzeRoomResultsButton">بارگذاری و تحلیل تصاویر</button></div>
+ <p id="roomResultUploadStatus" class="muted" aria-live="polite"></p>
+ <div id="roomResultReviewQueue" class="empty">ابتدا یک روم پایان‌یافته انتخاب کن.</div>
+</div>
 </section>
 <section class="section tab hidden" id="registrations"><h2>ثبت‌نام‌های تیمی</h2><div id="registrationsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
@@ -609,6 +620,7 @@ async function loadTableData(){
  const settled=await Promise.allSettled(tasks);
  const failed=settled.filter(x=>x.status==="rejected");
  if(permissions["rooms.view"]||permissions["rooms.manage"]){try{await loadRooms();}catch(e){console.error("EX1 rooms load:",e);failed.push({status:"rejected"});const detail=[e?.message,e?.code].filter(Boolean).join(" · ");$("roomsTable").textContent="بارگذاری روم‌ها انجام نشد"+(detail?": "+detail:".");}}
+ if(permissions["results.manage"]){await loadRoomResultReviewRooms().catch(e=>console.warn("EX1 result review rooms:",e));}
  if(failed.length)toast("بعضی بخش‌ها به‌دلیل محدودیت دسترسی یا خطای ارتباط بارگذاری نشدند.");
  const counts=["statTournaments","statRegistrations","statTeams","statUsers"].map(id=>$(id).textContent).filter(x=>x!=="—");
  $("overviewEmpty").textContent=counts.length?"داده‌های مجاز از دیتابیس بارگذاری شدند. برای جزئیات، بخش مربوطه را باز کن.":"برای این حساب، مجوز مشاهده داده‌های مدیریتی ثبت نشده است.";
@@ -989,4 +1001,113 @@ sb.channel("ex1-admin-site-theme")
   if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")console.warn("EX1 admin theme realtime:",status);
  });
 refreshSession();
+
+// EX1 room result evidence upload and independent review UI.
+const RESULT_BUCKET="room-result-evidence";
+const RESULT_MIME_EXT={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"};
+const resultBytesToBase64=buffer=>{const bytes=new Uint8Array(buffer);let binary="";for(let i=0;i<bytes.length;i+=0x8000)binary+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(binary);};
+function resultRoomEnded(room){const end=room.ends_at?new Date(room.ends_at).getTime():NaN;return room.status==="completed"||(Number.isFinite(end)&&end<=Date.now());}
+async function loadRoomResultReviewRooms(){
+ const select=$("reviewRoomSelect"),panel=$("roomResultReviewPanel");
+ if(!panel||!permissions["results.manage"]){if(panel)panel.classList.add("hidden");return;}
+ panel.classList.remove("hidden");
+ select.innerHTML='<option value="">در حال دریافت...</option>';
+ const {data,error}=await sb.from("tournament_rooms").select("id,title,status,ends_at").order("ends_at",{ascending:false,nullsFirst:false}).limit(200);
+ if(error){select.innerHTML='<option value="">دریافت روم‌ها ناموفق بود</option>';return;}
+ const ended=(data||[]).filter(resultRoomEnded);
+ select.innerHTML='<option value="">انتخاب روم پایان‌یافته</option>'+ended.map(r=>'<option value="'+esc(r.id)+'">'+esc(r.title)+' · '+esc(r.status)+'</option>').join("");
+ if(!ended.length)select.innerHTML='<option value="">هنوز روم پایان‌یافته‌ای وجود ندارد</option>';
+}
+async function fileAsDataUrl(file){return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||""));reader.onerror=()=>reject(new Error("خواندن تصویر انجام نشد."));reader.readAsDataURL(file);});}
+async function uploadAndAnalyzeRoomResults(){
+ if(!permissions["results.manage"])return toast("مجوز مدیریت نتایج فعال نیست.");
+ const roomId=$("reviewRoomSelect").value,files=Array.from($("reviewImagesInput").files||[]);
+ if(!roomId)return toast("ابتدا روم پایان‌یافته را انتخاب کن.");
+ if(files.length<1||files.length>8)return toast("باید بین ۱ تا ۸ تصویر انتخاب کنی.");
+ for(const f of files){if(!RESULT_MIME_EXT[f.type]||f.size<16||f.size>4*1024*1024)return toast("فرمت تصویر باید JPG، PNG یا WebP و حجم هر تصویر حداکثر ۴ مگابایت باشد.");}
+ const roomOption=$("reviewRoomSelect").selectedOptions[0];
+ const batchId=crypto.randomUUID(),uploadedPaths=[],images=[];
+ const button=$("analyzeRoomResultsButton"),status=$("roomResultUploadStatus");
+ button.disabled=true;status.textContent="در حال آماده‌سازی و بارگذاری تصاویر...";
+ try{
+  for(let i=0;i<files.length;i++){
+   const file=files[i],buffer=await file.arrayBuffer(),digest=await crypto.subtle.digest("SHA-256",buffer);
+   const hash=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");
+   const objectPath=roomId+"/"+batchId+"/"+hash+"."+RESULT_MIME_EXT[file.type];
+   const {error:uploadError}=await sb.storage.from(RESULT_BUCKET).upload(objectPath,file,{upsert:false,contentType:file.type,cacheControl:"3600"});
+   if(uploadError)throw uploadError;
+   uploadedPaths.push(objectPath);
+   const dataUrl=await fileAsDataUrl(file);
+   images.push({mime_type:file.type,data_base64:dataUrl.split(",")[1],object_path:objectPath});
+   status.textContent="بارگذاری تصویر "+(i+1)+" از "+files.length+" انجام شد.";
+  }
+  status.textContent="تصاویر بارگذاری شدند؛ در انتظار تحلیل...";
+  const {data,error}=await sb.functions.invoke("analyze-room-results",{body:{room_id:roomId,batch_id:batchId,images}});
+  if(error||!data||data.status!=="review_required"||!data.batch_id)throw new Error(data?.error||error?.message||"تحلیل یا ذخیره صف بازبینی انجام نشد.");
+  $("reviewImagesInput").value="";
+  status.textContent="تحلیل انجام شد و نتیجه با وضعیت «در انتظار بازبینی» ذخیره شد.";
+  await loadRoomResultReviewQueue();
+ }catch(err){
+  if(uploadedPaths.length)await sb.storage.from(RESULT_BUCKET).remove(uploadedPaths).catch(()=>{});
+  console.error("EX1 room result upload:",err);
+  status.textContent="عملیات کامل نشد: "+String(err?.message||"خطای نامشخص").slice(0,180);
+ }finally{button.disabled=false;}
+}
+async function loadRoomResultReviewQueue(){
+ const host=$("roomResultReviewQueue"),roomId=$("reviewRoomSelect").value;
+ if(!host)return;
+ if(!roomId){host.innerHTML='<div class="empty">ابتدا یک روم پایان‌یافته انتخاب کن.</div>';return;}
+ host.innerHTML='<div class="empty">در حال دریافت صف بازبینی...</div>';
+ const {data,error}=await sb.rpc("list_room_result_review_batches",{p_room_id:roomId});
+ if(error){host.innerHTML='<div class="empty">دریافت صف بازبینی ممکن نشد.</div>';return;}
+ const batches=Array.isArray(data)?data:[];
+ const {data:userData}=await sb.auth.getUser(),reviewerId=userData?.user?.id;
+ const {data:registrations, error:regError}=await sb.from("tournament_room_registrations").select("user_id,profiles(game_uid,game_name,display_name)").eq("room_id",roomId).eq("status","approved");
+ if(regError){host.innerHTML='<div class="empty">فهرست شرکت‌کنندگان قابل دریافت نیست.</div>';return;}
+ const participants=(registrations||[]).map(r=>({user_id:r.user_id,uid:String(r.profiles?.game_uid||"").trim(),name:r.profiles?.game_name||r.profiles?.display_name||"بازیکن"}));
+ const cards=[];
+ for(const batch of batches){
+  const signed=[];
+  for(const img of batch.images||[]){const {data:signedData}=await sb.storage.from(RESULT_BUCKET).createSignedUrl(img.object_path,180);signed.push(signedData?.signedUrl||"");}
+  const imageHtml=signed.filter(Boolean).map((url,i)=>'<a href="'+esc(url)+'" target="_blank" rel="noopener"><img src="'+esc(url)+'" alt="تصویر نتیجه '+(i+1)+'" style="width:112px;height:76px;object-fit:cover;border-radius:9px;margin:4px;border:1px solid #51416b"></a>').join("");
+  const unresolved=(batch.candidates||[]).filter(c=>["pending","needs_manual_match"].includes(c.review_status));
+  const candidateHtml=(batch.candidates||[]).map(c=>{
+   const matches=participants.filter(p=>p.uid&&c.game_uid&&p.uid===String(c.game_uid).trim());
+   const choices=matches.map(p=>'<option value="'+esc(p.user_id)+'">'+esc(p.name)+' · '+esc(p.uid)+'</option>').join("");
+   const disabled=batch.uploaded_by===reviewerId||c.review_status==="approved"||c.review_status==="rejected";
+   const state=c.review_status==="approved"?"تأییدشده":c.review_status==="rejected"?"ردشده":c.review_status==="needs_manual_match"?"نیازمند تطبیق دستی":"در انتظار بازبینی";
+   const candidateImages=(c.evidence_image_indexes||[]).map(i=>signed[i]?'<a href="'+esc(signed[i])+'" target="_blank" rel="noopener">تصویر '+(Number(i)+1)+'</a>':"").filter(Boolean).join(" · ");
+   return '<article class="card" style="margin:10px 0;padding:13px"><div class="row"><strong>UID: '+esc(c.game_uid||"خوانا نیست")+'</strong><span class="tag">'+esc(state)+'</span></div><div class="muted">اطمینان: '+esc(c.confidence)+' · جایگاه: '+esc(c.placement??"نامشخص")+' · کیل: '+esc(c.kills??"نامشخص")+'</div><div class="muted">'+candidateImages+'</div><div class="formgrid"><label>جایگاه<input class="field" type="number" min="1" max="1000" data-placement="'+esc(c.id)+'" value="'+esc(c.placement??"")+'" '+(disabled?"disabled":"")+'></label><label>تعداد کیل<input class="field" type="number" min="0" max="1000" data-kills="'+esc(c.id)+'" value="'+esc(c.kills??"")+'" '+(disabled?"disabled":"")+'></label><label class="wide">شرکت‌کننده مطابق UID<select class="field" data-match="'+esc(c.id)+'" '+(disabled?"disabled":"")+'><option value="">انتخاب شرکت‌کننده دقیقاً مطابق UID</option>'+choices+'</select></label></div><div class="actions">'+(disabled?"":'<button class="action-btn" type="button" data-approve="'+esc(c.id)+'" '+(!matches.length?"disabled":"")+'>تأیید نتیجه</button><button class="action-btn danger" type="button" data-reject="'+esc(c.id)+'">رد نتیجه</button>')+'</div><p class="muted">'+(matches.length?"تطبیق UID دقیق پیدا شد.":"برای این UID تطبیق دقیق در شرکت‌کنندگان تأییدشده پیدا نشد؛ نتیجه را تأیید نکن.")+'</p></article>';
+  }).join("");
+  cards.push('<section class="section" style="margin:12px 0"><div class="row"><strong>بسته '+esc(batch.id)+'</strong><span class="tag">'+esc(batch.status)+'</span></div><p class="muted">'+esc(new Date(batch.created_at).toLocaleString("fa-IR"))+' · '+unresolved.length+' مورد در انتظار</p><div>'+imageHtml+'</div>'+(batch.uncertainties||[]).map(x=>'<p class="notice">'+esc(x)+'</p>').join("")+candidateHtml+'</section>');
+ }
+ host.innerHTML=cards.join("")||'<div class="empty">برای این روم هنوز بسته نتیجه‌ای ثبت نشده است.</div>';
+}
+$("analyzeRoomResultsButton")?.addEventListener("click",uploadAndAnalyzeRoomResults);
+$("refreshRoomResultQueue")?.addEventListener("click",loadRoomResultReviewQueue);
+$("reviewRoomSelect")?.addEventListener("change",loadRoomResultReviewQueue);
+$("roomResultReviewQueue")?.addEventListener("click",async e=>{
+ const approve=e.target.closest("[data-approve]"),reject=e.target.closest("[data-reject]");
+ if(!approve&&!reject)return;
+ const candidateId=(approve||reject).dataset.approve||(approve||reject).dataset.reject;
+ const batchButton=approve||reject;batchButton.disabled=true;
+ try{
+  if(approve){
+   const userId=$("[data-match=\""+candidateId+"\"]").value;
+   const placement=Number($("[data-placement=\""+candidateId+"\"]").value),kills=Number($("[data-kills=\""+candidateId+"\"]").value);
+   if(!userId||!Number.isInteger(placement)||placement<1||!Number.isInteger(kills)||kills<0)throw new Error("شرکت‌کننده، جایگاه و کیل را درست انتخاب کن.");
+   const {error}=await sb.rpc("approve_room_result_candidate",{p_candidate_id:candidateId,p_matched_user_id:userId,p_placement:placement,p_kills:kills,p_reviewer_note:null});
+   if(error)throw error;
+   toast("نتیجه تأیید و به آمار رسمی اضافه شد.");
+  }else{
+   if(!confirm("این نتیجه رد شود؟"))return;
+   const {error}=await sb.rpc("reject_room_result_candidate",{p_candidate_id:candidateId,p_reviewer_note:null});
+   if(error)throw error;
+   toast("نتیجه رد شد.");
+  }
+  await loadRoomResultReviewQueue();
+ }catch(err){toast(String(err?.message||"ثبت تصمیم انجام نشد.").slice(0,180));}
+ finally{batchButton.disabled=false;}
+});
+
 </script></body></html>
