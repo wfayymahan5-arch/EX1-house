@@ -89,7 +89,8 @@ Deno.serve(async (req) => {
     } catch {
       return json(400, { error: "invalid_image_data", image_index: index });
     }
-    const base64 = btoa(String.fromCharCode(...bytes));
+    // Preserve the validated base64 payload; avoid large spread operations on mobile-sized images.
+    const base64 = encoded.replace(/^data:[^,]+,/, "");
     parts.push({ text: "Screenshot index " + index });
     parts.push({ inline_data: { mime_type: mime, data: base64 } });
   }
