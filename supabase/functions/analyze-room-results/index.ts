@@ -65,15 +65,16 @@ function cleanText(value: unknown, max: number): string | null {
 
 function cleanMetric(value: unknown, max: number): number | null {
   if (value === null || value === undefined || value === "") return null;
+  if (typeof value !== "number" && !(typeof value === "string" && /^\\d+$/.test(value.trim()))) return null;
   const number = Number(value);
   return Number.isSafeInteger(number) && number >= 0 && number <= max ? number : null;
 }
 
-function normalizeCandidate(value: any): Candidate | null {
-  if (!value || typeof value !== "object") return null;
+function normalizeCandidate(value: any, imageCount: number): Candidate | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const confidence = ["high", "medium", "low"].includes(value.confidence) ? value.confidence : "low";
   const indexes = Array.isArray(value.evidence_image_indexes)
-    ? [...new Set(value.evidence_image_indexes.filter((n: unknown) => Number.isInteger(n) && Number(n) >= 0 && Number(n) < MAX_IMAGES))]
+    ? [...new Set(value.evidence_image_indexes.filter((n: unknown) => typeof n === "number" && Number.isInteger(n) && n >= 0 && n < imageCount))]
     : [];
   return {
     game_name: cleanText(value.game_name, 64),
@@ -119,7 +120,7 @@ Deno.serve(async (req: Request) => {
     global: { headers: { Authorization: authorization } },
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  const accessToken = authorization.replace(/^Bearer\\s+/i, "");
+  const accessToken = authorization.replace(/^Bearer\s+/i, "");
   const { data: authData, error: authError } = await supabase.auth.getUser(accessToken);
   if (authError || !authData.user) return json(req, 401, { error: "invalid_session" });
 
@@ -218,7 +219,8 @@ Deno.serve(async (req: Request) => {
       throw new Error("invalid_shape");
     }
 
-    const candidates = extracted.players.map(normalizeCandidate).filter(Boolean) as Candidate[];
+    const candidates = extracted.players.slice(0, 100).map((candidate: unknown) => normalizeCandidate(candidate, body.images!.length)).filter(Boolean) as Candidate[];
+    if (extracted.players.length > 100) uncertainties.push("بیش از ۱۰۰ ردیف از پاسخ هوش مصنوعی دریافت شد؛ فقط ۱۰۰ ردیف اول برای بازبینی نگه داشته شد.");
     const byUid = new Map<string, Candidate>();
     const reviewCandidates: Candidate[] = [];
     const uncertainties = extracted.uncertainties
