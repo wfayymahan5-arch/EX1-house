@@ -1,64 +1,154 @@
-// EX1 LEGEND — Gemini vision adapter for room-result screenshots.
-// Deliberately disabled until the project owner reviews Google's Free Tier data terms
-// and explicitly enables this provider. This function only extracts candidates;
-// it never writes official results or updates player statistics.
+// EX1 LEGEND — guarded Gemini vision adapter for room-result screenshots.
+// Extracts candidate data only. It never writes official results, wallets, or profile stats.
+// Keep disabled until the project owner reviews Google's current data terms.
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "null",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-ex1-results-worker",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
-const json = (status: number, body: Record<string, unknown>) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" },
-  });
-
-function safeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
-}
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const MAX_IMAGES = 8;
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
+const DEFAULT_ORIGINS = ["https://ex1-house.vercel.app"];
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "POST") return json(405, { error: "method_not_allowed" });
+type InputImage = { mime_type?: string; data_base64?: string };
+type Candidate = {
+  game_name: string | null;
+  game_uid: string | null;
+  team_label: string | null;
+  placement: number | null;
+  kills: number | null;
+  points: number | null;
+  confidence: "high" | "medium" | "low";
+  evidence_image_indexes: number[];
+};
 
-  const workerSecret = Deno.env.get("EX1_RESULTS_WORKER_SECRET") ?? "";
-  const suppliedSecret = req.headers.get("x-ex1-results-worker") ?? "";
-  if (!workerSecret || !safeEqual(workerSecret, suppliedSecret)) {
-    return json(401, { error: "unauthorized" });
+function allowedOrigins(): Set<string> {
+  const configured = (Deno.env.get("EX1_RESULTS_ALLOWED_ORIGINS") ?? "")
+    .split(",").map((value) => value.trim()).filter(Boolean);
+  return new Set([...DEFAULT_ORIGINS, ...configured]);
+}
+
+function corsHeaders(req: Request): HeadersInit {
+  const origin = req.headers.get("origin");
+  return {
+    ...(origin && allowedOrigins().has(origin) ? { "Access-Control-Allow-Origin": origin, "Vary": "Origin" } : {}),
+    "Access-Control-Allow-Headers": "authorization, apikey, x-client-info, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Content-Type": "application/json; charset=utf-8",
+  };
+}
+
+function json(req: Request, status: number, body: Record<string, unknown>) {
+  return new Response(JSON.stringify(body), { status, headers: corsHeaders(req) });
+}
+
+function decodeImage(encodedInput: string): Uint8Array | null {
+  try {
+    const encoded = encodedInput.replace(/^data:[^,]+,/, "");
+    const binary = atob(encoded);
+    if (binary.length > MAX_IMAGE_BYTES) return null;
+    return Uint8Array.from(binary, (char) => char.charCodeAt(0));
+  } catch {
+    return null;
   }
+}
 
-  // Fail closed: no external image transfer unless all three server-side gates are set.
+async function sha256(bytes: Uint8Array): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function cleanText(value: unknown, max: number): string | null {
+  if (typeof value !== "string") return null;
+  const clean = value.replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, max);
+  return clean || null;
+}
+
+function cleanMetric(value: unknown, max: number): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const number = Number(value);
+  return Number.isSafeInteger(number) && number >= 0 && number <= max ? number : null;
+}
+
+function normalizeCandidate(value: any): Candidate | null {
+  if (!value || typeof value !== "object") return null;
+  const confidence = ["high", "medium", "low"].includes(value.confidence) ? value.confidence : "low";
+  const indexes = Array.isArray(value.evidence_image_indexes)
+    ? [...new Set(value.evidence_image_indexes.filter((n: unknown) => Number.isInteger(n) && Number(n) >= 0 && Number(n) < MAX_IMAGES))]
+    : [];
+  return {
+    game_name: cleanText(value.game_name, 64),
+    game_uid: cleanText(value.game_uid, 32),
+    team_label: cleanText(value.team_label, 32),
+    placement: cleanMetric(value.placement, 1000),
+    kills: cleanMetric(value.kills, 1000),
+    points: cleanMetric(value.points, 1000000),
+    confidence,
+    evidence_image_indexes: indexes,
+  };
+}
+
+function sameMetrics(a: Candidate, b: Candidate): boolean {
+  return a.game_name === b.game_name &&
+    a.placement === b.placement &&
+    a.kills === b.kills &&
+    a.points === b.points &&
+    a.team_label === b.team_label;
+}
+
+Deno.serve(async (req: Request) => {
+  const origin = req.headers.get("origin");
+  if (origin && !allowedOrigins().has(origin)) return json(req, 403, { error: "origin_not_allowed" });
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders(req) });
+  if (req.method !== "POST") return json(req, 405, { error: "method_not_allowed" });
+
   const enabled = Deno.env.get("EX1_RESULTS_AI_ENABLED") === "true";
-  const dataConsent = Deno.env.get("EX1_RESULTS_AI_DATA_TERMS_APPROVED") === "true";
+  const termsApproved = Deno.env.get("EX1_RESULTS_AI_DATA_TERMS_APPROVED") === "true";
   const apiKey = Deno.env.get("GEMINI_API_KEY") ?? "";
-  if (!enabled || !dataConsent || !apiKey) {
-    return json(503, {
-      error: "provider_not_enabled",
-      message: "The project owner must review and approve the provider's data terms before image processing is enabled.",
-    });
+  if (!enabled || !termsApproved || !apiKey) {
+    return json(req, 503, { error: "provider_not_enabled" });
   }
 
-  let body: { room_id?: string; images?: Array<{ mime_type?: string; data_base64?: string }> };
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+  const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? "";
+  const authorization = req.headers.get("authorization") ?? "";
+  if (!supabaseUrl || !supabaseKey || !/^Bearer\s+\S+/i.test(authorization)) {
+    return json(req, 401, { error: "authentication_required" });
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey, {
+    global: { headers: { Authorization: authorization } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError || !authData.user) return json(req, 401, { error: "invalid_session" });
+
+  const { data: permissions, error: permissionError } = await supabase.rpc("admin_my_permissions");
+  if (permissionError || !Array.isArray(permissions)) return json(req, 403, { error: "permission_check_failed" });
+  const hasPermission = (code: string) => permissions.some((p: any) => p.permission_code === code && p.is_allowed === true);
+  if (!hasPermission("results.manage") || !(hasPermission("rooms.view") || hasPermission("rooms.manage"))) {
+    return json(req, 403, { error: "results_permission_required" });
+  }
+
+  let body: { room_id?: string; images?: InputImage[] };
   try {
     body = await req.json();
   } catch {
-    return json(400, { error: "invalid_json" });
+    return json(req, 400, { error: "invalid_json" });
+  }
+  if (!body.room_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(body.room_id)) {
+    return json(req, 400, { error: "invalid_room_id" });
   }
 
-  if (!body.room_id || !/^[0-9a-f-]{36}$/i.test(body.room_id)) {
-    return json(400, { error: "invalid_room_id" });
+  const { data: room, error: roomError } = await supabase
+    .from("tournament_rooms").select("id,status,ends_at").eq("id", body.room_id).maybeSingle();
+  if (roomError || !room) return json(req, 404, { error: "room_not_found_or_not_visible" });
+  const endedAt = room.ends_at ? new Date(room.ends_at).getTime() : NaN;
+  if (room.status !== "completed" && !(Number.isFinite(endedAt) && endedAt <= Date.now())) {
+    return json(req, 409, { error: "room_not_completed" });
   }
+
   if (!Array.isArray(body.images) || body.images.length < 1 || body.images.length > MAX_IMAGES) {
-    return json(400, { error: "invalid_images_count", max_images: MAX_IMAGES });
+    return json(req, 400, { error: "invalid_images_count", max_images: MAX_IMAGES });
   }
 
   const parts: Array<Record<string, unknown>> = [{
@@ -68,34 +158,29 @@ Deno.serve(async (req) => {
       "Do not guess unreadable names, UIDs, placements, kills, team associations, or scores.",
       "If a value is unclear, use null and add a concise item to uncertainties.",
       "Do not infer an EX1 account identity. Return game-visible identifiers only.",
-      "Multiple screenshots may show overlapping parts of the same result; do not duplicate players.",
+      "Multiple screenshots may overlap. Do not duplicate the same player when the visible UID is identical.",
       "Return JSON only with this exact shape:",
-      '{"room_id":"string","players":[{"game_name":"string|null","game_uid":"string|null","team_label":"string|null","placement":"number|null","kills":"number|null","points":"number|null","confidence":"high|medium|low","evidence_image_indexes":[0]}],"uncertainties":["string"],"screenshots_consistent":"boolean"}',
-      "room_id: " + body.room_id,
+      '{"players":[{"game_name":"string|null","game_uid":"string|null","team_label":"string|null","placement":"number|null","kills":"number|null","points":"number|null","confidence":"high|medium|low","evidence_image_indexes":[0]}],"uncertainties":["string"],"screenshots_consistent":"boolean"}',
     ].join("\n"),
   }];
 
+  const hashes: string[] = [];
   for (const [index, image] of body.images.entries()) {
     const mime = image?.mime_type ?? "";
     const encoded = image?.data_base64 ?? "";
-    if (!ALLOWED_MIME.has(mime) || !encoded || encoded.length > Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 16) {
-      return json(400, { error: "invalid_image", image_index: index });
+    if (!ALLOWED_MIME.has(mime) || !encoded || encoded.length > Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 64) {
+      return json(req, 400, { error: "invalid_image", image_index: index });
     }
-    let bytes: Uint8Array;
-    try {
-      const binary = atob(encoded.replace(/^data:[^,]+,/, ""));
-      if (binary.length > MAX_IMAGE_BYTES) return json(413, { error: "image_too_large", image_index: index });
-      bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-    } catch {
-      return json(400, { error: "invalid_image_data", image_index: index });
-    }
-    // Preserve the validated base64 payload; avoid large spread operations on mobile-sized images.
-    const base64 = encoded.replace(/^data:[^,]+,/, "");
+    const bytes = decodeImage(encoded);
+    if (!bytes) return json(req, 413, { error: "invalid_or_oversized_image", image_index: index });
+    const hash = await sha256(bytes);
+    if (hashes.includes(hash)) return json(req, 409, { error: "duplicate_image_in_batch", image_index: index });
+    hashes.push(hash);
     parts.push({ text: "Screenshot index " + index });
-    parts.push({ inline_data: { mime_type: mime, data: base64 } });
+    parts.push({ inline_data: { mime_type: mime, data: encoded.replace(/^data:[^,]+,/, "") } });
   }
 
-  const model = Deno.env.get("GEMINI_RESULTS_MODEL") || "gemini-3.5-flash-lite";
+  const model = Deno.env.get("GEMINI_RESULTS_MODEL") || "gemini-3.1-flash-lite";
   let upstream: Response;
   try {
     upstream = await fetch(
@@ -105,45 +190,74 @@ Deno.serve(async (req) => {
         headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
         body: JSON.stringify({
           contents: [{ role: "user", parts }],
-          generationConfig: { temperature: 0, responseMimeType: "application/json" },
+          generationConfig: { temperature: 0, responseMimeType: "application/json", maxOutputTokens: 4096 },
         }),
         signal: AbortSignal.timeout(45_000),
       },
     );
   } catch {
-    return json(502, { error: "provider_unreachable" });
+    return json(req, 502, { error: "provider_unreachable" });
   }
-
   if (!upstream.ok) {
-    // Never return provider response bodies; they may contain request details.
-    return json(upstream.status === 429 ? 429 : 502, {
+    return json(req, upstream.status === 429 ? 429 : 502, {
       error: upstream.status === 429 ? "provider_rate_limited" : "provider_request_failed",
     });
   }
 
-  let result: any;
+  let providerResult: any;
   try {
-    result = await upstream.json();
+    providerResult = await upstream.json();
   } catch {
-    return json(502, { error: "invalid_provider_response" });
+    return json(req, 502, { error: "invalid_provider_response" });
   }
-
-  const text = result?.candidates?.[0]?.content?.parts?.map((p: any) => p.text || "").join("") ?? "";
+  const responseText = providerResult?.candidates?.[0]?.content?.parts?.map((p: any) => p.text || "").join("") ?? "";
   try {
-    const extracted = JSON.parse(text);
+    const extracted = JSON.parse(responseText);
     if (!extracted || !Array.isArray(extracted.players) || !Array.isArray(extracted.uncertainties)) {
       throw new Error("invalid_shape");
     }
-    // Output remains a review candidate; caller must not publish it as official results.
-    return json(200, {
+
+    const candidates = extracted.players.map(normalizeCandidate).filter(Boolean) as Candidate[];
+    const byUid = new Map<string, Candidate>();
+    const reviewCandidates: Candidate[] = [];
+    const uncertainties = extracted.uncertainties
+      .filter((item: unknown) => typeof item === "string")
+      .map((item: string) => item.slice(0, 240)).slice(0, 40);
+
+    for (const candidate of candidates) {
+      if (!candidate.game_uid) {
+        reviewCandidates.push(candidate);
+        uncertainties.push("بازیکنی بدون UID قابل‌تطبیق باقی ماند و باید دستی بررسی شود.");
+        continue;
+      }
+      const key = candidate.game_uid.toLowerCase();
+      const existing = byUid.get(key);
+      if (!existing) {
+        byUid.set(key, candidate);
+      } else if (sameMetrics(existing, candidate)) {
+        existing.evidence_image_indexes = [...new Set([...existing.evidence_image_indexes, ...candidate.evidence_image_indexes])];
+      } else {
+        existing.confidence = "low";
+        uncertainties.push("برای UID " + candidate.game_uid + " اطلاعات متناقض در تصاویر دیده شد.");
+      }
+    }
+
+    reviewCandidates.unshift(...byUid.values());
+    return json(req, 200, {
       status: "review_required",
       provider: "google-gemini",
       model,
-      room_id: body.room_id,
-      extracted,
+      room_id: room.id,
+      extracted: {
+        players: reviewCandidates,
+        uncertainties: [...new Set(uncertainties)].slice(0, 50),
+        screenshots_consistent: extracted.screenshots_consistent === true,
+      },
+      evidence_image_hashes: hashes,
       official_write_performed: false,
+      authenticated_user_id: authData.user.id,
     });
   } catch {
-    return json(502, { error: "unparseable_extraction" });
+    return json(req, 502, { error: "unparseable_extraction" });
   }
 });
