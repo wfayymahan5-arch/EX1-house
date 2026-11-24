@@ -258,6 +258,8 @@ body{color:var(--ex1-text)}
 @media(max-width:700px){.settings-layout{grid-template-columns:1fr}.settings-sidebar{position:static;grid-template-columns:1fr 1fr}.settings-nav-item{padding:10px 8px}.settings-nav-item small{display:none}.settings-nav-item b{font-size:10px}.settings-nav-icon{width:31px;height:31px;flex-basis:31px}.settings-nav-item i{display:none}}
 @media(max-width:390px){.settings-sidebar{grid-template-columns:1fr}.settings-form-grid{grid-template-columns:1fr}.settings-form-grid button,.settings-form-grid .settings-form-message{grid-column:1}.settings-input-row{flex-direction:column}.settings-input-row .btn{width:100%}}
 </style>
+
+<style id="ex1-settings-horizontal-tabs-v2">.settings-main-tabs{display:flex;gap:9px;width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:rgba(166,107,255,.55) transparent;padding:5px 2px 12px;margin:0 0 19px;border-bottom:1px solid rgba(177,132,255,.2);-webkit-overflow-scrolling:touch}.settings-main-tabs::-webkit-scrollbar{height:4px}.settings-main-tabs::-webkit-scrollbar-thumb{background:rgba(166,107,255,.45);border-radius:9px}.settings-main-tab{display:flex;align-items:center;justify-content:center;gap:8px;flex:0 0 auto;min-height:46px;padding:10px 16px;border:1px solid rgba(177,132,255,.2);border-radius:14px;background:linear-gradient(145deg,rgba(27,24,48,.92),rgba(15,20,36,.94));color:var(--ex1-copy);font-size:11px;white-space:nowrap;cursor:pointer}.settings-main-tab>span{font-size:16px;color:#c69aff}.settings-main-tab.active{background:linear-gradient(110deg,rgba(139,75,217,.34),rgba(40,174,195,.2));border-color:rgba(183,138,255,.7);box-shadow:0 5px 20px rgba(125,74,205,.13)}.settings-action-tab{border-style:dashed;color:#c6bad7}.settings-layout-horizontal{display:block}.settings-layout-horizontal .settings-sidebar{display:none}.settings-layout-horizontal .settings-content{width:100%;max-width:920px;margin:0 auto}.settings-subtabs{display:flex;gap:8px;overflow-x:auto;padding:3px 1px 10px;margin:0 0 8px;scrollbar-width:none}.settings-subtabs::-webkit-scrollbar{display:none}.settings-subtab{flex:0 0 auto;padding:10px 16px;border:1px solid rgba(177,132,255,.2);border-radius:12px;background:rgba(23,21,42,.78);color:#c9bfd9;font-size:10px;white-space:nowrap;cursor:pointer}.settings-subtab.active{color:#fff;background:linear-gradient(110deg,rgba(145,82,225,.3),rgba(44,177,198,.16));border-color:rgba(179,133,255,.58)}.settings-subpanel[hidden]{display:none!important}@media(max-width:700px){.settings-main-tabs{gap:7px;margin-bottom:15px}.settings-main-tab{min-height:43px;padding:9px 13px;font-size:10px}}</style>
 </head>
 <style id="ex1-full-project-soft-entry">
 @keyframes ex1PageSoftEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
@@ -370,7 +372,8 @@ body{color:var(--ex1-text)}
   <div class="settings-content">
    <section class="settings-view active" id="settings-view-account">
     <div class="settings-view-title"><span class="settings-title-icon">♙</span><div><h2>اطلاعات حساب کاربری و امنیت</h2><p>اطلاعات پایه و تنظیمات دسترسی حساب خود را مدیریت کن.</p></div></div>
-    <div class="settings-card panel">
+<nav class="settings-subtabs" aria-label="زیر‌بخش‌های اطلاعات حساب"><button type="button" class="settings-subtab active" data-settings-subview="profile">اطلاعات حساب کاربری</button><button type="button" class="settings-subtab" data-settings-subview="privacy">حریم خصوصی</button></nav>
+        <div class="settings-card panel settings-subpanel" data-settings-subpanel="profile">
      <div class="settings-card-heading"><span class="settings-symbol violet">✉</span><div><h3>ایمیل حساب</h3><small>ایمیل متصل به حساب EX1 LEGEND</small></div></div>
      <div class="settings-info-row"><span>ایمیل فعلی</span><strong id="accountCurrentEmail" dir="ltr">—</strong></div>
      <form id="accountEmailForm" class="settings-email-form">
@@ -379,7 +382,7 @@ body{color:var(--ex1-text)}
       <p class="muted" id="accountEmailMessage">برای ثبت ایمیل جدید، تأیید آن از طریق ایمیل لازم است.</p>
      </form>
     </div>
-    <div class="settings-card panel">
+    <div class="settings-card panel settings-subpanel" data-settings-subpanel="profile">
      <div class="settings-card-heading"><span class="settings-symbol cyan">◎</span><div><h3>مشخصات فردی</h3><small>این اطلاعات را می‌توانی هر زمان ویرایش کنی.</small></div></div>
      <form id="accountPersonalForm" class="settings-form-grid">
       <label>جنسیت<select class="field" id="accountGender"><option value="">انتخاب نشده</option><option value="female">زن</option><option value="male">مرد</option><option value="prefer_not_to_say">ترجیح می‌دهم نگویم</option></select></label>
@@ -388,7 +391,7 @@ body{color:var(--ex1-text)}
       <p class="muted settings-form-message" id="accountPersonalMessage">اطلاعات فردی فقط در تنظیمات حساب ذخیره می‌شود.</p>
      </form>
     </div>
-    <div class="settings-card panel">
+    <div class="settings-card panel settings-subpanel" data-settings-subpanel="privacy" hidden>
      <div class="settings-card-heading"><span class="settings-symbol pink">◈</span><div><h3>حریم خصوصی</h3><small>کنترل کن دیگران چه راهی برای ارتباط و مشاهده وضعیتت داشته باشند.</small></div></div>
      <div class="settings-toggle-row"><div><b>دریافت پیام</b><small>اجازه بده سایر بازیکنان برایت پیام بفرستند.</small></div><label class="ex1-switch"><input type="checkbox" id="privacyReceiveMessages" checked><span></span></label></div>
      <div class="settings-toggle-row"><div><b>مخفی کردن آخرین بازدید</b><small>آخرین زمان فعالیتت برای دیگران نمایش داده نشود.</small></div><label class="ex1-switch"><input type="checkbox" id="privacyHideLastSeen"><span></span></label></div>
@@ -1007,6 +1010,7 @@ document.querySelectorAll("[data-settings-view]").forEach(button=>button.addEven
  document.querySelectorAll("[data-settings-view]").forEach(item=>item.classList.toggle("active",item===button));
  document.querySelectorAll(".settings-view").forEach(section=>{const active=section.id==="settings-view-"+view;section.hidden=!active;section.classList.toggle("active",active);});
 }));
+document.querySelectorAll("[data-settings-subview]").forEach(button=>button.addEventListener("click",()=>{const view=button.dataset.settingsSubview;document.querySelectorAll("[data-settings-subview]").forEach(item=>item.classList.toggle("active",item===button));document.querySelectorAll("[data-settings-subpanel]").forEach(panel=>panel.hidden=panel.dataset.settingsSubpanel!==view);}));
 $("settingsNotificationsButton").onclick=()=>{$("notificationsModal").classList.add("show");loadUserNotifications();};
 $("settingsLogoutButton").onclick=async()=>{try{await confirmedSignOut();}catch(error){toast(error?.message||"خروج انجام نشد.");}};
 $("settingsClearCacheButton").onclick=async()=>{
