@@ -401,7 +401,7 @@ body{color:var(--ex1-text)}
    <h2>حساب کاربری و امنیت</h2>
    <div class="settings-reference-card">
     <button class="settings-reference-row" type="button" data-settings-open="game-account">
-     <span class="settings-reference-icon cyan">♧</span><span class="settings-reference-copy"><b>حساب کاربری و پروفایل</b><small>نام کالاف، UID، نام Kill House و آمار مسابقات</small></span><span class="settings-reference-chevron">‹</span>
+     <span class="settings-reference-icon cyan">♧</span><span class="settings-reference-copy"><b>حساب کاربری و پروفایل</b><small>UID کالاف، نام داخل بازی و نام نمایشی EX1</small></span><span class="settings-reference-chevron">‹</span>
     </button>
     <button class="settings-reference-row" type="button" data-settings-open="account-security">
      <span class="settings-reference-icon violet">♧</span><span class="settings-reference-copy"><b>امنیت و حریم خصوصی</b><small>تغییر رمز عبور و مدیریت نشست‌های ورود</small></span><span class="settings-reference-chevron">‹</span>
@@ -441,15 +441,6 @@ body{color:var(--ex1-text)}
     <button type="button" class="settings-account-tab active" data-account-tab="profile" role="tab" aria-selected="true">مشخصات فردی</button>
     <button type="button" class="settings-account-tab" data-account-tab="security" role="tab" aria-selected="false">امنیت حساب</button>
     <button type="button" class="settings-account-tab" data-account-tab="privacy" role="tab" aria-selected="false">حریم خصوصی</button>
-   </div>
-   <div class="settings-card panel settings-account-subpanel" data-account-panel="profile">
-    <div class="settings-card-heading"><span class="settings-symbol cyan">◎</span><div><h3>مشخصات فردی</h3><small>این اطلاعات را می‌توانی هر زمان ویرایش کنی.</small></div></div>
-    <form id="accountPersonalForm" class="settings-form-grid">
-     <label>جنسیت<select class="field" id="accountGender"><option value="">انتخاب نشده</option><option value="female">زن</option><option value="male">مرد</option><option value="prefer_not_to_say">ترجیح می‌دهم نگویم</option></select></label>
-     <label>سن<select class="field" id="accountAge"><option value="">انتخاب سن</option></select></label>
-     <button class="btn" type="submit" id="accountPersonalSave">ذخیره اطلاعات</button>
-     <p class="muted settings-form-message" id="accountPersonalMessage">اطلاعات فردی فقط در تنظیمات حساب ذخیره می‌شود.</p>
-    </form>
    </div>
    <div class="settings-card panel settings-account-subpanel" data-account-panel="security" hidden>
     <div class="settings-card-heading"><span class="settings-symbol violet">🔐</span><div><h3>تغییر رمز عبور</h3><small>برای تغییر رمز، رمز فعلی را دوباره تأیید کن.</small></div></div>
@@ -492,7 +483,6 @@ body{color:var(--ex1-text)}
     <div class="settings-info-row"><span>نام نمایشی <span translate="no">EX1</span></span><strong id="accountProfileDisplayName">—</strong></div>
     <div class="settings-info-row"><span>نام داخل کالاف</span><strong id="accountProfileCodmName">—</strong></div>
     <div class="settings-info-row"><span>UID کالاف</span><strong id="accountProfileCodmUid" dir="ltr">—</strong></div>
-    <div class="settings-info-row"><span>نام نمایشی Kill House</span><strong id="accountProfileKillHouseName">—</strong></div>
     <button class="btn" type="button" id="accountOpenProfileEditor">ویرایش اطلاعات و عکس پروفایل</button>
    </div>
    <div class="settings-card panel profile-account-summary">
@@ -532,7 +522,7 @@ body{color:var(--ex1-text)}
  </nav>
 <footer><span translate="no">EX1 LEGEND</span> · جامعه‌ی رقابت سالم</footer>
 <div class="modal" id="authModal"><div class="dialog"><h3 id="authTitle" translate="no">ورود به EX1 LEGEND</h3><p id="authHint" class="muted">با ایمیل و رمز عبور وارد شو یا حساب جدید بساز.</p><form id="authForm"><input id="authName" class="field" maxlength="30" placeholder="نام نمایشی" hidden><input id="authReferralCode" class="field" maxlength="8" inputmode="numeric" pattern="[0-9]{4,8}" placeholder="کد معرف (اختیاری)" hidden><input id="authEmail" class="field" type="email" maxlength="254" autocomplete="email" placeholder="ایمیل" required><input id="authPassword" class="field" type="password" minlength="8" maxlength="72" autocomplete="current-password" placeholder="رمز عبور (حداقل ۸ نویسه)" required><button class="btn" id="authSubmit" type="submit">ورود</button></form><button class="btn ghost" id="forgotPasswordButton" type="button">فراموشی رمز عبور؟</button><button class="btn secondary" id="authSwitch" type="button">ساخت حساب جدید</button><button class="btn ghost" type="button" onclick="closeAuth()">بستن</button><p class="muted">رمز عبورت را در اختیار هیچ‌کس قرار نده و آن را در چت ارسال نکن.</p></div></div>
-<div class="modal" id="profileEditorModal"><div class="dialog"><h3>ویرایش پروفایل</h3><form id="profileForm"><label>نام نمایشی<input class="field" id="profileName" maxlength="30" required></label><label>نام کاربری<input class="field" id="profileHandle" maxlength="24" placeholder="اختیاری"></label><label>UID کالاف دیوتی موبایل<input class="field" id="profileGameUid" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="شناسهٔ بازیکن در بازی (بدون ایمیل)"></label><label>نام دقیق داخل بازی<input class="field" id="profileGameName" maxlength="40" placeholder="Nickname کالاف"></label><label>نام نمایشی داخل Kill House<input class="field" id="profileKillHouseName" maxlength="40" placeholder="نامی که در Kill House نمایش داده می‌شود"></label><small class="muted">UID را از پروفایل داخل بازی وارد کن؛ ایمیل یا نشانی جیمیل قابل قبول نیست. نام بازی را دقیقاً مطابق پروفایل کالاف بنویس.</small><button class="btn" type="submit">ذخیره تغییرات</button></form><button class="btn ghost" type="button" data-close-modal="profileEditorModal">بستن</button></div></div><div class="modal" id="settingsModal"><div class="dialog"><h3>تنظیمات EX1</h3><button class="btn secondary" id="showAppearanceSettings" type="button">تنظیمات ظاهری</button><div id="appearanceSettings" hidden><label>تم رنگی<select class="field" id="userTheme"><option value="soft">نرم و متعادل</option><option value="blue">آبی</option><option value="green">سبز</option><option value="amber">کهربایی</option></select></label><label>فونت برنامه<select class="field" id="userFont"><option value="tahoma">Tahoma</option><option value="system">فونت سیستم</option><option value="arial">Arial</option><option value="mono">Monospace</option></select></label><button class="btn small" id="saveUserSettings" type="button">ذخیره تنظیمات</button><p class="muted" id="userSettingsMessage">تنظیمات روی همین دستگاه ذخیره می‌شوند.</p></div><button class="btn secondary" id="showBlockedSettings" type="button">حساب‌های مسدودشده</button><div id="blockedSettings" hidden><div id="blockedUsers" class="user-list"><div class="empty">در حال دریافت فهرست...</div></div></div><button class="btn secondary" id="changeAccountButton" type="button">تغییر حساب کاربری</button><button class="btn ghost" id="logoutButton" type="button">خروج از حساب</button><button class="btn ghost" id="deleteAccountButton" type="button" style="border-color:#b94a4a;color:#b94a4a">حذف حساب کاربری</button><p class="muted">حذف حساب دائمی است و پس از تأیید هویت قابل بازگشت نیست.</p><button class="btn ghost" type="button" data-close-modal="settingsModal">بستن</button></div></div>
+<div class="modal" id="profileEditorModal"><div class="dialog"><h3>ویرایش پروفایل</h3><form id="profileForm"><label>نام نمایشی EX1 LEGEND<input class="field" id="profileName" minlength="2" maxlength="30" autocomplete="nickname" required></label><label>UID کالاف دیوتی موبایل<input class="field" id="profileGameUid" type="text" inputmode="numeric" minlength="19" maxlength="20" pattern="[0-9]{19,20}" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="UID عددی ۱۹ یا ۲۰ رقمی" required></label><label>نام کاربر داخل بازی<input class="field" id="profileGameName" minlength="2" maxlength="40" placeholder="نام دقیق مطابق پروفایل کالاف" required></label><small class="muted">فقط همین سه مورد برای پروفایل ثبت می‌شوند. UID باید دقیقاً ۱۹ یا ۲۰ رقم باشد.</small><button class="btn" type="submit">ذخیره تغییرات</button></form><button class="btn ghost" type="button" data-close-modal="profileEditorModal">بستن</button></div></div><div class="modal" id="settingsModal"><div class="dialog"><h3>تنظیمات EX1</h3><button class="btn secondary" id="showAppearanceSettings" type="button">تنظیمات ظاهری</button><div id="appearanceSettings" hidden><label>تم رنگی<select class="field" id="userTheme"><option value="soft">نرم و متعادل</option><option value="blue">آبی</option><option value="green">سبز</option><option value="amber">کهربایی</option></select></label><label>فونت برنامه<select class="field" id="userFont"><option value="tahoma">Tahoma</option><option value="system">فونت سیستم</option><option value="arial">Arial</option><option value="mono">Monospace</option></select></label><button class="btn small" id="saveUserSettings" type="button">ذخیره تنظیمات</button><p class="muted" id="userSettingsMessage">تنظیمات روی همین دستگاه ذخیره می‌شوند.</p></div><button class="btn secondary" id="showBlockedSettings" type="button">حساب‌های مسدودشده</button><div id="blockedSettings" hidden><div id="blockedUsers" class="user-list"><div class="empty">در حال دریافت فهرست...</div></div></div><button class="btn secondary" id="changeAccountButton" type="button">تغییر حساب کاربری</button><button class="btn ghost" id="logoutButton" type="button">خروج از حساب</button><button class="btn ghost" id="deleteAccountButton" type="button" style="border-color:#b94a4a;color:#b94a4a">حذف حساب کاربری</button><p class="muted">حذف حساب دائمی است و پس از تأیید هویت قابل بازگشت نیست.</p><button class="btn ghost" type="button" data-close-modal="settingsModal">بستن</button></div></div>
 <div class="modal" id="walletModal"><div class="dialog"><h3>کیف پول</h3><div class="wallet-modal-balance"><span>موجودی فعلی</span><strong id="walletModalBalance">۰ <small>استار</small></strong></div><p class="muted">استارها برای استفاده در امکانات داخلی برنامه هستند و از طریق فعالیت‌ها و امتیازهای داخل برنامه به دست می‌آیند.</p><div class="wallet-history"><h4>تاریخچه دفترکل استار</h4><div id="walletHistory" class="empty">در حال دریافت تاریخچه...</div></div><button class="btn ghost" type="button" data-close-modal="walletModal">بستن</button></div></div><div class="modal" id="joinRoomModal"><div class="dialog"><h3>ثبت‌نام در روم</h3><p id="joinRoomSummary" class="muted"></p><div class="panel"><strong>چطور شرکت می‌کنی؟</strong><p>لازم نیست از قبل تیم داشته باشی. ثبت‌نام انفرادی کن تا سیستم به‌ترتیب بازیکنان را در تیم‌های کامل دو یا چهار نفره قرار دهد.</p><small class="muted">اگر تیم کامل خودت را داری، کاپیتان می‌تواند گزینهٔ ثبت‌نام با تیم را انتخاب کند.</small></div><p id="soloJoinProgress" class="muted"></p><button class="btn" id="confirmRoomSoloJoin" type="button">ثبت‌نام انفرادی و تشکیل خودکار تیم</button><button class="btn secondary" id="confirmRoomJoin" type="button">ثبت‌نام با تیم کامل</button><p class="muted">ورودی هر روم در جزئیات همان روم مشخص است؛ ورودی هر روم با استار EX1 محاسبه می‌شود و جایزه نقدی برای آن تعریف نشده است.</p><button class="btn ghost" type="button" data-close-modal="joinRoomModal">بازگشت</button></div></div><div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2.119.0/dist/umd/supabase.js'"></script>
 <script src="/supabase-config.js"></script>
@@ -717,12 +707,12 @@ async function ensureCodmProfile(){
  const {data,error}=await sb.from("profiles").select("game_uid,game_name").eq("id",currentUser.id).maybeSingle();
  if(error)throw error;
  const uid=String(data?.game_uid||"").trim();
- if(!uid||!data?.game_name?.trim()){
+ if(!/^[0-9]{19,20}$/.test(uid)||!data?.game_name?.trim()||!data?.display_name?.trim()){
   toast("برای ثبت‌نام، UID و نام داخل بازی کالاف را در پروفایل تکمیل کن.");
   switchPage("profile");$("profileEditorModal").classList.add("show");return false;
  }
- if(uid.includes("@")){
-  toast("ایمیل به‌جای UID کالاف قابل قبول نیست؛ شناسه داخل بازی را وارد کن.");
+ if(!/^[0-9]{19,20}$/.test(uid)){
+  toast("UID کالاف باید فقط ۱۹ یا ۲۰ رقم باشد.");
   switchPage("profile");$("profileEditorModal").classList.add("show");return false;
  }
  return true;
@@ -1186,13 +1176,9 @@ $("settingsClearCacheButton").onclick=async()=>{
  try{if("caches" in window){const keys=await caches.keys();await Promise.all(keys.map(key=>caches.delete(key)));}localStorage.removeItem("ex1-explore-cache");toast("کش‌های ذخیره‌شده پاک شدند؛ برنامه دوباره بارگذاری می‌شود.");setTimeout(()=>location.reload(),450);}
  catch(error){toast("پاک کردن کش کامل نشد: "+(error?.message||"خطای نامشخص"));}
 };
-for(let age=5;age<=70;age++){const option=document.createElement("option");option.value=String(age);option.textContent=age.toLocaleString("fa-IR")+" سال";$("accountAge").append(option);}
 async function loadAccountSecuritySettings(){
  if(!currentUser)return;
- const metadata=currentUser.user_metadata||{};
- $("accountGender").value=metadata.ex1_profile_gender||"";
- $("accountAge").value=metadata.ex1_profile_age?String(metadata.ex1_profile_age):"";
- $("privacyReceiveMessages").checked=metadata.ex1_privacy_receive_messages!==false;
+ const metadata=currentUser.user_metadata||{}; $("privacyReceiveMessages").checked=metadata.ex1_privacy_receive_messages!==false;
  $("privacyHideLastSeen").checked=metadata.ex1_privacy_hide_last_seen===true;
  $("accountCurrentSessionStatus").textContent="فعال در همین دستگاه";
  $("accountSessionsMessage").textContent="برای حفظ امنیت، رمز عبورت را در اختیار هیچ‌کس قرار نده.";
@@ -1225,118 +1211,6 @@ $("accountSignOutOthers").onclick=async()=>{
  finally{button.disabled=false;button.textContent="خروج از سایر دستگاه‌ها";}
 };
 $("accountOpenProfileEditor").onclick=()=>$("openProfileEditor").click();
-$("accountPersonalForm").addEventListener("submit",async event=>{
- event.preventDefault();if(!currentUser)return openAuth();
- const gender=$("accountGender").value,age=$("accountAge").value;
- if(!gender||!age)return toast("جنسیت و سن را انتخاب کن.");
- const button=$("accountPersonalSave");button.disabled=true;
- try{const {data,error}=await sb.auth.updateUser({data:{ex1_profile_gender:gender,ex1_profile_age:Number(age)}});if(error)throw error;currentUser=data.user;$("accountPersonalMessage").textContent="اطلاعات فردی در حساب ذخیره شد." ;toast("اطلاعات حساب به‌روزرسانی شد.");}
- catch(error){$("accountPersonalMessage").textContent=error?.message||"ذخیره اطلاعات انجام نشد.";toast(error?.message||"ذخیره اطلاعات انجام نشد.");}
- finally{button.disabled=false;}
-});
-$("savePrivacySettings").onclick=async()=>{
- if(!currentUser)return openAuth();
- const button=$("savePrivacySettings");button.disabled=true;
- try{const {data,error}=await sb.auth.updateUser({data:{ex1_privacy_receive_messages:$("privacyReceiveMessages").checked,ex1_privacy_hide_last_seen:$("privacyHideLastSeen").checked}});if(error)throw error;currentUser=data.user;$("privacySettingsMessage").textContent="ترجیحات حریم خصوصی در حساب ذخیره شد. اعمال سمت سرور این گزینه‌ها در مرحله امنیتی بعدی تکمیل می‌شود.";toast("تنظیمات حریم خصوصی ذخیره شد.");}
- catch(error){$("privacySettingsMessage").textContent=error?.message||"ذخیره حریم خصوصی انجام نشد.";toast(error?.message||"ذخیره حریم خصوصی انجام نشد.");}
- finally{button.disabled=false;}
-};
-$("showAppearanceSettings").onclick=()=>{$("appearanceSettings").hidden=!$("appearanceSettings").hidden;};
-$("showBlockedSettings").onclick=()=>{$("blockedSettings").hidden=!$("blockedSettings").hidden;if(!$("blockedSettings").hidden)loadBlockedUsers();};
-document.querySelectorAll("[data-close-modal]").forEach(b=>b.onclick=()=>$(b.dataset.closeModal).classList.remove("show"));
-["settingsModal","profileEditorModal","walletModal","joinRoomModal","authModal"].forEach(id=>$(id).addEventListener("click",e=>{if(e.target===$(id))$(id).classList.remove("show");}));
-document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".modal.show").forEach(m=>m.classList.remove("show"));});
-async function loadFollowStats(){
- if(!currentUser)return;
- const [followers,following]=await Promise.all([
-  sb.from("user_follows").select("follower_id",{count:"exact",head:true}).eq("followed_id",currentUser.id).eq("status","accepted"),
-  sb.from("user_follows").select("followed_id",{count:"exact",head:true}).eq("follower_id",currentUser.id).eq("status","accepted")
- ]);
- if(followers.error||following.error){
-  console.warn("EX1 follow counts unavailable:",followers.error||following.error);
-  return;
- }
- $("profileFollowersCount").textContent=Number(followers.count||0).toLocaleString("fa-IR");
- $("profileFollowingCount").textContent=Number(following.count||0).toLocaleString("fa-IR");
-}
-async function loadProfile(){
- if(!currentUser)return;
- loadWallet();
- const {data,error}=await sb.from("profiles").select("id,display_name,username,avatar_url,cover_url,game_uid,game_name").eq("id",currentUser.id).maybeSingle();
- if(error){console.error("EX1 profile load:",error);toast("اطلاعات پروفایل فعلاً در دسترس نیست. دوباره تلاش کن.");return;}
- if(!data){toast("پروفایل این حساب هنوز ساخته نشده است؛ دوباره وارد شو.");return;}
- $("profileDisplayName").textContent=data.display_name||"بازیکن";
- $("profileUsername").textContent=data.username?"@"+data.username:"PLAYER";
- const roleBadge=$("profileRoleBadge");
- roleBadge.hidden=true;roleBadge.textContent="";roleBadge.classList.remove("owner","manager");
- try{
-  const {data:badges,error:badgeError}=await sb.rpc("ex1_public_role_badges",{p_user_ids:[currentUser.id]});
-  if(!badgeError&&badges?.length){
-   const kind=badges.some(x=>x.badge_type==="owner")?"owner":"manager";
-   roleBadge.textContent=kind==="owner"?"✦ مالک":"◆ مدیر";
-   roleBadge.classList.add(kind);roleBadge.hidden=false;
-  }
-  const {data:roleSummary,error:roleSummaryError}=await sb.rpc("ex1_my_role_summary");
-  $("managerWorkspaceButton").hidden=!!roleSummaryError||roleSummary?.is_manager!==true||roleSummary?.is_owner===true;
- }catch(roleError){console.warn("EX1 role badge unavailable:",roleError);$("managerWorkspaceButton").hidden=true;}
- const avatarBox=$("profileAvatar");const fallbackAvatar=esc((data.display_name||"EX").slice(0,1));let avatarUrl=data.avatar_url||"";if(avatarUrl&&!/^https?:\/\//i.test(avatarUrl))avatarUrl=sb.storage.from("ex1-avatars").getPublicUrl(avatarUrl).data.publicUrl;avatarBox.innerHTML=avatarUrl?'<img class="profile-avatar-image" data-avatar-fallback="'+fallbackAvatar+'" data-avatar-class="profile-avatar-fallback" src="'+esc(avatarUrl)+'" alt="عکس پروفایل">':fallbackAvatar;
- const coverBox=$("profileCover");const coverUrl=avatarUrl;if(coverUrl){coverBox.classList.add("has-custom-cover");coverBox.style.backgroundImage='linear-gradient(rgba(10,8,20,.58),rgba(10,8,20,.70)),url("'+coverUrl.replace(/["\\]/g,"")+'")';}else{coverBox.classList.remove("has-custom-cover");coverBox.style.backgroundImage="";}$("removeCoverButton").hidden=true;
- $("profileName").value=data.display_name||"";$("profileHandle").value=data.username||"";$("profileGameUid").value=data.game_uid||"";$("profileGameName").value=data.game_name||"";$("profileKillHouseName").value=currentUser.user_metadata?.ex1_killhouse_name||"";
- $("accountProfileDisplayName").textContent=data.display_name||"ثبت نشده";$("accountProfileCodmName").textContent=data.game_name||"ثبت نشده";$("accountProfileCodmUid").textContent=data.game_uid||"ثبت نشده";$("accountProfileKillHouseName").textContent=currentUser.user_metadata?.ex1_killhouse_name||"ثبت نشده";
- loadFollowRequests();loadMyMatches();loadFollowStats();loadProfilePerformanceStats();
-}
-$("profileForm").addEventListener("submit",async e=>{
- e.preventDefault();if(!currentUser){openAuth();return;}
-  const gameUid=$("profileGameUid").value.trim();
-  if(gameUid.includes("@")){toast("UID کالاف نباید ایمیل باشد؛ شناسه داخل بازی را وارد کن.");$("profileGameUid").focus();return;}
-  const payload={display_name:$("profileName").value.trim(),username:$("profileHandle").value.trim()||null,game_uid:gameUid||null,game_name:$("profileGameName").value.trim()||null};
- const {data:updateData,error:updateError}=await sb.functions.invoke("update-profile",{body:payload});
- if(updateError){
-  let message=profileDuplicateMessage(updateError)||"ذخیره پروفایل انجام نشد.";
-  try{const body=await updateError.context?.clone?.().json();if(body?.error)message=body.error;}catch(_){}
-  toast(message);return;
-}
- if(updateData?.pending_review){toast(updateData.message||"پروفایل برای بررسی مالک ارسال شد.");return;}
- if(!updateData?.success){toast(updateData?.error||"ذخیره پروفایل انجام نشد.");return;}
- const killHouseName=$("profileKillHouseName").value.trim();
- const {data:metadataData,error:metadataError}=await sb.auth.updateUser({data:{ex1_killhouse_name:killHouseName}});
- if(metadataError){toast("اطلاعات اصلی پروفایل ذخیره شد، اما نام Kill House ذخیره نشد: "+metadataError.message);return;}
- currentUser=metadataData.user||currentUser;
- toast("پروفایل ذخیره شد.");$("profileEditorModal").classList.remove("show");loadProfile();
-});
-
-async function profilesFor(ids){
- const unique=[...new Set(ids.filter(Boolean))];if(!unique.length)return {};
- const {data}=await sb.from("profiles").select("id,display_name,username,avatar_url").in("id",unique);
- return Object.fromEntries((data||[]).map(x=>[x.id,x]));
-}
-$("searchUsers").onclick=loadExplore;
-$("userSearch").addEventListener("keydown",e=>{if(e.key==="Enter")loadExplore();});
-async function loadExplore(){
- if(!currentUser){$("exploreUsers").innerHTML='<div class="empty">برای اکسپلور وارد حساب شو.</div>';return;}
- let q=($("userSearch").value||"").trim();
- let req=sb.from("profiles").select("id,display_name,username,avatar_url,cover_url").neq("id",currentUser.id).limit(50);
- if(q)req=req.or("display_name.ilike.%"+q+"%,username.ilike.%"+q+"%");
- const [{data,error},follows]=await Promise.all([req,sb.from("user_follows").select("follower_id,followed_id,status")]);
- if(error){$("exploreUsers").innerHTML='<div class="empty">جست‌وجو انجام نشد.</div>';return;}
- const edges=follows.data||[];
- const {data:roleBadges}=await sb.rpc("ex1_public_role_badges",{p_user_ids:(data||[]).map(p=>p.id)});
- const roleBadgeMap=new Map((roleBadges||[]).map(x=>[x.user_id,x.badge_type]));
- $("exploreUsers").innerHTML=(data||[]).map(p=>{
-  const mine=edges.find(x=>x.follower_id===currentUser.id&&x.followed_id===p.id);
-  const label=mine?.status==="accepted"?"دنبال می‌کنی":mine?.status==="pending"?"درخواست ارسال شد":"دنبال‌کردن";
-  let cover=p.avatar_url||"";if(cover&&!/^https?:\/\//i.test(cover))cover=sb.storage.from("ex1-avatars").getPublicUrl(cover).data.publicUrl;const coverStyle=cover?' style="background-image:linear-gradient(90deg,rgba(20,15,32,.94),rgba(20,15,32,.78)),url(\''+esc(cover)+'\')"':"";return '<div class="user-row'+(cover?' has-profile-cover':'')+'"'+coverStyle+'>'+avatarHTML(p)+'<div class="user-info"><strong>'+esc(p.display_name||"بازیکن")+(roleBadgeMap.get(p.id)?' <span class="inline-role-badge '+roleBadgeMap.get(p.id)+'">'+(roleBadgeMap.get(p.id)==="owner"?"مالک":"مدیر")+'</span>':"")+'</strong><small>'+(p.username?"@"+esc(p.username):"بازیکن")+'</small></div><button class="btn secondary small" data-follow="'+esc(p.id)+'" '+(mine?"disabled":"")+'>'+label+'</button><button class="btn ghost small" data-block-user="'+esc(p.id)+'">مسدود</button><button class="btn ghost small" data-report-user="'+esc(p.id)+'">گزارش</button></div>';
- }).join("")||'<div class="empty">بازیکنی پیدا نشد.</div>';
- $("exploreUsers").querySelectorAll("[data-follow]").forEach(b=>b.onclick=async()=>{const {error}=await sb.from("user_follows").insert({follower_id:currentUser.id,followed_id:b.dataset.follow,status:"pending"});if(error){toast("درخواست دنبال‌کردن ارسال نشد.");return;}toast("درخواست دنبال‌کردن ارسال شد.");loadExplore();});
- $("exploreUsers").querySelectorAll("[data-block-user]").forEach(b=>b.onclick=async()=>{
-  if(!confirm("این بازیکن مسدود شود؟ پیام‌رسانی و نمایش محتوای دوطرفه محدود می‌شود."))return;
-  const target=b.dataset.blockUser;
-  const {error}=await sb.from("user_blocks").insert({blocker_id:currentUser.id,blocked_id:target});
-  if(error){toast("مسدودسازی انجام نشد.");return;}
-  await sb.from("user_follows").delete().eq("follower_id",currentUser.id).eq("followed_id",target);
-  await sb.from("user_follows").delete().eq("follower_id",target).eq("followed_id",currentUser.id);
-  toast("بازیکن مسدود شد.");loadExplore();loadChatContacts();
- });
  $("exploreUsers").querySelectorAll("[data-report-user]").forEach(b=>b.onclick=async()=>{
   const {error}=await sb.from("social_reports").insert({reporter_id:currentUser.id,target_user_id:b.dataset.reportUser,reason:"other",details:"گزارش پروفایل کاربر"});
   toast(error?"گزارش ثبت نشد.":"گزارش پروفایل برای بررسی ثبت شد.");
