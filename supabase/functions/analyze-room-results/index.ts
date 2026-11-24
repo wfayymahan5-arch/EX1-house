@@ -65,7 +65,7 @@ function cleanText(value: unknown, max: number): string | null {
 
 function cleanMetric(value: unknown, max: number): number | null {
   if (value === null || value === undefined || value === "") return null;
-  if (typeof value !== "number" && !(typeof value === "string" && /^\\d+$/.test(value.trim()))) return null;
+  if (typeof value !== "number" && !(typeof value === "string" && /^\d+$/.test(value.trim()))) return null;
   const number = Number(value);
   return Number.isSafeInteger(number) && number >= 0 && number <= max ? number : null;
 }
