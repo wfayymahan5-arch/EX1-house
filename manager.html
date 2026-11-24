@@ -231,7 +231,7 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
 <label>تعداد جایگاه‌ها (تعداد تیم‌ها)<input id="rf_max_teams" type="number" min="1" max="25" value="25" required></label>
 <label>تعداد نفرات هر تیم<select id="rf_team_size"><option value="2">۲ نفره (DUO)</option><option value="4" selected>۴ نفره (SQUAD)</option></select></label>
 <label>ظرفیت کل بازیکنان<input id="rf_capacity" type="number" value="100" readonly></label>
-<label>ورودی هر بازیکن (استارز مجازی)<input id="rf_entry_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
+<label>ورودی هر بازیکن (استارز مجازی)<input id="rf_entry_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label><label>دسته‌بندی ورودی مجازی<select id="rf_price_category" required><option value="free">رایگان (ورودی صفر)</option><option value="economy">اقتصادی (ورودی امتیازی)</option><option value="expensive">ویژه (ورودی امتیازی)</option></select></label><p class="muted wide">ورودی صفر = رایگان؛ ورودی بیشتر از صفر = اقتصادی یا ویژه.</p>
 <label>جایزه تیم اول (استارز)<input id="rf_prize_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
 <label>جایزه تیم دوم (استارز)<input id="rf_prize_second_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
 <label>جایزه تیم سوم (استارز)<input id="rf_prize_third_demo_points" type="number" min="0" max="1000000000" step="1" value="0" required></label>
@@ -316,7 +316,7 @@ function resetRoomForm(){
  $("rf_room_effects_enabled").checked=true;
  window.ex1AdminAccessRoomId=null;
  $("roomForm").reset();$("rf_id").value="";$("rf_max_teams").value=25;$("rf_team_size").value="4";
- $("rf_capacity").value=100;$("rf_entry_demo_points").value=0;
+ $("rf_capacity").value=100;$("rf_entry_demo_points").value=0;$("rf_price_category").value="free";
  $("rf_prize_demo_points").value=0;$("rf_prize_second_demo_points").value=0;$("rf_prize_third_demo_points").value=0;
  $("rf_status").value="open";resetRoomImage();updateRoomCapacity();
  $("roomAccessAdminPanel").classList.remove("hidden");
@@ -862,6 +862,7 @@ $("roomForm").addEventListener("submit",async e=>{
   max_teams:Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1)),
   capacity:Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1))*(Number($("rf_team_size").value)===2?2:4),
   entry_demo_points:Math.max(0,Math.floor(Number($("rf_entry_demo_points").value)||0)),
+  price_category:$("rf_price_category").value,
   prize_demo_points:Math.max(0,Math.floor(Number($("rf_prize_demo_points").value)||0)),
   prize_second_demo_points:Math.max(0,Math.floor(Number($("rf_prize_second_demo_points").value)||0)),
   prize_third_demo_points:Math.max(0,Math.floor(Number($("rf_prize_third_demo_points").value)||0)),
@@ -873,6 +874,8 @@ $("roomForm").addEventListener("submit",async e=>{
   rules:$("rf_rules").value.trim()
  };
  if(!payload.tournament_id)return toast("مسابقه مرتبط را انتخاب کن.");
+ if(payload.entry_demo_points===0&&payload.price_category!=="free")return toast("برای ورودی صفر، دسته‌بندی «رایگان» را انتخاب کن.");
+ if(payload.entry_demo_points>0&&payload.price_category==="free")return toast("برای ورودی امتیازی بیشتر از صفر، دسته «اقتصادی» یا «ویژه» را انتخاب کن.");
  $("saveRoomButton").disabled=true;
  try{
   payload.room_image_url=await uploadPendingRoomImage();
@@ -932,7 +935,7 @@ $("roomsTable").addEventListener("click",async e=>{
   $("rf_game_mode").value=data.game_mode||"";$("rf_map").value=data.map||"";
   $("rf_max_teams").value=data.max_teams||25;$("rf_team_size").value=String(data.team_size===2?2:4);
   $("rf_capacity").value=data.capacity||((data.max_teams||25)*(data.team_size||4));
-  $("rf_entry_demo_points").value=data.entry_demo_points||0;
+  $("rf_entry_demo_points").value=data.entry_demo_points||0;$("rf_price_category").value=data.price_category||"free";
   $("rf_prize_demo_points").value=data.prize_demo_points||0;
   $("rf_prize_second_demo_points").value=data.prize_second_demo_points||0;
   $("rf_prize_third_demo_points").value=data.prize_third_demo_points||0;
