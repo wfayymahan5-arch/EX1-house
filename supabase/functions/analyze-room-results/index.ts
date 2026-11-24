@@ -9,7 +9,7 @@ const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
 const DEFAULT_ORIGINS = ["https://ex1-house.vercel.app"];
 
-type InputImage = { mime_type?: string; data_base64?: string; object_path?: string };
+type InputImage = { mime_type?: string; object_path?: string };
 type Candidate = {
   game_uid: string | null;
   placement: number | null;
@@ -38,24 +38,25 @@ function json(req: Request, status: number, body: Record<string, unknown>) {
   return new Response(JSON.stringify(body), { status, headers: corsHeaders(req) });
 }
 
-function decodeImage(encodedInput: string, mimeType: string): Uint8Array | null {
-  try {
-    const encoded = encodedInput.replace(/^data:[^,]+,/, "");
-    const binary = atob(encoded);
-    if (binary.length < 16 || binary.length > MAX_IMAGE_BYTES) return null;
-    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-    const isJpeg = mimeType === "image/jpeg" &&
-      bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
-    const isPng = mimeType === "image/png" &&
-      bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e &&
-      bytes[3] === 0x47 && bytes[4] === 0x0d && bytes[5] === 0x0a &&
-      bytes[6] === 0x1a && bytes[7] === 0x0a;
-    const isWebp = mimeType === "image/webp" &&
-      binary.slice(0, 4) === "RIFF" && binary.slice(8, 12) === "WEBP";
-    return isJpeg || isPng || isWebp ? bytes : null;
-  } catch {
-    return null;
+function validImageBytes(bytes: Uint8Array, mimeType: string): boolean {
+  if (bytes.byteLength < 16 || bytes.byteLength > MAX_IMAGE_BYTES) return false;
+  const isJpeg = mimeType === "image/jpeg" &&
+    bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  const isPng = mimeType === "image/png" &&
+    bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e &&
+    bytes[3] === 0x47 && bytes[4] === 0x0d && bytes[5] === 0x0a &&
+    bytes[6] === 0x1a && bytes[7] === 0x0a;
+  const header = String.fromCharCode(...bytes.subarray(0, 12));
+  const isWebp = mimeType === "image/webp" && header.slice(0, 4) === "RIFF" && header.slice(8, 12) === "WEBP";
+  return isJpeg || isPng || isWebp;
+}
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = "";
+  for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
   }
+  return btoa(binary);
 }
 
 async function sha256(bytes: Uint8Array): Promise<string> {
@@ -174,24 +175,29 @@ Deno.serve(async (req: Request) => {
   const imageManifest: Array<Record<string, unknown>> = [];
   for (const [index, image] of body.images.entries()) {
     const mime = image?.mime_type ?? "";
-    const encoded = image?.data_base64 ?? "";
-    if (!ALLOWED_MIME.has(mime) || !encoded || encoded.length > Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 64) {
-      return json(req, 400, { error: "invalid_image", image_index: index });
+    const objectPath = image?.object_path ?? "";
+    const extension = mime === "image/jpeg" ? "jpg" : mime === "image/png" ? "png" : "webp";
+    if (!ALLOWED_MIME.has(mime) || !objectPath.startsWith(body.room_id + "/" + body.batch_id + "/")) {
+      return json(req, 400, { error: "invalid_image_reference", image_index: index });
     }
-    const bytes = decodeImage(encoded, mime);
-    if (!bytes) return json(req, 413, { error: "invalid_or_oversized_image", image_index: index });
+    const pathMatch = objectPath.match(/^([0-9a-f-]{36})\/([0-9a-f-]{36})\/([0-9a-f]{64})\.(jpg|png|webp)$/i);
+    if (!pathMatch || pathMatch[1].toLowerCase() !== body.room_id.toLowerCase() ||
+        pathMatch[2].toLowerCase() !== body.batch_id.toLowerCase() || pathMatch[4] !== extension) {
+      return json(req, 400, { error: "invalid_image_object_path", image_index: index });
+    }
+    const { data: imageBlob, error: imageError } = await supabase.storage.from("room-result-evidence").download(objectPath);
+    if (imageError || !imageBlob) return json(req, 404, { error: "uploaded_image_not_found", image_index: index });
+    const bytes = new Uint8Array(await imageBlob.arrayBuffer());
+    if (!validImageBytes(bytes, mime)) return json(req, 413, { error: "invalid_or_oversized_image", image_index: index });
     const hash = await sha256(bytes);
     if (seenHashes.has(hash)) return json(req, 409, { error: "duplicate_image_in_batch", image_index: index });
     seenHashes.add(hash);
     hashes.push(hash);
-    const extension = mime === "image/jpeg" ? "jpg" : mime === "image/png" ? "png" : "webp";
     const expectedPath = body.room_id + "/" + body.batch_id + "/" + hash + "." + extension;
-    if (image.object_path !== expectedPath) {
-      return json(req, 400, { error: "invalid_image_object_path", image_index: index });
-    }
+    if (objectPath !== expectedPath) return json(req, 400, { error: "image_hash_path_mismatch", image_index: index });
     imageManifest.push({ object_path: expectedPath, sha256: hash, mime_type: mime, byte_size: bytes.byteLength, extension });
     parts.push({ text: "Screenshot index " + index });
-    parts.push({ inline_data: { mime_type: mime, data: encoded.replace(/^data:[^,]+,/, "") } });
+    parts.push({ inline_data: { mime_type: mime, data: bytesToBase64(bytes) } });
   }
 
   const model = Deno.env.get("GEMINI_RESULTS_MODEL") || "gemini-3.1-flash-lite";
