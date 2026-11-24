@@ -11,12 +11,9 @@ const DEFAULT_ORIGINS = ["https://ex1-house.vercel.app"];
 
 type InputImage = { mime_type?: string; data_base64?: string };
 type Candidate = {
-  game_name: string | null;
   game_uid: string | null;
-  team_label: string | null;
   placement: number | null;
   kills: number | null;
-  points: number | null;
   confidence: "high" | "medium" | "low";
   evidence_image_indexes: number[];
 };
@@ -77,23 +74,16 @@ function normalizeCandidate(value: any, imageCount: number): Candidate | null {
     ? [...new Set(value.evidence_image_indexes.filter((n: unknown) => typeof n === "number" && Number.isInteger(n) && n >= 0 && n < imageCount))]
     : [];
   return {
-    game_name: cleanText(value.game_name, 64),
     game_uid: cleanText(value.game_uid, 32),
-    team_label: cleanText(value.team_label, 32),
     placement: cleanMetric(value.placement, 1000),
     kills: cleanMetric(value.kills, 1000),
-    points: cleanMetric(value.points, 1000000),
     confidence,
     evidence_image_indexes: indexes,
   };
 }
 
 function sameMetrics(a: Candidate, b: Candidate): boolean {
-  return a.game_name === b.game_name &&
-    a.placement === b.placement &&
-    a.kills === b.kills &&
-    a.points === b.points &&
-    a.team_label === b.team_label;
+  return a.placement === b.placement && a.kills === b.kills;
 }
 
 Deno.serve(async (req: Request) => {
@@ -157,12 +147,13 @@ Deno.serve(async (req: Request) => {
     text: [
       "Analyze these Call of Duty Mobile end-of-match result screenshots for EX1 LEGEND.",
       "Extract only information visibly supported by the screenshots.",
-      "Do not guess unreadable names, UIDs, placements, kills, team associations, or scores.",
+      "Extract only the visible player UID, placement, and kill count.",
+      "Do not guess unreadable UIDs, placements, or kills.",
       "If a value is unclear, use null and add a concise item to uncertainties.",
       "Do not infer an EX1 account identity. Return game-visible identifiers only.",
       "Multiple screenshots may overlap. Do not duplicate the same player when the visible UID is identical.",
       "Return JSON only with this exact shape:",
-      '{"players":[{"game_name":"string|null","game_uid":"string|null","team_label":"string|null","placement":"number|null","kills":"number|null","points":"number|null","confidence":"high|medium|low","evidence_image_indexes":[0]}],"uncertainties":["string"],"screenshots_consistent":"boolean"}',
+      '{"players":[{"game_uid":"string|null","placement":"number|null","kills":"number|null","confidence":"high|medium|low","evidence_image_indexes":[0]}],"uncertainties":["string"],"screenshots_consistent":"boolean"}',
     ].join("\n"),
   }];
 
