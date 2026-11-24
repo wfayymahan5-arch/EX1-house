@@ -28,6 +28,7 @@ The project owner must review Google's current Gemini API Free Tier terms and th
 - The caller must have `results.manage` and either `rooms.view` or `rooms.manage`.
 - The requested room must be visible to the caller and completed (or have an elapsed `ends_at`).
 - Only JPEG, PNG, and WebP are accepted; maximum 8 images per request and 4 MiB per image.
+- JPEG/PNG/WebP file signatures are checked against the declared MIME type; spoofed or malformed files are rejected.
 - Duplicate images in one request are rejected by SHA-256 hash.
 - The function never returns the Gemini provider's raw error body.
 - The response is an untrusted review candidate and explicitly reports `official_write_performed: false`.
@@ -44,6 +45,8 @@ Send a signed-in user's JWT through the Authorization header and call the functi
   ]
 }
 ```
+
+The planned private storage, review tables, approval rules, and UI are documented in [`supabase/room-results-pipeline-design.md`](../../room-results-pipeline-design.md). This is a design document only; it does not create database or Storage resources.
 
 ## Still required before end-to-end completion
 
