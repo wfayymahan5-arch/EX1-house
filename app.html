@@ -1210,6 +1210,41 @@ $("accountSignOutOthers").onclick=async()=>{
  catch(error){$("accountSessionsMessage").textContent=error?.message||"لغو نشست‌های دیگر انجام نشد.";toast(error?.message||"لغو نشست‌ها انجام نشد.");}
  finally{button.disabled=false;button.textContent="خروج از سایر دستگاه‌ها";}
 };
+async function loadProfile(){
+ if(!currentUser)return;
+ try{
+  if(typeof loadWallet==="function")loadWallet();
+  const {data,error}=await sb.from("profiles").select("id,display_name,username,avatar_url,cover_url,game_uid,game_name").eq("id",currentUser.id).maybeSingle();
+  if(error)throw error;
+  if(!data){toast("پروفایل این حساب هنوز ساخته نشده است؛ دوباره وارد شو.");return;}
+  $("profileDisplayName").textContent=data.display_name||"بازیکن";
+  $("profileUsername").textContent="PLAYER";
+  const roleBadge=$("profileRoleBadge");
+  if(roleBadge){roleBadge.hidden=true;roleBadge.textContent="";roleBadge.classList.remove("owner","manager");}
+  try{
+   const {data:badges,error:badgeError}=await sb.rpc("ex1_public_role_badges",{p_user_ids:[currentUser.id]});
+   if(!badgeError&&badges?.length&&roleBadge){
+    const kind=badges.some(x=>x.badge_type==="owner")?"owner":"manager";
+    roleBadge.textContent=kind==="owner"?"✦ مالک":"◆ مدیر";roleBadge.classList.add(kind);roleBadge.hidden=false;
+   }
+   const {data:roleSummary,error:roleSummaryError}=await sb.rpc("ex1_my_role_summary");
+   if($("managerWorkspaceButton"))$("managerWorkspaceButton").hidden=!!roleSummaryError||roleSummary?.is_manager!==true||roleSummary?.is_owner===true;
+  }catch(roleError){console.warn("EX1 role badge unavailable:",roleError);if($("managerWorkspaceButton"))$("managerWorkspaceButton").hidden=true;}
+  const avatarBox=$("profileAvatar"),fallbackAvatar=esc((data.display_name||"EX").slice(0,1));
+  let avatarUrl=data.avatar_url||"";
+  if(avatarUrl&&!/^https?:\/\//i.test(avatarUrl))avatarUrl=sb.storage.from("ex1-avatars").getPublicUrl(avatarUrl).data.publicUrl;
+  if(avatarBox)avatarBox.innerHTML=avatarUrl?'<img class="profile-avatar-image" data-avatar-fallback="'+fallbackAvatar+'" data-avatar-class="profile-avatar-fallback" src="'+esc(avatarUrl)+'" alt="عکس پروفایل">':fallbackAvatar;
+  const coverBox=$("profileCover");
+  if(coverBox){if(avatarUrl){coverBox.classList.add("has-custom-cover");coverBox.style.backgroundImage='linear-gradient(rgba(10,8,20,.58),rgba(10,8,20,.70)),url("'+avatarUrl.replace(/["\\]/g,"")+'")';}else{coverBox.classList.remove("has-custom-cover");coverBox.style.backgroundImage="";}}
+  if($("removeCoverButton"))$("removeCoverButton").hidden=true;
+  $("profileName").value=data.display_name||"";
+  $("profileGameUid").value=data.game_uid||"";
+  $("profileGameName").value=data.game_name||"";
+  if(typeof loadFollowRequests==="function")loadFollowRequests();
+  if(typeof loadMyMatches==="function")loadMyMatches();
+  if(typeof loadFollowStats==="function")loadFollowStats();
+ }catch(error){console.error("EX1 profile load:",error);toast("بارگذاری پروفایل انجام نشد: "+(error?.message||"خطای نامشخص"));}
+}
 $("accountOpenProfileEditor").onclick=()=>$("openProfileEditor").click();
 $("profileForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!currentUser){openAuth();return;}
