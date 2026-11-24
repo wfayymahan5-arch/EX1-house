@@ -186,7 +186,11 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
  .room-image-preview{width:100%;touch-action:none}
  .actions>.btn,.room-image-actions>.btn{max-width:100%}
 }
-</style></head>
+</style><style id="ex1-room-effects-admin-v1">
+.room-effects-toggle{display:flex!important;align-items:center;gap:10px;padding:12px 14px;border:1px solid #9c6bff66;border-radius:14px;background:linear-gradient(110deg,#7d43c522,#22b8cf18);font-weight:800}
+.room-effects-toggle input{width:20px;height:20px;accent-color:#a66bff;flex:0 0 auto}
+</style>
+</head>
 <body><div class="wrap">
 <header class="top"><div class="brand" translate="no"><img src="/ex1-legend-mark.svg" alt="" width="30" height="30" style="vertical-align:middle;margin-inline-end:7px">EX1 <span>LEGEND</span> <small style="color:#9998b2;font-size:12px">/ ابزار مدیران</small></div><a class="btn" href="/">بازگشت به سایت ↗</a></header>
 <section id="authView" class="authbox"><h2>ورود به ابزار مدیران EX1 LEGEND</h2><p class="muted">با حساب کاربری مدیر وارد شو. فقط وظایفی که مالک برایت فعال کرده نمایش داده می‌شوند.</p><form id="loginForm"><label class="muted" for="email">ایمیل</label><input class="field" id="email" type="email" autocomplete="username" required maxlength="254"><label class="muted" for="password">رمز عبور</label><input class="field" id="password" type="password" autocomplete="current-password" required maxlength="72"><button class="btn primary" id="loginButton" type="submit">ورود امن</button></form><p id="authMessage" class="muted" aria-live="polite"></p></section>
@@ -245,6 +249,7 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
  <p class="muted">عکس را از گالری انتخاب کن. برش اولیه با توجه به عمودی یا افقی بودن عکس تنظیم می‌شود؛ برای تعیین دقیق بخش مهم، همان قسمت را روی پیش‌نمایش لمس کن یا نوار تنظیم کادر را جابه‌جا کن. تصویر کشیده نمی‌شود.</p>
  <p id="roomImageUploadStatus" class="muted" aria-live="polite"></p>
 </div>
+<label class="wide room-effects-toggle"><input id="rf_room_effects_enabled" type="checkbox" checked> فعال‌سازی جلوه‌های تصویری روم (درخشش و ذرات متحرک روی تصویر)</label>
 <label class="wide">قوانین اختصاصی این روم<textarea id="rf_rules" maxlength="5000"></textarea></label>
 <p class="muted wide">ورودی از امتیاز مجازی <span translate="no">EX1</span> کسر می‌شود؛ این امتیاز ارزش نقدی ندارد و قابل خرید، انتقال یا برداشت نیست. ظرفیت کل به‌صورت خودکار از تعداد تیم‌ها × نفرات هر تیم محاسبه می‌شود.</p>
 </div>
@@ -308,6 +313,7 @@ function resetRoomImage(){
  $("roomImageUploadStatus").textContent="";setRoomImagePreview("");
 }
 function resetRoomForm(){
+ $("rf_room_effects_enabled").checked=true;
  window.ex1AdminAccessRoomId=null;
  $("roomForm").reset();$("rf_id").value="";$("rf_max_teams").value=25;$("rf_team_size").value="4";
  $("rf_capacity").value=100;$("rf_entry_demo_points").value=0;
@@ -593,9 +599,37 @@ $("usersTable").addEventListener("click",async e=>{
 });
 
 
+function renderTournamentRows(rows){
+ const canDelete=permissions["tournaments.delete"]===true;
+ $("tournamentsTable").innerHTML=table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع","عملیات"],(rows||[]).map(t=>row([esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—"),canDelete?'<button type="button" class="action-btn danger" data-delete-tournament="'+esc(t.id)+'">حذف مسابقه</button>':"—"])));
+}
+$("tournamentsTable").addEventListener("click",async e=>{
+ const btn=e.target.closest("[data-delete-tournament]");if(!btn)return;
+ if(!permissions["tournaments.delete"])return toast("مجوز حذف مسابقه را نداری.");
+ const id=btn.dataset.deleteTournament;
+ if(!confirm("مسابقه فقط در صورتی حذف می‌شود که روم، ثبت‌نام یا نتیجهٔ وابسته نداشته باشد. ادامه می‌دهی؟"))return;
+ btn.disabled=true;
+ try{
+  const checks=await Promise.all([
+   sb.from("tournament_rooms").select("id",{count:"exact",head:true}).eq("tournament_id",id),
+   sb.from("tournament_registrations").select("id",{count:"exact",head:true}).eq("tournament_id",id),
+   sb.from("tournament_room_registrations").select("id",{count:"exact",head:true}).eq("tournament_id",id),
+   sb.from("tournament_player_results").select("id",{count:"exact",head:true}).eq("tournament_id",id),
+   sb.from("tournament_results").select("id",{count:"exact",head:true}).eq("tournament_id",id)
+  ]);
+  const failed=checks.find(x=>x.error);if(failed)throw failed.error;
+  const total=checks.reduce((n,x)=>n+(x.count||0),0);
+  if(total){toast("این مسابقه "+total.toLocaleString("fa-IR")+" رکورد وابسته دارد؛ برای حفظ سوابق، حذف مستقیم مسدود شد. وضعیت آن را لغوشده کن.");return;}
+  const {error}=await sb.from("tournaments").delete().eq("id",id);if(error)throw error;
+  const rows=await rpc("admin_dashboard_tournaments");$("statTournaments").textContent=rows.length;renderTournamentRows(rows);
+  await loadRoomsIfAllowed();toast("مسابقه حذف شد.");
+ }catch(err){console.error("EX1 tournament delete:",err);toast("حذف مسابقه انجام نشد: "+[err?.message,err?.code,err?.details].filter(Boolean).join(" · "));}
+ finally{btn.disabled=false;}
+});
+
 async function loadTableData(){
  const tasks=[];
- if(permissions["tournaments.view"])tasks.push(rpc("admin_dashboard_tournaments").then(d=>{ $("statTournaments").textContent=d.length;$("tournamentsTable").innerHTML=table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع"],d.map(t=>row([esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—")])));}));
+ if(permissions["tournaments.view"])tasks.push(rpc("admin_dashboard_tournaments").then(d=>{ $("statTournaments").textContent=d.length;renderTournamentRows(d);}));
  if(permissions["registrations.view_all"])tasks.push(rpc("admin_dashboard_registrations").then(d=>{$("statRegistrations").textContent=d.length;$("registrationsTable").innerHTML=table(["مسابقه","تیم","برچسب","وضعیت","زمان"],d.map(x=>row([esc(x.tournament_title),esc(x.team_name),esc(x.team_tag||"—"),esc(x.status),esc(new Date(x.registered_at).toLocaleString("fa-IR"))])));}));
  if(permissions["teams.view"])tasks.push(rpc("admin_dashboard_teams").then(d=>{$("statTeams").textContent=d.length;$("teamsTable").innerHTML=table(["نام تیم","برچسب","تعداد اعضا","توضیحات"],d.map(x=>row([esc(x.name),esc(x.tag||"—"),esc(x.member_count),esc(x.description||"—")])));}));
  if(permissions["users.view"]||permissions["profiles.view_all"])tasks.push(loadAdminUsers());
@@ -835,6 +869,7 @@ $("roomForm").addEventListener("submit",async e=>{
   status:$("rf_status").value,room_image_url:$("rf_room_image_url").value.trim()||null,
   room_image_focus_x:Math.max(0,Math.min(100,Number($("rf_image_focus_x").value)||50)),
   room_image_focus_y:Math.max(0,Math.min(100,Number($("rf_image_focus_y").value)||55)),
+  room_effects_enabled:$("rf_room_effects_enabled").checked,
   rules:$("rf_rules").value.trim()
  };
  if(!payload.tournament_id)return toast("مسابقه مرتبط را انتخاب کن.");
@@ -905,6 +940,7 @@ $("roomsTable").addEventListener("click",async e=>{
   $("rf_status").value=data.status||"draft";$("rf_room_image_url").value=data.room_image_url||"";
   resetRoomImage();$("rf_room_image_url").value=data.room_image_url||"";
   setRoomImagePreview(data.room_image_url||"",data.room_image_focus_x??50,data.room_image_focus_y??55);
+  $("rf_room_effects_enabled").checked=data.room_effects_enabled!==false;
   $("rf_rules").value=data.rules||"";
   $("rf_room_code").value="";$("rf_room_password").value="";
   $("rf_room_code").disabled=false;$("rf_room_password").disabled=false;$("publishRoomAccessButton").disabled=false;
@@ -957,7 +993,7 @@ $("tournamentForm").addEventListener("submit",async e=>{
   if(permissions["tournaments.view"]){
    const rows=await rpc("admin_dashboard_tournaments");
    $("statTournaments").textContent=rows.length;
-   $("tournamentsTable").innerHTML=table(["عنوان","بازی","حالت","نقشه","وضعیت","شروع"],rows.map(t=>row([esc(t.title),esc(t.game),esc(t.mode||"—"),esc(t.map||"—"),esc(t.status),esc(t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"—")])));
+   renderTournamentRows(rows);
   }
   await loadRoomsIfAllowed();
   toast("مسابقه با موفقیت ثبت شد؛ حالا می‌توانی برایش روم بسازی.");
