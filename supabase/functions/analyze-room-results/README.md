@@ -62,3 +62,16 @@ The planned private storage, review tables, approval rules, and UI are documente
 ## Current implementation boundary
 
 The current code only authenticates and authorizes the analysis request, checks room completion, validates image input, calls Gemini, hashes images, deduplicates identical UID rows, and returns a review-required candidate payload. It does not persist originals or extraction records. No database migration, Storage bucket, scheduler, secret, or deployment is created by this GitHub change.
+
+
+## Request contract
+
+Before invoking the Edge Function, the authorized admin/manager UI uploads each image to the private bucket using this object path:
+
+`<room_id>/<batch_id>/<sha256>.<jpg|png|webp>`
+
+The request body contains only the room ID, batch ID, and each uploaded object's MIME type and path. The function downloads each object using the caller's authenticated session, rechecks the actual file signature, size, and SHA-256/path match, then sends image bytes to Gemini. This avoids placing large base64 screenshots in the HTTP request body.
+
+After extraction, the function calls the guarded `create_room_result_batch` RPC to persist the manifest and candidates in the private review queue. The response still reports `official_write_performed: false`; only the independent approval RPC writes an official player result.
+
+The provider remains disabled unless the three explicit enablement conditions are configured. Do not set them or add the Gemini key until the adult project owner has reviewed the provider terms and confirmed the player notice/consent approach.
