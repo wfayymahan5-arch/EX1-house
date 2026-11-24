@@ -220,12 +220,12 @@ Deno.serve(async (req: Request) => {
     }
 
     const candidates = extracted.players.slice(0, 100).map((candidate: unknown) => normalizeCandidate(candidate, body.images!.length)).filter(Boolean) as Candidate[];
-    if (extracted.players.length > 100) uncertainties.push("بیش از ۱۰۰ ردیف از پاسخ هوش مصنوعی دریافت شد؛ فقط ۱۰۰ ردیف اول برای بازبینی نگه داشته شد.");
     const byUid = new Map<string, Candidate>();
     const reviewCandidates: Candidate[] = [];
     const uncertainties = extracted.uncertainties
       .filter((item: unknown) => typeof item === "string")
       .map((item: string) => item.slice(0, 240)).slice(0, 40);
+    if (extracted.players.length > 100) uncertainties.push("بیش از ۱۰۰ ردیف از پاسخ هوش مصنوعی دریافت شد؛ فقط ۱۰۰ ردیف اول برای بازبینی نگه داشته شد.");
 
     for (const candidate of candidates) {
       if (!candidate.game_uid) {
