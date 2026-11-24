@@ -238,7 +238,9 @@ Deno.serve(async (req: Request) => {
         existing.evidence_image_indexes = [...new Set([...existing.evidence_image_indexes, ...candidate.evidence_image_indexes])];
       } else {
         existing.confidence = "low";
-        uncertainties.push("برای UID " + candidate.game_uid + " اطلاعات متناقض در تصاویر دیده شد.");
+        candidate.confidence = "low";
+        reviewCandidates.push(candidate);
+        uncertainties.push("برای UID " + candidate.game_uid + " اطلاعات متناقض در تصاویر دیده شد؛ هر دو نسخه نیازمند بازبینی هستند.");
       }
     }
 
@@ -255,7 +257,6 @@ Deno.serve(async (req: Request) => {
       },
       evidence_image_hashes: hashes,
       official_write_performed: false,
-      authenticated_user_id: authData.user.id,
     });
   } catch {
     return json(req, 502, { error: "unparseable_extraction" });
