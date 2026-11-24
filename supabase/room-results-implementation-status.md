@@ -9,6 +9,7 @@ The following migrations are recorded in the project's migration history:
 - `20261124163703_ex1_private_room_result_review_pipeline_v1`
 - `20261124163822_ex1_room_result_batch_intake_and_storage_read_v1`
 - `20261124163855_ex1_room_result_reject_manual_match_fix_v1`
+- `20261124163953_ex1_room_result_rpc_definer_isolation_v1`
 
 Changes:
 - Private Storage bucket `room-result-evidence`, public=false, max 4 MiB, JPEG/PNG/WebP only.
@@ -17,7 +18,7 @@ Changes:
 - Storage delete restricted to staff with `results.manage`.
 - Private tables for result batches, images, extracted candidates, and immutable review audit events. RLS is enabled and direct table privileges are revoked from anon/authenticated.
 - Unique official result key on `(room_id,user_id)`.
-- Authenticated, permission-checked RPCs for batch intake, candidate approval, and rejection.
+- Authenticated, permission-checked RPCs for batch intake, candidate approval, and rejection. Public RPC entry points are SECURITY INVOKER wrappers; privileged implementations live in the non-exposed private schema.
 - Approval requires a different reviewer from the uploader, a completed room, an exact and globally unique COD UID match, and an approved registration in that room. It writes only placement/kills with points=0 and creates an audit event.
 - Rejected and uncertain candidates remain out of official profile stats.
 
@@ -37,6 +38,6 @@ Changes:
 - Connecting the vision function response to the batch-intake RPC.
 - Deno type/lint and end-to-end tests using synthetic screenshots.
 - Google Gemini data-term/notice review by the adult project owner before any real player screenshot is sent.
-- A repository migration-source file matching the applied database migration history must be checked in before merging this feature.
+- Repository migration-source files matching the applied database migration history still need to be checked in before merging this feature.
 
 No Production deployment or GitHub merge was performed.
