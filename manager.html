@@ -1058,9 +1058,9 @@ async function loadRoomResultReviewQueue(){
  if(error){host.innerHTML='<div class="empty">دریافت صف بازبینی ممکن نشد.</div>';return;}
  const batches=Array.isArray(data)?data:[];
  const {data:userData}=await sb.auth.getUser(),reviewerId=userData?.user?.id;
- const {data:registrations, error:regError}=await sb.from("tournament_room_registrations").select("user_id,profiles(game_uid,game_name,display_name)").eq("room_id",roomId).eq("status","approved");
+ const {data:participantData,error:regError}=await sb.rpc("list_room_result_participants",{p_room_id:roomId});
  if(regError){host.innerHTML='<div class="empty">فهرست شرکت‌کنندگان قابل دریافت نیست.</div>';return;}
- const participants=(registrations||[]).map(r=>({user_id:r.user_id,uid:String(r.profiles?.game_uid||"").trim(),name:r.profiles?.game_name||r.profiles?.display_name||"بازیکن"}));
+ const participants=(Array.isArray(participantData)?participantData:[]).map(p=>({user_id:p.user_id,uid:String(p.game_uid||"").trim(),name:p.game_name||p.display_name||"بازیکن"}));
  const cards=[];
  for(const batch of batches){
   const signed=[];
