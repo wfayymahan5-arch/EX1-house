@@ -344,6 +344,12 @@ body{color:var(--ex1-text)}
 @media(min-width:650px){.room-tier-track>.room-card{flex-basis:260px;width:260px}}
 @media(prefers-reduced-motion:reduce){.room-tier-track{scroll-behavior:auto}}
 </style>
+<style id="ex1-account-profile-v1">
+.profile-performance-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:14px 0;padding:12px;border:1px solid #ffffff18;border-radius:18px;background:linear-gradient(145deg,#171327,#101624)}
+.profile-performance-grid>div{min-width:0;text-align:center;padding:7px 2px}.profile-performance-grid strong{display:block;font-size:18px;color:#fff;overflow-wrap:anywhere}.profile-performance-grid small{display:block;margin-top:5px;color:#aaa1ba;font-size:10px;line-height:1.5}
+.profile-account-summary{padding:16px!important;margin:12px 0!important}.profile-account-summary .settings-info-row strong{direction:auto}
+@media(max-width:390px){.profile-performance-grid{gap:4px;padding:8px}.profile-performance-grid strong{font-size:15px}.profile-performance-grid small{font-size:9px}}
+</style>
 </head>
 <body>
 <header><div class="topbar"><div class="header-actions"><span class="btn ghost small" aria-hidden="true" title="جست‌وجو">⌕</span></div><a class="brand" href="#home" aria-label="EX1 LEGEND"><span><b>EX1</b> LEGEND</span></a><div class="header-actions"><button class="btn ghost small ex1-notification-bell" id="openNotifications" type="button" aria-label="اعلان‌ها" aria-haspopup="dialog" aria-controls="notificationsModal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span id="notificationUnreadBadge" class="ex1-unread-badge" hidden>۰</span></button><button class="btn ghost small" id="openSettings" type="button" aria-label="تنظیمات">⚙</button><span id="headerUser" class="muted"></span><button class="btn secondary small" id="headerAuth" type="button">ورود</button></div></div></header>
@@ -359,6 +365,7 @@ body{color:var(--ex1-text)}
 <section class="page" id="page-profile">
  <div class="profile-cover" id="profileCover"><button class="profile-menu" type="button" id="profileMenuEdit" aria-label="ویرایش پروفایل">☰</button><div id="profileAvatar" class="profile-big">EX</div><button class="avatar-upload-btn" id="chooseAvatarButton" type="button">＋ انتخاب عکس پروفایل</button><input id="profileAvatarFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><div class="cover-controls"><button type="button" id="chooseCoverButton">▧ انتخاب تصویر پس‌زمینه</button><button type="button" id="removeCoverButton" class="cover-danger" hidden>حذف پس‌زمینه</button></div><input id="profileCoverFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><div class="cover-controls" id="coverPreviewActions" hidden><button type="button" id="saveCoverButton">ذخیره کاور</button><button type="button" id="cancelCoverButton" class="cover-danger">لغو پیش‌نمایش</button></div><p class="cover-preview-note" id="coverPreviewNote" hidden>پیش‌نمایش؛ برای ثبت دائمی، «ذخیره کاور» را بزن.</p><h1 id="profileDisplayName">بازیکن</h1><div id="profileRoleBadge" class="profile-role-badge" hidden></div><div id="profileUsername" class="profile-handle">PLAYER</div><p>پروفایل بازیکن و فعالیت‌های جامعه</p></div>
  <div class="profile-stats"><div><strong id="profileFollowersCount">۰</strong><small>دنبال‌کننده</small></div><div><strong id="profileFollowingCount">۰</strong><small>دنبال‌شونده</small></div></div>
+ <div class="profile-performance-grid" id="profilePerformanceStats"><div><strong id="profileMatchesCount">—</strong><small>مسابقات ثبت‌شده</small></div><div><strong id="profileWinsCount">—</strong><small>برد</small></div><div><strong id="profileTopThreeCount">—</strong><small>رتبه‌های برتر</small></div><div><strong id="profileKillsCount">—</strong><small>مجموع کیل</small></div></div>
  <div class="profile-bio panel"><p>پروفایل عمومی فقط اطلاعات پایه‌ی بازیکن را نمایش می‌دهد.</p><button class="btn small" type="button" id="openProfileEditor">ویرایش پروفایل　✎</button> <a class="btn secondary small" id="managerWorkspaceButton" href="/manager.html" hidden>ابزارهای مدیر ↗</a></div>
  <div class="wallet-card" role="button" tabindex="0" id="walletOpen"><div><span class="wallet-kicker">استار</span><strong id="walletCardBalance" class="wallet-balance">۰ <small>امتیاز</small></strong><span class="wallet-note">مشاهده موجودی و تاریخچه استار</span></div><span class="wallet-icon">✦</span></div>
  
@@ -437,16 +444,8 @@ body{color:var(--ex1-text)}
    <p class="settings-account-intro"></p>
    <div class="settings-account-tabs" role="tablist" aria-label="بخش‌های حساب کاربری">
     <button type="button" class="settings-account-tab active" data-account-tab="profile" role="tab" aria-selected="true">مشخصات فردی</button>
-    <button type="button" class="settings-account-tab" data-account-tab="email" role="tab" aria-selected="false">ایمیل حساب</button>
+    <button type="button" class="settings-account-tab" data-account-tab="security" role="tab" aria-selected="false">امنیت حساب</button>
     <button type="button" class="settings-account-tab" data-account-tab="privacy" role="tab" aria-selected="false">حریم خصوصی</button>
-   </div>
-   <div class="settings-card panel settings-account-subpanel" data-account-panel="email" hidden>
-    <div class="settings-card-heading"><span class="settings-symbol violet">✉</span><div><h3>ایمیل حساب</h3><small>ایمیل متصل به حساب EX1 LEGEND</small></div></div>
-    <div class="settings-info-row"><span>ایمیل فعلی</span><strong id="accountCurrentEmail" dir="ltr">—</strong></div>
-    <form id="accountEmailForm" class="settings-email-form">
-     <label for="accountNewEmail">تغییر ایمیل</label><div class="settings-input-row"><input class="field" id="accountNewEmail" type="email" autocomplete="email" maxlength="254" placeholder="ایمیل جدید"><button class="btn small" id="accountEmailSubmit" type="submit">درخواست تغییر</button></div>
-     <p class="muted" id="accountEmailMessage">برای ثبت ایمیل جدید، تأیید آن از طریق ایمیل لازم است.</p>
-    </form>
    </div>
    <div class="settings-card panel settings-account-subpanel" data-account-panel="profile">
     <div class="settings-card-heading"><span class="settings-symbol cyan">◎</span><div><h3>مشخصات فردی</h3><small>این اطلاعات را می‌توانی هر زمان ویرایش کنی.</small></div></div>
@@ -457,6 +456,22 @@ body{color:var(--ex1-text)}
      <p class="muted settings-form-message" id="accountPersonalMessage">اطلاعات فردی فقط در تنظیمات حساب ذخیره می‌شود.</p>
     </form>
    </div>
+   <div class="settings-card panel settings-account-subpanel" data-account-panel="security" hidden>
+    <div class="settings-card-heading"><span class="settings-symbol violet">🔐</span><div><h3>تغییر رمز عبور</h3><small>برای تغییر رمز، رمز فعلی را دوباره تأیید کن.</small></div></div>
+    <form id="accountPasswordForm" class="settings-form-grid">
+     <label>رمز فعلی<input class="field" id="accountCurrentPassword" type="password" autocomplete="current-password" maxlength="72" required></label>
+     <label>رمز جدید<input class="field" id="accountNewPassword" type="password" autocomplete="new-password" minlength="12" maxlength="72" required placeholder="حداقل ۱۲ نویسه"></label>
+     <label>تکرار رمز جدید<input class="field" id="accountConfirmPassword" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></label>
+     <p class="muted">رمز جدید باید حداقل ۱۲ نویسه و شامل حروف بزرگ و کوچک، عدد و نشانه باشد.</p>
+     <button class="btn" type="submit" id="accountPasswordSave">تغییر امن رمز عبور</button>
+     <p class="muted settings-form-message" id="accountPasswordMessage">رمز عبور در سرویس احراز هویت به‌صورت امن مدیریت می‌شود.</p>
+    </form>
+    <div class="settings-card-heading" style="margin-top:22px"><span class="settings-symbol cyan">📱</span><div><h3>نشست‌ها و دستگاه‌ها</h3><small>نشست فعلی این دستگاه فعال است.</small></div></div>
+    <div class="settings-info-row"><span>وضعیت این دستگاه</span><strong id="accountCurrentSessionStatus">فعال</strong></div>
+    <p class="muted">در این نسخه نام و فهرست جداگانهٔ همهٔ دستگاه‌ها از سرویس احراز هویت قابل دریافت نیست؛ اما می‌توانی نشست‌های دیگر را یک‌جا لغو کنی.</p>
+    <button class="btn secondary" type="button" id="accountSignOutOthers">خروج از سایر دستگاه‌ها</button>
+    <p class="muted" id="accountSessionsMessage"></p>
+   </div>
    <div class="settings-card panel settings-account-subpanel" data-account-panel="privacy" hidden>
     <div class="settings-card-heading"><span class="settings-symbol pink">◈</span><div><h3>حریم خصوصی</h3><small>کنترل کن دیگران چه راهی برای ارتباط و مشاهده وضعیتت داشته باشند.</small></div></div>
     <div class="settings-toggle-row"><div><b>دریافت پیام</b><small>اجازه بده سایر بازیکنان برایت پیام بفرستند.</small></div><label class="ex1-switch"><input type="checkbox" id="privacyReceiveMessages" checked><span></span></label></div>
@@ -466,7 +481,24 @@ body{color:var(--ex1-text)}
    </div>
   </section>
   <section class="settings-reference-panel" data-settings-detail="support" hidden><h2>چت آنلاین با پشتیبانی</h2><div class="empty">این بخش در حال آماده‌سازی است.</div></section>
-  <section class="settings-reference-panel" data-settings-detail="game-account" hidden><h2>اطلاعات اکانت بازی</h2><div class="empty">مدیریت و نمایش اطلاعات اکانت بازی در مرحلهٔ بعد تکمیل می‌شود.</div></section>
+  <section class="settings-reference-panel" data-settings-detail="game-account" hidden>
+   <h2>حساب کاربری و پروفایل</h2>
+   <div class="settings-card panel profile-account-summary">
+    <div class="settings-card-heading"><span class="settings-symbol cyan">◎</span><div><h3>اطلاعات حساب</h3><small>اطلاعات ثبت‌شدهٔ پروفایل تو؛ ایمیل در این صفحه نمایش داده نمی‌شود.</small></div></div>
+    <div class="settings-info-row"><span>نام نمایشی EX1</span><strong id="accountProfileDisplayName">—</strong></div>
+    <div class="settings-info-row"><span>نام داخل کالاف</span><strong id="accountProfileCodmName">—</strong></div>
+    <div class="settings-info-row"><span>UID کالاف</span><strong id="accountProfileCodmUid" dir="ltr">—</strong></div>
+    <div class="settings-info-row"><span>نام نمایشی Kill House</span><strong id="accountProfileKillHouseName">—</strong></div>
+    <button class="btn" type="button" id="accountOpenProfileEditor">ویرایش اطلاعات و عکس پروفایل</button>
+   </div>
+   <div class="settings-card panel profile-account-summary">
+    <div class="settings-card-heading"><span class="settings-symbol violet">📊</span><div><h3>آمار مسابقات</h3><small>فقط بر اساس نتایج ثبت‌شده در سامانه</small></div></div>
+    <div class="settings-info-row"><span>مسابقات ثبت‌نام‌شده</span><strong id="accountProfileMatchesCount">—</strong></div>
+    <div class="settings-info-row"><span>بردها</span><strong id="accountProfileWinsCount">—</strong></div>
+    <div class="settings-info-row"><span>رتبه‌های برتر</span><strong id="accountProfileTopThreeCount">—</strong></div>
+    <div class="settings-info-row"><span>مجموع کیل ثبت‌شده</span><strong id="accountProfileKillsCount">—</strong></div>
+   </div>
+  </section>
 
   <section class="settings-reference-panel" data-settings-detail="invite" hidden>
    <h2>دعوت از دوستان</h2>
@@ -496,7 +528,7 @@ body{color:var(--ex1-text)}
  </nav>
 <footer>EX1 LEGEND · جامعه‌ی رقابت سالم</footer>
 <div class="modal" id="authModal"><div class="dialog"><h3 id="authTitle">ورود به EX1 LEGEND</h3><p id="authHint" class="muted">با ایمیل و رمز عبور وارد شو یا حساب جدید بساز.</p><form id="authForm"><input id="authName" class="field" maxlength="30" placeholder="نام نمایشی" hidden><input id="authReferralCode" class="field" maxlength="8" inputmode="numeric" pattern="[0-9]{4,8}" placeholder="کد معرف (اختیاری)" hidden><input id="authEmail" class="field" type="email" maxlength="254" autocomplete="email" placeholder="ایمیل" required><input id="authPassword" class="field" type="password" minlength="8" maxlength="72" autocomplete="current-password" placeholder="رمز عبور (حداقل ۸ نویسه)" required><button class="btn" id="authSubmit" type="submit">ورود</button></form><button class="btn ghost" id="forgotPasswordButton" type="button">فراموشی رمز عبور؟</button><button class="btn secondary" id="authSwitch" type="button">ساخت حساب جدید</button><button class="btn ghost" type="button" onclick="closeAuth()">بستن</button><p class="muted">رمز عبورت را در اختیار هیچ‌کس قرار نده و آن را در چت ارسال نکن.</p></div></div>
-<div class="modal" id="profileEditorModal"><div class="dialog"><h3>ویرایش پروفایل</h3><form id="profileForm"><label>نام نمایشی<input class="field" id="profileName" maxlength="30" required></label><label>نام کاربری<input class="field" id="profileHandle" maxlength="24" placeholder="اختیاری"></label><label>UID کالاف دیوتی موبایل<input class="field" id="profileGameUid" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="شناسهٔ بازیکن در بازی (بدون ایمیل)"></label><label>نام دقیق داخل بازی<input class="field" id="profileGameName" maxlength="40" placeholder="Nickname کالاف"></label><small class="muted">UID را از پروفایل داخل بازی وارد کن؛ ایمیل یا نشانی جیمیل قابل قبول نیست. نام بازی را دقیقاً مطابق پروفایل کالاف بنویس.</small><button class="btn" type="submit">ذخیره تغییرات</button></form><button class="btn ghost" type="button" data-close-modal="profileEditorModal">بستن</button></div></div><div class="modal" id="settingsModal"><div class="dialog"><h3>تنظیمات EX1</h3><button class="btn secondary" id="showAppearanceSettings" type="button">تنظیمات ظاهری</button><div id="appearanceSettings" hidden><label>تم رنگی<select class="field" id="userTheme"><option value="soft">نرم و متعادل</option><option value="blue">آبی</option><option value="green">سبز</option><option value="amber">کهربایی</option></select></label><label>فونت برنامه<select class="field" id="userFont"><option value="tahoma">Tahoma</option><option value="system">فونت سیستم</option><option value="arial">Arial</option><option value="mono">Monospace</option></select></label><button class="btn small" id="saveUserSettings" type="button">ذخیره تنظیمات</button><p class="muted" id="userSettingsMessage">تنظیمات روی همین دستگاه ذخیره می‌شوند.</p></div><button class="btn secondary" id="showBlockedSettings" type="button">حساب‌های مسدودشده</button><div id="blockedSettings" hidden><div id="blockedUsers" class="user-list"><div class="empty">در حال دریافت فهرست...</div></div></div><button class="btn secondary" id="changeAccountButton" type="button">تغییر حساب کاربری</button><button class="btn ghost" id="logoutButton" type="button">خروج از حساب</button><button class="btn ghost" id="deleteAccountButton" type="button" style="border-color:#b94a4a;color:#b94a4a">حذف حساب کاربری</button><p class="muted">حذف حساب دائمی است و پس از تأیید هویت قابل بازگشت نیست.</p><button class="btn ghost" type="button" data-close-modal="settingsModal">بستن</button></div></div>
+<div class="modal" id="profileEditorModal"><div class="dialog"><h3>ویرایش پروفایل</h3><form id="profileForm"><label>نام نمایشی<input class="field" id="profileName" maxlength="30" required></label><label>نام کاربری<input class="field" id="profileHandle" maxlength="24" placeholder="اختیاری"></label><label>UID کالاف دیوتی موبایل<input class="field" id="profileGameUid" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="شناسهٔ بازیکن در بازی (بدون ایمیل)"></label><label>نام دقیق داخل بازی<input class="field" id="profileGameName" maxlength="40" placeholder="Nickname کالاف"></label><label>نام نمایشی داخل Kill House<input class="field" id="profileKillHouseName" maxlength="40" placeholder="نامی که در Kill House نمایش داده می‌شود"></label><small class="muted">UID را از پروفایل داخل بازی وارد کن؛ ایمیل یا نشانی جیمیل قابل قبول نیست. نام بازی را دقیقاً مطابق پروفایل کالاف بنویس.</small><button class="btn" type="submit">ذخیره تغییرات</button></form><button class="btn ghost" type="button" data-close-modal="profileEditorModal">بستن</button></div></div><div class="modal" id="settingsModal"><div class="dialog"><h3>تنظیمات EX1</h3><button class="btn secondary" id="showAppearanceSettings" type="button">تنظیمات ظاهری</button><div id="appearanceSettings" hidden><label>تم رنگی<select class="field" id="userTheme"><option value="soft">نرم و متعادل</option><option value="blue">آبی</option><option value="green">سبز</option><option value="amber">کهربایی</option></select></label><label>فونت برنامه<select class="field" id="userFont"><option value="tahoma">Tahoma</option><option value="system">فونت سیستم</option><option value="arial">Arial</option><option value="mono">Monospace</option></select></label><button class="btn small" id="saveUserSettings" type="button">ذخیره تنظیمات</button><p class="muted" id="userSettingsMessage">تنظیمات روی همین دستگاه ذخیره می‌شوند.</p></div><button class="btn secondary" id="showBlockedSettings" type="button">حساب‌های مسدودشده</button><div id="blockedSettings" hidden><div id="blockedUsers" class="user-list"><div class="empty">در حال دریافت فهرست...</div></div></div><button class="btn secondary" id="changeAccountButton" type="button">تغییر حساب کاربری</button><button class="btn ghost" id="logoutButton" type="button">خروج از حساب</button><button class="btn ghost" id="deleteAccountButton" type="button" style="border-color:#b94a4a;color:#b94a4a">حذف حساب کاربری</button><p class="muted">حذف حساب دائمی است و پس از تأیید هویت قابل بازگشت نیست.</p><button class="btn ghost" type="button" data-close-modal="settingsModal">بستن</button></div></div>
 <div class="modal" id="walletModal"><div class="dialog"><h3>کیف پول</h3><div class="wallet-modal-balance"><span>موجودی فعلی</span><strong id="walletModalBalance">۰ <small>استار</small></strong></div><p class="muted">استارها برای استفاده در امکانات داخلی برنامه هستند و از طریق فعالیت‌ها و امتیازهای داخل برنامه به دست می‌آیند.</p><div class="wallet-history"><h4>تاریخچه دفترکل استار</h4><div id="walletHistory" class="empty">در حال دریافت تاریخچه...</div></div><button class="btn ghost" type="button" data-close-modal="walletModal">بستن</button></div></div><div class="modal" id="joinRoomModal"><div class="dialog"><h3>ثبت‌نام در روم</h3><p id="joinRoomSummary" class="muted"></p><div class="panel"><strong>چطور شرکت می‌کنی؟</strong><p>لازم نیست از قبل تیم داشته باشی. ثبت‌نام انفرادی کن تا سیستم به‌ترتیب بازیکنان را در تیم‌های کامل دو یا چهار نفره قرار دهد.</p><small class="muted">اگر تیم کامل خودت را داری، کاپیتان می‌تواند گزینهٔ ثبت‌نام با تیم را انتخاب کند.</small></div><p id="soloJoinProgress" class="muted"></p><button class="btn" id="confirmRoomSoloJoin" type="button">ثبت‌نام انفرادی و تشکیل خودکار تیم</button><button class="btn secondary" id="confirmRoomJoin" type="button">ثبت‌نام با تیم کامل</button><p class="muted">ورودی هر روم در جزئیات همان روم مشخص است؛ ورودی هر روم با استار EX1 محاسبه می‌شود و جایزه نقدی برای آن تعریف نشده است.</p><button class="btn ghost" type="button" data-close-modal="joinRoomModal">بازگشت</button></div></div><div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2.119.0/dist/umd/supabase.js'"></script>
 <script src="/supabase-config.js"></script>
@@ -1144,23 +1176,41 @@ for(let age=5;age<=70;age++){const option=document.createElement("option");optio
 async function loadAccountSecuritySettings(){
  if(!currentUser)return;
  const metadata=currentUser.user_metadata||{};
- $("accountCurrentEmail").textContent=currentUser.email||"ثبت نشده";
- $("accountNewEmail").value="";
- $("accountEmailMessage").textContent="برای ثبت ایمیل جدید، تأیید آن از طریق ایمیل لازم است.";
  $("accountGender").value=metadata.ex1_profile_gender||"";
  $("accountAge").value=metadata.ex1_profile_age?String(metadata.ex1_profile_age):"";
  $("privacyReceiveMessages").checked=metadata.ex1_privacy_receive_messages!==false;
  $("privacyHideLastSeen").checked=metadata.ex1_privacy_hide_last_seen===true;
+ $("accountCurrentSessionStatus").textContent="فعال در همین دستگاه";
+ $("accountSessionsMessage").textContent="برای حفظ امنیت، رمز عبورت را در اختیار هیچ‌کس قرار نده.";
+ $("accountPasswordForm").reset();
+ $("accountPasswordMessage").textContent="رمز جدید باید حداقل ۱۲ نویسه و شامل حروف بزرگ و کوچک، عدد و نشانه باشد.";
 }
-$("accountEmailForm").addEventListener("submit",async event=>{
+$("accountPasswordForm").addEventListener("submit",async event=>{
  event.preventDefault();if(!currentUser)return openAuth();
- const email=$("accountNewEmail").value.trim().toLowerCase();if(!email)return;
- if(email===String(currentUser.email||"").toLowerCase())return toast("این همان ایمیل فعلی حساب است.");
- const button=$("accountEmailSubmit");button.disabled=true;button.textContent="در حال ارسال...";
- try{const {data,error}=await sb.auth.updateUser({email});if(error)throw error;$("accountEmailMessage").textContent="درخواست تغییر ایمیل ارسال شد. صندوق ورودی ایمیل جدید را برای تأیید بررسی کن.";$("accountNewEmail").value="";toast("درخواست تأیید ایمیل ارسال شد.");if(data?.user)currentUser=data.user;}
- catch(error){$("accountEmailMessage").textContent=error?.message||"درخواست تغییر ایمیل انجام نشد.";toast(error?.message||"تغییر ایمیل انجام نشد.");}
- finally{button.disabled=false;button.textContent="درخواست تغییر";}
+ const currentPassword=$("accountCurrentPassword").value,newPassword=$("accountNewPassword").value,confirmPassword=$("accountConfirmPassword").value;
+ if(newPassword.length<12||!/[a-z]/.test(newPassword)||!/[A-Z]/.test(newPassword)||!/[0-9]/.test(newPassword)||!/[!@#$%^&*()_+\-=\[\]{};:\\"\\\\|,.<>/?`~]/.test(newPassword))return toast("رمز جدید باید حداقل ۱۲ نویسه و شامل حروف بزرگ و کوچک، عدد و نشانه باشد.");
+ if(newPassword!==confirmPassword)return toast("تکرار رمز جدید با رمز واردشده یکسان نیست.");
+ if(newPassword===currentPassword)return toast("رمز جدید باید با رمز فعلی متفاوت باشد.");
+ const button=$("accountPasswordSave");button.disabled=true;button.textContent="در حال بررسی...";
+ try{
+  if(!currentUser.email)throw new Error("برای تأیید رمز فعلی، حساب باید با ایمیل و رمز وارد شده باشد.");
+  const {error:reauthError}=await sb.auth.signInWithPassword({email:currentUser.email,password:currentPassword});
+  if(reauthError)throw new Error("رمز فعلی صحیح نیست یا امکان تأیید دوباره وجود ندارد.");
+  const {data,error}=await sb.auth.updateUser({password:newPassword});if(error)throw error;
+  currentUser=data.user||currentUser;$("accountPasswordForm").reset();$("accountPasswordMessage").textContent="رمز عبور با موفقیت تغییر کرد.";
+  toast("رمز عبور با موفقیت و پس از تأیید رمز فعلی تغییر کرد.");
+ }catch(error){$("accountPasswordMessage").textContent=error?.message||"تغییر رمز انجام نشد.";toast(error?.message||"تغییر رمز انجام نشد.");}
+ finally{button.disabled=false;button.textContent="تغییر امن رمز عبور";}
 });
+$("accountSignOutOthers").onclick=async()=>{
+ if(!currentUser)return openAuth();
+ if(!(await ex1Confirm("خروج از سایر دستگاه‌ها","نشست‌های دیگر حساب بسته می‌شوند و فقط همین نشست فعلی باقی می‌ماند. ادامه می‌دهی؟","خروج از سایر دستگاه‌ها")))return;
+ const button=$("accountSignOutOthers");button.disabled=true;button.textContent="در حال لغو نشست‌ها...";
+ try{const {error}=await sb.auth.signOut({scope:"others"});if(error)throw error;$("accountSessionsMessage").textContent="درخواست خروج از سایر نشست‌ها با موفقیت انجام شد." ;toast("نشست‌های دیگر لغو شدند؛ این دستگاه همچنان وارد حساب است.");}
+ catch(error){$("accountSessionsMessage").textContent=error?.message||"لغو نشست‌های دیگر انجام نشد.";toast(error?.message||"لغو نشست‌ها انجام نشد.");}
+ finally{button.disabled=false;button.textContent="خروج از سایر دستگاه‌ها";}
+};
+$("accountOpenProfileEditor").onclick=()=>$("openProfileEditor").click();
 $("accountPersonalForm").addEventListener("submit",async event=>{
  event.preventDefault();if(!currentUser)return openAuth();
  const gender=$("accountGender").value,age=$("accountAge").value;
@@ -1217,7 +1267,9 @@ async function loadProfile(){
  }catch(roleError){console.warn("EX1 role badge unavailable:",roleError);$("managerWorkspaceButton").hidden=true;}
  const avatarBox=$("profileAvatar");const fallbackAvatar=esc((data.display_name||"EX").slice(0,1));let avatarUrl=data.avatar_url||"";if(avatarUrl&&!/^https?:\/\//i.test(avatarUrl))avatarUrl=sb.storage.from("ex1-avatars").getPublicUrl(avatarUrl).data.publicUrl;avatarBox.innerHTML=avatarUrl?'<img class="profile-avatar-image" data-avatar-fallback="'+fallbackAvatar+'" data-avatar-class="profile-avatar-fallback" src="'+esc(avatarUrl)+'" alt="عکس پروفایل">':fallbackAvatar;
  const coverBox=$("profileCover");const coverUrl=avatarUrl;if(coverUrl){coverBox.classList.add("has-custom-cover");coverBox.style.backgroundImage='linear-gradient(rgba(10,8,20,.58),rgba(10,8,20,.70)),url("'+coverUrl.replace(/["\\]/g,"")+'")';}else{coverBox.classList.remove("has-custom-cover");coverBox.style.backgroundImage="";}$("removeCoverButton").hidden=true;
- $("profileName").value=data.display_name||"";$("profileHandle").value=data.username||"";$("profileGameUid").value=data.game_uid||"";$("profileGameName").value=data.game_name||"";loadFollowRequests();loadMyMatches();loadFollowStats();
+ $("profileName").value=data.display_name||"";$("profileHandle").value=data.username||"";$("profileGameUid").value=data.game_uid||"";$("profileGameName").value=data.game_name||"";$("profileKillHouseName").value=currentUser.user_metadata?.ex1_killhouse_name||"";
+ $("accountProfileDisplayName").textContent=data.display_name||"ثبت نشده";$("accountProfileCodmName").textContent=data.game_name||"ثبت نشده";$("accountProfileCodmUid").textContent=data.game_uid||"ثبت نشده";$("accountProfileKillHouseName").textContent=currentUser.user_metadata?.ex1_killhouse_name||"ثبت نشده";
+ loadFollowRequests();loadMyMatches();loadFollowStats();loadProfilePerformanceStats();
 }
 $("profileForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!currentUser){openAuth();return;}
@@ -1232,6 +1284,10 @@ $("profileForm").addEventListener("submit",async e=>{
 }
  if(updateData?.pending_review){toast(updateData.message||"پروفایل برای بررسی مالک ارسال شد.");return;}
  if(!updateData?.success){toast(updateData?.error||"ذخیره پروفایل انجام نشد.");return;}
+ const killHouseName=$("profileKillHouseName").value.trim();
+ const {data:metadataData,error:metadataError}=await sb.auth.updateUser({data:{ex1_killhouse_name:killHouseName}});
+ if(metadataError){toast("اطلاعات اصلی پروفایل ذخیره شد، اما نام Kill House ذخیره نشد: "+metadataError.message);return;}
+ currentUser=metadataData.user||currentUser;
  toast("پروفایل ذخیره شد.");$("profileEditorModal").classList.remove("show");loadProfile();
 });
 
@@ -1530,6 +1586,19 @@ async function loadTournaments(){
  const now=Date.now(),rr=(rooms||[]).filter(r=>{const expiry=roomExpiryTimestamp(r);return expiry===null||now<expiry;});
  window.ex1Rooms=rr;$("roomNoData").hidden=true;
  applyRoomCategory(window.ex1ActiveRoomCategory||"all");$("roomDetail").hidden=true;
+}
+async function loadProfilePerformanceStats(){
+ const ids=["profileMatchesCount","profileWinsCount","profileTopThreeCount","profileKillsCount","accountProfileMatchesCount","accountProfileWinsCount","accountProfileTopThreeCount","accountProfileKillsCount"];
+ if(!currentUser){ids.forEach(id=>{if($(id))$(id).textContent="—";});return;}
+ const [registrations,results]=await Promise.all([
+  sb.from("tournament_room_registrations").select("id",{count:"exact",head:true}).eq("user_id",currentUser.id),
+  sb.from("tournament_player_results").select("placement,kills").eq("user_id",currentUser.id)
+ ]);
+ const fmt=n=>Number(n||0).toLocaleString("fa-IR");
+ if(registrations.error||results.error){ids.forEach(id=>{if($(id))$(id).textContent="—";});console.warn("EX1 profile stats:",registrations.error?.message||results.error?.message);return;}
+ const rows=results.data||[],wins=rows.filter(row=>Number(row.placement)===1).length,topThree=rows.filter(row=>Number(row.placement)>0&&Number(row.placement)<=3).length,kills=rows.reduce((sum,row)=>sum+Math.max(0,Number(row.kills)||0),0),matches=registrations.count??0;
+ const values={profileMatchesCount:matches,profileWinsCount:wins,profileTopThreeCount:topThree,profileKillsCount:kills,accountProfileMatchesCount:matches,accountProfileWinsCount:wins,accountProfileTopThreeCount:topThree,accountProfileKillsCount:kills};
+ Object.entries(values).forEach(([id,value])=>{if($(id))$(id).textContent=fmt(value);});
 }
 async function loadMyMatches(){if(!currentUser)return;$("myMatches").innerHTML='<div class="empty">در حال دریافت سابقه...</div>';const {data,error}=await sb.from("tournament_room_registrations").select("id,room_id,tournament_id,team_id,slot_number,status,registered_at,tournament_rooms(title,game_mode)").eq("user_id",currentUser.id).order("registered_at",{ascending:false}).limit(30);if(error){$("myMatches").innerHTML='<div class="empty">سابقهٔ روم‌ها دریافت نشد.</div>';return;}const rows=data||[];const teamIds=[...new Set(rows.map(x=>x.team_id).filter(Boolean))];let resultsByKey={};if(teamIds.length){const {data:results}=await sb.from("tournament_results").select("team_id,tournament_id,placement,points").in("team_id",teamIds);(results||[]).forEach(x=>resultsByKey[x.team_id+":"+x.tournament_id]=x);} $("myMatches").innerHTML=rows.map(x=>{const result=resultsByKey[x.team_id+":"+x.tournament_id];const reward=result?"جایگاه "+Number(result.placement)+" · امتیاز نتیجه: "+Number(result.points||0).toLocaleString("fa-IR"):"هنوز نتیجه‌ای ثبت نشده است";return '<div class="panel user-row"><div class="user-info"><strong>'+esc(x.tournament_rooms?.title||"روم EX1")+'</strong><small>'+esc(x.tournament_rooms?.game_mode||"مسابقه")+' · جایگاه روم '+Number(x.slot_number||0)+' · '+esc(x.status)+'</small><small>'+esc(reward)+'</small></div></div>';}).join("")||'<div class="empty">هنوز در رومی ثبت‌نام نکرده‌ای.</div>';}
 let currentTeamId=null;
