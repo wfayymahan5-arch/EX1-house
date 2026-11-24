@@ -1034,8 +1034,7 @@ async function uploadAndAnalyzeRoomResults(){
    const {error:uploadError}=await sb.storage.from(RESULT_BUCKET).upload(objectPath,file,{upsert:false,contentType:file.type,cacheControl:"3600"});
    if(uploadError)throw uploadError;
    uploadedPaths.push(objectPath);
-   const dataUrl=await fileAsDataUrl(file);
-   images.push({mime_type:file.type,data_base64:dataUrl.split(",")[1],object_path:objectPath});
+   images.push({mime_type:file.type,object_path:objectPath});
    status.textContent="بارگذاری تصویر "+(i+1)+" از "+files.length+" انجام شد.";
   }
   status.textContent="تصاویر بارگذاری شدند؛ در انتظار تحلیل...";
