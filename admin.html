@@ -859,7 +859,7 @@ $("roomForm").addEventListener("submit",async e=>{
  const id=$("rf_id").value;
  const payload={
    tournament_id:$("rf_tournament_id").value,title:$("rf_title").value.trim(),
-  game_mode:$("rf_game_mode").value.trim()||null,game_category:$("rf_game_category").value,price_category:$("rf_price_category").value.trim(),map:$("rf_map").value.trim()||null,
+  game_mode:$("rf_game_mode").value.trim()||null,game_category:$("rf_game_category").value||"uncategorized",price_category:$("rf_price_category").value||"free",map:$("rf_map").value.trim()||null,
   team_size:Number($("rf_team_size").value)===2?2:4,
   max_teams:Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1)),
   capacity:Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1))*(Number($("rf_team_size").value)===2?2:4),
@@ -891,7 +891,7 @@ $("roomForm").addEventListener("submit",async e=>{
   $("roomAccessPublishMessage").textContent="پس از ثبت، اطلاعات در زمان شروع فقط برای شرکت‌کنندگان مجاز نمایش داده می‌شود.";
   toast("روم ذخیره شد. حالا کد و رمز را همین‌جا وارد کن.");
   try{await loadRooms();$("roomForm").classList.remove("hidden");await refreshRoomAccessAdminStatus(result.data.id);}catch(refreshError){console.error("EX1 rooms refresh after save:",refreshError);}
- }catch(err){console.error("EX1 room save:",err);const detail=[err?.message,err?.code,err?.details,err?.hint].filter(Boolean).join(" · ");toast("ذخیره روم انجام نشد"+(detail?": "+detail:"."));}
+ }catch(err){console.error("EX1 room save:",err);const detail=[err?.message,err?.code,err?.details,err?.hint].filter(Boolean).join(" · ")||String(err);$("roomImageUploadStatus").textContent="خطای ذخیره: "+detail;toast("ذخیره روم انجام نشد: "+detail);}
  finally{$("saveRoomButton").disabled=false;}
 });
 async function refreshRoomAccessAdminStatus(roomId){

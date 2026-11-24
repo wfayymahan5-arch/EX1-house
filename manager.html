@@ -857,7 +857,7 @@ $("roomForm").addEventListener("submit",async e=>{
  const id=$("rf_id").value;
  const payload={
    tournament_id:$("rf_tournament_id").value,title:$("rf_title").value.trim(),
-  game_mode:$("rf_game_mode").value.trim()||null,map:$("rf_map").value.trim()||null,
+  game_mode:$("rf_game_mode").value.trim()||null,game_category:$("rf_game_category").value||"uncategorized",map:$("rf_map").value.trim()||null,
   team_size:Number($("rf_team_size").value)===2?2:4,
   max_teams:Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1)),
   capacity:Math.max(1,Math.min(25,Number($("rf_max_teams").value)||1))*(Number($("rf_team_size").value)===2?2:4),
