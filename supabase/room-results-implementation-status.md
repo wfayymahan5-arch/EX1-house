@@ -22,6 +22,12 @@ Changes:
 - Approval requires a different reviewer from the uploader, a completed room, an exact and globally unique COD UID match, and an approved registration in that room. It writes only placement/kills with points=0 and creates an audit event.
 - Rejected and uncertain candidates remain out of official profile stats.
 
+## UI and function integration added to the feature branch
+
+- `admin.html` and `manager.html` include room result upload and review panels.
+- `app.html` displays approved room evidence for authorized participants and uses official result rows for completed-match statistics.
+- The Edge Function request now accepts Storage object references instead of large base64 request bodies, downloads private images using the caller's session, and persists the extracted candidate manifest.
+
 ## Verification completed
 
 - Bucket exists and is private with the intended size and MIME restrictions.
@@ -33,11 +39,12 @@ Changes:
 
 ## Still not complete
 
-- Admin/manager upload and review UI.
-- Room participant results gallery and authorized signed-URL display.
-- Connecting the vision function response to the batch-intake RPC.
-- Deno type/lint and end-to-end tests using synthetic screenshots.
-- Google Gemini data-term/notice review by the adult project owner before any real player screenshot is sent.
-- Repository migration-source files matching the applied database migration history still need to be checked in before merging this feature.
+- Admin/manager upload and review UI has been added to both panels. It uploads to the private bucket, invokes the guarded analysis function, shows original evidence and candidate fields, and allows independent approve/reject actions.
+- Participant room-results gallery now requests approved evidence paths through a guarded RPC and creates short-lived signed URLs. Access is still enforced by Storage RLS.
+- The analysis function now downloads already-uploaded private objects, rechecks MIME signature, size and SHA-256/path match, then persists candidates through the guarded batch-intake RPC.
+- Profile completed-match count now derives from official result rows rather than registration count.
+- Source SQL files for all seven applied room-result migrations have been added under `supabase/migrations/`.
+- Deno type/lint and end-to-end tests using synthetic screenshots have not been run; no Deno runtime/CLI is installed in the current workspace.
+- The analysis Edge Function is not deployed. Gemini remains disabled; an adult project owner must still review provider terms and player notice/consent before activation.
 
 No Production deployment or GitHub merge was performed.
