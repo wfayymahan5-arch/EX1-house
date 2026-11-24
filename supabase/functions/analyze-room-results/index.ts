@@ -119,7 +119,8 @@ Deno.serve(async (req: Request) => {
     global: { headers: { Authorization: authorization } },
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  const { data: authData, error: authError } = await supabase.auth.getUser();
+  const accessToken = authorization.replace(/^Bearer\\s+/i, "");
+  const { data: authData, error: authError } = await supabase.auth.getUser(accessToken);
   if (authError || !authData.user) return json(req, 401, { error: "invalid_session" });
 
   const { data: permissions, error: permissionError } = await supabase.rpc("admin_my_permissions");
