@@ -38,12 +38,21 @@ function json(req: Request, status: number, body: Record<string, unknown>) {
   return new Response(JSON.stringify(body), { status, headers: corsHeaders(req) });
 }
 
-function decodeImage(encodedInput: string): Uint8Array | null {
+function decodeImage(encodedInput: string, mimeType: string): Uint8Array | null {
   try {
     const encoded = encodedInput.replace(/^data:[^,]+,/, "");
     const binary = atob(encoded);
-    if (binary.length > MAX_IMAGE_BYTES) return null;
-    return Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    if (binary.length < 16 || binary.length > MAX_IMAGE_BYTES) return null;
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    const isJpeg = mimeType === "image/jpeg" &&
+      bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+    const isPng = mimeType === "image/png" &&
+      bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e &&
+      bytes[3] === 0x47 && bytes[4] === 0x0d && bytes[5] === 0x0a &&
+      bytes[6] === 0x1a && bytes[7] === 0x0a;
+    const isWebp = mimeType === "image/webp" &&
+      binary.slice(0, 4) === "RIFF" && binary.slice(8, 12) === "WEBP";
+    return isJpeg || isPng || isWebp ? bytes : null;
   } catch {
     return null;
   }
@@ -158,16 +167,18 @@ Deno.serve(async (req: Request) => {
   }];
 
   const hashes: string[] = [];
+  const seenHashes = new Set<string>();
   for (const [index, image] of body.images.entries()) {
     const mime = image?.mime_type ?? "";
     const encoded = image?.data_base64 ?? "";
     if (!ALLOWED_MIME.has(mime) || !encoded || encoded.length > Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 64) {
       return json(req, 400, { error: "invalid_image", image_index: index });
     }
-    const bytes = decodeImage(encoded);
+    const bytes = decodeImage(encoded, mime);
     if (!bytes) return json(req, 413, { error: "invalid_or_oversized_image", image_index: index });
     const hash = await sha256(bytes);
-    if (hashes.includes(hash)) return json(req, 409, { error: "duplicate_image_in_batch", image_index: index });
+    if (seenHashes.has(hash)) return json(req, 409, { error: "duplicate_image_in_batch", image_index: index });
+    seenHashes.add(hash);
     hashes.push(hash);
     parts.push({ text: "Screenshot index " + index });
     parts.push({ inline_data: { mime_type: mime, data: encoded.replace(/^data:[^,]+,/, "") } });
