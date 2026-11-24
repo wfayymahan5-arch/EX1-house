@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#090910"><link rel="icon" type="image/svg+xml" href="/ex1-legend-mark.svg">
-<title>ابزار مدیران | EX1 LEGEND</title>
+<title translate="no">ابزار مدیران | EX1 LEGEND</title>
 <style>
 :root{color-scheme:dark;--bg:#090910;--panel:#12121d;--line:#27273a;--text:#f4f3ff;--muted:#9998b2;--purple:#8b5cf6;--cyan:#22d3ee;--green:#34d399}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#24134a 0,transparent 38%),var(--bg);color:var(--text);font-family:system-ui,Tahoma,Arial,sans-serif}button,input{font:inherit}a{color:inherit;text-decoration:none}
@@ -188,10 +188,10 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
 }
 </style></head>
 <body><div class="wrap">
-<header class="top"><div class="brand"><img src="/ex1-legend-mark.svg" alt="" width="30" height="30" style="vertical-align:middle;margin-inline-end:7px">EX1 <span>LEGEND</span> <small style="color:#9998b2;font-size:12px">/ ابزار مدیران</small></div><a class="btn" href="/">بازگشت به سایت ↗</a></header>
+<header class="top"><div class="brand" translate="no"><img src="/ex1-legend-mark.svg" alt="" width="30" height="30" style="vertical-align:middle;margin-inline-end:7px">EX1 <span>LEGEND</span> <small style="color:#9998b2;font-size:12px">/ ابزار مدیران</small></div><a class="btn" href="/">بازگشت به سایت ↗</a></header>
 <section id="authView" class="authbox"><h2>ورود به ابزار مدیران EX1 LEGEND</h2><p class="muted">با حساب کاربری مدیر وارد شو. فقط وظایفی که مالک برایت فعال کرده نمایش داده می‌شوند.</p><form id="loginForm"><label class="muted" for="email">ایمیل</label><input class="field" id="email" type="email" autocomplete="username" required maxlength="254"><label class="muted" for="password">رمز عبور</label><input class="field" id="password" type="password" autocomplete="current-password" required maxlength="72"><button class="btn primary" id="loginButton" type="submit">ورود امن</button></form><p id="authMessage" class="muted" aria-live="polite"></p></section>
 <div id="appView" class="hidden">
-<section class="hero"><div class="row"><div><h1>ابزار مدیران EX1 LEGEND</h1><div class="muted" id="identity">در حال بررسی دسترسی...</div></div><button class="btn" id="logoutButton">خروج امن</button></div><div class="notice">پنل به دیتابیس زنده متصل است. هر بخش فقط با مجوز سمت سرور قابل مشاهده است؛ عملیات تغییردهنده تا تکمیل کنترل‌های بیشتر غیرفعال‌اند.</div></section>
+<section class="hero"><div class="row"><div><h1>ابزار مدیران <span translate="no">EX1 LEGEND</span></h1><div class="muted" id="identity">در حال بررسی دسترسی...</div></div><button class="btn" id="logoutButton">خروج امن</button></div><div class="notice">پنل به دیتابیس زنده متصل است. هر بخش فقط با مجوز سمت سرور قابل مشاهده است؛ عملیات تغییردهنده تا تکمیل کنترل‌های بیشتر غیرفعال‌اند.</div></section>
 <div class="stats"><div class="card stat"><small>مسابقات</small><strong id="statTournaments">—</strong></div><div class="card stat"><small>ثبت‌نام‌ها</small><strong id="statRegistrations">—</strong></div><div class="card stat"><small>تیم‌ها</small><strong id="statTeams">—</strong></div><div class="card stat"><small>پروفایل‌ها</small><strong id="statUsers">—</strong></div></div>
 <div class="layout"><nav class="card nav" id="nav"></nav><main>
 <section class="section tab" id="overview"><h2>نمای کلی زنده</h2><div class="muted" id="overviewText">آمار از دیتابیس خوانده می‌شود.</div><div class="empty" id="overviewEmpty">در حال دریافت اطلاعات...</div><div class="notice">بخش مالی تا زمان پیاده‌سازی قفل امنیتی مخصوص ورود بزرگسال مسئول، در پنل نمایش داده نمی‌شود.</div></section>
@@ -273,7 +273,7 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
 <section class="section tab hidden" id="settings"><h2>تنظیمات ظاهری سایت</h2><p class="muted">رنگ‌ها فقط با مجوز settings.manage ذخیره می‌شوند.</p><form id="themeForm"><div class="colorgrid">
 <label class="colorfield">پس‌زمینه اصلی<input type="color" id="background_color"></label><label class="colorfield">پس‌زمینه کارت‌ها<input type="color" id="surface_color"></label><label class="colorfield">رنگ متن اصلی<input type="color" id="primary_text_color"></label><label class="colorfield">رنگ متن فرعی<input type="color" id="secondary_text_color"></label><label class="colorfield">رنگ تأکیدی<input type="color" id="accent_color"></label>
 </div><button class="btn primary" id="saveTheme" type="submit" style="margin-top:14px">ذخیره تنظیمات</button></form><div id="themeMessage" class="muted" style="margin-top:10px"></div></section>
-</main></div></div><footer>EX1 LEGEND · پنل مدیریت متصل به Supabase</footer></div><div class="toast" id="toast"></div>
+</main></div></div><footer><span translate="no">EX1 LEGEND</span> · پنل مدیریت متصل به Supabase</footer></div><div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script><script src="/supabase-config.js"></script>
 <script>
 const sb=window.supabase.createClient(EX1_CONFIG.url,EX1_CONFIG.publishableKey);
