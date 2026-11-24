@@ -1007,7 +1007,7 @@ document.querySelectorAll("[data-settings-view]").forEach(button=>button.addEven
  document.querySelectorAll("[data-settings-view]").forEach(item=>item.classList.toggle("active",item===button));
  document.querySelectorAll(".settings-view").forEach(section=>{const active=section.id==="settings-view-"+view;section.hidden=!active;section.classList.toggle("active",active);});
 }));
-$("settingsNotificationsButton").onclick=()=>{$("notificationsModal").classList.add("show");refreshNotifications().catch(()=>{});};
+$("settingsNotificationsButton").onclick=()=>{$("notificationsModal").classList.add("show");loadUserNotifications();};
 $("settingsLogoutButton").onclick=async()=>{try{await confirmedSignOut();}catch(error){toast(error?.message||"خروج انجام نشد.");}};
 $("settingsClearCacheButton").onclick=async()=>{
  if(!(await ex1Confirm("پاک کردن کش","فایل‌های موقت ذخیره‌شده روی این دستگاه پاک شوند؟ ممکن است بارگذاری بعدی کمی بیشتر طول بکشد.","پاک کردن کش")))return;
