@@ -1211,6 +1211,53 @@ $("accountSignOutOthers").onclick=async()=>{
  finally{button.disabled=false;button.textContent="خروج از سایر دستگاه‌ها";}
 };
 $("accountOpenProfileEditor").onclick=()=>$("openProfileEditor").click();
+$("profileForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!currentUser){openAuth();return;}
+ const displayName=$("profileName").value.trim(),gameUid=$("profileGameUid").value.trim(),gameName=$("profileGameName").value.trim();
+ if(!/^[0-9]{19,20}$/.test(gameUid)){toast("UID کالاف باید فقط ۱۹ یا ۲۰ رقم باشد.");$("profileGameUid").focus();return;}
+ if(displayName.length<2||displayName.length>30||gameName.length<2||gameName.length>40){toast("نام نمایشی و نام داخل بازی را کامل و معتبر وارد کن.");return;}
+ const button=$("profileForm").querySelector('button[type="submit"]');button.disabled=true;button.textContent="در حال ذخیره...";
+ try{
+  const {data,error}=await sb.functions.invoke("update-profile",{body:{display_name:displayName,game_uid:gameUid,game_name:gameName}});
+  if(error)throw error;
+  if(data?.pending_review){toast(data.message||"پروفایل برای بررسی ارسال شد.");return;}
+  if(!data?.success)throw new Error(data?.error||"ذخیره پروفایل انجام نشد.");
+  toast("پروفایل ذخیره شد.");$("profileEditorModal").classList.remove("show");await loadProfile();
+ }catch(error){console.error("EX1 profile save:",error);toast(error?.message||"ذخیره پروفایل انجام نشد.");}
+ finally{button.disabled=false;button.textContent="ذخیره تغییرات";}
+});
+async function profilesFor(ids){
+ const unique=[...new Set(ids.filter(Boolean))];if(!unique.length)return {};
+ const {data}=await sb.from("profiles").select("id,display_name,username,avatar_url").in("id",unique);
+ return Object.fromEntries((data||[]).map(x=>[x.id,x]));
+}
+$("searchUsers").onclick=loadExplore;
+$("userSearch").addEventListener("keydown",e=>{if(e.key==="Enter")loadExplore();});
+async function loadExplore(){
+ if(!currentUser){$("exploreUsers").innerHTML='<div class="empty">برای اکسپلور وارد حساب شو.</div>';return;}
+ let q=($("userSearch").value||"").trim();
+ let req=sb.from("profiles").select("id,display_name,username,avatar_url,cover_url").neq("id",currentUser.id).limit(50);
+ if(q)req=req.or("display_name.ilike.%"+q+"%,username.ilike.%"+q+"%");
+ const [{data,error},follows]=await Promise.all([req,sb.from("user_follows").select("follower_id,followed_id,status")]);
+ if(error){$("exploreUsers").innerHTML='<div class="empty">جست‌وجو انجام نشد.</div>';return;}
+ const edges=follows.data||[];
+ const {data:roleBadges}=await sb.rpc("ex1_public_role_badges",{p_user_ids:(data||[]).map(p=>p.id)});
+ const roleBadgeMap=new Map((roleBadges||[]).map(x=>[x.user_id,x.badge_type]));
+ $("exploreUsers").innerHTML=(data||[]).map(p=>{
+  const mine=edges.find(x=>x.follower_id===currentUser.id&&x.followed_id===p.id);
+  const label=mine?.status==="accepted"?"دنبال می‌کنی":mine?.status==="pending"?"درخواست ارسال شد":"دنبال‌کردن";
+  let cover=p.avatar_url||"";if(cover&&!/^https?:\/\//i.test(cover))cover=sb.storage.from("ex1-avatars").getPublicUrl(cover).data.publicUrl;const coverStyle=cover?' style="background-image:linear-gradient(90deg,rgba(20,15,32,.94),rgba(20,15,32,.78)),url(\''+esc(cover)+'\')"':"";return '<div class="user-row'+(cover?' has-profile-cover':'')+'"'+coverStyle+'>'+avatarHTML(p)+'<div class="user-info"><strong>'+esc(p.display_name||"بازیکن")+(roleBadgeMap.get(p.id)?' <span class="inline-role-badge '+roleBadgeMap.get(p.id)+'">'+(roleBadgeMap.get(p.id)==="owner"?"مالک":"مدیر")+'</span>':"")+'</strong><small>'+(p.username?"@"+esc(p.username):"بازیکن")+'</small></div><button class="btn secondary small" data-follow="'+esc(p.id)+'" '+(mine?"disabled":"")+'>'+label+'</button><button class="btn ghost small" data-block-user="'+esc(p.id)+'">مسدود</button><button class="btn ghost small" data-report-user="'+esc(p.id)+'">گزارش</button></div>';
+ }).join("")||'<div class="empty">بازیکنی پیدا نشد.</div>';
+ $("exploreUsers").querySelectorAll("[data-follow]").forEach(b=>b.onclick=async()=>{const {error}=await sb.from("user_follows").insert({follower_id:currentUser.id,followed_id:b.dataset.follow,status:"pending"});if(error){toast("درخواست دنبال‌کردن ارسال نشد.");return;}toast("درخواست دنبال‌کردن ارسال شد.");loadExplore();});
+ $("exploreUsers").querySelectorAll("[data-block-user]").forEach(b=>b.onclick=async()=>{
+  if(!confirm("این بازیکن مسدود شود؟ پیام‌رسانی و نمایش محتوای دوطرفه محدود می‌شود."))return;
+  const target=b.dataset.blockUser;
+  const {error}=await sb.from("user_blocks").insert({blocker_id:currentUser.id,blocked_id:target});
+  if(error){toast("مسدودسازی انجام نشد.");return;}
+  await sb.from("user_follows").delete().eq("follower_id",currentUser.id).eq("followed_id",target);
+  await sb.from("user_follows").delete().eq("follower_id",target).eq("followed_id",currentUser.id);
+  toast("بازیکن مسدود شد.");loadExplore();loadChatContacts();
+ });
  $("exploreUsers").querySelectorAll("[data-report-user]").forEach(b=>b.onclick=async()=>{
   const {error}=await sb.from("social_reports").insert({reporter_id:currentUser.id,target_user_id:b.dataset.reportUser,reason:"other",details:"گزارش پروفایل کاربر"});
   toast(error?"گزارش ثبت نشد.":"گزارش پروفایل برای بررسی ثبت شد.");
