@@ -730,7 +730,7 @@ $("walletOpen").onclick=()=>{$("walletModal").classList.add("show");loadWallet()
 $("walletOpen").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("walletOpen").click();}};
 document.querySelectorAll("[data-close-modal]").forEach(b=>b.addEventListener("click",()=>$(b.dataset.closeModal).classList.remove("show")));
 async function ensureCodmProfile(){
- const {data,error}=await sb.from("profiles").select("game_uid,game_name").eq("id",currentUser.id).maybeSingle();
+ const {data,error}=await sb.from("profiles").select("game_uid,game_name,display_name").eq("id",currentUser.id).maybeSingle();
  if(error)throw error;
  const uid=String(data?.game_uid||"").trim();
  if(!/^[0-9]{19,20}$/.test(uid)||!data?.game_name?.trim()||!data?.display_name?.trim()){
@@ -934,8 +934,7 @@ async function showRoomDetail(room){
   return '<div class="team-slot '+slotClass+'"><span class="team-slot-watermark">'+slot+'</span><div class="team-slot-avatars">'+avatars+'</div><div class="team-slot-info"><strong>'+(isWaiting?"در حال تشکیل تیم":row?esc(row.team_name||"تیم ثبت‌شده"):"تیم آزاد")+'</strong><small>'+(row?players.length+" از "+teamSize+" بازیکن ثبت‌شده":"آماده ثبت‌نام")+'</small></div>'+(row&&!isWaiting?'<span class="team-slot-status">رزرو</span>':'<button type="button" data-room-slot="'+slot+'" '+((room.status!=="open"&&!isWaiting)?"disabled":"")+'>'+(isWaiting?"پیوستن":"انتخاب")+'</button>')+'</div>';
  }).join("");
  $("roomDetail").querySelectorAll("[data-room-slot]").forEach(b=>b.onclick=()=>openRoomJoin(room,Number(b.dataset.roomSlot)));
- await refreshSoloQueueStatus(room.id);
-  await refreshRoomAccess(room.id);
+ await Promise.all([refreshSoloQueueStatus(room.id),refreshRoomAccess(room.id)]);
  if(currentUser)window.ex1RoomAccessTimer=setInterval(()=>{if(activeRoomDetail?.id===room.id&&!document.hidden)refreshRoomAccess(room.id).catch(()=>{});},10000);
  if(currentUser)scheduleRoomAccessRelease(room);
  $("roomDetail").scrollIntoView({behavior:"smooth",block:"start"});
