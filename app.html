@@ -421,6 +421,19 @@ body{color:var(--ex1-text)}
 }
 </style>
 
+<style id="ex1-tab-entry-visible-v2">
+@keyframes ex1TabEntryVisibleV2{
+ 0%{opacity:0;transform:translateY(12px);filter:blur(1.5px)}
+ 65%{opacity:1;filter:blur(0)}
+ 100%{opacity:1;transform:translateY(0);filter:blur(0)}
+}
+.page.active.ex1-tab-enter-now,.home-panel.ex1-tab-enter-now{
+ animation:ex1TabEntryVisibleV2 .42s cubic-bezier(.22,.7,.25,1) both!important;
+}
+@media(prefers-reduced-motion:reduce){
+ .page.active.ex1-tab-enter-now,.home-panel.ex1-tab-enter-now{animation:none!important}
+}
+</style>
 </head>
 <style id="ex1-full-project-soft-entry">
 @keyframes ex1PageSoftEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
@@ -1057,14 +1070,17 @@ function ex1LoadPageData(key,loader){
  state.at=now;
  state.promise=Promise.resolve().then(loader).catch(err=>{state.at=0;console.warn("EX1 page data:",err);}).finally(()=>{state.promise=null;});
 }
+function ex1PlayTabEntry(el){
+ if(!el)return;
+ el.classList.remove("ex1-tab-enter-now");
+ void el.offsetWidth;
+ el.classList.add("ex1-tab-enter-now");
+}
 function switchPage(page){
  document.querySelectorAll(".page").forEach(x=>{
   const active=x.id==="page-"+page;
   x.classList.toggle("active",active);
-  if(active){
-   x.classList.remove("ex1-page-enter");
-   requestAnimationFrame(()=>{if(x.classList.contains("active"))x.classList.add("ex1-page-enter");});
-  }
+  if(active)requestAnimationFrame(()=>{if(x.classList.contains("active"))ex1PlayTabEntry(x);});
  });
  document.querySelectorAll(".bottom-nav [data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
  if(page==="profile"){
@@ -1080,6 +1096,7 @@ function switchHome(tab){
  const selected=["explore","messages"].includes(tab)?tab:"explore";
  document.querySelectorAll("[data-home-tab]").forEach(b=>b.classList.toggle("active",b.dataset.homeTab===selected));
  ["explore","messages"].forEach(x=>{$("home-"+x).hidden=x!==selected;});
+ requestAnimationFrame(()=>ex1PlayTabEntry($("home-"+selected)));
  if(selected==="explore")loadExplore();
  if(selected==="messages")loadChatContacts();
 }
