@@ -523,6 +523,23 @@ body{color:var(--ex1-text)}
 </section>
 <section class="page" id="page-tournaments">
  <div class="tournament-banner"><div class="tournament-banner-copy"><span translate="no">EX1 LEGEND · ARENA</span><h1>جوایز و<br>مسابقات</h1><p>رقابت‌های جامعه، روم‌های فعال و جدول قهرمانان</p></div><div class="tournament-banner-mark" translate="no">EX1</div><div class="banner-bottom"><b>مسابقات فعال</b><small>برای دیدن جزئیات، کارت هر مسابقه را انتخاب کن</small></div></div>
+ <div class="section-head"><div><h2>رویدادهای مسابقات</h2><p>هر مسابقه می‌تواند چند روم داشته باشد.</p></div></div>
+ <div id="tournamentEvents" class="ex1-event-list"><div class="empty">در حال دریافت مسابقات...</div></div>
+ <div id="selectedTournamentFilter" class="ex1-selected-tournament-filter" hidden><span id="selectedTournamentFilterLabel"></span><button type="button" id="clearTournamentFilter">نمایش همه روم‌ها</button></div>
+ <style>
+ .ex1-event-list{display:grid;gap:10px;margin:12px 0 18px}
+ .ex1-event-card{overflow:hidden;display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;padding:10px;border:1px solid #ffffff1b;border-radius:17px;background:linear-gradient(130deg,#211a35,#141426)}
+ .ex1-event-cover{width:92px;height:100%;min-height:108px;object-fit:cover;border-radius:12px;background:#21172f}
+ .ex1-event-copy{min-width:0}
+ .ex1-event-copy strong{display:block;font-size:12px;line-height:1.7}
+ .ex1-event-copy small{display:block;color:#a99fba;font-size:9px;line-height:1.8;margin-top:3px}
+ .ex1-event-status{display:inline-flex;margin-top:6px;padding:4px 8px;border:1px solid #8b5cb5;border-radius:20px;color:#e7d0ff;background:#38234f;font-size:9px}
+ .ex1-event-action{margin-top:8px;border:1px solid #7651a0;border-radius:10px;padding:8px 11px;background:#35204f;color:#fff;font-size:10px;font-weight:800}
+ .ex1-event-action:disabled{opacity:.45}
+ .ex1-selected-tournament-filter{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0;padding:10px 12px;border:1px solid #9a64d2;border-radius:13px;background:#6d3c9b22;color:#ead9ff;font-size:10px}
+ .ex1-selected-tournament-filter button{border:0;border-radius:9px;padding:8px 10px;background:#322044;color:#fff;font-size:9px}
+ @media(max-width:360px){.ex1-event-card{grid-template-columns:72px minmax(0,1fr)}.ex1-event-cover{width:72px}}
+ </style>
  <div class="tournament-filter" id="roomCategoryFilter"><button class="active" type="button" data-room-category="all">برای شما</button><button type="button" data-room-category="fight">فایت</button><button type="button" data-room-category="br">بتل‌رویال</button><button type="button" data-room-category="multi">مولتی</button></div><div class="section-head"><div><h2 id="roomCategoryTitle">روم‌های پیشنهادی</h2><p>یک روم را انتخاب کن تا جزئیاتش را ببینی.</p></div></div><label class="searchbar"><input id="roomSearch" class="field" type="search" maxlength="80" placeholder="جست‌وجوی نام روم، نقشه یا حالت بازی..."></label>
  <div id="roomCards" class="room-grid"><div class="empty">در حال دریافت روم‌ها...</div></div><div id="roomNoData" class="panel room-empty-state" hidden><strong>هنوز رومی برای ثبت‌نام فعال نشده</strong><p>به‌محض اضافه شدن روم جدید، برای شما در این قسمت نمایش داده می‌شود.</p></div><div id="roomCategoryEmpty" class="empty" hidden>فعلاً رومی در این دسته وجود ندارد.</div><section id="roomDetail" class="panel room-detail" hidden></section>
 </section>
@@ -1709,14 +1726,18 @@ function roomCardMarkup(r){
 function applyRoomCategory(category){
  window.ex1ActiveRoomCategory=category;
  document.querySelectorAll("[data-room-category]").forEach(b=>b.classList.toggle("active",b.dataset.roomCategory===category));
- const allRooms=window.ex1Rooms||[],q=($("roomSearch")?.value||"").trim().toLocaleLowerCase();
- const rooms=allRooms.filter(r=>(category==="all"||roomCategory(r.game_category)===category)&&(!q||[r.title,r.map,r.game_mode].some(v=>String(v||"").toLocaleLowerCase().includes(q))));
+ const selectedTournamentId=window.ex1ActiveTournamentId||null;
+ const q=($("roomSearch")?.value||"").trim().toLocaleLowerCase();
+ const allRooms=window.ex1Rooms||[];
+ const rooms=allRooms.filter(r=>(!selectedTournamentId||r.tournament_id===selectedTournamentId)&&(category==="all"||roomCategory(r.game_category)===category)&&(!q||[r.title,r.map,r.game_mode].some(v=>String(v||"").toLocaleLowerCase().includes(q))));
  $("roomCategoryTitle").textContent=({all:"روم‌های پیشنهادی",fight:"روم‌های فایت",br:"روم‌های بتل‌رویال",multi:"روم‌های مولتی"})[category]||"روم‌های پیشنهادی";
+ const filter=$("selectedTournamentFilter"),filterLabel=$("selectedTournamentFilterLabel");
+ if(filter){filter.hidden=!selectedTournamentId;const event=(window.ex1TournamentEvents||[]).find(t=>t.id===selectedTournamentId);if(filterLabel)filterLabel.textContent="فقط روم‌های مسابقه: "+(event?.title||"انتخاب‌شده");}
  const labels=[...new Set(rooms.map(roomTier))].sort((x,y)=>x.localeCompare(y,"fa"));
  $("roomCards").innerHTML=rooms.length?labels.map(label=>{
   const items=rooms.filter(r=>roomTier(r)===label);
   return '<section class="room-tier-section" aria-label="روم‌های '+esc(label)+'"><div class="room-tier-heading"><strong>'+esc(label)+'</strong><small>'+items.length.toLocaleString("fa-IR")+' روم</small><i></i></div><div class="room-tier-track">'+items.map(roomCardMarkup).join("")+'</div></section>';
- }).join(""):'<div class="empty">فعلاً رومی وجود ندارد.</div>';
+ }).join(""):'<div class="empty">فعلاً رومی در این فیلتر وجود ندارد.</div>';
  if($("roomCategoryEmpty"))$("roomCategoryEmpty").hidden=true;
 }
 document.querySelectorAll("[data-room-category]").forEach(b=>b.onclick=()=>applyRoomCategory(b.dataset.roomCategory));
@@ -1725,13 +1746,42 @@ $("roomCards").addEventListener("click",e=>{
  const button=e.target.closest("[data-open-room]");if(!button)return;
  const room=(window.ex1Rooms||[]).find(x=>String(x.id)===button.dataset.openRoom);if(room)showRoomDetail(room);
 });
+$("tournamentEvents").addEventListener("click",e=>{
+ const button=e.target.closest("[data-open-tournament]");if(!button)return;
+ window.ex1ActiveTournamentId=button.dataset.openTournament||null;
+ applyRoomCategory(window.ex1ActiveRoomCategory||"all");
+ $("roomCategoryFilter").scrollIntoView({behavior:"smooth",block:"start"});
+});
+$("clearTournamentFilter").addEventListener("click",()=>{
+ window.ex1ActiveTournamentId=null;applyRoomCategory(window.ex1ActiveRoomCategory||"all");
+});
 function applyRankingSearch(){const q=$("rankingSearch").value.trim().toLocaleLowerCase();$("ranking").querySelectorAll("[data-ranking-item]").forEach(item=>{item.hidden=!!q&&!item.textContent.toLocaleLowerCase().includes(q);});}
 $("rankingSearch").addEventListener("input",applyRankingSearch);
+function renderTournamentEvents(events,rooms){
+ const host=$("tournamentEvents");if(!host)return;
+ window.ex1TournamentEvents=events||[];
+ const roomCounts=new Map();
+ (rooms||[]).forEach(room=>roomCounts.set(room.tournament_id,(roomCounts.get(room.tournament_id)||0)+1));
+ const statusLabel={published:"منتشرشده",registration_open:"ثبت‌نام باز",ongoing:"درحال‌برگزاری",completed:"پایان‌یافته"};
+ host.innerHTML=window.ex1TournamentEvents.length?window.ex1TournamentEvents.map(t=>{
+  const count=roomCounts.get(t.id)||0,cover=t.cover_image_url?'<img class="ex1-event-cover" src="'+esc(t.cover_image_url)+'" alt="" loading="lazy" onerror="this.remove()">':'<div class="ex1-event-cover"></div>';
+  const date=t.starts_at?new Date(t.starts_at).toLocaleString("fa-IR"):"زمان شروع اعلام نشده";
+  return '<article class="ex1-event-card">'+cover+'<div class="ex1-event-copy"><strong>'+esc(t.title)+'</strong><small>'+esc(t.game||"Call of Duty Mobile")+' · '+esc(t.mode||"حالت بازی اعلام نشده")+' · '+esc(t.map||"نقشه اعلام نشده")+'</small><small>'+esc(date)+' · '+count.toLocaleString("fa-IR")+' روم فعال</small><span class="ex1-event-status">'+esc(statusLabel[t.status]||t.status)+'</span><br><button class="ex1-event-action" type="button" data-open-tournament="'+esc(t.id)+'" '+(count?"":"disabled")+'>'+(count?"مشاهده روم‌های این مسابقه":"هنوز رومی ثبت نشده")+'</button></div></article>';
+ }).join(""):'<div class="empty">فعلاً مسابقهٔ منتشرشده‌ای وجود ندارد.</div>';
+}
 async function loadTournaments(){
- const {data:rooms,error:re}=await sb.from("tournament_rooms").select("id,tournament_id,title,game_mode,game_category,price_category,map,capacity,team_size,max_teams,entry_demo_points,prize_demo_points,prize_second_demo_points,prize_third_demo_points,starts_at,ends_at,created_at,status,room_image_url,room_image_focus_x,room_image_focus_y,room_media_type,room_video_url,rules,tournaments(cover_image_url)").in("status",["open","full","closed","completed"]).order("created_at",{ascending:false,nullsFirst:false});
- if(re){$("roomCards").innerHTML='<div class="empty">مسابقات فعلاً بارگذاری نشدند. کمی بعد دوباره تلاش کن.<br><button class="btn small" type="button" id="retryRoomList">تلاش دوباره</button></div>';$("retryRoomList").onclick=loadTournaments;return;}
+ const [roomsResult,tournamentsResult]=await Promise.all([
+  sb.from("tournament_rooms").select("id,tournament_id,title,game_mode,game_category,price_category,map,capacity,team_size,max_teams,entry_demo_points,prize_demo_points,prize_second_demo_points,prize_third_demo_points,starts_at,ends_at,created_at,status,room_image_url,room_image_focus_x,room_image_focus_y,room_media_type,room_video_url,rules,tournaments(cover_image_url)").in("status",["open","full","closed","completed"]).order("created_at",{ascending:false,nullsFirst:false}),
+  sb.from("tournaments").select("id,title,game,mode,map,status,starts_at,cover_image_url,description").in("status",["published","registration_open","ongoing","completed"]).order("starts_at",{ascending:true,nullsFirst:false}).limit(100)
+ ]);
+ const {data:rooms,error:re}=roomsResult;
+ if(re){$("roomCards").innerHTML='<div class="empty">روم‌ها فعلاً بارگذاری نشدند. کمی بعد دوباره تلاش کن.<br><button class="btn small" type="button" id="retryRoomList">تلاش دوباره</button></div>';$("retryRoomList").onclick=loadTournaments;return;}
  const now=Date.now(),rr=(rooms||[]).filter(r=>{const expiry=roomExpiryTimestamp(r);return expiry===null||now<expiry;});
- window.ex1Rooms=rr;$("roomNoData").hidden=true;
+ window.ex1Rooms=rr;
+ const events=tournamentsResult.error?[]:(tournamentsResult.data||[]);
+ renderTournamentEvents(events,rr);
+ if(!window.ex1ActiveTournamentId||!events.some(t=>t.id===window.ex1ActiveTournamentId))window.ex1ActiveTournamentId=null;
+ $("roomNoData").hidden=true;
  applyRoomCategory(window.ex1ActiveRoomCategory||"all");$("roomDetail").hidden=true;
 }
 async function loadProfilePerformanceStats(){
