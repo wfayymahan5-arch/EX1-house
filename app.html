@@ -290,7 +290,19 @@ body{color:var(--ex1-text)}
 #roomCards.room-grid{display:block!important}.room-tier-section{margin:22px 0 30px}.room-tier-heading{margin-bottom:13px}.room-tier-heading strong{font-size:17px;font-weight:900}.room-tier-heading small{font-size:11px}
 .room-tier-track{gap:15px;padding:4px 3px 18px;scroll-snap-type:x mandatory}
 #roomCards .room-card.room-card-visual{position:relative;isolation:isolate;display:flex;flex-direction:column;overflow:hidden;flex:0 0 min(76vw,300px);width:min(76vw,300px);min-width:245px;height:auto;min-height:0;padding:0;border-radius:25px;border:1px solid #c69bff88;background:#171329;box-shadow:0 14px 30px #0009,0 0 18px #8e53d333;scroll-snap-align:center}
-#roomCards .room-card-visual .room-card-media{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:contain;object-position:center center;background:#080811;opacity:1}\n.room-card-art{position:relative;isolation:isolate;flex:0 0 220px;height:220px;min-height:220px;overflow:hidden;background:#080811}\n.room-card-art .room-card-visual-shade{z-index:1}\n.room-card-art .room-card-effects{z-index:2}
+#roomCards .room-card-visual .room-card-media{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:contain;object-position:center center;background:#080811;opacity:1}
+.room-card-art{position:relative;isolation:isolate;flex:0 0 220px;height:220px;min-height:220px;overflow:hidden;background:#080811}
+.room-card-art .room-card-visual-shade{z-index:1}
+.room-card-art .room-card-effects{z-index:2}
+.room-card-content{gap:6px;padding:10px 11px 10px}
+.room-card-glass{padding:7px 9px}
+.room-card-time{padding-bottom:7px;gap:7px}
+.room-card-time strong{font-size:12px}
+.room-card-prize{padding-top:6px;gap:7px}
+.room-card-prize strong{font-size:15px;margin:2px 0}
+.room-card-trophy{flex-basis:29px;width:29px;height:29px;font-size:15px}
+.room-card-footer{font-size:10px}
+
 .room-card-effects{position:absolute;z-index:-1;inset:-35%;pointer-events:none;opacity:0;background:radial-gradient(circle at 25% 30%,rgba(187,130,255,.35) 0 1px,transparent 3px),radial-gradient(circle at 72% 22%,rgba(90,226,255,.34) 0 1px,transparent 3px),radial-gradient(circle at 62% 70%,rgba(255,214,120,.32) 0 1px,transparent 3px),linear-gradient(115deg,transparent 35%,rgba(255,255,255,.16) 49%,transparent 62%);background-size:110px 130px,145px 170px,180px 160px,220% 100%;mix-blend-mode:screen;transition:opacity .35s ease}
 .room-card-visual.has-room-effects .room-card-effects{opacity:.8;animation:ex1RoomGlow 8s ease-in-out infinite,ex1RoomSparkle 12s linear infinite}
 @keyframes ex1RoomGlow{0%,100%{filter:brightness(.85);transform:translate3d(-1%,0,0)}50%{filter:brightness(1.35);transform:translate3d(1%,-1%,0)}}
@@ -1553,7 +1565,7 @@ function formatRoomStart(value){if(!value)return "اعلام نشده";const d=n
 function roomTier(room){return String(room?.price_category||"").trim()||"بدون دسته‌بندی";}
 function roomCardMarkup(r){
  const endValue=r.ends_at||r.starts_at||"";
- const media=r.room_media_type==="video"&&r.room_video_url?'<video class="room-card-media" muted playsinline preload="metadata" src="'+esc(r.room_video_url)+'"></video>':'<img class="room-card-media" style="object-position:'+roomImagePosition(r)+'" src="'+esc(r.room_image_url||r.tournaments?.cover_image_url||"/room-arena-art.svg")+'" alt="تصویر روم '+esc(r.title)+'" loading="lazy">';
+ const media=r.room_media_type==="video"&&r.room_video_url?'<video class="room-card-media" muted playsinline preload="metadata" src="'+esc(r.room_video_url)+'"></video>':'<img class="room-card-media" style="object-position:'+roomImagePosition(r)+'" src="'+esc(r.room_image_url||r.tournaments?.cover_image_url||"/room-arena-art.svg")+'" alt="تصویر روم '+esc(r.title)+'" loading="lazy" onerror="this.onerror=null;this.src=&quot;/room-arena-art.svg&quot;;">';
  const prize=Number(r.prize_demo_points||0),entry=Number(r.entry_demo_points||0);
  const teamSize=Math.max(1,Math.min(4,Number(r.team_size)||4));
  const capacity=Math.max(1,Number(r.max_teams||r.capacity||25))*teamSize;
