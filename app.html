@@ -423,12 +423,11 @@ body{color:var(--ex1-text)}
 
 <style id="ex1-tab-entry-visible-v2">
 @keyframes ex1TabEntryVisibleV2{
- 0%{opacity:0;transform:translateY(12px);filter:blur(1.5px)}
- 65%{opacity:1;filter:blur(0)}
- 100%{opacity:1;transform:translateY(0);filter:blur(0)}
+ 0%{opacity:0;transform:translateY(6px)}
+ 100%{opacity:1;transform:translateY(0)}
 }
 .page.active.ex1-tab-enter-now,.home-panel.ex1-tab-enter-now{
- animation:ex1TabEntryVisibleV2 .42s cubic-bezier(.22,.7,.25,1) both!important;
+ animation:ex1TabEntryVisibleV2 .30s ease-out both!important;
 }
 @media(prefers-reduced-motion:reduce){
  .page.active.ex1-tab-enter-now,.home-panel.ex1-tab-enter-now{animation:none!important}
