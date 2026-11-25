@@ -1623,6 +1623,7 @@ async function loadUserNotifications(){
  box.innerHTML=data.map(n=>'<article class="panel notification-card" tabindex="0" aria-label="اعلان؛ برای نمایش گزینه حذف چند لحظه نگه دارید" data-notification-card="'+esc(n.id)+'" style="padding:12px;margin:8px 0;opacity:'+(n.read_at?"0.72":"1")+'"><b>'+esc(n.title)+'</b><p>'+esc(n.body)+'</p><small class="muted">'+new Date(n.created_at).toLocaleString("fa-IR")+'</small><div class="notification-actions">'+(n.read_at?"":' <button class="btn small secondary" data-notification-read="'+esc(n.id)+'" type="button">خواندم</button>')+' <button class="btn small secondary notification-delete" data-notification-delete="'+esc(n.id)+'" type="button">حذف اعلان</button></div></article>').join("");
 }
 const userNotificationsBox=$("userNotifications");
+if(userNotificationsBox){
 let notificationLongPressTimer=null,notificationLongPressTarget=null;
 function clearNotificationLongPress(){if(notificationLongPressTimer)clearTimeout(notificationLongPressTimer);notificationLongPressTimer=null;notificationLongPressTarget=null;}
 function revealNotificationDelete(card){if(!card)return;userNotificationsBox.querySelectorAll(".notification-delete-visible").forEach(x=>{if(x!==card)x.classList.remove("notification-delete-visible");});card.classList.add("notification-delete-visible");}
@@ -1648,6 +1649,7 @@ userNotificationsBox.addEventListener("click",async e=>{
  if(error){toast("ثبت وضعیت اعلان انجام نشد.");b.disabled=false;return;}
  await loadUserNotifications();
 });
+}
 $("closeNotifications").addEventListener("click",()=>{$("notificationsModal").classList.remove("show");$("notificationsModal").setAttribute("aria-hidden","true");});
 $("notificationsModal").addEventListener("click",e=>{if(e.target===$("notificationsModal")){$("notificationsModal").classList.remove("show");$("notificationsModal").setAttribute("aria-hidden","true");}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("notificationsModal").classList.contains("show")){$("notificationsModal").classList.remove("show");$("notificationsModal").setAttribute("aria-hidden","true");}});
