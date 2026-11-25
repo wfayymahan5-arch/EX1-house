@@ -512,6 +512,7 @@ body{color:var(--ex1-text)}
 <section class="page" id="page-profile">
  <div class="profile-cover" id="profileCover"><button class="profile-menu" type="button" id="profileMenuEdit" aria-label="ویرایش پروفایل">☰</button><div id="profileAvatar" class="profile-big">EX</div><button class="avatar-upload-btn" id="chooseAvatarButton" type="button">＋ انتخاب عکس پروفایل</button><input id="profileAvatarFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><div class="cover-controls"><button type="button" id="chooseCoverButton">▧ انتخاب تصویر پس‌زمینه</button><button type="button" id="removeCoverButton" class="cover-danger" hidden>حذف پس‌زمینه</button></div><input id="profileCoverFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><div class="cover-controls" id="coverPreviewActions" hidden><button type="button" id="saveCoverButton">ذخیره کاور</button><button type="button" id="cancelCoverButton" class="cover-danger">لغو پیش‌نمایش</button></div><p class="cover-preview-note" id="coverPreviewNote" hidden>پیش‌نمایش؛ برای ثبت دائمی، «ذخیره کاور» را بزن.</p><h1 id="profileDisplayName">بازیکن</h1><div id="profileRoleBadge" class="profile-role-badge" hidden></div><div id="profileUsername" class="profile-handle">PLAYER</div><p>پروفایل بازیکن و فعالیت‌های جامعه</p></div>
  <div class="profile-stats"><div><strong id="profileFollowersCount">۰</strong><small>دنبال‌کننده</small></div><div><strong id="profileFollowingCount">۰</strong><small>دنبال‌شونده</small></div></div>
+ <div id="profileRankBadge" class="ex1-profile-rank" hidden></div>
  <div class="profile-performance-grid" id="profilePerformanceStats"><div><strong id="profileMatchesCount">—</strong><small>مسابقات ثبت‌شده</small></div><div><strong id="profileWinsCount">—</strong><small>برد</small></div><div><strong id="profileTopThreeCount">—</strong><small>رتبه‌های برتر</small></div><div><strong id="profileKillsCount">—</strong><small>مجموع کیل</small></div></div>
  <div class="profile-bio panel"><p>پروفایل عمومی فقط اطلاعات پایه‌ی بازیکن را نمایش می‌دهد.</p><button class="btn small" type="button" id="openProfileEditor">ویرایش پروفایل　✎</button> <a class="btn secondary small" id="managerWorkspaceButton" href="/manager.html" hidden>ابزارهای مدیر ↗</a></div>
  <div class="wallet-card" role="button" tabindex="0" id="walletOpen"><div><span class="wallet-kicker">استار</span><strong id="walletCardBalance" class="wallet-balance">۰ <small>امتیاز</small></strong><span class="wallet-note">مشاهده موجودی و تاریخچه استار</span></div><span class="wallet-icon">✦</span></div>
@@ -1409,6 +1410,7 @@ async function loadProfile(){
   $("profileGameName").value=data.game_name||"";
   if(typeof loadFollowRequests==="function")loadFollowRequests();
   if(typeof loadMyMatches==="function")loadMyMatches();
+  if(typeof loadProfilePerformanceStats==="function")loadProfilePerformanceStats();
   if(typeof loadFollowStats==="function")loadFollowStats();
  }catch(error){console.error("EX1 profile load:",error);toast("بارگذاری پروفایل انجام نشد: "+(error?.message||"خطای نامشخص"));}
 }
@@ -1734,13 +1736,16 @@ async function loadTournaments(){
 }
 async function loadProfilePerformanceStats(){
  const ids=["profileMatchesCount","profileWinsCount","profileTopThreeCount","profileKillsCount","accountProfileMatchesCount","accountProfileWinsCount","accountProfileTopThreeCount","accountProfileKillsCount"];
- if(!currentUser){ids.forEach(id=>{if($(id))$(id).textContent="—";});return;}
- const results=await sb.from("tournament_player_results").select("placement,kills",{count:"exact"}).eq("user_id",currentUser.id);
- const fmt=n=>Number(n||0).toLocaleString("fa-IR");
- if(results.error){ids.forEach(id=>{if($(id))$(id).textContent="—";});console.warn("EX1 profile stats:",results.error.message);return;}
- const rows=results.data||[],wins=rows.filter(row=>Number(row.placement)===1).length,topThree=rows.filter(row=>Number(row.placement)>0&&Number(row.placement)<=3).length,kills=rows.reduce((sum,row)=>sum+Math.max(0,Number(row.kills)||0),0),matches=results.count??rows.length;
- const values={profileMatchesCount:matches,profileWinsCount:wins,profileTopThreeCount:topThree,profileKillsCount:kills,accountProfileMatchesCount:matches,accountProfileWinsCount:wins,accountProfileTopThreeCount:topThree,accountProfileKillsCount:kills};
- Object.entries(values).forEach(([id,value])=>{if($(id))$(id).textContent=fmt(value);});
+ const badge=$("profileRankBadge");
+ if(!currentUser){ids.forEach(id=>{if($(id))$(id).textContent="—";});if(badge){badge.hidden=true;}return;}
+ try{
+  const rows=await ex1FetchAllPlayerRankResults(currentUser.id);
+  const wins=rows.filter(row=>Number(row.placement)===1).length,topThree=rows.filter(row=>Number(row.placement)>0&&Number(row.placement)<=3).length,kills=rows.reduce((sum,row)=>sum+Math.max(0,Number(row.kills)||0),0),points=rows.reduce((sum,row)=>sum+Math.max(0,Number(row.points)||0),0),matches=rows.length;
+  const values={profileMatchesCount:matches,profileWinsCount:wins,profileTopThreeCount:topThree,profileKillsCount:kills,accountProfileMatchesCount:matches,accountProfileWinsCount:wins,accountProfileTopThreeCount:topThree,accountProfileKillsCount:kills};
+  const fmt=n=>Number(n||0).toLocaleString("fa-IR");
+  Object.entries(values).forEach(([id,value])=>{if($(id))$(id).textContent=fmt(value);});
+  if(badge){const rank=ex1RankPlayer(rows);badge.hidden=false;badge.className="ex1-profile-rank";badge.innerHTML='<span class="ex1-rank-badge '+rank.tier.className+'">رتبه بازیکن: '+rank.tier.label+'</span>';}
+ }catch(error){ids.forEach(id=>{if($(id))$(id).textContent="—";});if(badge){badge.hidden=true;}console.warn("EX1 profile stats:",error?.message||error);}
 }
 async function loadMyMatches(){if(!currentUser)return;$("myMatches").innerHTML='<div class="empty">در حال دریافت سابقه...</div>';const {data,error}=await sb.from("tournament_room_registrations").select("id,room_id,tournament_id,team_id,slot_number,status,registered_at,tournament_rooms(title,game_mode)").eq("user_id",currentUser.id).order("registered_at",{ascending:false}).limit(30);if(error){$("myMatches").innerHTML='<div class="empty">سابقهٔ روم‌ها دریافت نشد.</div>';return;}const rows=data||[];const teamIds=[...new Set(rows.map(x=>x.team_id).filter(Boolean))];let resultsByKey={};if(teamIds.length){const {data:results}=await sb.from("tournament_results").select("team_id,tournament_id,placement,points").in("team_id",teamIds);(results||[]).forEach(x=>resultsByKey[x.team_id+":"+x.tournament_id]=x);} $("myMatches").innerHTML=rows.map(x=>{const result=resultsByKey[x.team_id+":"+x.tournament_id];const reward=result?"جایگاه "+Number(result.placement)+" · امتیاز نتیجه: "+Number(result.points||0).toLocaleString("fa-IR"):"هنوز نتیجه‌ای ثبت نشده است";return '<div class="panel user-row"><div class="user-info"><strong>'+esc(x.tournament_rooms?.title||"روم EX1")+'</strong><small>'+esc(x.tournament_rooms?.game_mode||"مسابقه")+' · جایگاه روم '+Number(x.slot_number||0)+' · '+esc(x.status)+'</small><small>'+esc(reward)+'</small></div></div>';}).join("")||'<div class="empty">هنوز در رومی ثبت‌نام نکرده‌ای.</div>';}
 let currentTeamId=null;
@@ -1866,13 +1871,14 @@ $("createTeamForm").addEventListener("submit",async e=>{
  }catch(err){console.error("EX1 team create:",err);toast(err?.message||"ساخت تیم انجام نشد.");}
  finally{button.disabled=false;button.textContent="ساخت تیم";}
 });
-async function ex1FetchAllPlayerRankResults(){
+async function ex1FetchAllPlayerRankResults(userId=null){
  const pageSize=1000,maxPages=50,all=[];
  for(let page=0;page<maxPages;page++){
   const from=page*pageSize,to=from+pageSize-1;
-  const {data,error}=await sb.from("tournament_player_results")
-   .select("id,tournament_id,room_id,user_id,placement,kills,points,profiles(display_name,username,game_name)")
-   .order("created_at",{ascending:true}).range(from,to);
+  let request=sb.from("tournament_player_results")
+   .select("id,tournament_id,room_id,user_id,placement,kills,points,profiles(display_name,username,game_name)");
+  if(userId)request=request.eq("user_id",userId);
+  const {data,error}=await request.order("created_at",{ascending:true}).range(from,to);
   if(error)throw error;
   const rows=data||[];all.push(...rows);
   if(rows.length<pageSize)break;
