@@ -393,6 +393,19 @@ body{color:var(--ex1-text)}
 @media(max-width:360px){#roomCards .room-tier-track>.room-card.room-card-visual{flex-basis:86vw!important;width:86vw!important;min-width:236px!important}#roomCards .room-entry-label{font-size:9px!important;padding:4px 5px!important}}
 </style>
 
+
+<style id="ex1-room-glass-soften-v1">
+/* Softer translucent panel behind room start time and prize */
+#roomCards .room-card-glass{
+ background:rgba(11,10,22,.34)!important;
+ border:1px solid rgba(255,255,255,.13)!important;
+ backdrop-filter:blur(9px)!important;
+ -webkit-backdrop-filter:blur(9px)!important;
+ box-shadow:0 4px 14px rgba(0,0,0,.16)!important;
+}
+#roomCards .room-card-time{border-color:rgba(255,255,255,.13)!important}
+</style>
+
 </head>
 <style id="ex1-full-project-soft-entry">
 @keyframes ex1PageSoftEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
