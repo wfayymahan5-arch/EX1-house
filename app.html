@@ -1054,6 +1054,29 @@ async function loadRoomResults(roomId){
  for(const image of evidence){const {data:signed}=await sb.storage.from('room-result-evidence').createSignedUrl(image.object_path,180);if(signed?.signedUrl)urls.push(signed.signedUrl);}
  if(urls.length)box.insertAdjacentHTML('beforeend','<section class="room-result-evidence"><h4>تصاویر اصلی نتایج</h4><p class="muted">این تصاویر فقط برای شرکت‌کنندگان تأییدشده همین روم و مدیران مجاز نمایش داده می‌شوند.</p><div class="room-result-evidence-grid">'+urls.map((url,i)=>'<a href="'+esc(url)+'" target="_blank" rel="noopener"><img src="'+esc(url)+'" loading="lazy" alt="تصویر نتیجه '+(i+1)+'"></a>').join('')+'</div></section>');
 }
+function openRoomEvidenceViewer(urls,startIndex=0){
+ const images=(urls||[]).filter(Boolean);if(!images.length)return;
+ let index=Math.max(0,Math.min(images.length-1,startIndex));
+ let modal=document.getElementById("ex1RoomEvidenceViewer");
+ if(!modal){
+  modal=document.createElement("div");modal.id="ex1RoomEvidenceViewer";
+  modal.style.cssText="position:fixed;inset:0;z-index:10050;background:#05040bea;display:none;align-items:center;justify-content:center;padding:18px";
+  modal.innerHTML='<div role="dialog" aria-modal="true" aria-label="تصویر نتیجه مسابقه" style="position:relative;width:min(920px,100%);max-height:92vh;display:flex;flex-direction:column;gap:10px;align-items:center"><button type="button" data-evidence-close aria-label="بستن" style="position:absolute;top:-8px;left:0;z-index:2;border:1px solid #ffffff55;border-radius:50%;width:38px;height:38px;background:#20182e;color:white;font-size:22px">×</button><img data-evidence-image alt="تصویر نتیجه مسابقه" style="max-width:100%;max-height:78vh;object-fit:contain;border-radius:14px;background:#171323"><div style="display:flex;align-items:center;gap:16px;color:white"><button type="button" data-evidence-prev class="btn small">قبلی</button><span data-evidence-count></span><button type="button" data-evidence-next class="btn small">بعدی</button></div></div>';
+  document.body.appendChild(modal);
+  modal.addEventListener("click",e=>{if(e.target===modal||e.target.closest("[data-evidence-close]"))modal.style.display="none";});
+  modal.querySelector("[data-evidence-prev]").addEventListener("click",()=>{index=(index-1+images.length)%images.length;render();});
+  modal.querySelector("[data-evidence-next]").addEventListener("click",()=>{index=(index+1)%images.length;render();});
+  document.addEventListener("keydown",e=>{if(modal.style.display!=="flex")return;if(e.key==="Escape")modal.style.display="none";if(e.key==="ArrowLeft"){index=(index+1)%images.length;render();}if(e.key==="ArrowRight"){index=(index-1+images.length)%images.length;render();}});
+ }
+ function render(){modal.querySelector("[data-evidence-image]").src=images[index];modal.querySelector("[data-evidence-count]").textContent=(index+1).toLocaleString("fa-IR")+" از "+images.length.toLocaleString("fa-IR");modal.querySelector("[data-evidence-prev]").hidden=images.length<2;modal.querySelector("[data-evidence-next]").hidden=images.length<2;}
+ render();modal.style.display="flex";
+}
+$("roomResultsContent").addEventListener("click",e=>{
+ const link=e.target.closest(".room-result-evidence-grid a");if(!link)return;
+ e.preventDefault();
+ const links=[...$("roomResultsContent").querySelectorAll(".room-result-evidence-grid a")].map(a=>a.href);
+ openRoomEvidenceViewer(links,links.indexOf(link.href));
+});
 async function showRoomDetail(room){
  if(window.ex1RoomAccessTimer){clearInterval(window.ex1RoomAccessTimer);window.ex1RoomAccessTimer=null;}
  if(roomStartReleaseTimer){clearTimeout(roomStartReleaseTimer);roomStartReleaseTimer=null;}
