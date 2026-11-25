@@ -406,6 +406,21 @@ body{color:var(--ex1-text)}
 #roomCards .room-card-time{border-color:rgba(255,255,255,.13)!important}
 </style>
 
+
+<style id="ex1-main-tab-soft-fade-v1">
+/* A quiet fade on main menu navigation: no bounce, zoom or flashy movement. */
+@keyframes ex1PageSoftEnter{
+ from{opacity:0}
+ to{opacity:1}
+}
+.page.active.ex1-page-enter{
+ animation:ex1PageSoftEnter .24s ease-out both!important;
+}
+@media(prefers-reduced-motion:reduce){
+ .page.active.ex1-page-enter{animation:none!important}
+}
+</style>
+
 </head>
 <style id="ex1-full-project-soft-entry">
 @keyframes ex1PageSoftEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
