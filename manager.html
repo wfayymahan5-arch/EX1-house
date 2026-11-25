@@ -703,6 +703,7 @@ async function submitManualResultBatch(){
  if(!roomId)return toast("روم پایان‌یافته را انتخاب کن.");
  if(files.length<1||files.length>8)return toast("باید بین ۱ تا ۸ تصویر مدرک انتخاب کنی.");
  if(!rows.length)return toast("حداقل یک بازیکن اضافه کن.");
+ if(rows.length>100)return toast("در هر پرونده حداکثر ۱۰۰ بازیکن می‌توان ثبت کرد.");
  const candidates=[],seen=new Set();
  for(const row of rows){
   const select=row.querySelector("[data-result-user]"),userId=select.value,gameUid=select.selectedOptions[0]?.dataset.gameUid||"";
