@@ -1071,10 +1071,11 @@ function openRoomEvidenceViewer(urls,startIndex=0){
  function render(){modal.querySelector("[data-evidence-image]").src=images[index];modal.querySelector("[data-evidence-count]").textContent=(index+1).toLocaleString("fa-IR")+" از "+images.length.toLocaleString("fa-IR");modal.querySelector("[data-evidence-prev]").hidden=images.length<2;modal.querySelector("[data-evidence-next]").hidden=images.length<2;}
  render();modal.style.display="flex";
 }
-$("roomResultsContent").addEventListener("click",e=>{
+document.addEventListener("click",e=>{
+ const resultsBox=$("roomResultsContent");if(!resultsBox||!resultsBox.contains(e.target))return;
  const link=e.target.closest(".room-result-evidence-grid a");if(!link)return;
  e.preventDefault();
- const links=[...$("roomResultsContent").querySelectorAll(".room-result-evidence-grid a")].map(a=>a.href);
+ const links=[...resultsBox.querySelectorAll(".room-result-evidence-grid a")].map(a=>a.href);
  openRoomEvidenceViewer(links,links.indexOf(link.href));
 });
 async function showRoomDetail(room){
