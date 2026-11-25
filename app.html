@@ -719,7 +719,7 @@ function showStartupError(message){
  const retry=document.createElement("button");retry.type="button";retry.textContent="تلاش دوباره";retry.style.cssText="padding:12px 18px;border:0;border-radius:12px;background:#8951c5;color:#fff;font-weight:bold";retry.onclick=()=>location.reload();
  box.append(title,detail,retry);document.body.append(box);
 }
-window.addEventListener("error",e=>{console.error("EX1 runtime error:",e.error||e.message);const t=$("toast");if(t){t.textContent="خطای برنامه: "+(e.message||"خطای نامشخص");t.classList.add("show");}});
+window.addEventListener("error",e=>{console.error("EX1 runtime error:",e.error||e.message,e.filename,e.lineno,e.colno);const t=$("toast");if(t){const where=e.lineno?" (خط "+e.lineno+")":"";t.textContent="خطای برنامه: "+(e.message||"خطای نامشخص")+where;t.classList.add("show");}});
 window.addEventListener("unhandledrejection",e=>{console.error("EX1 async error:",e.reason);const t=$("toast");if(t){t.textContent=e.reason?.message||"ارتباط با سرویس کامل نشد؛ دوباره تلاش کن.";t.classList.add("show");}});
 if(!window.supabase||typeof window.supabase.createClient!=="function"){
  showStartupError("کتابخانهٔ اتصال به سرویس بارگذاری نشد. اتصال اینترنت یا دسترسی به سرویس را بررسی و دوباره تلاش کن.");
