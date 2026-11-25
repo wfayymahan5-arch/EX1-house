@@ -528,6 +528,23 @@ body{color:var(--ex1-text)}
 <section class="page" id="page-ranking">
  <div class="section-head"><div><h2>برترین‌ها</h2><p>رتبه‌بندی فقط بر اساس نتایج تأییدشده‌ی مسابقات</p></div></div><label class="searchbar"><input id="rankingSearch" class="field" type="search" maxlength="80" placeholder="جست‌وجوی بازیکن، تیم یا مسابقه..."></label>
  <div id="ranking" class="panel"><div class="empty">هنوز نتیجه‌ی تأییدشده‌ای ثبت نشده است.</div></div>
+ <style>
+.ex1-leaderboard-title{margin:20px 0 12px;font-size:14px}
+.ex1-leaderboard-list{display:grid;gap:9px}
+.ex1-leaderboard-row{display:flex;align-items:center;gap:11px;padding:12px;border:1px solid #ffffff1b;border-radius:15px;background:linear-gradient(120deg,#201a31,#151426)}
+.ex1-leaderboard-position{flex:0 0 30px;width:30px;height:30px;display:grid;place-items:center;border-radius:10px;background:#ffffff12;color:#d8c4ef;font-weight:900;font-size:11px}
+.ex1-leaderboard-main{min-width:0;flex:1}
+.ex1-leaderboard-name{font-size:12px;font-weight:900;overflow-wrap:anywhere;margin-bottom:6px}
+.ex1-rank-badge{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;border:1px solid;font-size:9px;font-weight:900}
+.ex1-rank-badge.new{color:#d0d0d8;background:#77778022;border-color:#9696a2}
+.ex1-rank-badge.noob{color:#9be6a8;background:#1d733322;border-color:#49ad68}
+.ex1-rank-badge.player{color:#a8d7ff;background:#1d5d9b33;border-color:#4d9ee8}
+.ex1-rank-badge.pro{color:#e0b8ff;background:#7035a633;border-color:#a66bdf}
+.ex1-rank-badge.master{color:#ffe39a;background:#8a641e44;border-color:#d9b45b}
+.ex1-rank-badge.legend{color:#ffb0a4;background:#8d302d44;border-color:#ed665b}
+.ex1-rank-badge.god{color:#ffe8a8;background:linear-gradient(110deg,#151515,#4c3a13);border-color:#f1d17a;box-shadow:0 0 14px #d9b45b33}
+.ex1-leaderboard-stats{display:flex;flex-wrap:wrap;gap:5px 12px;margin-top:7px;color:#aaa1bd;font-size:9px}
+</style>
 </section>
 
 <section class="page ex1-settings-page" id="page-settings" aria-labelledby="settingsPageTitle">
@@ -1849,16 +1866,71 @@ $("createTeamForm").addEventListener("submit",async e=>{
  }catch(err){console.error("EX1 team create:",err);toast(err?.message||"ساخت تیم انجام نشد.");}
  finally{button.disabled=false;button.textContent="ساخت تیم";}
 });
+async function ex1FetchAllPlayerRankResults(){
+ const pageSize=1000,maxPages=50,all=[];
+ for(let page=0;page<maxPages;page++){
+  const from=page*pageSize,to=from+pageSize-1;
+  const {data,error}=await sb.from("tournament_player_results")
+   .select("id,tournament_id,room_id,user_id,placement,kills,points,profiles(display_name,username,game_name)")
+   .order("created_at",{ascending:true}).range(from,to);
+  if(error)throw error;
+  const rows=data||[];all.push(...rows);
+  if(rows.length<pageSize)break;
+ }
+ return all;
+}
+function ex1RankPlayer(rows){
+ const matches=rows.length;
+ const wins=rows.filter(x=>Number(x.placement)===1).length;
+ const topThree=rows.filter(x=>Number(x.placement)>0&&Number(x.placement)<=3).length;
+ const kills=rows.reduce((n,x)=>n+Math.max(0,Number(x.kills)||0),0);
+ const points=rows.reduce((n,x)=>n+Math.max(0,Number(x.points)||0),0);
+ const placementScore=rows.reduce((n,x)=>{
+  const p=Number(x.placement)||0;
+  return n+(p===1?35:p===2?24:p===3?17:p>=4&&p<=10?8:0);
+ },0);
+ const rating=matches*10+kills*2+points*.25+placementScore;
+ let tier={key:"new",label:"تازه‌وارد",className:"new"};
+ if(matches>=3&&rating>=45)tier={key:"noob",label:"نوب",className:"noob"};
+ if(matches>=8&&rating>=170)tier={key:"player",label:"پلیر",className:"player"};
+ if(matches>=20&&rating>=520)tier={key:"pro",label:"پرو",className:"pro"};
+ if(matches>=40&&rating>=1200)tier={key:"master",label:"مستر",className:"master"};
+ if(matches>=90&&rating>=3000&&wins>=20)tier={key:"legend",label:"لجند",className:"legend"};
+ if(matches>=180&&rating>=6500&&wins>=50&&topThree>=80)tier={key:"god",label:"گاد",className:"god"};
+ return {matches,wins,topThree,kills,points,rating,tier,profile:rows[0]?.profiles||{}};
+}
 async function loadRanking(){
- const [{data:teams,error:teamError},{data:players,error:playerError}]=await Promise.all([
+ $("ranking").innerHTML='<div class="empty">در حال محاسبه رتبه بازیکنان...</div>';
+ const [{data:teams,error:teamError},playerResults]=await Promise.all([
   sb.from("tournament_results").select("placement,kills,points,evidence_image_url,teams(name,tag),tournaments(title)").order("points",{ascending:false}).order("placement",{ascending:true}).limit(30),
-  sb.from("tournament_player_results").select("placement,kills,points,evidence_image_url,profiles(display_name,username,game_name,game_uid),tournaments(title),tournament_rooms(title)").order("points",{ascending:false}).order("kills",{ascending:false}).limit(30)
+  ex1FetchAllPlayerRankResults().then(data=>({data,error:null})).catch(error=>({data:null,error}))
  ]);
- if(teamError||playerError){$("ranking").innerHTML='<div class="empty">رتبه‌بندی فعلاً بارگذاری نشد. <button class="btn small" type="button" id="retryRanking">تلاش دوباره</button></div>';$("retryRanking").onclick=loadRanking;return;}
- const teamRows=teams||[],playerRows=players||[];
+ if(teamError||playerResults.error){
+  console.error("EX1 leaderboard:",teamError||playerResults.error);
+  $("ranking").innerHTML='<div class="empty">رتبه‌بندی فعلاً بارگذاری نشد. <button class="btn small" type="button" id="retryRanking">تلاش دوباره</button></div>';
+  $("retryRanking").onclick=loadRanking;return;
+ }
+ const teamRows=teams||[],grouped=new Map(),seen=new Set();
+ (playerResults.data||[]).forEach(row=>{
+  if(!row.user_id)return;
+  const uniqueKey=[row.user_id,row.tournament_id||"",row.room_id||"",row.id||""].join(":");
+  if(seen.has(uniqueKey))return;seen.add(uniqueKey);
+  if(!grouped.has(row.user_id))grouped.set(row.user_id,[]);
+  grouped.get(row.user_id).push(row);
+ });
+ const ranked=[...grouped.entries()].map(([userId,rows])=>({userId,...ex1RankPlayer(rows)}));
+ const tierOrder={new:0,noob:1,player:2,pro:3,master:4,legend:5,god:6};
+ ranked.sort((a,b)=>
+  tierOrder[b.tier.key]-tierOrder[a.tier.key]||
+  b.rating-a.rating||b.wins-a.wins||b.points-a.points||b.kills-a.kills||
+  String(a.profile.game_name||a.profile.display_name||"").localeCompare(String(b.profile.game_name||b.profile.display_name||""))
+ );
  const teamHtml=teamRows.length?'<h3>رتبه‌بندی تیم‌ها</h3><div class="user-list">'+teamRows.map((x,i)=>'<div class="user-row" data-ranking-item>'+(x.evidence_image_url?'<a href="'+esc(x.evidence_image_url)+'" target="_blank" rel="noopener"><img src="'+esc(x.evidence_image_url)+'" alt="مدرک نتیجه تیم" style="width:58px;height:48px;object-fit:cover;border-radius:9px"></a>':'<div class="rank-icon">'+(i+1)+'</div>')+'<div class="user-info"><strong>'+esc(x.teams?.name||"تیم")+'</strong><small>'+esc(x.tournaments?.title||"مسابقه")+' · جایگاه '+esc(x.placement)+' · '+esc(x.kills)+' کیل</small></div><strong>'+esc(x.points)+' امتیاز</strong></div>').join("")+'</div>':'';
- const playerHtml=playerRows.length?'<h3 style="margin-top:18px">بازیکنان برتر</h3><div class="user-list">'+playerRows.map((x,i)=>'<div class="user-row" data-ranking-item>'+(x.evidence_image_url?'<a href="'+esc(x.evidence_image_url)+'" target="_blank" rel="noopener"><img src="'+esc(x.evidence_image_url)+'" alt="مدرک نتیجه بازیکن" style="width:58px;height:48px;object-fit:cover;border-radius:9px"></a>':'<div class="rank-icon">'+(i+1)+'</div>')+'<div class="user-info"><strong>'+esc(x.profiles?.game_name||x.profiles?.display_name||x.profiles?.username||"بازیکن")+'</strong><small>'+esc(x.tournaments?.title||"مسابقه")+' · '+esc(x.tournament_rooms?.title||"روم")+' · جایگاه '+esc(x.placement||"—")+'</small></div><strong>'+esc(x.kills)+' کیل · '+esc(x.points)+' امتیاز</strong></div>').join("")+'</div>':'';
- $("ranking").innerHTML=teamHtml+playerHtml||( '<div class="empty">هنوز نتیجه‌ای برای رتبه‌بندی ثبت نشده است.</div>');
+ const playerHtml=ranked.length?'<h3 class="ex1-leaderboard-title">لیدربورد بازیکنان</h3><div class="ex1-leaderboard-list">'+ranked.map((p,i)=>{
+  const name=p.profile.game_name||p.profile.display_name||p.profile.username||"بازیکن";
+  return '<div class="ex1-leaderboard-row" data-ranking-item><span class="ex1-leaderboard-position">'+(i+1).toLocaleString("fa-IR")+'</span><div class="ex1-leaderboard-main"><div class="ex1-leaderboard-name">'+esc(name)+'</div><span class="ex1-rank-badge '+p.tier.className+'">'+p.tier.label+'</span><div class="ex1-leaderboard-stats"><span>'+p.matches.toLocaleString("fa-IR")+' مسابقه</span><span>'+p.wins.toLocaleString("fa-IR")+' برد</span><span>'+p.kills.toLocaleString("fa-IR")+' کیل</span><span>'+p.points.toLocaleString("fa-IR")+' امتیاز</span></div></div></div>';
+ }).join("")+'</div>':'<div class="empty">هنوز نتیجه تأییدشده‌ای برای رتبه‌بندی بازیکنان ثبت نشده است.</div>';
+ $("ranking").innerHTML=teamHtml+playerHtml;
  applyRankingSearch();
 }
 (()=>{const params=new URLSearchParams(window.location.hash.slice(1));const code=params.get("error_code");if(code){const description=params.get("error_description")||"";const message=code==="otp_expired"?"لینک بازیابی رمز منقضی شده یا قبلاً استفاده شده است. از صفحه ورود یک لینک تازه درخواست کن.":"ورود از طریق ایمیل انجام نشد: "+description;history.replaceState(null,"",window.location.pathname+window.location.search);setTimeout(()=>{openAuth();toast(message);},0);}})();
