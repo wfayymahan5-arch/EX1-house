@@ -1913,7 +1913,7 @@ async function loadRanking(){
  const teamRows=teams||[],grouped=new Map(),seen=new Set();
  (playerResults.data||[]).forEach(row=>{
   if(!row.user_id)return;
-  const uniqueKey=[row.user_id,row.tournament_id||"",row.room_id||"",row.id||""].join(":");
+  const uniqueKey=[row.user_id,row.tournament_id||"",row.room_id||(!row.tournament_id?row.id||"": "")].join(":");
   if(seen.has(uniqueKey))return;seen.add(uniqueKey);
   if(!grouped.has(row.user_id))grouped.set(row.user_id,[]);
   grouped.get(row.user_id).push(row);
