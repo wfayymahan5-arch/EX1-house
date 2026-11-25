@@ -324,6 +324,50 @@ body{color:var(--ex1-text)}
 @media(min-width:650px){#roomCards .room-card.room-card-visual{flex-basis:320px;width:320px;min-width:320px;height:auto;min-height:0}}
 @media(prefers-reduced-motion:reduce){.room-tier-track{scroll-behavior:auto}}
 </style>
+<style id="ex1-room-card-redesign-v1">
+/* Compact EX1 arena cards: clear artwork, readable data, horizontal tracks */
+#roomCards.room-grid{display:block!important;min-width:0}
+#roomCards .room-tier-section{margin:16px 0 20px;min-width:0}
+#roomCards .room-tier-heading{display:flex;align-items:center;gap:9px;margin:0 3px 9px}
+#roomCards .room-tier-heading strong{font-size:12px;font-weight:900;color:#f4eaff}
+#roomCards .room-tier-heading small{font-size:9px;color:#a99bbd}
+#roomCards .room-tier-heading i{height:1px;flex:1;background:linear-gradient(90deg,#9d68df66,transparent)}
+#roomCards .room-tier-track{display:flex;gap:11px;overflow-x:auto;overflow-y:hidden;padding:3px 2px 13px;scroll-snap-type:x mandatory;overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#7852a2 #171327}
+#roomCards .room-tier-track>.room-card.room-card-visual{position:relative;isolation:isolate;display:flex;flex:0 0 min(78vw,278px);width:min(78vw,278px);min-width:232px;height:282px;min-height:282px;flex-direction:column;overflow:hidden;padding:0;margin:0;border-radius:19px;border:1px solid rgba(181,132,239,.55);background:linear-gradient(155deg,#201a34,#100f1e)!important;box-shadow:0 9px 24px #0008,0 0 0 1px #a66be71a;scroll-snap-align:start;transform:none}
+#roomCards .room-card-art{position:relative;isolation:isolate;display:block;flex:0 0 112px;width:100%;height:112px;min-height:112px;overflow:hidden;background:linear-gradient(135deg,#151225,#25314a)}
+#roomCards .room-card-art .room-card-media{position:absolute!important;inset:0!important;display:block;width:100%!important;height:100%!important;max-width:none;object-fit:contain!important;object-position:center!important;background:linear-gradient(135deg,#10101c,#1a1a2b);opacity:1;z-index:0}
+#roomCards .room-card-art .room-card-visual-shade{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(8,7,18,.02),rgba(8,7,18,.04) 55%,rgba(8,7,18,.30));pointer-events:none}
+#roomCards .room-card-art .room-card-effects{z-index:2;opacity:.3}
+#roomCards .room-card-content{position:relative;z-index:3;inset:auto;display:flex;flex:1;min-height:0;flex-direction:column;justify-content:space-between;gap:5px;padding:8px 9px;background:linear-gradient(155deg,#201a34,#11101f);overflow:hidden}
+#roomCards .room-card-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px}
+#roomCards .room-card-heading>div:first-child{min-width:0;flex:1}
+#roomCards .room-card-phase{display:inline-flex;padding:3px 7px;border-radius:20px;font-size:8px;line-height:1.4}
+#roomCards .room-card-heading h3{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:4px 0 1px;font-size:12px;line-height:1.5;font-weight:900;text-shadow:none}
+#roomCards .room-card-heading small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;color:#bdb1d1;text-shadow:none}
+#roomCards .room-card-capacity{flex:0 0 49px;min-width:49px;padding:6px 5px;border-radius:11px;background:#ffffff0b;border:1px solid #ffffff19;backdrop-filter:none}
+#roomCards .room-card-capacity strong{font-size:16px;line-height:1}
+#roomCards .room-card-capacity span{font-size:7px;margin-top:4px;color:#c4b8d5}
+#roomCards .room-card-glass{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:5px;padding:6px 7px;border:1px solid #ffffff16;border-radius:10px;background:#0b0a1699;backdrop-filter:none;box-shadow:none}
+#roomCards .room-card-time{display:flex;align-items:center;gap:5px;min-width:0;padding:0;border:0}
+#roomCards .room-card-time span{font-size:12px}
+#roomCards .room-card-time strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;line-height:1.5}
+#roomCards .room-card-prize{display:flex;align-items:center;gap:5px;min-width:0;padding:0}
+#roomCards .room-card-trophy{flex:0 0 22px;width:22px;height:22px;font-size:12px;box-shadow:none}
+#roomCards .room-card-prize>div{min-width:0}
+#roomCards .room-card-prize small{display:block;font-size:7px;white-space:nowrap;color:#b9accb}
+#roomCards .room-card-prize strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:1px 0 0;font-size:10px;line-height:1.4}
+#roomCards .room-card-prize em{display:none}
+#roomCards .room-card-footer{display:flex;justify-content:space-between;gap:6px;min-height:15px;font-size:8px;line-height:1.5;color:#c9bfd8;text-shadow:none}
+#roomCards .room-card-footer span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#roomCards .room-card-footer b{font-weight:900;color:#f5eaff}
+#roomCards .room-card-visual .room-open-btn{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:29px;margin:0;padding:6px 9px;border:1px solid #9d70d2;border-radius:10px;background:linear-gradient(105deg,#7742c3,#286d86)!important;box-shadow:0 4px 12px #0005;font-size:9px;line-height:1.2}
+#roomCards .room-card-visual .room-open-btn span{font-size:13px}
+#roomCards .room-card-visual.room-card-completed{filter:saturate(.68);opacity:.82}
+#roomCards .room-card-visual:after{content:none!important}
+@media(min-width:650px){#roomCards .room-tier-track>.room-card.room-card-visual{flex-basis:278px;width:278px;min-width:278px}}
+@media(max-width:360px){#roomCards .room-tier-track>.room-card.room-card-visual{flex-basis:82vw;width:82vw;min-width:220px}}
+@media(prefers-reduced-motion:reduce){#roomCards .room-tier-track{scroll-behavior:auto}#roomCards .room-card-visual{transition:none!important}}
+</style>
 </head>
 <style id="ex1-full-project-soft-entry">
 @keyframes ex1PageSoftEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
