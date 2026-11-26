@@ -240,6 +240,24 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
  #supportPanel>.section-head h2{font-size:17px}
  #supportFaqCategories .support-faq-category{min-height:59px;padding:11px 13px;font-size:12px}
 }
+
+/* EX1 support readability + answer-first flow */
+#supportFaq{order:1!important;transition:border-color .25s ease,box-shadow .25s ease}
+#supportMessages{order:2!important;max-height:none!important;height:auto!important;min-height:110px!important;overflow:visible!important;padding:16px!important;font-size:15px!important;line-height:2.15!important;scroll-margin-top:90px;scroll-margin-bottom:125px}
+#supportMessages .bubble{max-width:100%!important;width:fit-content;max-width:min(100%,680px)!important;padding:14px 16px!important;margin:10px 0!important;border-radius:17px!important;font-size:15px!important;line-height:2.15!important;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 5px 18px rgba(0,0,0,.18)}
+#supportMessages .bubble:not(.mine){border:1px solid rgba(166,107,255,.28)!important;background:linear-gradient(145deg,rgba(55,35,83,.94),rgba(26,35,58,.96))!important}
+#supportMessages .bubble.mine{margin-right:auto!important;border:1px solid rgba(55,205,226,.25)!important;background:linear-gradient(120deg,rgba(50,83,117,.96),rgba(77,48,112,.96))!important}
+#supportFaqCategories .support-faq-category{position:relative;overflow:hidden;transition:background .25s ease,border-color .25s ease,transform .2s ease,box-shadow .25s ease!important}
+#supportFaqCategories .support-faq-category:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(105deg,transparent,rgba(191,143,255,.13),rgba(57,216,238,.08),transparent);transform:translateX(100%);transition:opacity .25s ease}
+#supportFaqCategories .support-faq-category.active{border-color:rgba(181,130,255,.48)!important;background:linear-gradient(100deg,rgba(125,75,190,.24),rgba(36,75,104,.18))!important;box-shadow:inset -3px 0 #b77aff,0 0 18px rgba(144,83,220,.13)!important;transform:translateX(-2px)}
+#supportFaqCategories .support-faq-category.active:before{opacity:1;animation:ex1FaqShimmer 1.1s ease-out}
+#supportFaqQuestions .support-faq-question{min-height:48px;padding:13px 10px!important;font-size:14px!important;line-height:1.95!important;transition:background .2s ease,color .2s ease,padding .2s ease!important}
+#supportFaqQuestions .support-faq-question:active{background:rgba(153,95,219,.2)!important;color:#fff;padding-right:15px!important}
+#supportForm{order:3!important;position:sticky;bottom:calc(78px + env(safe-area-inset-bottom));}
+#supportHint{order:4!important;font-size:11px!important;line-height:1.9!important}
+@keyframes ex1FaqShimmer{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+@media(max-width:420px){#supportMessages .bubble{font-size:14px!important;line-height:2.1!important;padding:13px 14px!important}#supportFaqQuestions .support-faq-question{font-size:13px!important}}
+@media(prefers-reduced-motion:reduce){#supportFaqCategories .support-faq-category,#supportFaqQuestions .support-faq-question{transition:none!important}#supportFaqCategories .support-faq-category.active:before{animation:none!important}}
 </style><style id="ex1-floating-neon-bottom-nav">
 /* Keep the original bottom bar; glow only the selected icon, never its button */
 .bottom-nav{background:#111020eF!important;border-top:1px solid #ffffff1c!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important;box-shadow:none!important;padding:8px 13px calc(8px + env(safe-area-inset-bottom))!important;gap:0}
@@ -1748,6 +1766,7 @@ async function sendSupportMessage(message,faqId=null){
   supportConversationId=data.conversation_id;localStorage.setItem(supportStorageKey(),supportConversationId);localStorage.removeItem(supportFreshKey());
   $("supportText").value="";
   await loadSupportConversation();
+  requestAnimationFrame(()=>{const answerBox=$("supportMessages");answerBox?.scrollIntoView({behavior:"smooth",block:"start"});if(answerBox)answerBox.scrollTop=answerBox.scrollHeight;});
   $("supportHint").textContent=data.handoff?"این گفت‌وگو برای بررسی پشتیبان انسانی ارجاع شده است؛ پاسخ در همین چت نمایش داده می‌شود.":"پاسخ دستیار هوشمند EX1";
  }catch(err){$("supportHint").textContent=err?.message||"پشتیبانی موقتاً در دسترس نیست.";}
  finally{$("supportSend").disabled=false;}
