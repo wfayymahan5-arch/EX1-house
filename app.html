@@ -195,6 +195,16 @@ hr{border-color:rgba(155,92,255,.25);box-shadow:0 0 10px rgba(155,92,255,.18)}
 @keyframes ex1Shimmer{0%,62%{left:-48%;opacity:0}70%{opacity:1}92%,100%{left:130%;opacity:0}}
 @media(hover:none){:is(.card,.room-card,.match-card,.tournament-card,.stat,.panel,.section,.box,.modal-content,.dialog,.auth-card,.profile-card,.wallet-card,.hero,.admin-card,[class*="card"],[class*="panel"],[class*="widget"]):active{box-shadow:0 0 0 1px rgba(155,92,255,.4),0 0 24px rgba(39,230,242,.15)!important}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style><style id="ex1-support-faq-v1">
+.support-faq{margin:12px 0 16px;padding:13px;border:1px solid rgba(166,107,255,.28);border-radius:15px;background:linear-gradient(145deg,rgba(30,23,54,.78),rgba(12,16,31,.78))}
+.support-faq-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}.support-faq-heading strong{font-size:14px}.support-faq-heading small{font-size:11px;color:#b8abc9}
+.support-faq-categories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.support-faq-category,.support-faq-question{border:1px solid rgba(166,107,255,.28);background:rgba(255,255,255,.045);color:#f4efff;border-radius:11px;padding:10px;text-align:right;cursor:pointer;font:inherit;line-height:1.7}
+.support-faq-category{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800}.support-faq-category.active{border-color:#9e70f5;background:rgba(139,92,246,.2);box-shadow:0 0 15px rgba(139,92,246,.12)}
+.support-faq-category span:first-child{font-size:17px}.support-faq-category small{margin-right:auto;color:#bca9dc;font-size:10px}
+.support-faq-questions{display:grid;gap:6px;margin-top:10px}.support-faq-question{font-size:12px}.support-faq-question:after{content:"↙";float:left;color:#9f8ac4}
+.support-faq-category:focus-visible,.support-faq-question:focus-visible{outline:2px solid #44d9ec;outline-offset:2px}
+@media(max-width:380px){.support-faq-categories{grid-template-columns:1fr}}
 </style><style id="ex1-floating-neon-bottom-nav">
 /* Keep the original bottom bar; glow only the selected icon, never its button */
 .bottom-nav{background:#111020eF!important;border-top:1px solid #ffffff1c!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important;box-shadow:none!important;padding:8px 13px calc(8px + env(safe-area-inset-bottom))!important;gap:0}
@@ -636,6 +646,7 @@ body{color:var(--ex1-text)}
    <p class="muted">پاسخ‌گویی خودکار بر اساس راهنمای تأییدشده؛ موارد نامطمئن به پشتیبان انسانی ارجاع می‌شوند.</p>
    <section class="panel" id="supportPanel" style="margin:16px 0;padding:16px">
   <div class="section-head"><div><h2>پشتیبانی EX1</h2><p>راهنمای خودکار قوانین و امکانات؛ موارد نامطمئن به پشتیبان انسانی ارجاع می‌شوند.</p></div><button class="btn small secondary" type="button" id="supportNew">گفت‌وگوی تازه</button></div>
+  <div id="supportFaq" class="support-faq"><div class="support-faq-heading"><strong>سؤالات پرتکرار</strong><small>یک موضوع را انتخاب کن تا سؤال‌های مرتبط نمایش داده شوند.</small></div><div id="supportFaqCategories" class="support-faq-categories"><div class="empty">در حال بارگذاری راهنمای پشتیبانی...</div></div><div id="supportFaqQuestions" class="support-faq-questions" hidden></div></div>
   <div id="supportMessages" class="chat-messages" style="min-height:100px;max-height:300px"><div class="empty">برای شروع، پیام خودت را بنویس.</div></div>
   <form id="supportForm" class="chat-send"><input id="supportText" class="field" maxlength="3000" placeholder="سؤالت را بنویس..." required><button class="btn small" type="submit" id="supportSend">ارسال</button></form>
   <p class="muted" id="supportHint">پاسخ‌گو از راهنمای تأییدشده EX1 استفاده می‌کند و در موارد نامطمئن، گفت‌وگو را به پشتیبان انسانی ارجاع می‌دهد.</p>
@@ -1068,8 +1079,9 @@ async function showRoomDetail(room){
  const media=room.room_media_type==="video"&&room.room_video_url?'<video class="room-cover" controls playsinline preload="metadata" src="'+esc(room.room_video_url)+'"></video>':(room.room_image_url?'<img class="room-cover" style="object-position:'+roomImagePosition(room)+'" src="'+esc(room.room_image_url)+'" alt="تصویر روم">':'<div class="room-cover room-cover-fallback"><img src="/room-arena-art.svg" alt="تصویر میدان رقابت EX1"><span translate="no">LEGEND ARENA</span></div>');
  const n=Math.max(1,Math.min(25,Number(room.max_teams)||25));
  const teamSize=Math.max(1,Math.min(4,Number(room.team_size)||4));
- $("roomDetail").innerHTML='<div class="room-detail-hero">'+media+'<div class="room-hero-shade"></div><div class="room-hero-title"><span class="room-live-tag">'+roomPhaseLabel(room)+'</span><h2>'+esc(room.title)+'</h2><small translate="no">EX1 LEGEND · BATTLE ARENA</small></div><button class="room-back-btn" type="button" id="roomBackToList">بازگشت به روم‌ها</button></div><div class="room-summary-grid"><div><small>فرمت</small><strong>'+(room.team_size===2?"دو نفره":"چهار نفره")+'</strong></div><div><small>زمان شروع</small><strong>'+formatRoomStart(room.starts_at)+'</strong></div><div><small>ورودی هر بازیکن</small><strong>'+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div><div class="room-prize-summary"><small>جوایز این روم</small><strong>جایزه‌های رتبه‌بندی</strong></div><div><small>ظرفیت</small><strong>'+n+' تیم</strong></div></div><section class="room-prize-podium" aria-label="جوایز رتبه‌های برتر"><h3>🏆 جوایز رتبه‌های برتر</h3><div class="room-prize-list"><div class="room-prize-card first"><span class="room-prize-medal">🥇</span><div><small>تیم اول</small><strong>'+Number(room.prize_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div><div class="room-prize-card second"><span class="room-prize-medal">🥈</span><div><small>تیم دوم</small><strong>'+Number(room.prize_second_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div><div class="room-prize-card third"><span class="room-prize-medal">🥉</span><div><small>تیم سوم</small><strong>'+Number(room.prize_third_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div></div></section><div class="room-tabs"><button class="active" type="button" data-room-tab="teams">تیم‌ها</button><button type="button" data-room-tab="rules">قوانین</button><button type="button" data-room-tab="results">نتایج</button></div><div id="roomAccessInline" class="panel" style="margin:12px 14px" hidden></div><div id="roomTeamsPanel"><div class="room-section-title"><span></span><div><h3>لیست تیم‌ها</h3><small>وضعیت جایگاه‌ها از دیتابیس به‌روز می‌شود</small></div></div><div class="muted" id="roomSlotsMessage">در حال دریافت جایگاه‌ها...</div><div class="team-slots" id="roomSlotsList"></div><section id="roomWaitingPanel" hidden><div class="room-section-title"><span></span><div><h3>بازیکنان در انتظار تشکیل تیم</h3><small>ثبت‌نام انفرادی تا تکمیل تعداد اعضا</small></div></div><div id="roomWaitingPlayers" class="user-list" style="padding:0 14px 12px"></div></section><div id="soloQueueStatus" class="muted" style="margin:12px 14px;padding:12px;border:1px solid #ffffff20;border-radius:12px;background:#ffffff08" hidden></div></div><div id="roomResultsPanel" class="room-results" hidden><h3>نتایج همین روم</h3><div id="roomResultsContent" class="muted">در حال دریافت...</div></div><div id="roomRulesPanel" class="room-rules" hidden><div class="room-section-title"><span></span><div><h3>قوانین و توضیحات</h3><small>قبل از ثبت‌نام قوانین روم را بخوان</small></div></div><div class="room-rules-copy">'+esc(room.rules||"قوانین اختصاصی برای این روم ثبت نشده است.")+'</div></div><div class="room-register-bar" id="roomRegisterBar"><div><small>ورودی هر بازیکن</small><strong>'+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div><button type="button" id="roomMainJoin" '+(room.status!=="open"?"disabled":"")+'>ثبت‌نام در روم <b>⚡</b></button></div>';
+ $("roomDetail").innerHTML='<div class="room-detail-hero">'+media+'<div class="room-hero-shade"></div><div class="room-hero-title"><span class="room-live-tag">'+roomPhaseLabel(room)+'</span><h2>'+esc(room.title)+'</h2><small translate="no">EX1 LEGEND · BATTLE ARENA</small></div><button class="room-back-btn" type="button" id="roomBackToList">بازگشت به روم‌ها</button></div><div class="room-summary-grid"><div><small>فرمت</small><strong>'+(room.team_size===2?"دو نفره":"چهار نفره")+'</strong></div><div><small>زمان شروع</small><strong>'+formatRoomStart(room.starts_at)+'</strong></div><div><small>ورودی هر بازیکن</small><strong>'+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div><div class="room-prize-summary"><small>جوایز این روم</small><strong>جایزه‌های رتبه‌بندی</strong></div><div><small>ظرفیت</small><strong>'+n+' تیم</strong></div></div><div class="room-support-shortcut"><button type="button" class="btn secondary small" id="roomSupportFaq">❔ سؤالی درباره این روم داری؟</button></div><section class="room-prize-podium" aria-label="جوایز رتبه‌های برتر"><h3>🏆 جوایز رتبه‌های برتر</h3><div class="room-prize-list"><div class="room-prize-card first"><span class="room-prize-medal">🥇</span><div><small>تیم اول</small><strong>'+Number(room.prize_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div><div class="room-prize-card second"><span class="room-prize-medal">🥈</span><div><small>تیم دوم</small><strong>'+Number(room.prize_second_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div><div class="room-prize-card third"><span class="room-prize-medal">🥉</span><div><small>تیم سوم</small><strong>'+Number(room.prize_third_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div></div></div></section><div class="room-tabs"><button class="active" type="button" data-room-tab="teams">تیم‌ها</button><button type="button" data-room-tab="rules">قوانین</button><button type="button" data-room-tab="results">نتایج</button></div><div id="roomAccessInline" class="panel" style="margin:12px 14px" hidden></div><div id="roomTeamsPanel"><div class="room-section-title"><span></span><div><h3>لیست تیم‌ها</h3><small>وضعیت جایگاه‌ها از دیتابیس به‌روز می‌شود</small></div></div><div class="muted" id="roomSlotsMessage">در حال دریافت جایگاه‌ها...</div><div class="team-slots" id="roomSlotsList"></div><section id="roomWaitingPanel" hidden><div class="room-section-title"><span></span><div><h3>بازیکنان در انتظار تشکیل تیم</h3><small>ثبت‌نام انفرادی تا تکمیل تعداد اعضا</small></div></div><div id="roomWaitingPlayers" class="user-list" style="padding:0 14px 12px"></div></section><div id="soloQueueStatus" class="muted" style="margin:12px 14px;padding:12px;border:1px solid #ffffff20;border-radius:12px;background:#ffffff08" hidden></div></div><div id="roomResultsPanel" class="room-results" hidden><h3>نتایج همین روم</h3><div id="roomResultsContent" class="muted">در حال دریافت...</div></div><div id="roomRulesPanel" class="room-rules" hidden><div class="room-section-title"><span></span><div><h3>قوانین و توضیحات</h3><small>قبل از ثبت‌نام قوانین روم را بخوان</small></div></div><div class="room-rules-copy">'+esc(room.rules||"قوانین اختصاصی برای این روم ثبت نشده است.")+'</div></div><div class="room-register-bar" id="roomRegisterBar"><div><small>ورودی هر بازیکن</small><strong>'+Number(room.entry_demo_points||0).toLocaleString("fa-IR")+' استارز</strong></div><button type="button" id="roomMainJoin" '+(room.status!=="open"?"disabled":"")+'>ثبت‌نام در روم <b>⚡</b></button></div>';
  $("roomDetail").hidden=false;
+ $("roomSupportFaq").onclick=()=>openSupportWithCategory("rooms");
  const roomRegisterBar=$("roomRegisterBar");if(roomRegisterBar)document.body.appendChild(roomRegisterBar);
  $("roomBackToList").onclick=()=>{if(window.ex1RoomAccessTimer){clearInterval(window.ex1RoomAccessTimer);window.ex1RoomAccessTimer=null;}if(roomStartReleaseTimer){clearTimeout(roomStartReleaseTimer);roomStartReleaseTimer=null;}activeRoomDetail=null;$("roomRegisterBar")?.remove();$("roomDetail").hidden=true;loadRooms().catch(err=>console.warn("EX1 room list refresh:",err));document.getElementById("roomCards").scrollIntoView({behavior:"smooth",block:"start"});};
  $("roomDetail").querySelectorAll("[data-room-tab]").forEach(b=>b.onclick=()=>{const tab=b.dataset.roomTab,rules=tab==="rules",results=tab==="results";$("roomTeamsPanel").hidden=rules||results;$("roomRulesPanel").hidden=!rules;$("roomResultsPanel").hidden=!results;if(results)loadRoomResults(room.id);$("roomDetail").querySelectorAll("[data-room-tab]").forEach(x=>x.classList.toggle("active",x===b));});
@@ -1316,7 +1328,7 @@ $("removeCoverButton").onclick=async()=>{
 document.querySelectorAll("[data-profile-tab]").forEach(b=>b.onclick=()=>{const nav=document.querySelector(".profile-tabs");const navTop=nav.getBoundingClientRect().top;document.querySelectorAll("[data-profile-tab]").forEach(x=>x.classList.toggle("active",x===b));["matches","team"].forEach(k=>{$("profile"+k[0].toUpperCase()+k.slice(1)).hidden=k!==b.dataset.profileTab;});const restore=()=>{const delta=nav.getBoundingClientRect().top-navTop;if(Math.abs(delta)>1){const root=document.documentElement,old=root.style.scrollBehavior;root.style.scrollBehavior="auto";window.scrollBy(0,delta);root.style.scrollBehavior=old;}};requestAnimationFrame(()=>{restore();requestAnimationFrame(restore);});if(b.dataset.profileTab==="team")loadMyTeam().finally(()=>setTimeout(restore,80));});
 $("openSettings").onclick=()=>{if(!currentUser){openAuth();return;}switchPage("settings");loadAccountSecuritySettings();};
 const settingsHome=$("settingsReferenceHome"),settingsDetail=$("settingsReferenceDetail"),settingsHead=document.querySelector(".settings-reference-head");
-function openSettingsDetail(key){settingsHome.hidden=true;settingsDetail.hidden=false;settingsDetail.querySelectorAll("[data-settings-detail]").forEach(panel=>panel.hidden=panel.dataset.settingsDetail!==key);settingsHead.classList.add("is-detail");const panel=settingsDetail.querySelector('[data-settings-detail="'+key+'"]');$("settingsPageTitle").textContent=panel?.querySelector("h2")?.textContent||"تنظیمات";window.scrollTo({top:0,behavior:"smooth"});if(key==="account-security"){setAccountSettingsTab("profile");loadAccountSecuritySettings();}if(key==="invite")loadReferralData();if(key==="support"&&currentUser){supportDataLoaded=true;loadSupportConversation().catch(error=>{supportDataLoaded=false;console.warn("EX1 support load:",error);});}}
+function openSettingsDetail(key){settingsHome.hidden=true;settingsDetail.hidden=false;settingsDetail.querySelectorAll("[data-settings-detail]").forEach(panel=>panel.hidden=panel.dataset.settingsDetail!==key);settingsHead.classList.add("is-detail");const panel=settingsDetail.querySelector('[data-settings-detail="'+key+'"]');$("settingsPageTitle").textContent=panel?.querySelector("h2")?.textContent||"تنظیمات";window.scrollTo({top:0,behavior:"smooth"});if(key==="account-security"){setAccountSettingsTab("profile");loadAccountSecuritySettings();}if(key==="invite")loadReferralData();if(key==="support"&&currentUser){supportDataLoaded=true;loadSupportConversation().catch(error=>{supportDataLoaded=false;console.warn("EX1 support load:",error);});loadSupportFaq();}}
 function setAccountSettingsTab(key){const root=document.querySelector('[data-settings-detail="account-security"]');if(!root)return;root.querySelectorAll("[data-account-tab]").forEach(button=>{const active=button.dataset.accountTab===key;button.classList.toggle("active",active);button.setAttribute("aria-selected",String(active));});root.querySelectorAll("[data-account-panel]").forEach(section=>section.hidden=section.dataset.accountPanel!==key);}
 document.querySelectorAll("[data-account-tab]").forEach(button=>button.addEventListener("click",()=>setAccountSettingsTab(button.dataset.accountTab)));
 function closeSettingsDetail(){settingsDetail.hidden=true;settingsHome.hidden=false;settingsHead.classList.remove("is-detail");$("settingsPageTitle").textContent="تنظیمات";window.scrollTo({top:0,behavior:"smooth"});}
@@ -1637,7 +1649,7 @@ userNotificationsBox.addEventListener("click",async e=>{
 $("closeNotifications").addEventListener("click",()=>{$("notificationsModal").classList.remove("show");$("notificationsModal").setAttribute("aria-hidden","true");});
 $("notificationsModal").addEventListener("click",e=>{if(e.target===$("notificationsModal")){$("notificationsModal").classList.remove("show");$("notificationsModal").setAttribute("aria-hidden","true");}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("notificationsModal").classList.contains("show")){$("notificationsModal").classList.remove("show");$("notificationsModal").setAttribute("aria-hidden","true");}});
-let supportConversationId=null;
+let supportConversationId=null,supportFaqData=null,supportFaqActiveCategory=null;
 function supportStorageKey(){return currentUser?"ex1_support_"+currentUser.id:null;}
 function supportFreshKey(){return currentUser?"ex1_support_fresh_"+currentUser.id:null;}
 let lastSupportRenderKey="";
@@ -1673,26 +1685,52 @@ async function loadSupportConversation(){
  if(error){$("supportMessages").innerHTML='<div class="empty">پیام‌های این گفت‌وگو دریافت نشدند؛ تاریخچه حذف نشده است. دوباره تلاش کن.</div>';return;}
  renderSupportMessages(messages||[]);
 }
-$("supportNew").addEventListener("click",()=>{
- if(!currentUser){toast("برای استفاده از پشتیبانی وارد حساب شو.");return;}
- supportConversationId=null;localStorage.removeItem(supportStorageKey());localStorage.setItem(supportFreshKey(),"1");renderSupportMessages([]);
- $("supportHint").textContent="گفت‌وگوی تازه آماده است؛ پیام اول را بنویس.";
-});
-$("supportForm").addEventListener("submit",async e=>{
- e.preventDefault();if(!currentUser){toast("ابتدا وارد حساب شو.");return;}
- const message=$("supportText").value.trim();if(!message)return;
- $("supportSend").disabled=true;$("supportHint").textContent="در حال دریافت پاسخ...";
+async function loadSupportFaq(){
+ const host=$("supportFaqCategories");if(!host)return;
  try{
-  const {data,error}=await sb.functions.invoke("ai-support",{body:{message,conversation_id:supportConversationId}});
+  if(!supportFaqData){const response=await fetch("/support-faq.json",{cache:"no-store"});if(!response.ok)throw new Error("راهنمای سؤال‌ها بارگذاری نشد.");supportFaqData=await response.json();}
+  renderSupportFaq();
+ }catch(error){host.innerHTML='<div class="empty">راهنمای سؤال‌ها فعلاً بارگذاری نشد. اتصال اینترنت را بررسی کن.</div>';console.warn("EX1 support FAQ:",error);}
+}
+function renderSupportFaq(){
+ const categories=supportFaqData?.categories||[],host=$("supportFaqCategories"),questions=$("supportFaqQuestions");
+ if(!host||!questions)return;
+ host.innerHTML=categories.map(c=>'<button type="button" class="support-faq-category '+(supportFaqActiveCategory===c.id?'active':'')+'" data-support-category="'+esc(c.id)+'"><span>'+esc(c.icon||"❔")+'</span><span>'+esc(c.title)+'</span><small>'+c.items.length.toLocaleString("fa-IR")+'</small></button>').join("");
+ const selected=categories.find(c=>c.id===supportFaqActiveCategory);
+ questions.hidden=!selected;
+ questions.innerHTML=selected?selected.items.map(item=>'<button type="button" class="support-faq-question" data-support-faq="'+esc(item.id)+'">'+esc(item.question)+'</button>').join(""):"";
+ host.querySelectorAll("[data-support-category]").forEach(button=>button.onclick=()=>{supportFaqActiveCategory=supportFaqActiveCategory===button.dataset.supportCategory?null:button.dataset.supportCategory;renderSupportFaq();});
+ questions.querySelectorAll("[data-support-faq]").forEach(button=>button.onclick=()=>{const item=selected?.items.find(x=>x.id===button.dataset.supportFaq);if(item)sendSupportMessage(item.question,item.id);});
+}
+async function sendSupportMessage(message,faqId=null){
+ if(!currentUser){toast("ابتدا وارد حساب شو.");return;}
+ const clean=String(message||"").trim();if(!clean)return;
+ $("supportSend").disabled=true;$("supportHint").textContent="دستیار هوشمند در حال بررسی سؤال است...";
+ try{
+  const {data,error}=await sb.functions.invoke("ai-support-v2",{body:{message:clean,conversation_id:supportConversationId,faq_id:faqId}});
   if(error)throw error;
   if(!data?.success)throw new Error(data?.error||"پاسخی دریافت نشد.");
   supportConversationId=data.conversation_id;localStorage.setItem(supportStorageKey(),supportConversationId);localStorage.removeItem(supportFreshKey());
   $("supportText").value="";
   await loadSupportConversation();
-  $("supportHint").textContent=data.handoff?"این گفت‌وگو در صف پشتیبان انسانی است؛ پیام‌های بعدی هم در همین چت می‌مانند.":"پاسخ دستیار هوشمند";
+  $("supportHint").textContent=data.handoff?"این گفت‌وگو برای بررسی پشتیبان انسانی ارجاع شده است؛ پاسخ در همین چت نمایش داده می‌شود.":"پاسخ دستیار هوشمند EX1";
  }catch(err){$("supportHint").textContent=err?.message||"پشتیبانی موقتاً در دسترس نیست.";}
  finally{$("supportSend").disabled=false;}
+}
+$("supportNew").addEventListener("click",()=>{
+ if(!currentUser){toast("برای استفاده از پشتیبانی وارد حساب شو.");return;}
+ supportConversationId=null;localStorage.removeItem(supportStorageKey());localStorage.setItem(supportFreshKey(),"1");renderSupportMessages([]);
+ $("supportHint").textContent="گفت‌وگوی تازه آماده است؛ یک سؤال آماده انتخاب کن یا پیام خودت را بنویس.";
 });
+$("supportForm").addEventListener("submit",async e=>{
+ e.preventDefault();const message=$("supportText").value.trim();if(!message)return;await sendSupportMessage(message);
+});
+function openSupportWithCategory(categoryId){
+ if(!currentUser){toast("برای استفاده از پشتیبانی ابتدا وارد حساب شو.");openAuth();return;}
+ switchPage("settings");closeSettingsDetail();openSettingsDetail("support");
+ supportFaqActiveCategory=categoryId||null;
+ loadSupportFaq().then(()=>{renderSupportFaq();$("supportFaq")?.scrollIntoView({behavior:"smooth",block:"center"});});
+}
 let ex1LiveRefreshBusy=false,ex1SupportPollBusy=false,ex1RankingPollBusy=false;
 async function refreshEx1LivePanels(){
  if(!currentUser||document.hidden||ex1LiveRefreshBusy)return;
