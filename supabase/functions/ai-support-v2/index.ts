@@ -16,8 +16,18 @@ function reply(status: number, body: Record<string, unknown>) {
 }
 
 type FaqItem = { id: string; question: string; answer: string };
+type FaqTuple = [string, string, string];
 type FaqCategory = { id: string; title: string; items: FaqItem[] };
-const categories = (faqData as { categories: FaqCategory[] }).categories;
+type RawFaqCategory = { id: string; title: string; items: Array<FaqItem | FaqTuple> };
+// The public FAQ is stored as compact [id, question, answer] tuples.
+// Normalize it once so the Edge Function can reliably look up faq_id values.
+const categories: FaqCategory[] = (faqData as { categories: RawFaqCategory[] }).categories.map((category) => ({
+  id: category.id,
+  title: category.title,
+  items: category.items.map((item): FaqItem => Array.isArray(item)
+    ? { id: item[0], question: item[1], answer: item[2] }
+    : item),
+}));
 const allFaq = categories.flatMap((category) => category.items);
 
 function normalize(value: string) {
