@@ -52,9 +52,16 @@ function explicitHumanRequest(message: string) {
   return /(?:وصل|ارتباط|ارجاع|صحبت|حرف).{0,28}(?:پشتیبان|انسان|اپراتور|مدیر)|(?:پشتیبان|اپراتور|مدیر).{0,28}(?:می.?خوام|می.?خواهم|وصل|صحبت|حرف)/i.test(message);
 }
 function needsHuman(message: string) {
-  return /(مسدود|بن\b|رفع.?مسدودی|هک|هکر|ورود ناشناس|گزارش مدیر|شکایت از مدیر|تخلف مدیر|اعتراض به نتیجه|نتیجه اشتباه|اصلاح نتیجه|کسر اشتباه|استارز کم|موجودی کم|جایزه ثبت نشده|بازپرداخت|برگشت استارز|تهدید|آزار|توهین)/i.test(message);
+  return /(مسدود|بن\\b|رفع.?مسدودی|هک|هکر|ورود ناشناس|گزارش مدیر|شکایت از مدیر|تخلف مدیر|اعتراض به نتیجه|نتیجه اشتباه|اصلاح نتیجه|کسر اشتباه|استارز کم|موجودی کم|جایزه ثبت نشده|واریز نشده|ثبت نشده|تراکنش اشتباه|کسر بیش از|اسمم در فهرست|کد روم|رمز روم|نمی.?توانم وارد|صفحه سفید|باز نمی.?شود|بسته می.?شود|خطا می.?گیرم|ذخیره نمی.?شود|تهدید|آزار|توهین)/i.test(message);
 }
-const faqNeedsHuman = new Set(["account-delete","account-banned","account-appeal","room-change-team","room-leave","room-missing","room-disappear","room-wrong","access-missing","access-wrong-code","access-wrong-pass","access-cant-enter","stars-failed","stars-prize","results-missing","results-kills","results-report","results-order","results-old","support-complaint","support-manager","support-user","support-proof","support-review","security-hacked","security-login"]);
+function evidencePrompt(message: string) {
+  if (/(جایزه|واریز|پاداش)/i.test(message)) return "برای بررسی جایزه، لطفاً از بخش History داخل بازی کالاف تصویر نتیجه همان مسابقه را بفرست و شناسه روم را هم بنویس. بعد از دریافت مدرک، درخواست به پشتیبان انسانی ارجاع می‌شود.";
+  if (/(استارز|کسر|تراکنش|ورودی|موجودی)/i.test(message)) return "لطفاً از تاریخچه تراکنش‌های استارز در EX1 تصویر واضح بفرست و شناسه روم، مبلغ ورودی و مبلغی را که کم شده بنویس. بعد از دریافت مدرک، موضوع بررسی می‌شود.";
+  if (/(نتیجه|کیل|رتبه)/i.test(message)) return "لطفاً تصویر History داخل بازی از همان مسابقه را بفرست و شناسه روم و مقدار اشتباه ثبت‌شده را بنویس تا نتیجه بررسی شود.";
+  if (/(ثبت.?نام|فهرست|اسمم|روم|کد|رمز)/i.test(message)) return "لطفاً تصویر صفحه روم یا خطایی که می‌بینی را بفرست و شناسه روم و زمان اتفاق را بنویس.";
+  if (/(هک|ورود ناشناس|مسدود|بن|امنیت)/i.test(message)) return "شناسه EX1، زمان تقریبی اتفاق و تصویر هشدار مرتبط را در صورت وجود بفرست. رمز عبور و کد یک‌بارمصرف را هرگز ارسال نکن.";
+  return "لطفاً تصویر خطا یا مدرک مرتبط، زمان بروز مشکل و نام بخش درگیر را بفرست تا درخواستت دقیق بررسی شود. اطلاعات ورود را در تصویر نمایش نده.";
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -75,10 +82,11 @@ Deno.serve(async (req: Request) => {
   const { data: authData, error: authError } = await caller.auth.getUser(token);
   if (authError || !authData.user) return reply(401, { error: "نشست ورود معتبر نیست." });
 
-  let body: { message?: string; conversation_id?: string; faq_id?: string };
+  let body: { message?: string; conversation_id?: string; faq_id?: string; attachment_path?: string };
   try { body = await req.json(); } catch { return reply(400, { error: "درخواست معتبر نیست." }); }
   const message = String(body.message ?? "").trim();
-  if (!message || message.length > 3000) return reply(400, { error: "پیام باید بین ۱ تا ۳۰۰۰ نویسه باشد." });
+  const attachmentPath = String(body.attachment_path ?? "").trim();
+  if ((!message && !attachmentPath) || message.length > 3000) return reply(400, { error: "پیام یا تصویر مدرک معتبر ارسال نشده است." });
 
   const selectedFaq = body.faq_id ? allFaq.find((item) => item.id === String(body.faq_id)) : null;
   if (body.faq_id && !selectedFaq) return reply(400, { error: "سؤال راهنما معتبر نیست؛ دوباره انتخابش کن." });
@@ -118,25 +126,54 @@ Deno.serve(async (req: Request) => {
     conversationId = conversation.id;
   }
 
-  const { error: userMessageError } = await admin.from("support_messages").insert({
-    conversation_id: conversationId, sender_role: "user", body: message,
-  });
-  if (userMessageError) return reply(500, { error: "ذخیره پیام انجام نشد." });
+  let storedAttachment: { path: string; mimeType: string; size: number } | null = null;
+  if (attachmentPath) {
+    const prefix = `${authData.user.id}/support/${conversationId}/`;
+    if (!attachmentPath.startsWith(prefix)) return reply(403, { error: "مسیر تصویر برای این گفت‌وگو مجاز نیست." });
+    const fileName = attachmentPath.slice(prefix.length);
+    if (!/^[0-9a-f-]{36}\\.(jpg|png|webp)$/i.test(fileName)) return reply(400, { error: "نام فایل تصویر معتبر نیست." });
+    const folder = `${authData.user.id}/support/${conversationId}`;
+    const { data: storedFiles, error: storageCheckError } = await admin.storage.from("social-media").list(folder, { limit: 100, search: fileName });
+    if (storageCheckError) return reply(503, { error: "بررسی فایل ارسالی انجام نشد." });
+    const storedFile = (storedFiles ?? []).find((file) => file.name === fileName);
+    const actualSize = Number(storedFile?.metadata?.size ?? 0);
+    const actualMime = String(storedFile?.metadata?.mimetype ?? "");
+    if (!storedFile || actualSize <= 0 || actualSize > 5 * 1024 * 1024 || !["image/jpeg", "image/png", "image/webp"].includes(actualMime)) {
+      return reply(400, { error: "فایل تصویر معتبر نیست یا از محدودیت حجم و قالب مجاز خارج است." });
+    }
+    storedAttachment = { path: attachmentPath, mimeType: actualMime, size: actualSize };
+  }
+
+  const userMessage = message || "تصویر مدرک برای بررسی ارسال شد.";
+  const { data: savedUserMessage, error: userMessageError } = await admin.from("support_messages").insert({
+    conversation_id: conversationId, sender_role: "user", body: userMessage,
+  }).select("id").single();
+  if (userMessageError || !savedUserMessage) return reply(500, { error: "ذخیره پیام انجام نشد." });
+  if (storedAttachment) {
+    const { error: attachmentError } = await admin.from("support_attachments").insert({
+      conversation_id: conversationId, message_id: savedUserMessage.id, user_id: authData.user.id,
+      storage_path: storedAttachment.path, mime_type: storedAttachment.mimeType, file_size: storedAttachment.size,
+    });
+    if (attachmentError) return reply(500, { error: "ثبت امن تصویر انجام نشد." });
+  }
 
   let answer = "";
   let handoff = false;
-  if (conversationWasWaitingForHuman) {
+  if (storedAttachment) {
+    answer = "مدرک تصویری دریافت و به درخواستت پیوست شد. درخواست برای بررسی پشتیبان انسانی ارجاع شد؛ نتیجه در همین گفت‌وگو اعلام می‌شود.";
+    handoff = true;
+  } else if (conversationWasWaitingForHuman) {
     answer = "پیامت به همان گفت‌وگوی پشتیبانی اضافه شد. درخواستت همچنان در صف پشتیبان انسانی است و پاسخ بعدی در همین چت نمایش داده می‌شود.";
     handoff = true;
   } else if (explicitHumanRequest(message) && !selectedFaq) {
-    answer = "این موضوع نیاز به بررسی مسئول انسانی دارد. درخواستت در همین گفت‌وگو برای پشتیبان مربوط ارجاع شد. لطفاً شناسه EX1، شناسه روم در صورت ارتباط و توضیح کوتاه یا مدرک مرتبط را بفرست؛ رمز و کد ورود را ارسال نکن.";
+    answer = "درخواستت برای ارتباط با پشتیبان انسانی ثبت شد. لطفاً شناسه EX1، شناسه روم در صورت ارتباط و توضیح کوتاه را بنویس؛ رمز و کد ورود را ارسال نکن.";
     handoff = true;
   } else if (selectedFaq) {
     answer = selectedFaq.answer;
-    handoff = faqNeedsHuman.has(selectedFaq.id);
+    handoff = false;
   } else if (needsHuman(message)) {
-    answer = "این موضوع نیاز به بررسی مسئول انسانی دارد. درخواستت در همین گفت‌وگو برای پشتیبان مربوط ارجاع شد. لطفاً شناسه EX1، شناسه روم در صورت ارتباط و توضیح کوتاه یا مدرک مرتبط را بفرست؛ رمز و کد ورود را ارسال نکن.";
-    handoff = true;
+    answer = evidencePrompt(message);
+    handoff = false;
   } else if (/^(سلام|درود|hi|hello|hey|سلام خوبی|وقت بخیر|صبح بخیر|شب بخیر)[!.؟\s]*$/i.test(normalize(message))) {
     answer = "سلام! 👋 به پشتیبانی EX1 LEGEND خوش اومدی. می‌تونی یکی از سؤال‌های آماده رو انتخاب کنی یا مشکلت رو همین‌جا توضیح بدی.";
   } else {
