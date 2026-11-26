@@ -1698,9 +1698,9 @@ function renderSupportFaq(){
  host.innerHTML=categories.map(c=>'<button type="button" class="support-faq-category '+(supportFaqActiveCategory===c.id?'active':'')+'" data-support-category="'+esc(c.id)+'"><span>'+esc(c.icon||"❔")+'</span><span>'+esc(c.title)+'</span><small>'+c.items.length.toLocaleString("fa-IR")+'</small></button>').join("");
  const selected=categories.find(c=>c.id===supportFaqActiveCategory);
  questions.hidden=!selected;
- questions.innerHTML=selected?selected.items.map(item=>'<button type="button" class="support-faq-question" data-support-faq="'+esc(item.id)+'">'+esc(item.question)+'</button>').join(""):"";
- host.querySelectorAll("[data-support-category]").forEach(button=>button.onclick=()=>{supportFaqActiveCategory=supportFaqActiveCategory===button.dataset.supportCategory?null:button.dataset.supportCategory;renderSupportFaq();});
- questions.querySelectorAll("[data-support-faq]").forEach(button=>button.onclick=()=>{const item=selected?.items.find(x=>x.id===button.dataset.supportFaq);if(item)sendSupportMessage(item.question,item.id);});
+ questions.innerHTML=selected?selected.items.map(item=>'<button type="button" class="support-faq-question" data-support-faq="'+esc(item[0])+'">'+esc(item[1])+'</button>').join(""):"";
+ host.querySelectorAll("[data-support-category]").forEach(button=>button.onclick=()=>{supportFaqActiveCategory=button.dataset.supportCategory;renderSupportFaq();});
+ questions.querySelectorAll("[data-support-faq]").forEach(button=>button.onclick=()=>{const item=selected?.items.find(x=>x[0]===button.dataset.supportFaq);if(item)sendSupportMessage(item[1],item[0]);});
 }
 async function sendSupportMessage(message,faqId=null){
  if(!currentUser){toast("ابتدا وارد حساب شو.");return;}
