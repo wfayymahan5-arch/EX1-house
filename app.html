@@ -496,6 +496,47 @@ body{color:var(--ex1-text)}
  .page.active.ex1-tab-enter-now,.home-panel.ex1-tab-enter-now{animation:none!important}
 }
 </style>
+<style id="ex1-support-conversation-v3">
+#supportPanel{display:block!important;min-height:calc(100dvh - 190px);padding:13px!important;border:1px solid rgba(174,112,255,.42)!important;border-radius:24px!important;background:linear-gradient(155deg,rgba(16,15,29,.98),rgba(9,11,22,.98) 58%,rgba(28,9,31,.96))!important;box-shadow:0 0 0 1px rgba(176,119,255,.12),0 12px 38px rgba(0,0,0,.28)!important}
+#supportHub[hidden],#supportChatView[hidden]{display:none!important}
+#supportPanel .section-head{margin:8px 3px 13px}
+#supportPanel .section-head h2{font-size:17px;margin:0 0 4px}
+#supportPanel .section-head p{font-size:11px;line-height:1.8}
+#supportFaq{margin:0!important;padding:0!important;border:1px solid rgba(174,112,255,.72)!important;border-radius:22px!important;background:rgba(18,17,28,.96)!important;overflow:hidden;box-shadow:0 0 18px rgba(128,65,210,.12)!important}
+#supportFaq .support-faq-heading{display:block;padding:14px 16px;margin:0;border-bottom:1px solid rgba(255,255,255,.08)}
+#supportFaq .support-faq-heading strong{display:block;font-size:14px}
+#supportFaq .support-faq-heading small{display:block;margin-top:4px;font-size:10px;color:#a9a2b8}
+#supportFaqCategories{display:grid;grid-template-columns:1fr;gap:0}
+#supportFaqCategories .support-faq-category{display:flex;flex-direction:row-reverse;justify-content:flex-start;align-items:center;gap:12px;min-height:62px;padding:13px 16px;border:0;border-bottom:1px solid rgba(255,255,255,.075);border-radius:0;background:transparent;text-align:right;font-size:13px;font-weight:700}
+#supportFaqCategories .support-faq-category span:first-child{width:26px;flex:0 0 26px;text-align:center;font-size:19px}
+#supportFaqCategories .support-faq-category span:nth-child(2){flex:1}
+#supportFaqCategories .support-faq-category small{margin:0;color:#8f879f;font-size:10px}
+#supportFaqCategories .support-faq-category:after{content:"‹";margin-right:auto;color:#777187;font-size:21px}
+#supportFaqCategories .support-faq-category.active{background:linear-gradient(100deg,rgba(125,75,190,.24),rgba(36,75,104,.18));box-shadow:inset -3px 0 #b77aff}
+#supportFaqQuestions{padding:10px 13px 13px}
+#supportFaqQuestions .support-faq-question{display:block;width:100%;min-height:48px;padding:12px 10px;text-align:right;border:0;border-bottom:1px solid rgba(255,255,255,.08);border-radius:0;background:transparent;color:#f4efff;font-size:13px;line-height:1.9}
+#supportFaqQuestions .support-faq-question:after{content:"‹";float:left;color:#9f8ac4;font-size:20px}
+#supportFaqQuestions .support-faq-back{width:100%;margin:2px 0 8px;padding:9px;border:1px solid rgba(174,112,255,.35);border-radius:12px;background:#211832;color:#d9b8ff;text-align:right}
+.support-start-chat{width:100%;margin-top:12px;border-radius:15px}
+.support-chat-topbar{display:flex;align-items:center;gap:9px;padding:4px 0 13px;border-bottom:1px solid rgba(255,255,255,.1)}
+.support-chat-title{flex:1;min-width:0}
+.support-chat-title strong,.support-chat-title small{display:block}
+.support-chat-title strong{font-size:13px}
+.support-chat-title small{font-size:9px;color:#aaa1ba;margin-top:4px}
+#supportBack{white-space:nowrap;padding:9px 10px}
+#supportNew{white-space:nowrap;padding:9px 10px}
+#supportMessages{display:flex;flex-direction:column;gap:9px;min-height:calc(100dvh - 360px)!important;max-height:none!important;overflow:auto!important;padding:15px 5px!important;margin:10px 0!important;border:0!important;background:transparent!important;scroll-behavior:smooth}
+#supportMessages .bubble{max-width:88%!important;width:fit-content;padding:12px 14px!important;margin:0!important;border-radius:17px!important;font-size:14px!important;line-height:2!important;white-space:pre-wrap;overflow-wrap:anywhere}
+#supportMessages .bubble:not(.mine){align-self:flex-start;border:1px solid rgba(166,107,255,.28);background:linear-gradient(145deg,#372353,#1a233a)}
+#supportMessages .bubble.mine{align-self:flex-end;margin-right:0!important;background:linear-gradient(120deg,#633b87,#4d3070)}
+#supportMessages .support-attachment-preview{display:block;max-width:min(100%,300px);max-height:260px;object-fit:contain;margin-top:9px;border-radius:12px;border:1px solid #ffffff25}
+#supportForm{display:flex;align-items:center;gap:7px;position:sticky;bottom:calc(76px + env(safe-area-inset-bottom));padding:9px;border:1px solid rgba(255,255,255,.1);border-radius:25px;background:rgba(25,23,34,.97);backdrop-filter:blur(14px)}
+#supportText{flex:1;min-width:0;border:0!important;background:transparent!important;box-shadow:none!important;font-size:13px}
+#supportAttach{width:39px;height:39px;padding:0;border-radius:50%;font-size:20px}
+#supportSend{border-radius:22px;min-width:60px}
+#supportHint{font-size:10px;line-height:1.8;margin:7px 4px;color:#a49ab5}
+@media(max-width:420px){#supportPanel{padding:10px!important}#supportMessages .bubble{font-size:13px!important;max-width:92%!important}#supportChatView{min-height:calc(100dvh - 210px)}}
+</style>
 </head>
 <style id="ex1-full-project-soft-entry">
 @keyframes ex1PageSoftEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
@@ -695,15 +736,34 @@ body{color:var(--ex1-text)}
    </div>
   </section>
   <section class="settings-reference-panel" data-settings-detail="support" hidden aria-hidden="true">
-   <h2>دستیار هوشمند و پشتیبانی <span translate="no">EX1</span></h2>
-   <p class="muted">پاسخ‌گویی خودکار بر اساس راهنمای تأییدشده؛ موارد نامطمئن به پشتیبان انسانی ارجاع می‌شوند.</p>
+   <h2>پشتیبانی <span translate="no">EX1</span></h2>
+   <p class="muted">برای مشکلات، مغایرت‌ها و گزارش‌ها؛ راهنمایی و پیگیری در یک گفت‌وگوی اختصاصی.</p>
    <section class="panel" id="supportPanel" style="margin:16px 0;padding:16px">
-  <div class="section-head"><div><h2>پشتیبانی EX1</h2><p>راهنمای خودکار قوانین و امکانات؛ موارد نامطمئن به پشتیبان انسانی ارجاع می‌شوند.</p></div><button class="btn small secondary" type="button" id="supportNew">گفت‌وگوی تازه</button></div>
-  <div id="supportFaq" class="support-faq"><div class="support-faq-heading"><strong>سؤالات پرتکرار</strong><small>یک موضوع را انتخاب کن تا سؤال‌های مرتبط نمایش داده شوند.</small></div><div id="supportFaqCategories" class="support-faq-categories"><div class="empty">در حال بارگذاری راهنمای پشتیبانی...</div></div><div id="supportFaqQuestions" class="support-faq-questions" hidden></div></div>
-  <div id="supportMessages" class="chat-messages" style="min-height:100px;max-height:300px"><div class="empty">برای شروع، پیام خودت را بنویس.</div></div>
-  <form id="supportForm" class="chat-send"><input id="supportText" class="field" maxlength="3000" placeholder="سؤالت را بنویس..." required><button class="btn small" type="submit" id="supportSend">ارسال</button></form>
-  <p class="muted" id="supportHint">پاسخ‌گو از راهنمای تأییدشده EX1 استفاده می‌کند و در موارد نامطمئن، گفت‌وگو را به پشتیبان انسانی ارجاع می‌دهد.</p>
- </section>
+    <div id="supportHub" class="support-hub-screen">
+     <div class="section-head"><div><h2>موضوع درخواست</h2><p>موضوع مشکل را انتخاب کن تا راهنمای مرتبط نمایش داده شود.</p></div></div>
+     <div id="supportFaq" class="support-faq">
+      <div class="support-faq-heading"><strong>دسته‌بندی مشکلات</strong><small>فقط مواردی که نیاز به پیگیری دارند</small></div>
+      <div id="supportFaqCategories" class="support-faq-categories"><div class="empty">در حال بارگذاری...</div></div>
+      <div id="supportFaqQuestions" class="support-faq-questions" hidden></div>
+     </div>
+     <button class="btn secondary support-start-chat" type="button" id="supportStartChat">✎ شرح مشکل به‌صورت آزاد</button>
+    </div>
+    <div id="supportChatView" class="support-chat-screen" hidden>
+     <div class="support-chat-topbar">
+      <button class="btn ghost small" type="button" id="supportBack">‹ موضوعات</button>
+      <div class="support-chat-title"><strong>گفت‌وگو با پشتیبانی</strong><small>پاسخ‌ها و پیگیری‌ها در همین صفحه</small></div>
+      <button class="btn secondary small" type="button" id="supportNew">گفت‌وگوی تازه</button>
+     </div>
+     <div id="supportMessages" class="chat-messages"><div class="empty">پیام‌ها اینجا نمایش داده می‌شوند.</div></div>
+     <form id="supportForm" class="chat-send">
+      <input id="supportAttachmentFile" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+      <button class="btn secondary small support-attach" type="button" id="supportAttach" aria-label="افزودن تصویر مدرک">＋</button>
+      <input id="supportText" class="field" maxlength="3000" placeholder="مشکلت را بنویس..." required>
+      <button class="btn small" type="submit" id="supportSend">ارسال</button>
+     </form>
+     <p class="muted" id="supportHint">برای بررسی دقیق‌تر می‌توانی تصویر مدرک مرتبط را پیوست کنی. رمز و کد ورود را نفرست.</p>
+    </div>
+   </section>
   </section>
   <section class="settings-reference-panel" data-settings-detail="game-account" hidden>
    <h2>حساب کاربری و پروفایل</h2>
@@ -1706,59 +1766,80 @@ let supportConversationId=null,supportFaqData=null,supportFaqActiveCategory=null
 function supportStorageKey(){return currentUser?"ex1_support_"+currentUser.id:null;}
 function supportFreshKey(){return currentUser?"ex1_support_fresh_"+currentUser.id:null;}
 let lastSupportRenderKey="";
-function renderSupportMessages(rows){
+function showSupportScreen(screen){
+ const hub=$("supportHub"),chat=$("supportChatView");
+ if(hub)hub.hidden=screen!=="hub";
+ if(chat)chat.hidden=screen!=="chat";
+}
+function renderSupportMessages(rows,attachments=[]){
  const box=$("supportMessages");
  const unique=[...new Map((rows||[]).map((m,i)=>[m.id||((m.created_at||"")+":"+i+":"+m.sender_role+":"+m.body),m])).values()];
- const key=unique.map(m=>m.id||((m.created_at||"")+":"+m.sender_role+":"+m.body)).join("|");
+ const key=unique.map(m=>m.id||((m.created_at||"")+":"+m.sender_role+":"+m.body)).join("|")+"|"+attachments.map(a=>a.id+":"+a.signedUrl).join("|");
  if(key===lastSupportRenderKey)return;
- const nearBottom=box.scrollHeight-box.scrollTop-box.clientHeight<72;
+ const nearBottom=box.scrollHeight-box.scrollTop-box.clientHeight<90;
  lastSupportRenderKey=key;
- box.innerHTML=unique.map(m=>'<div class="bubble '+(m.sender_role==="user"?"mine":"")+'">'+esc(m.body)+'</div>').join("")||'<div class="empty">برای شروع، پیام خودت را بنویس.</div>';
+ const byMessage=new Map();
+ attachments.forEach(a=>{if(a.message_id){if(!byMessage.has(a.message_id))byMessage.set(a.message_id,[]);byMessage.get(a.message_id).push(a);}});
+ box.innerHTML=unique.map(m=>{
+  const files=(byMessage.get(m.id)||[]).map(a=>'<img class="support-attachment-preview" src="'+esc(a.signedUrl)+'" alt="مدرک پیوست‌شده" loading="lazy">').join("");
+  return '<div class="bubble '+(m.sender_role==="user"?"mine":"")+'">'+esc(m.body)+files+'</div>';
+ }).join("")||'<div class="empty">هنوز پیامی در این گفت‌وگو نیست. مشکلت را بنویس تا شروع کنیم.</div>';
  if(nearBottom)box.scrollTop=box.scrollHeight;
 }
 async function loadSupportConversation(){
- if(!currentUser){supportConversationId=null;$("supportMessages").innerHTML='<div class="empty">برای استفاده از پشتیبانی وارد حساب شو.</div>';return;}
- const storageKey=supportStorageKey();
- const freshKey=supportFreshKey();
- if(localStorage.getItem(freshKey)==="1"){
-  supportConversationId=null;
-  renderSupportMessages([]);
-  $("supportHint").textContent="گفت‌وگوی تازه آماده است؛ پیام اول را بنویس.";
-  return;
- }
+ if(!currentUser){supportConversationId=null;$("supportMessages").innerHTML='<div class="empty">برای استفاده از پشتیبانی وارد حساب شو.</div>';showSupportScreen("hub");return;}
+ const storageKey=supportStorageKey(),freshKey=supportFreshKey();
+ if(localStorage.getItem(freshKey)==="1"){supportConversationId=null;renderSupportMessages([]);showSupportScreen("hub");return;}
  supportConversationId=localStorage.getItem(storageKey)||null;
  if(!supportConversationId){
   const {data:latest,error:latestError}=await sb.from("support_conversations").select("id,status,updated_at").eq("user_id",currentUser.id).order("updated_at",{ascending:false}).limit(1).maybeSingle();
-  if(latestError){$("supportMessages").innerHTML='<div class="empty">تاریخچهٔ پشتیبانی فعلاً دریافت نشد؛ دوباره تلاش کن.</div>';return;}
-  if(!latest){renderSupportMessages([]);return;}
-  supportConversationId=latest.id;
-  localStorage.setItem(storageKey,supportConversationId);
+  if(latestError){$("supportMessages").innerHTML='<div class="empty">تاریخچه پشتیبانی فعلاً دریافت نشد؛ دوباره تلاش کن.</div>';showSupportScreen("hub");return;}
+  if(!latest){renderSupportMessages([]);showSupportScreen("hub");return;}
+  supportConversationId=latest.id;localStorage.setItem(storageKey,supportConversationId);
  }
- const {data:messages,error}=await sb.from("support_messages").select("id,sender_role,body,created_at").eq("conversation_id",supportConversationId).order("created_at",{ascending:true}).limit(100);
- if(error){$("supportMessages").innerHTML='<div class="empty">پیام‌های این گفت‌وگو دریافت نشدند؛ تاریخچه حذف نشده است. دوباره تلاش کن.</div>';return;}
- renderSupportMessages(messages||[]);
+ const [{data:messages,error},{data:files}]=await Promise.all([
+  sb.from("support_messages").select("id,sender_role,body,created_at").eq("conversation_id",supportConversationId).order("created_at",{ascending:true}).limit(100),
+  sb.from("support_attachments").select("id,message_id,storage_path,mime_type").eq("conversation_id",supportConversationId).order("created_at",{ascending:true})
+ ]);
+ if(error){$("supportMessages").innerHTML='<div class="empty">پیام‌های این گفت‌وگو دریافت نشدند؛ تاریخچه حذف نشده است. دوباره تلاش کن.</div>';showSupportScreen("chat");return;}
+ const attachments=await Promise.all((files||[]).map(async file=>{
+  const {data}=await sb.storage.from("social-media").createSignedUrl(file.storage_path,300);
+  return data?.signedUrl?{...file,signedUrl:data.signedUrl}:null;
+ }));
+ renderSupportMessages(messages||[],attachments.filter(Boolean));
+ showSupportScreen((messages||[]).length?"chat":"hub");
 }
 async function loadSupportFaq(){
  const host=$("supportFaqCategories");if(!host)return;
  try{
-  if(!supportFaqData){const response=await fetch("/support-faq.json",{cache:"no-store"});if(!response.ok)throw new Error("راهنمای سؤال‌ها بارگذاری نشد.");supportFaqData=await response.json();}
+  if(!supportFaqData){const response=await fetch("/support-faq.json",{cache:"no-store"});if(!response.ok)throw new Error("راهنمای مشکلات بارگذاری نشد.");supportFaqData=await response.json();}
   renderSupportFaq();
- }catch(error){host.innerHTML='<div class="empty">راهنمای سؤال‌ها فعلاً بارگذاری نشد. اتصال اینترنت را بررسی کن.</div>';console.warn("EX1 support FAQ:",error);}
+ }catch(error){host.innerHTML='<div class="empty">فهرست مشکلات فعلاً بارگذاری نشد. اتصال اینترنت را بررسی کن.</div>';console.warn("EX1 support FAQ:",error);}
 }
 function renderSupportFaq(){
  const categories=supportFaqData?.categories||[],host=$("supportFaqCategories"),questions=$("supportFaqQuestions");
  if(!host||!questions)return;
- host.innerHTML=categories.map(c=>'<button type="button" class="support-faq-category '+(supportFaqActiveCategory===c.id?'active':'')+'" data-support-category="'+esc(c.id)+'"><span>'+esc(c.icon||"❔")+'</span><span>'+esc(c.title)+'</span><small>'+c.items.length.toLocaleString("fa-IR")+'</small></button>').join("");
  const selected=categories.find(c=>c.id===supportFaqActiveCategory);
- questions.hidden=!selected;
- questions.innerHTML=selected?selected.items.map(item=>'<button type="button" class="support-faq-question" data-support-faq="'+esc(item[0])+'">'+esc(item[1])+'</button>').join(""):"";
- host.querySelectorAll("[data-support-category]").forEach(button=>button.onclick=()=>{supportFaqActiveCategory=button.dataset.supportCategory;renderSupportFaq();});
- questions.querySelectorAll("[data-support-faq]").forEach(button=>button.onclick=()=>{const item=selected?.items.find(x=>x[0]===button.dataset.supportFaq);if(item)sendSupportMessage(item[1],item[0]);});
+ if(!selected){
+  host.innerHTML=categories.map(c=>'<button type="button" class="support-faq-category" data-support-category="'+esc(c.id)+'"><span>'+esc(c.icon||"❔")+'</span><span>'+esc(c.title)+'</span><small>'+c.items.length.toLocaleString("fa-IR")+'</small></button>').join("");
+  questions.hidden=true;questions.innerHTML="";
+  host.querySelectorAll("[data-support-category]").forEach(button=>button.onclick=()=>{supportFaqActiveCategory=button.dataset.supportCategory;renderSupportFaq();});
+  return;
+ }
+ host.innerHTML='<button type="button" class="support-faq-back" id="supportFaqBack">‹ بازگشت به دسته‌بندی‌ها</button>';
+ questions.hidden=false;
+ questions.innerHTML=selected.items.map(item=>'<button type="button" class="support-faq-question" data-support-faq="'+esc(item[0])+'">'+esc(item[1])+'</button>').join("");
+ $("supportFaqBack").onclick=()=>{supportFaqActiveCategory=null;renderSupportFaq();};
+ questions.querySelectorAll("[data-support-faq]").forEach(button=>button.onclick=()=>{
+  const item=selected.items.find(x=>x[0]===button.dataset.supportFaq);
+  if(item){showSupportScreen("chat");sendSupportMessage(item[1],item[0]);}
+ });
 }
 async function sendSupportMessage(message,faqId=null){
  if(!currentUser){toast("ابتدا وارد حساب شو.");return;}
  const clean=String(message||"").trim();if(!clean)return;
- $("supportSend").disabled=true;$("supportHint").textContent="دستیار هوشمند در حال بررسی سؤال است...";
+ showSupportScreen("chat");
+ $("supportSend").disabled=true;$("supportHint").textContent="در حال بررسی درخواست...";
  try{
   const {data,error}=await sb.functions.invoke("ai-support-v2",{body:{message:clean,conversation_id:supportConversationId,faq_id:faqId}});
   if(error)throw error;
@@ -1766,23 +1847,46 @@ async function sendSupportMessage(message,faqId=null){
   supportConversationId=data.conversation_id;localStorage.setItem(supportStorageKey(),supportConversationId);localStorage.removeItem(supportFreshKey());
   $("supportText").value="";
   await loadSupportConversation();
-  requestAnimationFrame(()=>{const answerBox=$("supportMessages");answerBox?.scrollIntoView({behavior:"smooth",block:"start"});if(answerBox)answerBox.scrollTop=answerBox.scrollHeight;});
-  $("supportHint").textContent=data.handoff?"این گفت‌وگو برای بررسی پشتیبان انسانی ارجاع شده است؛ پاسخ در همین چت نمایش داده می‌شود.":"پاسخ دستیار هوشمند EX1";
+  requestAnimationFrame(()=>{const box=$("supportMessages");if(box)box.scrollTop=box.scrollHeight;});
+  $("supportHint").textContent=data.handoff?"درخواستت برای بررسی پشتیبان انسانی ثبت شد؛ پاسخ در همین گفت‌وگو نمایش داده می‌شود.":"اگر برای بررسی نیاز به مدرک باشد، می‌توانی تصویر مرتبط را پیوست کنی.";
  }catch(err){$("supportHint").textContent=err?.message||"پشتیبانی موقتاً در دسترس نیست.";}
  finally{$("supportSend").disabled=false;}
 }
+async function uploadSupportAttachment(file){
+ if(!currentUser){toast("ابتدا وارد حساب شو.");return;}
+ if(!supportConversationId){toast("اول موضوع مشکل را انتخاب کن و پیام اول را بفرست.");return;}
+ if(!["image/jpeg","image/png","image/webp"].includes(file.type)){toast("فقط تصویر JPG، PNG یا WebP قابل ارسال است.");return;}
+ if(file.size<=0||file.size>5*1024*1024){toast("حجم تصویر باید حداکثر ۵ مگابایت باشد.");return;}
+ const ext=file.type==="image/jpeg"?"jpg":file.type==="image/png"?"png":"webp";
+ const path=currentUser.id+"/support/"+supportConversationId+"/"+crypto.randomUUID()+"."+ext;
+ $("supportAttach").disabled=true;$("supportHint").textContent="در حال بارگذاری تصویر مدرک...";
+ try{
+  const {error:uploadError}=await sb.storage.from("social-media").upload(path,file,{contentType:file.type,upsert:false,cacheControl:"300"});
+  if(uploadError)throw uploadError;
+  const {data,error}=await sb.functions.invoke("ai-support-v2",{body:{message:"تصویر مدرک را برای بررسی ارسال کردم.",conversation_id:supportConversationId,attachment_path:path}});
+  if(error)throw error;
+  if(!data?.success)throw new Error(data?.error||"ثبت تصویر انجام نشد.");
+  await loadSupportConversation();
+  $("supportHint").textContent=data.handoff?"مدرک دریافت شد و درخواست برای بررسی پشتیبان انسانی ارسال شد.":"مدرک دریافت شد.";
+ }catch(err){$("supportHint").textContent=err?.message||"ارسال تصویر انجام نشد؛ دوباره تلاش کن.";}
+ finally{$("supportAttach").disabled=false;$("supportAttachmentFile").value="";}
+}
 $("supportNew").addEventListener("click",()=>{
  if(!currentUser){toast("برای استفاده از پشتیبانی وارد حساب شو.");return;}
- supportConversationId=null;localStorage.removeItem(supportStorageKey());localStorage.setItem(supportFreshKey(),"1");renderSupportMessages([]);
- $("supportHint").textContent="گفت‌وگوی تازه آماده است؛ یک سؤال آماده انتخاب کن یا پیام خودت را بنویس.";
+ supportConversationId=null;localStorage.removeItem(supportStorageKey());localStorage.setItem(supportFreshKey(),"1");renderSupportMessages([]);showSupportScreen("hub");
+ supportFaqActiveCategory=null;renderSupportFaq();$("supportHint").textContent="گفت‌وگوی تازه آماده است؛ موضوع مشکل را انتخاب کن.";
 });
+$("supportBack").addEventListener("click",()=>{showSupportScreen("hub");supportFaqActiveCategory=null;renderSupportFaq();});
+$("supportStartChat").addEventListener("click",()=>{showSupportScreen("chat");$("supportText").focus();});
+$("supportAttach").addEventListener("click",()=>{if(!supportConversationId){toast("اول موضوع مشکل را انتخاب کن و پیام اول را بفرست.");return;}$("supportAttachmentFile").click();});
+$("supportAttachmentFile").addEventListener("change",async e=>{const file=e.target.files?.[0];if(file)await uploadSupportAttachment(file);});
 $("supportForm").addEventListener("submit",async e=>{
  e.preventDefault();const message=$("supportText").value.trim();if(!message)return;await sendSupportMessage(message);
 });
 function openSupportWithCategory(categoryId){
  if(!currentUser){toast("برای استفاده از پشتیبانی ابتدا وارد حساب شو.");openAuth();return;}
  switchPage("settings");closeSettingsDetail();openSettingsDetail("support");
- supportFaqActiveCategory=categoryId||null;
+ supportFaqActiveCategory=categoryId||null;showSupportScreen("hub");
  loadSupportFaq().then(()=>{renderSupportFaq();$("supportFaq")?.scrollIntoView({behavior:"smooth",block:"center"});});
 }
 let ex1LiveRefreshBusy=false,ex1SupportPollBusy=false,ex1RankingPollBusy=false;
