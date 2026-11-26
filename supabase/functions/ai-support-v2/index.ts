@@ -44,6 +44,7 @@ function explicitHumanRequest(message: string) {
 function needsHuman(message: string) {
   return /(مسدود|بن\b|رفع.?مسدودی|هک|هکر|ورود ناشناس|گزارش مدیر|شکایت از مدیر|تخلف مدیر|اعتراض به نتیجه|نتیجه اشتباه|اصلاح نتیجه|کسر اشتباه|استارز کم|موجودی کم|جایزه ثبت نشده|بازپرداخت|برگشت استارز|تهدید|آزار|توهین)/i.test(message);
 }
+const faqNeedsHuman = new Set(["account-delete","account-banned","account-appeal","room-change-team","room-leave","room-missing","room-disappear","room-wrong","access-missing","access-wrong-code","access-wrong-pass","access-cant-enter","stars-failed","stars-prize","results-missing","results-kills","results-report","results-order","results-old","support-complaint","support-manager","support-user","support-proof","support-review","security-hacked","security-login"]);
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -117,11 +118,15 @@ Deno.serve(async (req: Request) => {
   if (conversationWasWaitingForHuman) {
     answer = "پیامت به همان گفت‌وگوی پشتیبانی اضافه شد. درخواستت همچنان در صف پشتیبان انسانی است و پاسخ بعدی در همین چت نمایش داده می‌شود.";
     handoff = true;
-  } else if (explicitHumanRequest(message) || needsHuman(message)) {
+  } else if (explicitHumanRequest(message) && !selectedFaq) {
     answer = "این موضوع نیاز به بررسی مسئول انسانی دارد. درخواستت در همین گفت‌وگو برای پشتیبان مربوط ارجاع شد. لطفاً شناسه EX1، شناسه روم در صورت ارتباط و توضیح کوتاه یا مدرک مرتبط را بفرست؛ رمز و کد ورود را ارسال نکن.";
     handoff = true;
   } else if (selectedFaq) {
     answer = selectedFaq.answer;
+    handoff = faqNeedsHuman.has(selectedFaq.id);
+  } else if (needsHuman(message)) {
+    answer = "این موضوع نیاز به بررسی مسئول انسانی دارد. درخواستت در همین گفت‌وگو برای پشتیبان مربوط ارجاع شد. لطفاً شناسه EX1، شناسه روم در صورت ارتباط و توضیح کوتاه یا مدرک مرتبط را بفرست؛ رمز و کد ورود را ارسال نکن.";
+    handoff = true;
   } else if (/^(سلام|درود|hi|hello|hey|سلام خوبی|وقت بخیر|صبح بخیر|شب بخیر)[!.؟\s]*$/i.test(normalize(message))) {
     answer = "سلام! 👋 به پشتیبانی EX1 LEGEND خوش اومدی. می‌تونی یکی از سؤال‌های آماده رو انتخاب کنی یا مشکلت رو همین‌جا توضیح بدی.";
   } else {
