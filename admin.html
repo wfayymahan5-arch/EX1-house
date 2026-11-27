@@ -283,6 +283,13 @@ body{min-height:100dvh;min-width:0;width:100%;overflow-x:clip;overflow-y:auto;ov
 <section class="section tab hidden" id="registrations"><h2>ثبت‌نام‌های تیمی</h2><div id="registrationsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="teams"><h2>تیم‌ها</h2><div id="teamsTable" class="empty">در حال بارگذاری...</div></section>
 <section class="section tab hidden" id="users"><h2>کاربران و پروفایل‌ها</h2><div id="directNotificationPanel" class="manager-form hidden"><h3 style="margin-top:0">ارسال اعلان مدیریتی</h3><form id="directNotificationForm"><div class="formgrid"><div class="wide"><label for="directNotificationSearch">جست‌وجوی کاربران</label><input id="directNotificationSearch" type="search" placeholder="نام نمایشی، نام کالاف یا شناسه کاربر..." autocomplete="off"><div class="actions" style="margin:8px 0"><button class="btn" id="selectVisibleNotificationUsers" type="button">انتخاب نتایج جست‌وجو</button><button class="btn" id="selectAllNotificationUsers" type="button">انتخاب همه کاربران</button><button class="btn" id="clearNotificationUsers" type="button">پاک‌کردن انتخاب</button></div><p class="muted" id="notificationSelectionCount">۰ کاربر انتخاب شده</p><div id="notificationUsersList" class="notification-users-list" aria-label="فهرست کاربران"><p class="muted">ابتدا فهرست کاربران بارگذاری شود.</p></div></div><label>عنوان پیام<input id="directNotificationTitle" maxlength="100" required placeholder="عنوان پیام"></label><label class="wide">متن پیام<textarea id="directNotificationBody" maxlength="1000" required placeholder="متن پیام برای کاربران انتخاب‌شده..."></textarea></label></div><div class="actions"><button class="btn primary" id="sendDirectNotification" type="submit">ارسال اعلان به کاربران انتخاب‌شده</button></div><p class="muted" id="directNotificationStatus" aria-live="polite"></p></form></div><div id="usersTable" class="empty">در حال بارگذاری...</div></section>
+<section class="section tab hidden" id="support">
+<div class="row"><h2>صندوق پشتیبانی</h2><button class="btn" id="refreshSupportQueue" type="button">به‌روزرسانی درخواست‌ها</button></div>
+<p class="muted">درخواست‌هایی که پس از دریافت مدرک به بررسی انسانی نیاز دارند اینجا نمایش داده می‌شوند. خلاصهٔ هوشمند، پیام‌های کاربر و مدارک پیوست‌شده را بررسی کن.</p>
+<div class="layout" style="grid-template-columns:minmax(220px,.8fr) minmax(0,1.6fr);align-items:start">
+ <div id="supportQueue" class="empty">در حال دریافت درخواست‌ها...</div>
+ <div id="supportConversation" class="panel"><div class="empty">برای مشاهده جزئیات، یک درخواست را انتخاب کن.</div></div>
+</div></section>
 <section class="section tab hidden" id="social"><div class="row"><h2>مدیریت اجتماعی و گزارش‌ها</h2><button class="btn" id="refreshSocialReports" type="button">به‌روزرسانی</button></div><p class="muted">گزارش‌های محتوای اجتماعی فقط برای مدیر دارای مجوز social.moderate نمایش داده می‌شوند. تصمیم‌ها ثبت و قابل پیگیری هستند.</p><div id="socialReportsTable" class="empty">در حال دریافت گزارش‌ها...</div></section>
 <section class="section tab hidden" id="moderation"><div class="row"><h2>پرونده‌های بررسی هوشمند</h2><button class="btn" id="refreshModerationCases" type="button">به‌روزرسانی</button></div><p class="muted">این پرونده‌ها فقط برای مالک اصلی قابل مشاهده و تعیین تکلیف هستند. عکس‌های حساس تا بررسی مالک پنهان می‌مانند؛ سایر موارد مشکوک فوراً نمایش داده می‌شوند و برای بررسی گزارش می‌شوند.</p><div id="moderationCasesTable" class="empty">در حال دریافت پرونده‌ها...</div></section>
 <section class="section tab hidden" id="wallet"><h2>دفترکل استار هدیه</h2><div class="notice">این موجودی فقط امتیاز <span translate="no">EX1</span> است؛ قابل خرید، انتقال، برداشت یا تبدیل به پول نیست. تغییر موجودی فقط با مجوز مخصوص، ثبت دلیل و سابقهٔ غیرقابل‌حذف انجام می‌شود.</div><div id="walletTable" class="empty">در حال دریافت دفترکل...</div><div id="walletAdjustPanel" class="panel hidden" style="margin-top:16px"><h3 id="walletAdjustTitle">اصلاح امتیاز کاربر</h3><form id="walletAdjustForm" class="manager-form"><input id="wallet_user_id" type="hidden"><div class="formgrid"><label>نوع عملیات<select id="wallet_entry_type"><option value="credit">افزایش امتیاز</option><option value="debit">کاهش امتیاز</option></select></label><label>مقدار امتیاز<input id="wallet_amount" type="number" min="1" max="1000000" required></label><label class="wide">دلیل ثبت<input id="wallet_reason" maxlength="300" minlength="2" required placeholder="دلیل این تغییر را بنویس"></label></div><div class="actions"><button class="btn primary" type="submit" id="walletAdjustSubmit">ثبت تغییر امتیاز</button><button class="btn" type="button" id="walletAdjustCancel">انصراف</button></div></form></div><div id="walletHistory" class="empty" style="margin-top:16px"></div></section>
@@ -298,12 +305,12 @@ document.addEventListener("touchmove",e=>{if(e.touches&&e.touches.length>1)e.pre
 document.addEventListener("gesturestart",e=>e.preventDefault(),{passive:false});
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",results:"نتایج",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",social:"مدیریت اجتماعی",moderation:"بررسی هوشمند محتوا",wallet:"کیف امتیاز",settings:"تنظیمات"};
+const labels={overview:"نمای کلی",tournaments:"مسابقات",rooms:"روم‌ها",results:"نتایج",registrations:"ثبت‌نام‌ها",teams:"تیم‌ها",users:"کاربران",social:"مدیریت اجتماعی",moderation:"بررسی هوشمند محتوا",support:"صندوق پشتیبانی",wallet:"کیف امتیاز",settings:"تنظیمات"};
 let permissions={},isOwner=false;
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200);}
 function table(headers,rows){if(!rows.length)return '<div class="empty">هنوز داده‌ای ثبت نشده است.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';}
 function row(cells){return '<tr>'+cells.map(x=>'<td>'+x+'</td>').join("")+'</tr>';}
-function showTab(id){document.querySelectorAll(".tab").forEach(s=>s.classList.toggle("hidden",s.id!==id));document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));if(id==="results"){loadResultsOverview();if(permissions["results.manage"])loadResultRooms().then(loadResultReviewQueue);}}
+function showTab(id){document.querySelectorAll(".tab").forEach(s=>s.classList.toggle("hidden",s.id!==id));document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));if(id==="support")loadSupportQueue();if(id==="results"){loadResultsOverview();if(permissions["results.manage"])loadResultRooms().then(loadResultReviewQueue);}}
 function addNav(id){const b=document.createElement("button");b.type="button";b.dataset.tab=id;b.textContent=labels[id];b.onclick=()=>showTab(id);$("nav").appendChild(b);}
 async function rpc(name,args){const {data,error}=await sb.rpc(name,args||{});if(error)throw error;return data||[];}
 let roomTournamentCache=[];
@@ -824,7 +831,7 @@ async function loadTableData(){
  if(isOwner)tasks.push((async()=>{$("directNotificationPanel").classList.remove("hidden");const {data,error}=await sb.functions.invoke("admin-list-users-for-notifications");if(error)throw error;if(!data?.success)throw new Error(data?.error||"دریافت فهرست کاربران انجام نشد.");notificationUsers=(data.users||[]).filter(x=>x.user_id);renderNotificationUsers();})());
  if(permissions["wallet.view_all"])tasks.push(loadWalletOverview());
  if(permissions["social.moderate"])tasks.push(loadSocialModeration());
- if(isOwner)tasks.push(loadModerationCases());
+ if(isOwner)tasks.push(loadModerationCases());\n if(permissions["support.manage"])tasks.push(loadSupportQueue());
  
  const settled=await Promise.allSettled(tasks);
  const failed=settled.filter(x=>x.status==="rejected");
@@ -833,6 +840,61 @@ async function loadTableData(){
  const counts=["statTournaments","statRegistrations","statTeams","statUsers"].map(id=>$(id).textContent).filter(x=>x!=="—");
  $("overviewEmpty").textContent=counts.length?"داده‌های مجاز از دیتابیس بارگذاری شدند. برای جزئیات، بخش مربوطه را باز کن.":"برای این حساب، مجوز مشاهده داده‌های مدیریتی ثبت نشده است.";
 }
+let selectedSupportConversationId=null;
+async function loadSupportQueue(){
+ if(!permissions["support.manage"]){$("supportQueue").innerHTML='<div class="empty">مجوز رسیدگی به پشتیبانی را نداری.</div>';return;}
+ $("supportQueue").textContent="در حال دریافت درخواست‌ها...";
+ try{
+  const {data,error}=await sb.from("support_conversations").select("id,user_id,subject,status,updated_at").eq("status","waiting_for_human").order("updated_at",{ascending:false}).limit(100);
+  if(error)throw error;
+  const rows=data||[];
+  if(!rows.length){$("supportQueue").innerHTML='<div class="empty">درخواست در انتظار بررسی وجود ندارد.</div>';$("supportConversation").innerHTML='<div class="empty">همه درخواست‌ها بررسی شده‌اند. 🎉</div>';return;}
+  const userIds=[...new Set(rows.map(x=>x.user_id).filter(Boolean))];
+  const {data:profiles,error:profileError}=await sb.from("profiles").select("id,display_name,username,game_name").in("id",userIds);
+  if(profileError)throw profileError;
+  const byId=Object.fromEntries((profiles||[]).map(x=>[x.id,x]));
+  $("supportQueue").innerHTML=rows.map(c=>{
+   const p=byId[c.user_id]||{};
+   return '<button type="button" class="card" data-support-open="'+esc(c.id)+'" style="display:block;width:100%;text-align:right;margin:0 0 10px;padding:13px;cursor:pointer"><strong>'+esc(c.subject||"درخواست پشتیبانی")+'</strong><div class="muted">'+esc(p.display_name||p.username||"کاربر")+' · '+esc(p.game_name||"نام کالاف ثبت نشده")+'</div><small class="muted">'+esc(new Date(c.updated_at).toLocaleString("fa-IR"))+'</small></button>';
+  }).join("");
+  if(!selectedSupportConversationId||!rows.some(x=>x.id===selectedSupportConversationId))await openSupportConversation(rows[0].id);
+ }catch(err){console.error("EX1 support queue:",err);$("supportQueue").innerHTML='<div class="empty">دریافت درخواست‌ها انجام نشد؛ مجوز support.manage و اتصال را بررسی کن.</div>';}
+}
+async function openSupportConversation(id){
+ if(!permissions["support.manage"])return;
+ selectedSupportConversationId=id;
+ $("supportConversation").innerHTML='<div class="empty">در حال بارگذاری گفت‌وگو و مدارک...</div>';
+ try{
+  const {data:conversation,error:cError}=await sb.from("support_conversations").select("id,user_id,subject,status,created_at,updated_at").eq("id",id).single();
+  if(cError)throw cError;
+  const {data:messages,error:mError}=await sb.from("support_messages").select("id,sender_role,body,created_at").eq("conversation_id",id).order("created_at",{ascending:true}).limit(100);
+  if(mError)throw mError;
+  const {data:attachments,error:aError}=await sb.from("support_attachments").select("id,message_id,storage_path,mime_type,file_size,created_at").eq("conversation_id",id).order("created_at",{ascending:true});
+  if(aError)throw aError;
+  const filesByMessage={};
+  for(const file of attachments||[]){
+   const {data:link,error}=await sb.storage.from("social-media").createSignedUrl(file.storage_path,300);
+   if(!error&&link?.signedUrl)(filesByMessage[file.message_id]??=[]).push('<a href="'+esc(link.signedUrl)+'" target="_blank" rel="noopener">مشاهده مدرک تصویری ('+Math.max(1,Math.round(Number(file.file_size||0)/1024))+' KB)</a>');
+  }
+  const thread=(messages||[]).map(m=>{
+   const who=m.sender_role==="user"?"کاربر":m.sender_role==="assistant"?"دستیار هوشمند":"پشتیبان";
+   const attachmentsHtml=(filesByMessage[m.id]||[]).join("<br>");
+   return '<div class="card" style="margin:10px 0;padding:12px"><div class="muted">'+who+' · '+esc(new Date(m.created_at).toLocaleString("fa-IR"))+'</div><p style="white-space:pre-wrap">'+esc(m.body)+'</p>'+(attachmentsHtml?'<div>'+attachmentsHtml+'</div>':"")+'</div>';
+  }).join("");
+  $("supportConversation").innerHTML='<h3>'+esc(conversation.subject)+'</h3><p class="muted">شناسه گفت‌وگو: '+esc(id)+'</p><div>'+thread+'</div><div class="actions"><button class="btn primary" type="button" data-support-resolve="'+esc(id)+'">علامت‌گذاری به‌عنوان بررسی‌شده</button><button class="btn" type="button" data-support-refresh="'+esc(id)+'">بازخوانی گفت‌وگو</button></div>';
+ }catch(err){console.error("EX1 support conversation:",err);$("supportConversation").innerHTML='<div class="empty">جزئیات یا تصویر درخواست قابل دریافت نیست؛ دسترسی support.manage و مجوز فایل را بررسی کن.</div>';}
+}
+$("supportQueue").addEventListener("click",e=>{const b=e.target.closest("[data-support-open]");if(b)openSupportConversation(b.dataset.supportOpen);});
+$("supportConversation").addEventListener("click",async e=>{
+ const done=e.target.closest("[data-support-resolve]"),refresh=e.target.closest("[data-support-refresh]");
+ if(refresh)return openSupportConversation(refresh.dataset.supportRefresh);
+ if(done){
+  if(!permissions["support.manage"]||!confirm("این درخواست به‌عنوان بررسی‌شده علامت‌گذاری شود؟"))return;
+  try{const {error}=await sb.from("support_conversations").update({status:"resolved",updated_at:new Date().toISOString()}).eq("id",done.dataset.supportResolve);if(error)throw error;selectedSupportConversationId=null;await loadSupportQueue();toast("درخواست به‌عنوان بررسی‌شده ثبت شد.");}
+  catch(err){toast("تغییر وضعیت درخواست انجام نشد؛ مجوز را بررسی کن.");}
+ }
+});
+$("refreshSupportQueue").onclick=loadSupportQueue;
 async function loadWalletOverview(){
  if(!permissions["wallet.view_all"]){$("walletTable").innerHTML='<div class="empty">مجوز مشاهده امتیازهای کاربران را نداری.</div>';return;}
  const data=await rpc("admin_wallet_demo_overview_v2",{p_limit:200});
@@ -935,7 +997,7 @@ async function applyAccessInternal(user){
  if(permissions["teams.view"])allowedTabs.push("teams");
  if(isOwner||permissions["users.view"]||permissions["profiles.view_all"])allowedTabs.push("users");
  if(permissions["social.moderate"])allowedTabs.push("social");
- if(isOwner)allowedTabs.push("moderation");
+ if(isOwner)allowedTabs.push("moderation");\n if(permissions["support.manage"])allowedTabs.push("support");
  if(permissions["wallet.view_all"])allowedTabs.push("wallet");
  if(permissions["settings.view"]||permissions["settings.manage"])allowedTabs.push("settings");
  allowedTabs.forEach(addNav);showTab("overview");
