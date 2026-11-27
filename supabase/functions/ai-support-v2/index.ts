@@ -61,7 +61,7 @@ function detectSupportCase(value: string): SupportCase | null {
     return {
       key: "prize_not_received",
       title: "جایزه مسابقه واریز نشده",
-      firstReply: "برای بررسی جایزه‌ای که به حسابت اضافه نشده، باید نتیجه مسابقه با گزارش روم تطبیق داده شود. لطفاً این مراحل را انجام بده:\\n۱) وارد Call of Duty Mobile شو.\\n۲) از بخش History، مسابقه Custom مربوط به همان روم را پیدا کن.\\n۳) از صفحه نتیجه همان مسابقه اسکرین‌شات واضح بگیر و همین‌جا بفرست.\\n۴) شناسه روم EX1 را هم بنویس.\\nبعد از دریافت تصویر، مدرک به پرونده پیوست می‌شود و برای تطبیق نتیجه با تراکنش Stars به مالک/پشتیبان ارسال خواهد شد. فعلاً هیچ تغییری در موجودی انجام نمی‌دهم تا بررسی کامل شود.",
+      firstReply: "برای بررسی جایزه‌ای که به حسابت اضافه نشده، باید نتیجه مسابقه با گزارش روم تطبیق داده شود. لطفاً این مراحل را انجام بده:\n۱) وارد Call of Duty Mobile شو.\n۲) از بخش History، مسابقه Custom مربوط به همان روم را پیدا کن.\n۳) از صفحه نتیجه همان مسابقه اسکرین‌شات واضح بگیر و همین‌جا بفرست.\n۴) شناسه روم EX1 را هم بنویس.\nبعد از دریافت تصویر، مدرک به پرونده پیوست می‌شود و برای تطبیق نتیجه با تراکنش Stars به مالک/پشتیبان ارسال خواهد شد. فعلاً هیچ تغییری در موجودی انجام نمی‌دهم تا بررسی کامل شود.",
       ownerSummary: "کاربر اعلام کرده در روم برنده شده اما جایزه Stars را دریافت نکرده است.",
       adminAction: "تصویر History بازی را با نتیجه ثبت‌شده روم و دفترکل Stars تطبیق بده؛ در صورت تأیید، طبق روند مجاز اصلاح جایزه را بررسی کن."
     };
@@ -231,9 +231,9 @@ Deno.serve(async (req: Request) => {
       issueContext = detectSupportCase([...history.map((row) => row.content), message].join(" ")) ?? issueContext;
       const faqContext = selectedFaq ? [selectedFaq] : matches;
       const knowledge = [
-        ...(issueContext ? [`پرونده تشخیص‌داده‌شده: ${issueContext.title}\\nپاسخ اولیه پیشنهادی: ${issueContext.firstReply}\\nخلاصه برای مالک پس از دریافت مدرک: ${issueContext.ownerSummary}\\nاقدام لازم برای مالک: ${issueContext.adminAction}`] : []),
-        ...faqContext.map((item) => `سؤال: ${item.question}\\nپاسخ تأییدشده: ${item.answer}`)
-      ].join("\\n\\n");
+        ...(issueContext ? [`پرونده تشخیص‌داده‌شده: ${issueContext.title}\nپاسخ اولیه پیشنهادی: ${issueContext.firstReply}\nخلاصه برای مالک پس از دریافت مدرک: ${issueContext.ownerSummary}\nاقدام لازم برای مالک: ${issueContext.adminAction}`] : []),
+        ...faqContext.map((item) => `سؤال: ${item.question}\nپاسخ تأییدشده: ${item.answer}`)
+      ].join("\n\n");
       const systemPrompt = `تو دستیار اصلی و تحلیل‌گر پشتیبانی EX1 LEGEND هستی؛ نه یک ربات ارجاع. وظیفه‌ات این است که تا حد ممکن خودت سؤال را بفهمی، تحلیل کنی و پاسخ کاربردی بدهی.
 - همیشه فارسی روان، صمیمی، محترمانه و دقیق؛ حتی اگر کاربر عامیانه، با غلط املایی، کوتاه یا نامرتب بنویسد.
 - منظور کاربر را از کل گفتگو استخراج کن؛ برای موضوع تکراری از اول سؤال نکن.
