@@ -54,6 +54,38 @@ function explicitHumanRequest(message: string) {
 function requiresImmediateHumanReview(message: string) {
   return /(هک شدم|حسابم هک|ورود ناشناس|دسترسی غیرمجاز|گزارش مدیر|شکایت از مدیر|تخلف مدیر|تهدید|آزار|توهین|اعتراض به مسدودی|رفع.?مسدودی)/i.test(message);
 }
+type SupportCase = { key: string; title: string; firstReply: string; ownerSummary: string; adminAction: string };
+function detectSupportCase(value: string): SupportCase | null {
+  const text = normalize(value);
+  if (/(برنده|بردم|اول شدم|رتبه اول|وینر)/i.test(text) && /(استارز|جایزه|پاداش|واریز|نگرفتم|نیومد|نیامده)/i.test(text)) {
+    return {
+      key: "prize_not_received",
+      title: "جایزه مسابقه واریز نشده",
+      firstReply: "متوجه شدم؛ می‌گی در روم برنده شدی اما Stars جایزه به حسابت اضافه نشده. برای اینکه نتیجه را با گزارش مسابقه تطبیق بدهیم:\\n۱) وارد Call of Duty Mobile شو.\\n۲) از بخش History، مسابقه Custom مربوط به همان روم را پیدا کن.\\n۳) از صفحه نتیجه همان مسابقه اسکرین‌شات واضح بگیر و همین‌جا بفرست.\\n۴) شناسه روم EX1 را هم بنویس.\\nبعد از دریافت تصویر، مدرک به پرونده پیوست می‌شود و برای تطبیق نتیجه با تراکنش Stars به مالک/پشتیبان ارسال خواهد شد. فعلاً هیچ تغییری در موجودی انجام نمی‌دهم تا بررسی کامل شود.",
+      ownerSummary: "کاربر اعلام کرده در روم برنده شده اما جایزه Stars را دریافت نکرده است.",
+      adminAction: "تصویر History بازی را با نتیجه ثبت‌شده روم و دفترکل Stars تطبیق بده؛ در صورت تأیید، طبق روند مجاز اصلاح جایزه را بررسی کن."
+    };
+  }
+  if (/(بیشتر|اضافه).{0,20}(کسر|کم)|((کسر|کم).{0,20}(بیشتر|اضافه))/i.test(text) && /(استارز|ورودی|روم)/i.test(text)) {
+    return {
+      key: "stars_overcharged",
+      title: "کسر بیش از ورودی روم",
+      firstReply: "برای بررسی اختلاف، لطفاً از تاریخچه Stars در EX1 تصویر همان تراکنش را بفرست و شناسه روم و مبلغ ورودی اعلام‌شده را هم بنویس. اگر ثبت‌نام را نهایی نکرده بودی، این را هم بگو. بعد از دریافت مدرک، مبلغ ثبت‌شده با ورودی روم تطبیق داده می‌شود.",
+      ownerSummary: "کاربر گزارش کرده بیش از مبلغ ورودی روم از Stars او کسر شده است.",
+      adminAction: "تراکنش کیف امتیاز، مبلغ ورودی روم و زمان ثبت‌نام را تطبیق بده."
+    };
+  }
+  if (/(نتیجه|کیل|رتبه)/i.test(text) && /(اشتباه|غلط|درست نیست|اعتراض)/i.test(text)) {
+    return {
+      key: "result_dispute",
+      title: "اعتراض به نتیجه مسابقه",
+      firstReply: "برای بررسی دقیق، لطفاً از بخش History داخل Call of Duty Mobile اسکرین‌شات نتیجه همان مسابقه Custom را بفرست و شناسه روم EX1 و موردی را که اشتباه ثبت شده بنویس.",
+      ownerSummary: "کاربر به نتیجه، تعداد کیل یا رتبه ثبت‌شده اعتراض دارد.",
+      adminAction: "مدرک History را با نتیجه ثبت‌شده برای همان روم تطبیق بده."
+    };
+  }
+  return null;
+}
 function evidencePrompt(message: string) {
   if (/(جایزه|واریز|پاداش)/i.test(message)) return "برای بررسی جایزه، لطفاً از بخش History داخل بازی کالاف تصویر نتیجه همان مسابقه را بفرست و شناسه روم را هم بنویس. بعد از دریافت مدرک، درخواست به پشتیبان انسانی ارجاع می‌شود.";
   if (/(استارز|کسر|تراکنش|ورودی|موجودی)/i.test(message)) return "لطفاً از تاریخچه تراکنش‌های استارز در EX1 تصویر واضح بفرست و شناسه روم، مبلغ ورودی و مبلغی را که کم شده بنویس. بعد از دریافت مدرک، موضوع بررسی می‌شود.";
@@ -160,7 +192,18 @@ Deno.serve(async (req: Request) => {
   let answer = "";
   let handoff = false;
   if (storedAttachment) {
-    answer = "مدرک تصویری دریافت و به درخواستت پیوست شد. درخواست برای بررسی پشتیبان انسانی ارجاع شد؛ نتیجه در همین گفت‌وگو اعلام می‌شود.";
+    const { data: priorMessages } = await admin.from("support_messages")
+      .select("body").eq("conversation_id", conversationId).eq("sender_role", "user")
+      .order("created_at", { ascending: true }).limit(20);
+    const caseInfo = detectSupportCase((priorMessages ?? []).map((row) => String(row.body ?? "")).join(" "));
+    const caseTitle = caseInfo?.title ?? "مدرک تکمیلی برای بررسی پشتیبانی";
+    const summary = caseInfo
+      ? `${caseInfo.ownerSummary} مدرک تصویری پیوست شده است. اقدام لازم: ${caseInfo.adminAction}`
+      : "کاربر یک مدرک تصویری برای بررسی درخواست خود ارسال کرده است. لطفاً تاریخچه گفتگو را بخوان و موضوع را بررسی کن.";
+    await admin.from("support_conversations").update({ subject: `${caseTitle} | ${summary}` }).eq("id", conversationId);
+    answer = caseInfo
+      ? "اسکرین‌شات دریافت شد و به پرونده «" + caseTitle + "» پیوست شد. خلاصه مشکل و مدرک برای بررسی مالک/پشتیبان ثبت شد. نتیجه بررسی در همین گفت‌وگو اعلام می‌شود."
+      : "مدرک تصویری دریافت و به درخواستت پیوست شد. پرونده برای بررسی پشتیبان انسانی ثبت شد؛ نتیجه در همین گفت‌وگو اعلام می‌شود.";
     handoff = true;
   } else if (conversationWasWaitingForHuman) {
     answer = "پیامت به همان گفت‌وگوی پشتیبانی اضافه شد. درخواستت همچنان در صف پشتیبان انسانی است و پاسخ بعدی در همین چت نمایش داده می‌شود.";
@@ -168,9 +211,6 @@ Deno.serve(async (req: Request) => {
   } else if (explicitHumanRequest(message) && !selectedFaq) {
     answer = "درخواستت برای ارتباط با پشتیبان انسانی ثبت شد. لطفاً شناسه EX1، شناسه روم در صورت ارتباط و توضیح کوتاه را بنویس؛ رمز و کد ورود را ارسال نکن.";
     handoff = true;
-  } else if (selectedFaq) {
-    answer = selectedFaq.answer;
-    handoff = false;
   } else if (requiresImmediateHumanReview(message)) {
     answer = "این موضوع نیازمند بررسی مسئول مجاز است. لطفاً شناسه EX1، زمان اتفاق و شرح کوتاه را بفرست؛ اگر مدرک مرتبط داری می‌توانی پیوست کنی. رمز و کد یک‌بارمصرف را ارسال نکن.";
     handoff = true;
@@ -187,7 +227,12 @@ Deno.serve(async (req: Request) => {
         role: row.sender_role === "user" ? "user" : row.sender_role === "assistant" ? "assistant" : "user",
         content: String(row.body ?? "").slice(0, 3000),
       }));
-      const knowledge = matches.map((item) => `سؤال: ${item.question}\nپاسخ تأییدشده: ${item.answer}`).join("\n\n");
+      const issueContext = detectSupportCase([...history.map((row) => row.content), message].join(" "));
+      const faqContext = selectedFaq ? [selectedFaq] : matches;
+      const knowledge = [
+        ...(issueContext ? [`پرونده تشخیص‌داده‌شده: ${issueContext.title}\\nپاسخ اولیه پیشنهادی: ${issueContext.firstReply}\\nخلاصه برای مالک پس از دریافت مدرک: ${issueContext.ownerSummary}\\nاقدام لازم برای مالک: ${issueContext.adminAction}`] : []),
+        ...faqContext.map((item) => `سؤال: ${item.question}\\nپاسخ تأییدشده: ${item.answer}`)
+      ].join("\\n\\n");
       const systemPrompt = `تو دستیار اصلی و تحلیل‌گر پشتیبانی EX1 LEGEND هستی؛ نه یک ربات ارجاع. وظیفه‌ات این است که تا حد ممکن خودت سؤال را بفهمی، تحلیل کنی و پاسخ کاربردی بدهی.
 - همیشه فارسی روان، صمیمی، محترمانه و دقیق؛ حتی اگر کاربر عامیانه، با غلط املایی، کوتاه یا نامرتب بنویسد.
 - منظور کاربر را از کل گفتگو استخراج کن؛ برای موضوع تکراری از اول سؤال نکن.
@@ -237,6 +282,8 @@ ${knowledge || "سؤال مستقیمی در FAQ پیدا نشد؛ از قواع
         console.error("OpenAI support request failed:", error);
       }
     }
+    if (!answer && issueContext) answer = issueContext.firstReply;
+    if (!answer && selectedFaq) answer = selectedFaq.answer;
     if (!answer && matches.length) answer = matches[0].answer;
     if (!answer) {
       answer = "می‌خوام درست راهنمایی‌ات کنم، اما برای تشخیص دقیق هنوز یک نکته کم دارم: دقیقاً در کدام صفحه یا مرحله این مشکل پیش می‌آید و چه چیزی روی صفحه می‌بینی؟ اگر متن خطا داری همان را بنویس.";
