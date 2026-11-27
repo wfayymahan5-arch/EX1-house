@@ -219,6 +219,7 @@ Deno.serve(async (req: Request) => {
   } else {
     const matches = relevantFaqs(message);
     const apiKey = Deno.env.get("OPENAI_API_KEY") ?? "";
+    let issueContext = detectSupportCase(message);
     if (apiKey) {
       const historyQuery = await admin.from("support_messages")
         .select("sender_role,body").eq("conversation_id", conversationId)
@@ -227,7 +228,7 @@ Deno.serve(async (req: Request) => {
         role: row.sender_role === "user" ? "user" : row.sender_role === "assistant" ? "assistant" : "user",
         content: String(row.body ?? "").slice(0, 3000),
       }));
-      const issueContext = detectSupportCase([...history.map((row) => row.content), message].join(" "));
+      issueContext = detectSupportCase([...history.map((row) => row.content), message].join(" ")) ?? issueContext;
       const faqContext = selectedFaq ? [selectedFaq] : matches;
       const knowledge = [
         ...(issueContext ? [`پرونده تشخیص‌داده‌شده: ${issueContext.title}\\nپاسخ اولیه پیشنهادی: ${issueContext.firstReply}\\nخلاصه برای مالک پس از دریافت مدرک: ${issueContext.ownerSummary}\\nاقدام لازم برای مالک: ${issueContext.adminAction}`] : []),
