@@ -131,7 +131,7 @@ Deno.serve(async (req: Request) => {
     const prefix = `${authData.user.id}/support/${conversationId}/`;
     if (!attachmentPath.startsWith(prefix)) return reply(403, { error: "مسیر تصویر برای این گفت‌وگو مجاز نیست." });
     const fileName = attachmentPath.slice(prefix.length);
-    if (!/^[0-9a-f-]{36}\\.(jpg|png|webp)$/i.test(fileName)) return reply(400, { error: "نام فایل تصویر معتبر نیست." });
+    if (!/^[0-9a-f-]{36}\.(jpg|png|webp)$/i.test(fileName)) return reply(400, { error: "نام فایل تصویر معتبر نیست." });
     const folder = `${authData.user.id}/support/${conversationId}`;
     const { data: storedFiles, error: storageCheckError } = await admin.storage.from("social-media").list(folder, { limit: 100, search: fileName });
     if (storageCheckError) return reply(503, { error: "بررسی فایل ارسالی انجام نشد." });
