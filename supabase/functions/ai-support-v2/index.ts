@@ -149,6 +149,13 @@ Deno.serve(async (req: Request) => {
       .eq("user_id", authData.user.id).maybeSingle();
     if (error || !conversation) return reply(404, { error: "گفت‌وگوی پشتیبانی پیدا نشد." });
     conversationWasWaitingForHuman = conversation.status === "waiting_for_human";
+    if (conversationWasWaitingForHuman) {
+      const { count: evidenceCount, error: evidenceCountError } = await admin.from("support_attachments")
+        .select("id", { count: "exact", head: true }).eq("conversation_id", conversationId);
+      if (evidenceCountError) return reply(503, { error: "وضعیت مدارک گفت‌وگو بررسی نشد؛ کمی بعد دوباره تلاش کن." });
+      // Old threads that were incorrectly escalated before evidence was submitted can return to AI triage.
+      conversationWasWaitingForHuman = (evidenceCount ?? 0) > 0;
+    }
     if (conversation.status === "closed" || conversation.status === "resolved") conversationId = "";
   }
   if (!conversationId) {
